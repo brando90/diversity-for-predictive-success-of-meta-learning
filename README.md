@@ -1,62 +1,45 @@
-# 
-
+#diversity-for-predictive-success-of-meta-learning
 
 ## Installing
 
-## Standard pip instal [Recommended]
+## Manual installation [Development, Recommended]
 
-TODO
-
-If you are going to use a gpu the do this first before continuing 
+If you are going to use a gpu then do this first before continuing 
 (or check the offical website: https://pytorch.org/get-started/locally/):
 ```angular2html
 pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
 ```
-Otherwise, just doing the follwoing should work.
-```
-pip install automl
-```
-If that worked, then you should be able to import is as follows:
-```
-import automl
-```
 
-## Manual installation [Development]
+To use library first gitclone as you'd usually do. 
 
-To use library first get the code from this repo (e.g. fork it on github):
+Then install it in development mode (python >=3.9) in (conda) virtual env:
 
 ```
-git clone git@github.com/brando90/automl-meta-learning.git
+conda create -n meta_learning python=3.9
+conda activate meta_learning
 ```
 
-Then install it in development mode in your python env with python >=3.9
-(read `modules_in_python.md` to learn about python envs in uutils).
-E.g. create your env with conda:
+Then install it in edibable mode and all it's depedencies in the current activated conda env:
 
 ```
-conda create -n metalearning python=3.9
-conda activate metalearning
-```
-
-Then install it in edibable mode and all it's depedencies with pip in the currently activated conda environment:
-
-```
-pip install -e ~/automl-meta-learning/automl-proj-src/
+pip install -e . 
 ```
 
 since the depedencies have not been written install them:
 
 ```
-pip install -e ~/ultimate-utils/ultimate-utils-proj-src
+pip install -e ~/ultimate-utils
 ```
 
-then test as followsing:
+To test that uutils install do:
 ```
 python -c "import uutils; print(uutils); uutils.hello()"
 python -c "import meta_learning; print(meta_learning)"
 python -c "import meta_learning; print(meta_learning); meta_learning.hello()"
 ```
+
 output should be something like this:
+
 ```
 (metalearning) brando~/automl-meta-learning/automl-proj-src ❯ python -c "import uutils; print(uutils); uutils.hello()"
 <module 'uutils' from '/Users/brando/ultimate-utils/ultimate-utils-proj-src/uutils/__init__.py'>
