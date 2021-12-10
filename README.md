@@ -22,6 +22,9 @@ Then you will install the rest by running
 ./install.sh
 ```
 
+You might have to do `chmod a+x install.sh` for it to run from your terminal
+to give it the right permissions. 
+
 ### Test installation
 
 To test that uutils install do:

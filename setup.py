@@ -1,6 +1,6 @@
 """
-conda create -n meta_learning python=3.9
-conda activate meta_learning
+conda create -n meta_learning_cpu python=3.9
+conda activate meta_learning_cpu
 conda remove --all --name meta_learning
 rm -rf /Users/brando/anaconda3/envs/meta_learning
 

@@ -1,5 +1,6 @@
 ## Installation script
-# to install do: bash ~/automl-meta-learning/install.sh
+# to install do: ./~/automl-meta-learning/install.sh
+# note that anything else didn't seem to work in my mac for me.
 
 conda update conda
 pip install --upgrade pip
@@ -16,6 +17,14 @@ pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f h
 pip3 install torch==1.9.1 torchvision==0.10.1 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
 pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
 
+#host_v=$(hostname)
+#if [ $host_v = vision-submit.cs.illinois.edu ]; then
+##    echo "Strings are equal."
+#  pip install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+#else
+##    echo "Strings are not equal."
+#  pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+#fi
 
 # not sure if needed but leaving here for now
 # conda install -y pyyml
@@ -25,12 +34,12 @@ pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f h
 pip install -e ~/ultimate-utils/
 pip install -e ~/ultimate-anatome/
 pip install -e ~/ultimate-aws-cv-task2vec/
-pip install -e ~/dimo-differentiable-model-optimization/
+pip install -e ~/diversity-for-predictive-success-of-meta-learning/
 
 # -- extra notes
 
 # - using conda develop rather than pip because uutils installs incompatible versions with the vision cluster
 ## python -c "import sys; [print(p) for p in sys.path]"
-conda install conda-build
-conda develop ~/ultimate-utils/ultimate-utils-proj-src
-conda develop ~/automl-meta-learning/automl-proj-src
+#conda install conda-build
+#conda develop ~/ultimate-utils/ultimate-utils-proj-src
+#conda develop -u ~/ultimate-utils/ultimate-utils-proj-src
