@@ -7,7 +7,15 @@ pip3 install --upgrade pip
 
 # DO NOT CHANGE THIS, this is needed for the vision cluster & the librarires we are using.
 # Only works with python 3.9
+# todo - would be nice to have an if statement if we are in the vision cluster...extra work, probably not worth it
+# for now the hack is to try cuda, then if fail try normal, to make sure that didn't overwrite the prev if cuda
+# succeeded try again, if it fails it won't do anything.
+# Overall install cuda if gpu available o.w. it install the normal version.
+# any other behaviour is likely unexpected.
 pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+pip3 install torch==1.9.1 torchvision==0.10.1 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+
 
 # not sure if needed but leaving here for now
 # conda install -y pyyml
