@@ -1,4 +1,9 @@
 """
+conda create -n meta_learning python=3.9
+conda activate meta_learning
+conda remove --all --name meta_learning
+rm -rf /Users/brando/anaconda3/envs/meta_learning
+
 PyTorch:
     basing the torch install from the pytorch website as of this writing: https://pytorch.org/get-started/locally/
     pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
@@ -15,7 +20,7 @@ import os
 # import pathlib
 
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(os.path.join(here, 'README.md')) as f:
     long_description = f.read()
 
 setup(
@@ -33,5 +38,11 @@ setup(
     packages=find_packages('src'),  # imports all modules/folders with  __init__.py & python files
 
     # for pytorch see doc string at the top of file
-    install_requires=[]  # see readme, we'll fill this when we release
+    install_requires=[
+        'torchmeta==1.8.0',
+        'fairseq',
+        'higher',
+
+        # 'learn2learn'  # TODO, test make sure it does not conflict
+    ]  # see readme, we'll fill this when we release
 )
