@@ -10,7 +10,8 @@ import numpy as np
 
 from types import SimpleNamespace
 
-from automl.core.operations import SPP
+from uutils.torch_uu.models.spp import SPP
+
 
 def helloworld(msg="hello"):
     print(f'hello world with mgs: {msg}')

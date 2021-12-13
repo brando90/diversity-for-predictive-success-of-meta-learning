@@ -5,24 +5,13 @@
 #
 # reference: https://gitlab.engr.illinois.edu/Vision/vision-gpu-servers/-/wikis/HTCondor-user-guide#submit-jobs
 #
-# chmod a+x test_condor.py
-# chmod a+x experiments_meta_model_optimization.py
-# chmod a+x meta_learning_experiments_submission.py
-# chmod a+x download_miniImagenet.py
-# chmod a+x ~/meta-learning-lstm-pytorch/main.py
-# chmod a+x /home/miranda9/automl-meta-learning/automl-proj-src/meta_learning/datasets/rand_fc_nn_vec_mu_ls_gen.py
-# chmod a+x /home/miranda9/automl-meta-learning/automl-proj-src/experiments/meta_learning/supervised_experiments_submission.py
-# chmod a+x /home/miranda9/automl-meta-learning/results_plots/is_rapid_learning_real.py
-# chmod a+x /home/miranda9/automl-meta-learning/test_condor.py
-# chmod a+x ~/automl-meta-learning/main_vision.sh
-#
-# chmod a+x ~/automl-meta-learning/main.sh
+# chmod a+x ~/diversity-for-predictive-success-of-meta-learning/main.sh
 # condor_submit -i
 # condor_submit job.sub
 #
 ####################
 
-Executable = /home/miranda9/automl-meta-learning/main.sh
+Executable = /home/miranda9/diversity-for-predictive-success-of-meta-learning/main.sh
 SUBMIT_FILE = main.sh
 
 # Output Files

@@ -503,7 +503,7 @@ def maml_directly_good_accumulator_simple_test(verbose=False):
 
     args.split = 'meta-train'
     args.track_higher_grads = True  # if True, during unrolled optimization the graph be retained, and the fast weights will bear grad funcs, so as to permit backpropagation through the optimization process. False during test time for efficiency reasons
-    args.copy_initial_weights = False  # if False then we train the base models initial weights (i.e. the base model's initialization)
+    args.copy_initial_weights = False  # if False then we train the base base_models initial weights (i.e. the base model's initialization)
     args.episodes = 7
     args.nb_inner_train_steps = 5
     args.outer_lr = 1e-2

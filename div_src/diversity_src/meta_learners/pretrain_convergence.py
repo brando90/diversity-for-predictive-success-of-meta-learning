@@ -194,11 +194,11 @@ def get_embedding(x: Tensor, base_model: nn.Module) -> Tensor:
     if hasattr(base_model, 'get_embedding'):
         out = base_model.get_embedding(x)
         return out
-    # for handling models with self.model.features self.model.cls format
+    # for handling base_models with self.model.features self.model.cls format
     if hasattr(base_model, 'model'):
         out = base_model.model.features(x)
         return out
-    # for handling synthetic base models
+    # for handling synthetic base base_models
     # https://discuss.pytorch.org/t/module-children-vs-module-modules/4551/3
     for name, m in base_model.named_children():
         if 'final' in name:

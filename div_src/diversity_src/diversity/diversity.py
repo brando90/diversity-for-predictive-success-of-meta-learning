@@ -9,7 +9,7 @@ Example use:
     - get 1 big (meta) batch of tasks  X e.g. [B, M, C, H, W]. Note X1=X1=X
     - get cross product of tasks we want to use to pair distance per tasks (to ultimately compute diveristy)
     - then for each pair of tasks compute distance for that task
-    - then return distances as [N, L] for each layer according to models you gave - but the recommended layer to use
+    - then return distances as [N, L] for each layer according to base_models you gave - but the recommended layer to use
     to compute diveristy is L-1 (i.e. the feature extractor laye) and the the final L.
     Using the avg of all the layers in principle should work to but usually results in too high variance to be any use
     because each layer has very different distances as we get deeper in the network.

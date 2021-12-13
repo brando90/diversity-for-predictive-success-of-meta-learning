@@ -41,5 +41,5 @@ pip install -e ~/diversity-for-predictive-success-of-meta-learning/
 # - using conda develop rather than pip because uutils installs incompatible versions with the vision cluster
 ## python -c "import sys; [print(p) for p in sys.path]"
 #conda install conda-build
-#conda develop ~/ultimate-utils/ultimate-utils-proj-src
-#conda develop -u ~/ultimate-utils/ultimate-utils-proj-src
+#conda develop ~/ultimate-utils/ultimate-utils-proj-div_src
+#conda develop -u ~/ultimate-utils/ultimate-utils-proj-div_src

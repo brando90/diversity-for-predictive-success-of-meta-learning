@@ -1,7 +1,7 @@
 #%%
 """
 2. LR(f_sl) vs MAML(f_maml) - compare predictor layers
-    - goal is to compare what the two models do at inference by emphasizing the final layer + showing the rest of the
+    - goal is to compare what the two base_models do at inference by emphasizing the final layer + showing the rest of the
     layers allows to see a pattern from the rep layer to the final layer.
 """
 from collections import OrderedDict

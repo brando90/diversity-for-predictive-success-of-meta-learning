@@ -332,7 +332,7 @@ def main_run_expt():
     args.meta_learner.args = args  # to avoid meta learner running with args only from past experiment and not with metric analysis experiment
     uutils.print_args(args)
 
-    # - set models to be used for experiments
+    # - set base_models to be used for experiments
     print(f'{args.data_path=}')
     args.mdl1 = args.meta_learner.base_model
     args.mdl2 = get_sl_learner(args)

@@ -36,8 +36,10 @@ echo OUT_FILE=$OUT_FILE
 #pip install wandb --upgrade
 
 # - run experimen
-python -u ~/automl-meta-learning/automl-proj-src/experiments/meta_learning/main_metalearning.py
+#python -u ~/automl-meta-learning/automl-proj-div_src/experiments/meta_learning/main_metalearning.py
 #python -u ~/automl-meta-learning/results_plots_sl_vs_ml/fall2021/main_dist_sl_vs_maml.py
+
+python -u ~/diversity-for-predictive-success-of-meta-learning/src/diversity_src/experiment_mains/main_metalearning.py
 echo pid = $!
 
 echo "Done with bash script (experiment or dispatched daemon experiments). "

@@ -1,5 +1,5 @@
 """
-4. Comparison of models with respect to meta-test accuracy.
+4. Comparison of base_models with respect to meta-test accuracy.
 Raw data: https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/reports/SL-vs-ML-vs-Random-via-accuracy-performance-comparison--VmlldzoxMjEzOTc4
 
 Format that pandas wants:

@@ -79,7 +79,7 @@ def main():
 
     # Create a vanilla PyTorch neural network that will be
     # automatically monkey-patched by higher later.
-    # Before higher, models could *not* be created like this
+    # Before higher, base_models could *not* be created like this
     # and the parameters needed to be manually updated and copied
     # for the updates.
     net = nn.Sequential(

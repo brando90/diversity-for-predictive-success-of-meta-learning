@@ -1,38 +1,37 @@
-##!/home/miranda9/miniconda3/envs/automl-meta-learning/bin/python
 """
-Script for meta-learning
+Main script to set up meta-learning experiments
 """
-from argparse import Namespace
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
+# import torch.optim as optim
+
 # from transformers import Adafactor
 # from transformers.optimization import AdafactorSchedule
-from transformers import Adafactor
+# from transformers import Adafactor
 
-from uutils import parse_basic_meta_learning_args_from_terminal, resume_from_checkpoint, \
-    make_args_from_metalearning_checkpoint, args_hardcoded_in_script, setup_args_for_experiment, report_times
+from uutils import resume_from_checkpoint, make_args_from_metalearning_checkpoint, args_hardcoded_in_script, \
+    setup_args_for_experiment, report_times
+from uutils.torch_uu.checkpointing_uu.meta_learning import get_model_opt_meta_learner_to_resume_checkpoint_resnets_rfs
 from uutils.torch_uu.models import _replace_bn
-from uutils.torch_uu import get_layer_names_to_do_sim_analysis_bn, get_layer_names_to_do_sim_analysis_fc, \
-    get_model_opt_meta_learner_to_resume_checkpoint_resnets_rfs
-
-from meta_learning.training.meta_training import meta_eval, meta_train_fixed_iterations
-from meta_learning.meta_learners.maml_meta_learner import MAMLMetaLearner
-from meta_learning.meta_learners.pretrain_convergence import FitFinalLayer
-
-from meta_learning.base_models.resnet_rfs import resnet12, resnet18
-from meta_learning.base_models.learner_from_opt_as_few_shot_paper import Learner
-from meta_learning.base_models.kcnn import Kcnn
-
-from meta_learning.datasets.rand_fc_nn_vec_mu_ls_gen import get_backbone
-
-import pathlib
-from pathlib import Path
-
+from uutils.torch_uu import get_layer_names_to_do_sim_analysis_fc
 from uutils.torch_uu.dataloaders import get_torchmeta_sinusoid_dataloaders, get_torchmeta_rand_fnn_dataloaders, \
     get_miniimagenet_dataloaders_torchmeta
 from uutils.torch_uu.distributed import is_lead_worker
+
+from argparse_uu.meta_learning import parse_basic_meta_learning_args_from_terminal
+
+from diversity_src.training.meta_training import meta_eval, meta_train_fixed_iterations
+from diversity_src.meta_learners.maml_meta_learner import MAMLMetaLearner
+from diversity_src.meta_learners.pretrain_convergence import FitFinalLayer
+from diversity_src.base_models.resnet_rfs import resnet12, resnet18
+from diversity_src.base_models.learner_from_opt_as_few_shot_paper import Learner
+from diversity_src.base_models.kcnn import Kcnn
+
+from argparse import Namespace
+
+import pathlib
+from pathlib import Path
 
 
 # -- Manual/hardcoded experiment
@@ -142,16 +141,16 @@ def load_args() -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'  # DO NOT UNCOMMENT
 
     # - debug args
-    # args.experiment_name = f'debug'
-    # args.run_name = f'debug (Adafactor) : {args.jobid=}'
-    # args.force_log = True
+    args.experiment_name = f'debug'
+    args.run_name = f'debug (Adafactor) : {args.jobid=}'
+    args.force_log = True
 
     # - real args
-    args.force_log = False
+    # args.force_log = False
     # args.experiment_name = f'meta-learning resnet-12-rfs training (Real)'
     # args.run_name = f'resnet-12-rsf from ckpt 668: {args.jobid=}'
-    args.experiment_name = f'meta-learning resnet-12-rfs 668 training (Real) (fairAdafactor)'
-    args.run_name = f'resnet-12-rsf from ckpt 668: {args.jobid=} (fairAdafactor)'
+    # args.experiment_name = f'meta-learning resnet-12-rfs 668 training (Real) (fairAdafactor)'
+    # args.run_name = f'resnet-12-rsf from ckpt 668: {args.jobid=} (fairAdafactor)'
 
     # - log to wandb?
     # args.log_to_wandb = False
@@ -234,95 +233,6 @@ def main_manual(args: Namespace):
         args.base_model = db['f'].to(args.device)
         # re-initialize model: https://discuss.pytorch.org/t/reinitializing-the-weights-after-each-cross-validation-fold/11034
         [layer.reset_parameters() for layer in args.base_model.children() if hasattr(layer, 'reset_parameters')]
-    elif args.base_model_mode == 'f_avg':
-        db = torch.load(str(args.data_path / args.split / 'f_avg.pt'))
-        args.base_model = db['f'].to(args.device)
-    elif args.base_model_mode == 'f_avg_add_noise':
-        db = torch.load(str(args.data_path / args.split / 'f_avg.pt'))
-        args.base_model = db['f'].to(args.device)
-        # add small noise to initial weight to break symmetry
-        print()
-        with torch.no_grad():
-            for i, w in enumerate(args.base_model.parameters()):
-                mu = torch.zeros(w.size())
-                std = w * 1.25e-2  # two decimal places and a little more
-                noise = torch.distributions.normal.Normal(loc=mu, scale=std).sample()
-                w += noise
-        print('>>> f_avg_add_noise')
-    elif 'custom_synthetic_backbone' in args.base_model_mode:
-        # - hps for backbone
-        Din, Dout = 1, 1
-        # H = 15*20  # 15 is the number of features of the target function
-        H = 15 * 4
-        # 10 layers, 9 hidden layers
-        # hidden_dim = [(Din, H), (H, H), (H, H), (H, H), (H, H), (H, H), (H, H), (H, H), (H, H), (H, Dout)]
-        # 9 layers, 8 hidden layers
-        # hidden_dim = [(Din, H), (H, H), (H, H), (H, H), (H, H), (H, H), (H, H), (H, H), (H, Dout)]
-        # 8 layers, 7 hidden layers
-        # hidden_dim = [(Din, H), (H, H), (H, H), (H, H), (H, H), (H, H), (H, H), (H, Dout)]
-        # 7 layers, 6 hidden layers
-        # hidden_dim = [(Din, H), (H, H), (H, H), (H, H), (H, H), (H, H), (H, Dout)]
-        # 6 layers, 5 hidden layers
-        # hidden_dim = [(Din, H), (H, H), (H, H), (H, H), (H, H), (H, Dout)]
-        # 5 layers, 4 hidden layers
-        # hidden_dim = [(Din, H), (H, H), (H, H), (H, H), (H, Dout)]
-        # 4 layers, 3 hidden layers
-        hidden_dim = [(Din, H), (H, H), (H, H), (H, Dout)]
-        # 3 layers, 2 hidden layers
-        # hidden_dim = [(Din, H), (H, H), (H, Dout)]
-        print(f'# of hidden layers = {len(hidden_dim) - 1}')
-        print(f'total layers = {len(hidden_dim)}')
-        section_label = [1] * (len(hidden_dim) - 1) + [2]
-        # - hps for model
-        target_f_name = 'fully_connected_NN_with_BN' if 'YES_BN' in args.base_model_mode else 'fully_connected_NN'
-        task_gen_params = {
-            'metaset_path': None,
-            'target_f_name': target_f_name,
-            'hidden_dim': hidden_dim,
-            'section_label': section_label,
-            'Din': Din, 'Dout': Dout, 'H': H
-        }
-        # - CUSTOM
-        args.base_model = get_backbone(task_gen_params)
-        # args.base_model = get_backbone(task_gen_params, act='sigmoid')
-        # - save params for generating bb
-        args.task_gen_params = task_gen_params
-    elif args.base_model_mode == 'cbfinn_sinusoid':
-        target_f_name = 'fully_connected_NN'
-        # params for backbone
-        Din, Dout = 1, 1
-        H = 40  # original cbfinn
-        # 3 layers, 2 hidden layers (origal cbfinn)
-        hidden_dim = [(Din, H), (H, H), (H, Dout)]
-        print(f'# of hidden layers = {len(hidden_dim) - 1}')
-        print(f'total layers = {len(hidden_dim)}')
-        section_label = [1] * (len(hidden_dim) - 1) + [2]
-        task_gen_params = {
-            'metaset_path': None,
-            'target_f_name': target_f_name,
-            'hidden_dim': hidden_dim,
-            'section_label': section_label,
-            'Din': Din, 'Dout': Dout, 'H': H
-        }
-        # CBFINN SINUSOID
-        args.base_model = get_backbone(task_gen_params)
-        # args.base_model = get_backbone(task_gen_params, act='sigmoid')
-        # save params for generating bb
-        args.task_gen_params = task_gen_params
-    elif type(args.base_model_mode) is pathlib.PosixPath:
-        # db = torch_uu.load(str(args.resume_ckpt_path))
-        db = torch.load(str(args.base_model_mode))
-        # meta_learner = db['meta_learner']
-        args.base_model = db['f']
-        # in case loading directly doesn't work
-        # modules = eval(db['f_modules_str'])
-        # args.base_model = torch_uu.nn.Sequential(modules)
-        # f_state_dict = db['f_state_dict']
-        # args.base_model.load_state_dict(f_state_dict)
-        print('RUNNING FROM CHECKPOINT')
-        args.logger.loginfo('RUNNING FROM CHECKPOINT')
-    else:
-        raise ValueError(f'Not Implemented: args.base_model_mode = {args.base_model_mode}')
     # GPU safety check
     args.base_model.to(args.device)  # make sure it is on GPU
     if torch.cuda.is_available():

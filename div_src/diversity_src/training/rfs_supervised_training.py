@@ -1,3 +1,8 @@
+"""
+Note: as of 2021 December 13, there was no license in the original rfs, so I added the MIT license to my fork
+and I am assuming that is the license this will go under for now until they address the gitissue already created
+in their repo.
+"""
 from tqdm import tqdm
 
 import torch
