@@ -10,7 +10,7 @@ import torch.nn as nn
 # from transformers.optimization import AdafactorSchedule
 # from transformers import Adafactor
 
-from uutils import resume_from_checkpoint, make_args_from_metalearning_checkpoint, args_hardcoded_in_script, \
+from uutils import resume_from_checkpoint, args_hardcoded_in_script, \
     setup_args_for_experiment, report_times
 from uutils.torch_uu.checkpointing_uu.meta_learning import get_model_opt_meta_learner_to_resume_checkpoint_resnets_rfs
 from uutils.torch_uu.models import _replace_bn
@@ -19,7 +19,7 @@ from uutils.torch_uu.dataloaders import get_torchmeta_sinusoid_dataloaders, get_
     get_miniimagenet_dataloaders_torchmeta
 from uutils.torch_uu.distributed import is_lead_worker
 
-from argparse_uu.meta_learning import parse_basic_meta_learning_args_from_terminal
+from uutils.argparse_uu import parse_basic_meta_learning_args_from_terminal
 
 from diversity_src.training.meta_training import meta_eval, meta_train_fixed_iterations
 from diversity_src.meta_learners.maml_meta_learner import MAMLMetaLearner
@@ -29,9 +29,6 @@ from diversity_src.base_models.learner_from_opt_as_few_shot_paper import Learner
 from diversity_src.base_models.kcnn import Kcnn
 
 from argparse import Namespace
-
-import pathlib
-from pathlib import Path
 
 
 # -- Manual/hardcoded experiment
