@@ -15,7 +15,7 @@ from uutils.torch_uu.distributed import is_lead_worker, get_model_from_ddp
 def meta_train_fixed_iterations(args: Namespace, training: bool = True):
     """
     Train using the meta-training (e.g. episodic training) over batches of tasks using a fixed number of iterations
-    assuming the the number of tasks is small i.e. one epoch is doable and not infinite/super exponential
+    assuming the number of tasks is small i.e. one epoch is doable and not infinite/super exponential
     (e.g. in regression when a task can be considered as a function).
 
     Note: if num tasks is small then we have two loops, one while we have not finished all fixed its and the other
@@ -28,7 +28,6 @@ def meta_train_fixed_iterations(args: Namespace, training: bool = True):
     args.meta_learner.train() if training else args.meta_learner.eval()
     while True:
         for batch_idx, batch in enumerate(args.dataloaders['train']):
-            args.batch_idx = batch_idx  # this is ok because args.it is it not batch_idx
             spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
 
             # - clean gradients, especially before meta-learner is ran since it uses gradients
