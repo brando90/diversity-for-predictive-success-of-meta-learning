@@ -60,7 +60,9 @@ def load_args() -> Namespace:
     """
     # -- parse args from terminal
     args: Namespace = parse_args_standard_sl()
-    args.manual_loads_name = 'cifar100_resnet12rfs'
+    args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
+    args.manual_loads_name = 'cifar100_resnet12rfs'  # <- REMOVE to remove manual loads
+    # -
     args.wandb_project = 'playground'  # needed to log to wandb properly
 
     # - debug args
