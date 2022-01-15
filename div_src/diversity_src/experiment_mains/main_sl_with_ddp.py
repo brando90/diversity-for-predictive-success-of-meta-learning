@@ -14,6 +14,8 @@ from uutils.argparse_uu.common import setup_args_for_experiment
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
 # from uutils.torch_uu.agents.common import Agent
 # from uutils.torch_uu.agents.supervised_learning import ClassificationSLAgent
+from uutils.torch_uu.agents.common import Agent
+from uutils.torch_uu.agents.supervised_learning import ClassificationSLAgent, UnionClsSLAgent
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
 from uutils.torch_uu.dataloaders.helpers import get_sl_dataloader
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
@@ -21,7 +23,10 @@ from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info
 # from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_first_time
 # from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch, train_agent_iterations, \
 #     train_agent_epochs
+from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_first_time
 from uutils.torch_uu.mains.main_sl_with_ddp import train
+from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch, train_agent_iterations, \
+    train_agent_epochs
 
 
 def manual_load_cifar100_resnet12rfs(args) -> Namespace:
@@ -116,6 +121,42 @@ def main():
         set_sharing_strategy()
         mp.spawn(fn=train, args=(args,), nprocs=args.world_size)
 
+def train(rank, args):
+    print_process_info(rank, flush=True)
+    args.rank = rank  # have each process save the rank
+    set_devices(args)  # args.device = rank or .device
+    setup_process(args, rank, master_port=args.master_port, world_size=args.world_size)
+    print(f'setup process done for rank={rank}')
+
+    # create the (ddp) model, opt & scheduler
+    get_and_create_model_opt_scheduler_first_time(args)
+    print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
+
+    # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
+    args.dataloaders: dict = get_sl_dataloader(args)
+
+    # Agent does everything, proving, training, evaluate etc.
+    agent: Agent = UnionClsSLAgent(args, args.model)
+
+    # -- Start Training Loop
+    print_dist('====> about to start train loop', args.rank)
+    if args.training_mode == 'fit_single_batch':
+        train_agent_fit_single_batch(args, agent, args.dataloaders, args.opt, args.scheduler)
+    elif 'iterations' in args.training_mode:
+        # note train code will see training mode to determine halting criterion
+        train_agent_iterations(args, agent, args.dataloaders, args.opt, args.scheduler)
+    elif 'epochs' in args.training_mode:
+        # note train code will see training mode to determine halting criterion
+        train_agent_epochs(args, agent, args.dataloaders, args.opt, args.scheduler)
+    # note: the other options do not appear directly since they are checked in
+    # the halting condition.
+    else:
+        raise ValueError(f'Invalid training_mode value, got: {args.training_mode}')
+
+    # -- Clean Up Distributed Processes
+    print(f'\n----> about to cleanup worker with rank {rank}')
+    cleanup(rank)
+    print(f'clean up done successfully! {rank}')
 
 # -- Run experiment
 
