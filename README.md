@@ -83,6 +83,13 @@ module load cuda-toolkit/11.1
 
 to make sure your main script is run
 
+# Data
+
+For the SL experiments we used the rfs repo's data: https://github.com/WangYueFt/rfs
+For the meta-learning experiment we used:
+- torchmeta's data: https://github.com/tristandeleu/pytorch-meta
+- TODO: hope to use learn2learn for distriuted meta-training: https://learn2learn.net/
+
 # Contributions
 
 Place reusable code in src in the appropriate place (use your judgement).
