@@ -46,8 +46,8 @@ def manual_load_cifar100_resnet12rfs(args) -> Namespace:
     args.model_option = 'resnet12_rfs'
 
     # - data
-    # args.path_to_data_set = Path('~/data/miniImageNet_rfs/miniImageNet/').expanduser()
-    args.path_to_data_set = Path('~/data/CIFAR-FS/').expanduser()
+    args.path_to_data_set = Path('~/data/miniImageNet_rfs/miniImageNet/').expanduser()
+    # args.path_to_data_set = Path('~/data/CIFAR-FS/').expanduser()
 
     # - opt
     # args.opt_option = 'AdafactorDefaultFair'
@@ -137,6 +137,7 @@ def train(rank, args):
 
     # Agent does everything, proving, training, evaluate etc.
     agent: Agent = UnionClsSLAgent(args, args.model)
+    args.agent = agent
 
     # -- Start Training Loop
     print_dist('====> about to start train loop', args.rank)
