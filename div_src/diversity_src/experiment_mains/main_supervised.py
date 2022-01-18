@@ -302,7 +302,6 @@ def main(args):
         # args.grad_clip_mode = 'clip_all_together'
         # args.grad_clip_mode = 'clip_all_seperately'
         raise ValueError('Meta-lstm not impemented')
-        raise ValueError('Meta-lstm not impemented')
     elif args.meta_learner == "FitFinalLayer":
         meta_learner = FitFinalLayer(args, args.base_model)
         args.inner_opt_name = 'PFF'

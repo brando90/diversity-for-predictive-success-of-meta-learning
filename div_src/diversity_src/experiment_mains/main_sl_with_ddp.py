@@ -41,9 +41,9 @@ def manual_load_cifar100_resnet12rfs(args) -> Namespace:
         advantage.
     """
     from pathlib import Path
-
     # - model
-    args.model_option = 'resnet12_rfs'
+    # args.model_option = 'resnet12_rfs'
+    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
 
     # - data
     args.path_to_data_set = Path('~/data/miniImageNet_rfs/miniImageNet/').expanduser()
@@ -52,21 +52,20 @@ def manual_load_cifar100_resnet12rfs(args) -> Namespace:
     # - opt
     # args.opt_option = 'AdafactorDefaultFair'
 
-    #
+    # - training mode
+    args.training_mode = 'fit_single_batch'
+    # args.training_mode = 'iterations'
+    # args.training_mode = 'epochs'
+    # args.training_mode = 'iterations_train_convergence'
     # args.training_mode = 'epochs_train_convergence'
-    return args
 
+    # args.num_epochs = 100
+    # args.num_its = 10_000
 
-def load_args() -> Namespace:
-    """
-    1. parse args from user's terminal
-    2. optionally set remaining args values (e.g. manually, hardcoded, from ckpt etc.)
-    3. setup remaining args small details from previous values (e.g. 1 and 2).
-    """
-    # -- parse args from terminal
-    args: Namespace = parse_args_standard_sl()
-    args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'cifar100_resnet12rfs'  # <- REMOVE to remove manual loads
+    # -
+    # args.debug = True
+    args.debug = False
+
     # -
     args.wandb_project = 'playground'  # needed to log to wandb properly
 
@@ -83,6 +82,19 @@ def load_args() -> Namespace:
     # args.force_log = False
     # args.log_to_wandb = True
     # #args.log_to_wandb = False
+    return args
+
+
+def load_args() -> Namespace:
+    """
+    1. parse args from user's terminal
+    2. optionally set remaining args values (e.g. manually, hardcoded, from ckpt etc.)
+    3. setup remaining args small details from previous values (e.g. 1 and 2).
+    """
+    # -- parse args from terminal
+    args: Namespace = parse_args_standard_sl()
+    args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
+    args.manual_loads_name = 'cifar100_resnet12rfs'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
