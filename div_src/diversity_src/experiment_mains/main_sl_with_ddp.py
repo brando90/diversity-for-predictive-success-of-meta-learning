@@ -42,7 +42,8 @@ def manual_load_cifar100_resnet12rfs(args) -> Namespace:
     """
     from pathlib import Path
     # - model
-    args.model_option = 'resnet12_rfs'
+    # args.model_option = 'resnet12_rfs_mi'
+    args.model_option = 'resnet12_rfs_cifarfs_fc100'
     # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
 
     # - data
