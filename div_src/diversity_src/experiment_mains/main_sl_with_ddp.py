@@ -42,12 +42,12 @@ def manual_load_cifar100_resnet12rfs(args) -> Namespace:
     """
     from pathlib import Path
     # - model
-    # args.model_option = 'resnet12_rfs'
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = 'resnet12_rfs'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
 
     # - data
-    args.path_to_data_set = Path('~/data/miniImageNet_rfs/miniImageNet/').expanduser()
-    # args.path_to_data_set = Path('~/data/CIFAR-FS/').expanduser()
+    # args.path_to_data_set = Path('~/data/miniImageNet_rfs/miniImageNet/').expanduser()
+    args.path_to_data_set = Path('~/data/CIFAR-FS/').expanduser()
 
     # - opt
     # args.opt_option = 'AdafactorDefaultFair'
