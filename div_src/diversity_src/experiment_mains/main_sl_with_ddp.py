@@ -31,7 +31,7 @@ from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_
 
 from pdb import set_trace as st
 
-def manual_load_cifar100_resnet12rfs(args: Namespace) -> Namespace:
+def manual_load_cifarfs_resnet12rfs(args: Namespace) -> Namespace:
     """
     goal:
         - model: resnet12-rfs
@@ -59,9 +59,9 @@ def manual_load_cifar100_resnet12rfs(args: Namespace) -> Namespace:
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
 
     # - training mode
-    args.training_mode = 'fit_single_batch'
+    # args.training_mode = 'fit_single_batch'
     # args.training_mode = 'iterations'
-    # args.training_mode = 'epochs'
+    args.training_mode = 'epochs'
     # args.training_mode = 'iterations_train_convergence'
     # args.training_mode = 'epochs_train_convergence'
 
@@ -81,8 +81,8 @@ def manual_load_cifar100_resnet12rfs(args: Namespace) -> Namespace:
     # args.run_name = f'debug (Adafactor) : {args.jobid=}'
     # args.run_name = f'debug: {args.jobid=}'
     args.run_name = f'adam brando default lr=1e-4 : {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
     return args
 
 
@@ -102,9 +102,9 @@ def load_args() -> Namespace:
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
     elif args_hardcoded_in_script(args):
         if args.manual_loads_name == 'resnet12_rfs_cifarfs':
-            args: Namespace = manual_load_cifar100_resnet12rfs(args)
+            args: Namespace = manual_load_cifarfs_resnet12rfs(args)
         else:
-            raise NotImplementedError
+            raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
         # NOP: since we are using args from terminal
         pass
