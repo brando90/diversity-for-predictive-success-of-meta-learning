@@ -11,7 +11,7 @@ from argparse import Namespace
 
 from uutils import args_hardcoded_in_script, report_times
 from uutils.argparse_uu.common import setup_args_for_experiment
-from uutils.argparse_uu.meta_learning import parse_args_meta_learning
+from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
@@ -20,9 +20,11 @@ from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info
     print_dist
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler
 from uutils.torch_uu.mains.main_sl_with_ddp import train
+from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
 from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations
 
 from pdb import set_trace as st
+
 
 def manual_load_cifarfs_resnet12rfs_maml(args: Namespace) -> Namespace:
     """
@@ -42,23 +44,20 @@ def manual_load_cifarfs_resnet12rfs_maml(args: Namespace) -> Namespace:
     # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
 
     # - data
-    # args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet/').expanduser()
-    # args.data_path = Path('~/data/CIFAR-FS/').expanduser()
     # args.data_option = 'torchmeta_miniimagenet'
     args.data_option = 'torchmeta_cifarfs'
     args.data_path = Path('~/data/').expanduser()
 
     # - opt
-    # args.opt_option = 'AdafactorDefaultFair'
-    args.opt_option = 'Adam_rfs_cifarfs'
-    # args.scheduler_option = 'AdafactorDefaultFair'
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.opt_option = 'AdafactorDefaultFair'
+    args.scheduler_option = 'AdafactorSchedule'
+
+    # args.opt_option = 'Adam_rfs_cifarfs'
+    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
 
     # - training mode
     args.training_mode = 'iterations'
-    # args.training_mode = 'epochs'
 
-    # args.num_epochs = 100
     # args.num_its = 60_000  # 60K iterations for original maml 5CNN
     args.num_its = 600_000
 
@@ -74,23 +73,23 @@ def manual_load_cifarfs_resnet12rfs_maml(args: Namespace) -> Namespace:
     args.track_higher_grads = True  # set to false only during meta-testing, but code sets it automatically only for meta-test
     args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
     args.fo = True  # True, dissallows flow of higher order grad while still letting params track gradients.
-    # - pff
-    # args.meta_learner_name = 'FitFinalLayer'
 
     # - outer trainer params
-    args.outer_lr = 1e-5
+    # args.lr = 1e-5
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     # args.experiment_name = f'debug'
-    args.experiment_name = f'cifarfs resnet12_rfs'
-    # args.run_name = f'debug (Adafactor) : {args.jobid=}'
+    args.experiment_name = f'cifarfs resnet12_rfs maml'
     # args.run_name = f'debug: {args.jobid=}'
-    args.run_name = f'adam brando default lr=1e-4 : {args.jobid=}'
+    args.run_name = f'{args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
     return args
 
 
@@ -143,6 +142,7 @@ def main():
         set_sharing_strategy()
         mp.spawn(fn=train, args=(args,), nprocs=args.world_size)
 
+
 def train(rank, args):
     print_process_info(rank, flush=True)
     args.rank = rank  # have each process save the rank
@@ -157,8 +157,8 @@ def train(rank, args):
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
     args.dataloaders: dict = get_meta_learning_dataloader(args)
 
-    # Agent does everything, proving, training, evaluate etc.
-    agent: Agent = UnionClsSLAgent(args, args.model)
+    # Agent does everything, proving, training, evaluate, meta-learnering, etc.
+    agent = MAMLMetaLearner(args, args.model)
     args.agent = agent
 
     # -- Start Training Loop
@@ -181,6 +181,7 @@ def train(rank, args):
     print(f'\n----> about to cleanup worker with rank {rank}')
     cleanup(rank)
     print(f'clean up done successfully! {rank}')
+
 
 # -- Run experiment
 

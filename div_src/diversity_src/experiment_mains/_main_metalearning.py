@@ -22,8 +22,8 @@ from uutils.torch_uu.distributed import is_lead_worker
 from uutils.argparse_uu import parse_basic_meta_learning_args_from_terminal
 
 from diversity_src.training.meta_training import meta_eval, meta_train_fixed_iterations
-from diversity_src.meta_learners.maml_meta_learner import MAMLMetaLearner
-from diversity_src.meta_learners.pretrain_convergence import FitFinalLayer
+from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
+from uutils.torch_uu.meta_learners.pretrain_convergence import FitFinalLayer
 from diversity_src.base_models.resnet_rfs import resnet12, resnet18
 from diversity_src.base_models.learner_from_opt_as_few_shot_paper import Learner
 from diversity_src.base_models.kcnn import Kcnn

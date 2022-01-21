@@ -31,6 +31,45 @@ from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_
 
 from pdb import set_trace as st
 
+
+def manual_load_cifarfs_resnet12rfs_train_until_convergence(args: Namespace) -> Namespace:
+    """
+    goal:
+        - model: resnet12-rfs
+        - Opt: ?
+
+    Note:
+        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
+        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
+        advantage.
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = 'resnet12_rfs_cifarfs_fc100'
+
+    # - data
+    args.path_to_data_set = Path('~/data/CIFAR-FS/').expanduser()
+
+    # - opt
+    args.opt_option = 'AdafactorDefaultFair'
+    args.scheduler_option = 'AdafactorSchedule'
+    args.training_mode = 'epochs_train_convergence'
+    # args.training_mode = 'fit_single_batch'
+
+    # -
+    # args.debug = True
+    args.debug = False
+
+    # - wandb args
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'cifarfs resnet12_rfs'
+    args.run_name = f'adam brando default : {args.jobid=} {args.training_mode} {args.opt_option} {args.scheduler_option}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
 def manual_load_cifarfs_resnet12rfs(args: Namespace) -> Namespace:
     """
     goal:
@@ -53,19 +92,22 @@ def manual_load_cifarfs_resnet12rfs(args: Namespace) -> Namespace:
     args.path_to_data_set = Path('~/data/CIFAR-FS/').expanduser()
 
     # - opt
-    # args.opt_option = 'AdafactorDefaultFair'
-    args.opt_option = 'Adam_rfs_cifarfs'
-    # args.scheduler_option = 'AdafactorDefaultFair'
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    # args.scheduler_option = 'None'
+
+    args.opt_option = 'AdafactorDefaultFair'
+    args.scheduler_option = 'AdafactorSchedule'
+
+    # args.opt_option = 'Adam_rfs_cifarfs'
+    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
 
     # - training mode
     # args.training_mode = 'fit_single_batch'
     # args.training_mode = 'iterations'
-    args.training_mode = 'epochs'
+    # args.training_mode = 'epochs'
     # args.training_mode = 'iterations_train_convergence'
-    # args.training_mode = 'epochs_train_convergence'
+    args.training_mode = 'epochs_train_convergence'
 
-    args.num_epochs = 100
+    # args.num_epochs = 100
     # args.num_its = 10_000
 
     # -
@@ -77,10 +119,10 @@ def manual_load_cifarfs_resnet12rfs(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     # args.experiment_name = f'debug'
-    args.experiment_name = f'cifarfs resnet12_rfs'
+    args.experiment_name = f'cifarfs resnet12_rfs sl'
     # args.run_name = f'debug (Adafactor) : {args.jobid=}'
     # args.run_name = f'debug: {args.jobid=}'
-    args.run_name = f'adam brando default lr=1e-4 : {args.jobid=}'
+    args.run_name = f'adam brando default lr=1e-4 : {args.jobid=} {args.training_mode}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -95,7 +137,8 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_standard_sl()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'resnet12_rfs_cifarfs'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'resnet12_rfs_cifarfs'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_train_until_convergence'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
@@ -103,6 +146,8 @@ def load_args() -> Namespace:
     elif args_hardcoded_in_script(args):
         if args.manual_loads_name == 'resnet12_rfs_cifarfs':
             args: Namespace = manual_load_cifarfs_resnet12rfs(args)
+        elif args.manual_loads_name == 'manual_load_cifarfs_resnet12rfs_train_until_convergence':
+            args: Namespace = manual_load_cifarfs_resnet12rfs_train_until_convergence(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
@@ -133,6 +178,7 @@ def main():
         # args.world_size = mp.cpu_count() - 1  # 1 process is main, the rest are (parallel) trainers
         set_sharing_strategy()
         mp.spawn(fn=train, args=(args,), nprocs=args.world_size)
+
 
 def train(rank, args):
     print_process_info(rank, flush=True)
@@ -171,6 +217,7 @@ def train(rank, args):
     print(f'\n----> about to cleanup worker with rank {rank}')
     cleanup(rank)
     print(f'clean up done successfully! {rank}')
+
 
 # -- Run experiment
 
