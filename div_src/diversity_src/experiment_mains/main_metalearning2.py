@@ -25,6 +25,73 @@ from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations
 
 from pdb import set_trace as st
 
+from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch
+
+
+def manual_load_mi_resnet12rfs_maml(args: Namespace) -> Namespace:
+    """
+    goal:
+        - model: resnet12-rfs
+        - Opt: ?
+
+    Note:
+        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
+        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
+        advantage.
+    """
+    from pathlib import Path
+    # - model
+    # args.model_option = 'resnet12_rfs_mi'
+    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+    # - data
+    args.data_option = 'torchmeta_miniimagenet'
+    args.data_path = Path('~/data/').expanduser()
+
+    # - opt
+    args.opt_option = 'AdafactorDefaultFair'
+    args.scheduler_option = 'AdafactorSchedule'
+
+    # - training mode
+    args.training_mode = 'iterations'
+    # args.training_mode = 'fit_single_batch'
+
+    # args.num_its = 60_000  # 60K iterations for original maml 5CNN
+    args.num_its = 600_000
+
+    # -
+    args.debug = True
+    # args.debug = False
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1
+    args.nb_inner_train_steps = 5
+    args.track_higher_grads = True  # set to false only during meta-testing, but code sets it automatically only for meta-test
+    args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
+    args.fo = True  # True, dissallows flow of higher order grad while still letting params track gradients.
+
+    # - outer trainer params
+    # args.lr = 1e-5
+    args.batch_size = 2
+    args.batch_size = 2
+
+    # -- wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    # args.experiment_name = f'debug'
+    args.experiment_name = f'cifarfs resnet12_rfs maml'
+    # args.run_name = f'debug: {args.jobid=}'
+    args.run_name = f'{args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
 
 def manual_load_cifarfs_resnet12rfs_maml(args: Namespace) -> Namespace:
     """
@@ -62,8 +129,8 @@ def manual_load_cifarfs_resnet12rfs_maml(args: Namespace) -> Namespace:
     args.num_its = 600_000
 
     # -
-    # args.debug = True
-    args.debug = False
+    args.debug = True
+    # args.debug = False
 
     # -- Meta-Learner
     # - maml
@@ -76,6 +143,8 @@ def manual_load_cifarfs_resnet12rfs_maml(args: Namespace) -> Namespace:
 
     # - outer trainer params
     # args.lr = 1e-5
+    args.batch_size = 2
+    args.batch_size = 2
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
@@ -103,14 +172,17 @@ def load_args() -> Namespace:
     # args: Namespace = parse_args_standard_sl()
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'resnet12_rfs_cifarfs_maml'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml'  # <- REMOVE to remove manual loads
+    args.manual_loads_name = 'manual_load_mi_resnet12rfs_maml'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
     elif args_hardcoded_in_script(args):
-        if args.manual_loads_name == 'resnet12_rfs_cifarfs_maml':
+        if args.manual_loads_name == 'manual_load_cifarfs_resnet12rfs_maml':
             args: Namespace = manual_load_cifarfs_resnet12rfs_maml(args)
+        elif args.manual_loads_name == 'manual_load_mi_resnet12rfs_maml':
+            args: Namespace = manual_load_mi_resnet12rfs_maml(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
@@ -158,20 +230,19 @@ def train(rank, args):
     args.dataloaders: dict = get_meta_learning_dataloader(args)
 
     # Agent does everything, proving, training, evaluate, meta-learnering, etc.
-    agent = MAMLMetaLearner(args, args.model)
-    args.agent = agent
+    args.agent = MAMLMetaLearner(args, args.model)
+    args.meta_learner = args.agent
 
     # -- Start Training Loop
     print_dist('====> about to start train loop', args.rank)
     if args.training_mode == 'fit_single_batch':
-        # train_agent_fit_single_meta_batch(args, agent, args.dataloaders, args.opt, args.scheduler)  not implemented
+        # train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)  not implemented
         raise NotImplementedError
     elif 'iterations' in args.training_mode:
-        meta_train_fixed_iterations(args, agent, args.dataloaders, args.opt, args.scheduler)
+        meta_train_fixed_iterations(args, args.agent, args.dataloaders, args.opt, args.scheduler)
         # note train code will see training mode to determine halting criterion
         # meta_train_iterations(args, agent, args.dataloaders, args.opt, args.scheduler) not implemented
     elif 'epochs' in args.training_mode:
-        # note traindd code will see training mode to determine halting criterion
         # meta_train_epochs(args, agent, args.dataloaders, args.opt, args.scheduler) not implemented
         raise NotImplementedError
     else:

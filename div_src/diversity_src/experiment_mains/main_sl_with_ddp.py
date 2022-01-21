@@ -195,19 +195,18 @@ def train(rank, args):
     args.dataloaders: dict = get_sl_dataloader(args)
 
     # Agent does everything, proving, training, evaluate etc.
-    agent: Agent = UnionClsSLAgent(args, args.model)
-    args.agent = agent
+    args.agent: Agent = UnionClsSLAgent(args, args.model)
 
     # -- Start Training Loop
     print_dist('====> about to start train loop', args.rank)
     if args.training_mode == 'fit_single_batch':
-        train_agent_fit_single_batch(args, agent, args.dataloaders, args.opt, args.scheduler)
+        train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     elif 'iterations' in args.training_mode:
         # note train code will see training mode to determine halting criterion
-        train_agent_iterations(args, agent, args.dataloaders, args.opt, args.scheduler)
+        train_agent_iterations(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     elif 'epochs' in args.training_mode:
         # note train code will see training mode to determine halting criterion
-        train_agent_epochs(args, agent, args.dataloaders, args.opt, args.scheduler)
+        train_agent_epochs(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     # note: the other options do not appear directly since they are checked in
     # the halting condition.
     else:

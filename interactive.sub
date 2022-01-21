@@ -3,6 +3,7 @@ requirements = (CUDADeviceName != "Tesla K40m")
 # requirements = (CUDADeviceName == "Quadro RTX 6000")
 # requirements = (CUDADeviceName == "Titan Xp")
 # requirements = (CUDADeviceName == "A40")
+# requirements = (CUDADeviceName == "A40") || (CUDADeviceName == "Quadro RTX 6000")
 
 # Request_cpus = 32
 Request_cpus = 4
