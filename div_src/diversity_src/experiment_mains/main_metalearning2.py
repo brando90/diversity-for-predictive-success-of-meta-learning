@@ -41,8 +41,8 @@ def manual_load_mi_resnet12rfs_maml(args: Namespace) -> Namespace:
     """
     from pathlib import Path
     # - model
-    # args.model_option = 'resnet12_rfs_mi'
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = 'resnet12_rfs_mi'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
 
     # - data
     args.data_option = 'torchmeta_miniimagenet'
@@ -85,8 +85,8 @@ def manual_load_mi_resnet12rfs_maml(args: Namespace) -> Namespace:
     args.experiment_name = f'cifarfs resnet12_rfs maml'
     # args.run_name = f'debug: {args.jobid=}'
     args.run_name = f'{args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -111,16 +111,12 @@ def manual_load_cifarfs_resnet12rfs_maml(args: Namespace) -> Namespace:
     # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
 
     # - data
-    # args.data_option = 'torchmeta_miniimagenet'
     args.data_option = 'torchmeta_cifarfs'
     args.data_path = Path('~/data/').expanduser()
 
     # - opt
     args.opt_option = 'AdafactorDefaultFair'
     args.scheduler_option = 'AdafactorSchedule'
-
-    # args.opt_option = 'Adam_rfs_cifarfs'
-    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
 
     # - training mode
     args.training_mode = 'iterations'
@@ -129,8 +125,8 @@ def manual_load_cifarfs_resnet12rfs_maml(args: Namespace) -> Namespace:
     args.num_its = 600_000
 
     # -
-    args.debug = True
-    # args.debug = False
+    # args.debug = True
+    args.debug = False
 
     # -- Meta-Learner
     # - maml
@@ -143,7 +139,7 @@ def manual_load_cifarfs_resnet12rfs_maml(args: Namespace) -> Namespace:
 
     # - outer trainer params
     # args.lr = 1e-5
-    args.batch_size = 2
+    args.batch_size = 4
     args.batch_size = 2
 
     # -- wandb args
@@ -153,9 +149,9 @@ def manual_load_cifarfs_resnet12rfs_maml(args: Namespace) -> Namespace:
     # args.experiment_name = f'debug'
     args.experiment_name = f'cifarfs resnet12_rfs maml'
     # args.run_name = f'debug: {args.jobid=}'
-    args.run_name = f'{args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -173,7 +169,7 @@ def load_args() -> Namespace:
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml'  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'manual_load_mi_resnet12rfs_maml'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'manual_load_mi_resnet12rfs_maml'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
