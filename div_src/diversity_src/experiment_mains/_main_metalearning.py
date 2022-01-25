@@ -26,7 +26,7 @@ from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
 from uutils.torch_uu.meta_learners.pretrain_convergence import FitFinalLayer
 from diversity_src.base_models.resnet_rfs import resnet12, resnet18
 from diversity_src.base_models.learner_from_opt_as_few_shot_paper import Learner
-from diversity_src.base_models.kcnn import Kcnn
+from uutils.torch_uu.models.kcnn import Kcnn
 
 from argparse import Namespace
 

@@ -32,7 +32,7 @@ from meta_learning.diversity.diversity import diversity, \
     compute_diversity_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks
 from meta_learning.meta_learners.pretrain_convergence import FitFinalLayer
 from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal
-from uutils.torch_uu.dataloaders import get_torchmeta_sinusoid_dataloaders, get_miniimagenet_dataloaders_torchmeta
+from uutils.torch_uu.dataloaders.meta_learning.torchmeta_ml_dataloaders import get_miniimagenet_dataloaders_torchmeta
 from uutils.torch_uu.distributed import is_lead_worker
 from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import get_maml_inner_optimizer, \
     dist_batch_tasks_for_all_layer_mdl_vs_adapted_mdl, meta_eval_no_context_manager, \
@@ -44,17 +44,6 @@ from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import get_all_la
 from pdb import set_trace as st
 
 start = time.time()
-
-
-# def get_args_for_maml_acc_test(args: Namespace, new_model: nn.Module):
-#     del args.tb
-#     del args.logger
-#     # args_ = deepcopy(args)
-#     args_ = copy(args)
-#     # del args_.mdl1
-#     # del args_.mdl2
-#     # del args_.mdl_rand
-#     return args_
 
 
 def test_meta_learner(args):
@@ -400,7 +389,8 @@ def main_run_expt():
             # - compute diversity
             div_mu, div_std, distances_for_task_pairs = diversity(
                 f1=args.mdl_for_dv, f2=args.mdl_for_dv, X1=qry_x, X2=qry_x,
-                layer_names1=args.layer_names, layer_names2=args.layer_names, num_tasks_to_consider=args.num_tasks_to_consider)
+                layer_names1=args.layer_names, layer_names2=args.layer_names,
+                num_tasks_to_consider=args.num_tasks_to_consider)
             print(f'{div_mu, div_std, distances_for_task_pairs=}')
 
             # -- print results
@@ -416,7 +406,8 @@ def main_run_expt():
             print(f'----entire net result:\n  {mu=}, {std=}\n')
 
             print('-- sim results')
-            div_mu, div_std = compute_stats_from_distance_per_batch_of_data_sets_per_layer(distances_for_task_pairs, dist2sim=True)
+            div_mu, div_std = compute_stats_from_distance_per_batch_of_data_sets_per_layer(distances_for_task_pairs,
+                                                                                           dist2sim=True)
             pprint_results(div_mu, div_std)
             mu, std = compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks(
                 distances_for_task_pairs, dist2sim=True)
