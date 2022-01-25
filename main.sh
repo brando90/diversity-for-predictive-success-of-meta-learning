@@ -41,6 +41,8 @@ echo OUT_FILE=$OUT_FILE
 
 # python -u ~/diversity-for-predictive-success-of-meta-learning/src/diversity_src/experiment_mains/_main_metalearning.py
 
+
+# - need code
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name resnet12_rfs_cifarfs
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_metalearning2.py --manual_loads_name manual_load_mi_resnet12rfs_maml
 

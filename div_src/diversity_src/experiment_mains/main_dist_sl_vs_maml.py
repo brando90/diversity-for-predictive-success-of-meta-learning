@@ -31,7 +31,6 @@ import time
 from meta_learning.diversity.diversity import diversity, \
     compute_diversity_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks
 from meta_learning.meta_learners.pretrain_convergence import FitFinalLayer
-from meta_learning.training.meta_training import meta_eval
 from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal
 from uutils.torch_uu.dataloaders import get_torchmeta_sinusoid_dataloaders, get_miniimagenet_dataloaders_torchmeta
 from uutils.torch_uu.distributed import is_lead_worker
@@ -81,18 +80,10 @@ def santity_check_maml_accuracy(args: Namespace):
     Checks that maml0 acc is lower than adapted maml and returns the good maml's test, train loss and accuracy.
     """
     # - good maml with proper adaptaiton
-    print('-- sanity check (with accuracies & losses)')
     print(f'{args.meta_learner.lr_inner=}')
-    eval_loss, eval_acc, _, _ = meta_eval(args, save_val_ckpt=False)
+    eval_loss, eval_acc, _, _ = meta_eval_no_context_manager(args, split='val', training=True, save_val_ckpt=False)
     print(f'{eval_loss=}, {eval_acc=}')
 
-    print(f'{args.meta_learner.lr_inner=}')
-    eval_loss_sanity, eval_acc_santiy, _, _ = meta_eval_no_context_manager(args, split='val', training=True,
-                                                                           save_val_ckpt=False)
-    print(f'{eval_loss_sanity=}, {eval_acc_santiy=}')
-    assert approx_equal(eval_acc_santiy, eval_acc, tolerance=0.1), f'Accs should be very similar btw eval strategies ' \
-                                                                   f'but they are not instead have: ' \
-                                                                   f'{eval_acc_santiy=}, {eval_acc=}.'
     # - with no adaptation
     original_lr_inner = args.meta_learner.lr_inner
     args.meta_learner.lr_inner = 0
@@ -104,11 +95,6 @@ def santity_check_maml_accuracy(args: Namespace):
                                       f'{eval_acc_maml0=}, {eval_acc=}'
     args.meta_learner.lr_inner = original_lr_inner
     print(f'{args.meta_learner.lr_inner=} [should be restored lr_inner]')
-    # - with adaption on train
-    # print(f'{args.meta_learner.lr_inner=}')
-    # train_loss, train_acc = meta_eval(args, save_val_ckpt=False, split='train')
-    # print(f'{train_loss=}, {train_acc=}')
-    # return eval_loss, eval_acc, train_loss, train_acc
 
 
 def get_recommended_batch_size_miniimagenet_5CNN(safety_margin: int = 10):

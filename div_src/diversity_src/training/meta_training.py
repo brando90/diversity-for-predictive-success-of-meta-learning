@@ -37,6 +37,7 @@
 #             train_loss, train_acc, train_loss_std, train_acc_std = args.meta_learner(spt_x, spt_y, qry_x, qry_y)
 #
 #             # - outer_opt step
+#             train_loss.backward()
 #             gradient_clip(args, args.outer_opt)  # do gradient clipping: * If ‖g‖ ≥ c Then g := c * g/‖g‖
 #             args.outer_opt.step()
 #

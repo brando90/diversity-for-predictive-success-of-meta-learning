@@ -45,16 +45,15 @@ import random
 from pprint import pprint
 from typing import Optional
 
-import torch
 from torch import Tensor, nn
 
 from anatome.helper import LayerIdentifier, dist_data_set_per_layer, _dists_per_task_per_layer_to_list, \
     compute_stats_from_distance_per_batch_of_data_sets_per_layer
 from uutils.torch_uu import tensorify, process_meta_batch
-from uutils.torch_uu.dataloaders import get_miniimagenet_dataloaders_torchmeta, \
+from uutils.torch_uu.dataloaders.meta_learning.torchmeta_ml_dataloaders import get_miniimagenet_dataloaders_torchmeta, \
     get_minimum_args_for_torchmeta_mini_imagenet_dataloader
 from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import get_default_learner, \
-    get_feature_extractor_conv_layers, get_last_two_layers
+    get_feature_extractor_conv_layers, get_last_two_layerss
 
 
 # get_distances_for_task_pair = dist_data_set_per_layer
