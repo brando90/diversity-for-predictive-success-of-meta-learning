@@ -22,15 +22,17 @@ from torch import Tensor, nn
 
 from anatome.helper import compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks, pprint_results, \
     compute_stats_from_distance_per_batch_of_data_sets_per_layer, LayerIdentifier, dist_batch_data_sets_for_all_layer
-from meta_learning.datasets.dataloader_helper import get_randfnn_dataloader
 
 import uutils
 
 import time
 
-from meta_learning.diversity.diversity import diversity, \
-    compute_diversity_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks
-from meta_learning.meta_learners.pretrain_convergence import FitFinalLayer
+# from meta_learning.diversity.diversity import diversity
+
+# from meta_learning.meta_learners.pretrain_convergence import FitFinalLayer
+from diversity_src.diversity.diversity import diversity
+from uutils.torch_uu.meta_learners.pretrain_convergence import FitFinalLayer
+
 from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal
 from uutils.torch_uu.dataloaders.meta_learning.torchmeta_ml_dataloaders import get_miniimagenet_dataloaders_torchmeta
 from uutils.torch_uu.distributed import is_lead_worker
@@ -207,10 +209,15 @@ def get_args_for_experiment() -> Namespace:
     args.k_eval = get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin=args.safety_margin)
 
     # -- checkpoints SL & MAML
+    # 5CNN
     # ####ckpt_filename = 'ckpt_file_best_loss.pt'  # idk if the they have the same acc for this one, the goal is to minimize diffs so that only SL & MAML is the one causing the difference
-    path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
-    path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
+    # path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
+    # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
     # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-17-50_jobid_13_pid_177628/'
+
+    # resnet12rfs
+    path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
+    path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT'
 
     # - path2checkpoint_file
     ckpt_filename_sl = 'ckpt_file.pt'  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
@@ -262,11 +269,7 @@ def get_dataloader(args: Namespace) -> dict:
         dataloaders = {'train': meta_train_dataloader, 'val': meta_val_dataloader, 'test': meta_test_dataloader}
     """
     print(f'{args.data_path=}')
-    if 'sinusoid' in str(args.data_path):
-        dataloaders: dict = get_torchmeta_sinusoid_dataloaders(args)
-    elif 'fully_connected' in str(args.data_path):
-        dataloaders: dict = get_randfnn_dataloader(args)
-    elif 'miniimagenet' in str(args.data_path):
+    if 'miniimagenet' in str(args.data_path):
         args.meta_learner.classification()
         args.training_mode = 'iterations'
         # args.k_eval = 100

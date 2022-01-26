@@ -53,7 +53,7 @@ from uutils.torch_uu import tensorify, process_meta_batch
 from uutils.torch_uu.dataloaders.meta_learning.torchmeta_ml_dataloaders import get_miniimagenet_dataloaders_torchmeta, \
     get_minimum_args_for_torchmeta_mini_imagenet_dataloader
 from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import get_default_learner, \
-    get_feature_extractor_conv_layers, get_last_two_layerss
+    get_feature_extractor_conv_layers, get_last_two_layers
 
 
 # get_distances_for_task_pair = dist_data_set_per_layer
