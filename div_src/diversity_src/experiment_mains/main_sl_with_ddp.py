@@ -127,14 +127,13 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_standard_sl()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'resnet12_rfs_cifarfs'  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_train_until_convergence'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
     elif args_hardcoded_in_script(args):
-        if args.manual_loads_name == 'resnet12_rfs_cifarfs':
+        if args.manual_loads_name == 'manual_load_cifarfs_resnet12rfs':
             args: Namespace = manual_load_cifarfs_resnet12rfs(args)
         elif args.manual_loads_name == 'manual_load_cifarfs_resnet12rfs_train_until_convergence':
             args: Namespace = manual_load_cifarfs_resnet12rfs_train_until_convergence(args)
