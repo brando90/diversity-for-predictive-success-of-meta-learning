@@ -53,6 +53,8 @@ def manual_load_cifarfs_resnet12rfs_train_until_convergence(args: Namespace) -> 
     # - opt
     args.opt_option = 'AdafactorDefaultFair'
     args.scheduler_option = 'AdafactorSchedule'
+
+    # - training mode
     args.training_mode = 'epochs_train_convergence'
     # args.training_mode = 'fit_single_batch'
 
@@ -63,8 +65,8 @@ def manual_load_cifarfs_resnet12rfs_train_until_convergence(args: Namespace) -> 
     # - wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'cifarfs resnet12_rfs'
-    args.run_name = f'adam brando default : {args.jobid=} {args.training_mode} {args.opt_option} {args.scheduler_option}'
+    args.experiment_name = f'cifarfs resnet12_rfs (train until convergence)'
+    args.run_name = f'{args.jobid=} {args.training_mode} {args.opt_option} {args.scheduler_option}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -83,32 +85,20 @@ def manual_load_cifarfs_resnet12rfs(args: Namespace) -> Namespace:
     """
     from pathlib import Path
     # - model
-    # args.model_option = 'resnet12_rfs_mi'
     args.model_option = 'resnet12_rfs_cifarfs_fc100'
-    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
 
     # - data
-    # args.path_to_data_set = Path('~/data/miniImageNet_rfs/miniImageNet/').expanduser()
     args.path_to_data_set = Path('~/data/CIFAR-FS/').expanduser()
 
     # - opt
-    # args.scheduler_option = 'None'
-
-    args.opt_option = 'AdafactorDefaultFair'
-    args.scheduler_option = 'AdafactorSchedule'
-
-    # args.opt_option = 'Adam_rfs_cifarfs'
-    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs_sl'
 
     # - training mode
+    args.training_mode = 'epochs'
     # args.training_mode = 'fit_single_batch'
-    # args.training_mode = 'iterations'
-    # args.training_mode = 'epochs'
-    # args.training_mode = 'iterations_train_convergence'
-    args.training_mode = 'epochs_train_convergence'
 
-    # args.num_epochs = 100
-    # args.num_its = 10_000
+    args.num_epochs = 100
 
     # -
     # args.debug = True
@@ -122,7 +112,7 @@ def manual_load_cifarfs_resnet12rfs(args: Namespace) -> Namespace:
     args.experiment_name = f'cifarfs resnet12_rfs sl'
     # args.run_name = f'debug (Adafactor) : {args.jobid=}'
     # args.run_name = f'debug: {args.jobid=}'
-    args.run_name = f'adam brando default lr=1e-4 : {args.jobid=} {args.training_mode}'
+    args.run_name = f'lr=1e-4 : {args.jobid=} {args.training_mode}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args

@@ -33,8 +33,8 @@ pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f h
 
 pip install -e ~/ultimate-utils/
 pip install -e ~/ultimate-anatome/
-pip install -e ~/ultimate-aws-cv-task2vec/
 pip install -e ~/diversity-for-predictive-success-of-meta-learning/
+pip install -e ~/ultimate-aws-cv-task2vec/
 
 # -- extra notes
 
@@ -43,3 +43,9 @@ pip install -e ~/diversity-for-predictive-success-of-meta-learning/
 #conda install conda-build
 #conda develop ~/ultimate-utils/ultimate-utils-proj-div_src
 #conda develop -u ~/ultimate-utils/ultimate-utils-proj-div_src
+
+
+# -- a100 notes
+#conda create -n meta_learning_a100 python=3.9
+#conda activate meta_learning_a100
+# the above installation seems to work

@@ -35,18 +35,19 @@ echo OUT_FILE=$OUT_FILE
 
 #pip install wandb --upgrade
 
-# - run experimen
+# - run experiment
 #python -u ~/automl-meta-learning/automl-proj-div_src/experiments/meta_learning/_main_metalearning.py
 #python -u ~/automl-meta-learning/results_plots_sl_vs_ml/fall2021/main_dist_sl_vs_maml.py
 
 # python -u ~/diversity-for-predictive-success-of-meta-learning/src/diversity_src/experiment_mains/_main_metalearning.py
 
 
-# - need code
+# - new code
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name resnet12_rfs_cifarfs
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name manual_load_cifarfs_resnet12rfs_train_until_convergence
+
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_metalearning2.py --manual_loads_name manual_load_mi_resnet12rfs_maml
 
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_metalearning2.py --manual_loads_name manual_load_cifarfs_resnet12rfs_maml
 echo pid = $!
 
 echo "Done with bash script (experiment or dispatched daemon experiments). "

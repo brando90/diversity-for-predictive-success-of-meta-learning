@@ -30,26 +30,28 @@ to give it the right permissions.
 To test that uutils install do:
 ```
 python -c "import uutils; print(uutils); uutils.hello()"
-python -c "import meta_learning; print(meta_learning)"
-python -c "import meta_learning; print(meta_learning); meta_learning.hello()"
 ```
-
 output should be something like this:
-
 ```
-(metalearning) brando~/automl-meta-learning/automl-proj-src ❯ python -c "import uutils; print(uutils); uutils.hello()"
-<module 'uutils' from '/Users/brando/ultimate-utils/ultimate-utils-proj-src/uutils/__init__.py'>
+(meta_learning_a100) [miranda9@hal-dgx diversity-for-predictive-success-of-meta-learning]$ python -c "import uutils; print(uutils); uutils.hello()"
+<module 'uutils' from '/home/miranda9/ultimate-utils/ultimate-utils-proj-src/uutils/__init__.py'>
 
 hello from uutils __init__.py in:
-<module 'uutils' from '/Users/brando/ultimate-utils/ultimate-utils-proj-src/uutils/__init__.py'>
+<module 'uutils' from '/home/miranda9/ultimate-utils/ultimate-utils-proj-src/uutils/__init__.py'>
+```
 
-(metalearning) brando~/automl-meta-learning/automl-proj-src ❯ python -c "import meta_learning; print(meta_learning)"
-<module 'meta_learning' from '/Users/brando/automl-meta-learning/automl-proj-src/meta_learning/__init__.py'>
-(metalearning) brando~/automl-meta-learning/automl-proj-src ❯ python -c "import meta_learning; print(meta_learning); meta_learning.hello()"
-<module 'meta_learning' from '/Users/brando/automl-meta-learning/automl-proj-src/meta_learning/__init__.py'>
 
-hello from torch_uu __init__.py in:
-<module 'uutils.torch_uu' from '/Users/brando/ultimate-utils/ultimate-utils-proj-src/uutils/torch_uu/__init__.py'>
+GPU TEST: To test if pytorch works with gpu do (it should fail if no gpus are available):
+```
+python -c "import uutils; uutils.torch_uu.gpu_test()"
+```
+output should be something like this:
+```
+(meta_learning_a100) [miranda9@hal-dgx diversity-for-predictive-success-of-meta-learning]$ python -c "import uutils; uutils.torch_uu.gpu_test()"
+device name: A100-SXM4-40GB
+Success, no Cuda errors means it worked see:
+out=tensor([[ 0.5877],
+        [-3.0269]], device='cuda:0')
 ```
 
 ### Appendix for Installation
