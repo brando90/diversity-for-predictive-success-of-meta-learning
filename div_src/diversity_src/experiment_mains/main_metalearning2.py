@@ -33,7 +33,8 @@ def manual_load_mi_resnet12rfs_maml(args: Namespace) -> Namespace:
     """
     from pathlib import Path
     # - model
-    args.model_option = 'resnet12_rfs_mi'
+    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    # args.model_option = 'resnet12_rfs_mi'
 
     # - data
     args.data_option = 'torchmeta_miniimagenet'
@@ -57,13 +58,15 @@ def manual_load_mi_resnet12rfs_maml(args: Namespace) -> Namespace:
     args.meta_learner_name = 'maml_fixed_inner_lr'
     args.inner_lr = 1e-1
     args.nb_inner_train_steps = 5
-    args.track_higher_grads = True  # set to false only during meta-testing, but code sets it automatically only for meta-test
+    # args.track_higher_grads = True  # set to false only during meta-testing, but code sets it automatically only for meta-test
+    args.track_higher_grads = False  # set to false only during meta-testing, but code sets it automatically only for meta-test
     args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
-    args.fo = True  # True, dissallows flow of higher order grad while still letting params track gradients.
+    # args.fo = True  # True, dissallows flow of higher order grad while still letting params track gradients.
+    args.fo = False  # True, dissallows flow of higher order grad while still letting params track gradients.
 
     # - outer trainer params
     # args.lr = 1e-5
-    args.batch_size = 8
+    args.batch_size = 4
     args.batch_size = 2
 
     # -- wandb args
@@ -74,8 +77,8 @@ def manual_load_mi_resnet12rfs_maml(args: Namespace) -> Namespace:
     args.experiment_name = f'cifarfs resnet12_rfs maml'
     # args.run_name = f'debug: {args.jobid=}'
     args.run_name = f'{args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -247,8 +250,8 @@ def manual_load_cifarfs_resnet12rfs_maml_official_correct_fo_adam_no_scheduler(a
     args.experiment_name = f'cifarfs resnet12_rfs official fo maml adam, no scheduler'
     # args.run_name = f'debug: {args.jobid=}'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -265,7 +268,7 @@ def load_args() -> Namespace:
     # args: Namespace = parse_args_standard_sl()
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml_official_correct_fo_adam_no_scheduler'  # <- REMOVE to remove manual loads
+    args.manual_loads_name = 'manual_load_mi_resnet12rfs_maml'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
