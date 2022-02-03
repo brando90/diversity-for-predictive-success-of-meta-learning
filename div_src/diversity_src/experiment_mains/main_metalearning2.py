@@ -18,7 +18,7 @@ from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
     print_dist
-from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler
+from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
 from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations
@@ -203,7 +203,7 @@ def manual_load_cifarfs_resnet12rfs_maml_unofficial_fo(args: Namespace) -> Names
     return args
 
 
-def manual_load_cifarfs_resnet12rfs_maml_ho(args: Namespace) -> Namespace:
+def manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing(args: Namespace) -> Namespace:
     """
     """
     from pathlib import Path
@@ -213,10 +213,6 @@ def manual_load_cifarfs_resnet12rfs_maml_ho(args: Namespace) -> Namespace:
     # - data
     args.data_option = 'torchmeta_cifarfs'
     args.data_path = Path('~/data/').expanduser()
-
-    # - opt
-    args.opt_option = 'AdafactorDefaultFair'
-    args.scheduler_option = 'AdafactorSchedule'
 
     # - training mode
     args.training_mode = 'iterations'
@@ -228,6 +224,17 @@ def manual_load_cifarfs_resnet12rfs_maml_ho(args: Namespace) -> Namespace:
     # args.debug = True
     args.debug = False
 
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 2_000
+    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    args.eta_min = 1e-5  # match MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+
     # -- Meta-Learner
     # - maml
     args.meta_learner_name = 'maml_fixed_inner_lr'
@@ -238,7 +245,6 @@ def manual_load_cifarfs_resnet12rfs_maml_ho(args: Namespace) -> Namespace:
     args.fo = False  # True, disallows flow of higher order grad while still letting params track gradients.
 
     # - outer trainer params
-    # args.lr = 1e-5
     args.batch_size = 4
     args.batch_size = 2
 
@@ -247,7 +253,7 @@ def manual_load_cifarfs_resnet12rfs_maml_ho(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     # args.experiment_name = f'debug'
-    args.experiment_name = f'cifarfs resnet12_rfs unofficial fo maml'
+    args.experiment_name = f'manual_load_cifarfs_resnet12rfs_maml_ho'
     # args.run_name = f'debug: {args.jobid=}'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
@@ -323,7 +329,7 @@ def load_args() -> Namespace:
     # args: Namespace = parse_args_standard_sl()
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'manual_load_mi_resnet12rfs_maml'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
@@ -337,8 +343,8 @@ def load_args() -> Namespace:
             args: Namespace = manual_load_cifarfs_resnet12rfs_maml_unofficial_fo(args)
         elif args.manual_loads_name == 'manual_load_cifarfs_resnet12rfs_maml_official_correct_fo_adam_no_scheduler':
             args = manual_load_cifarfs_resnet12rfs_maml_official_correct_fo_adam_no_scheduler(args)
-        elif args.manual_loads_name == 'manual_load_cifarfs_resnet12rfs_maml_ho':
-            args = manual_load_cifarfs_resnet12rfs_maml_ho(args)
+        elif args.manual_loads_name == 'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing':
+            args = manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
@@ -379,7 +385,7 @@ def train(rank, args):
     print(f'setup process done for rank={rank}')
 
     # create the (ddp) model, opt & scheduler
-    get_and_create_model_opt_scheduler(args)
+    get_and_create_model_opt_scheduler_for_run(args)
     print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
 
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task

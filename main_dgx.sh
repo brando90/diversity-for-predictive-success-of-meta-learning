@@ -34,7 +34,7 @@ echo ---- Running your python main ----
 export OUT_FILE=$PWD/main.sh.o$SLURM_JOBID
 ##python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_metalearning2.py --manual_loads_name manual_load_cifarfs_resnet12rfs_maml_official_correct_fo > $OUT_FILE &
 ##python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_metalearning2.py --manual_loads_name manual_load_cifarfs_resnet12rfs_maml_official_correct_fo_adam_no_scheduler > $OUT_FILE &
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_metalearning2.py --manual_loads_name manual_load_cifarfs_resnet12rfs_maml_ho > $OUT_FILE &
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_metalearning2.py --manual_loads_name manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing > $OUT_FILE &
 echo pid = $!
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 echo SLURM_JOBID = $SLURM_JOBID

@@ -26,7 +26,7 @@ from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
     print_dist
-from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler
+from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
 from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations
