@@ -1,8 +1,8 @@
 """
-conda create -n meta_learning_cpu python=3.9
-conda activate meta_learning_cpu
-conda remove --all --name meta_learning_cpu
-rm -rf /Users/brando/anaconda3/envs/meta_learning_cpu
+conda create -n meta_learning_cpu2 python=3.9
+conda activate meta_learning_cpu2
+conda remove --all --name meta_learning_cpu2
+rm -rf /Users/brando/anaconda3/envs/meta_learning_cpu2
 
 conda create -n meta_learning_gpu python=3.9
 conda activate meta_learning_gpu
@@ -54,10 +54,13 @@ setup(
     # for pytorch see doc string at the top of file
     install_requires=[
         'torchmeta==1.8.0',
-        'fairseq',
         'higher',
-        'wandb'
 
-        # 'learn2learn'  # TODO, test make sure it does not conflict
+        'wandb',
+
+        'learn2learn',
+        'cherry-rl',
+
+        # 'fairseq',
     ]  # see readme, we'll fill this when we release
 )

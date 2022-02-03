@@ -6,6 +6,8 @@ conda update conda
 pip install --upgrade pip
 pip3 install --upgrade pip
 
+pip install -U wandb
+
 # DO NOT CHANGE THIS, this is needed for the vision cluster & the librarires we are using.
 # Only works with python 3.9
 # todo - would be nice to have an if statement if we are in the vision cluster...extra work, probably not worth it
@@ -34,6 +36,7 @@ pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f h
 pip install -e ~/ultimate-utils/
 pip install -e ~/ultimate-anatome/
 pip install -e ~/diversity-for-predictive-success-of-meta-learning/
+
 pip install -e ~/ultimate-aws-cv-task2vec/
 
 # -- extra notes
