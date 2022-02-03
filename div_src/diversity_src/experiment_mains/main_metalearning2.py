@@ -21,11 +21,134 @@ from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
-from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations
+from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations, meta_train_agent_fit_single_batch
 
 from pdb import set_trace as st
 
 from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch
+
+
+def manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing_fit_one_batch(args: Namespace) -> Namespace:
+    """
+    """
+    from pathlib import Path
+    # - model
+    # args.model_option = 'resnet12_rfs_cifarfs_fc100'
+    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+    # - data
+    args.data_option = 'torchmeta_miniimagenet'
+    args.data_path = Path('~/data/').expanduser()
+
+    # - training mode
+    args.training_mode = 'meta_train_agent_fit_single_batch'
+
+    # note: 60K iterations for original maml 5CNN with adam
+    args.num_its = 800_000
+
+    # - debug flag
+    args.debug = True
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+
+    args.scheduler_option = 'None'
+    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    # args.log_scheduler_freq = 2_000
+    # args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    # args.eta_min = 1e-5  # match MAML++
+    # args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1
+    args.nb_inner_train_steps = 5
+    args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
+    args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
+    args.fo = False  # True, disallows flow of higher order grad while still letting params track gradients.
+
+    # - outer trainer params
+    args.batch_size = 4
+    args.batch_size = 2
+
+    # -- wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    # args.experiment_name = f'debug'
+    args.experiment_name = f'manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing_fit_one_batch'
+    # args.run_name = f'debug: {args.jobid=}'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+def manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing(args: Namespace) -> Namespace:
+    """
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = 'resnet12_rfs_cifarfs_fc100'
+
+    # - data
+    args.data_option = 'torchmeta_miniimagenet'
+    args.data_path = Path('~/data/').expanduser()
+
+    # - training mode
+    args.training_mode = 'iterations'
+
+    # note: 60K iterations for original maml 5CNN with adam
+    args.num_its = 800_000
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 2_000
+    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    args.eta_min = 1e-5  # match MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1
+    args.nb_inner_train_steps = 5
+    args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
+    args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
+    args.fo = False  # True, disallows flow of higher order grad while still letting params track gradients.
+
+    # - outer trainer params
+    args.batch_size = 4
+    args.batch_size = 2
+
+    # -- wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    # args.experiment_name = f'debug'
+    args.experiment_name = f'manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing'
+    # args.run_name = f'debug: {args.jobid=}'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
 
 
 def manual_load_mi_resnet12rfs_maml(args: Namespace) -> Namespace:
@@ -33,8 +156,8 @@ def manual_load_mi_resnet12rfs_maml(args: Namespace) -> Namespace:
     """
     from pathlib import Path
     # - model
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
-    # args.model_option = 'resnet12_rfs_mi'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = 'resnet12_rfs_mi'
 
     # - data
     args.data_option = 'torchmeta_miniimagenet'
@@ -253,7 +376,7 @@ def manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing(args: N
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     # args.experiment_name = f'debug'
-    args.experiment_name = f'manual_load_cifarfs_resnet12rfs_maml_ho'
+    args.experiment_name = f'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing'
     # args.run_name = f'debug: {args.jobid=}'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
@@ -329,7 +452,7 @@ def load_args() -> Namespace:
     # args: Namespace = parse_args_standard_sl()
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing'  # <- REMOVE to remove manual loads
+    args.manual_loads_name = 'manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing_fit_one_batch'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
@@ -345,6 +468,10 @@ def load_args() -> Namespace:
             args = manual_load_cifarfs_resnet12rfs_maml_official_correct_fo_adam_no_scheduler(args)
         elif args.manual_loads_name == 'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing':
             args = manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing(args)
+        elif args.manual_loads_name == 'manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing':
+            args = manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing(args)
+        elif args.manual_loads_name == 'manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing_fit_one_batch':
+            args = manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing_fit_one_batch(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
@@ -397,9 +524,8 @@ def train(rank, args):
 
     # -- Start Training Loop
     print_dist('====> about to start train loop', args.rank)
-    if args.training_mode == 'fit_single_batch':
-        # train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)  not implemented
-        raise NotImplementedError
+    if args.training_mode == 'meta_train_agent_fit_single_batch':
+        meta_train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     elif 'iterations' in args.training_mode:
         meta_train_fixed_iterations(args, args.agent, args.dataloaders, args.opt, args.scheduler)
         # note train code will see training mode to determine halting criterion
