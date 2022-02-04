@@ -1,8 +1,5 @@
 """
 Main script to set up supervised learning experiments
-
-python -m torch.distributed.run --nproc_per_node=1 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py
-python -m torch.distributed.run --nproc_per_node=2 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py
 """
 import os
 
@@ -42,8 +39,8 @@ def l2l_resnet12rfs_cifarfs_adam_cl(args: Namespace) -> Namespace:
     """
     from pathlib import Path
     # - model
-    args.model_option = 'resnet12_rfs_cifarfs_fc100'
-    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    # args.model_option = 'resnet12_rfs_cifarfs_fc100'
+    args.model_option = '4CNN_l2l_cifarfs'
 
     # - data
     args.data_option = 'cifarfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
@@ -100,9 +97,10 @@ python -m torch.distributed.run --nproc_per_node=1 ~/diversity-for-predictive-su
 python -m torch.distributed.run --nproc_per_node=2 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py
     """
     # args.world_size = torch.cuda.device_count()
-    args.world_size = 2
-    args.parallel = args.world_size >= 2
+    args.world_size = 1
+    args.parallel = True
     args.seed = 42  # I think this might be important due to how tasksets works.
+    args.dist_option = 'l2l_dist'
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -144,7 +142,6 @@ def main():
     """
     # - load the args from either terminal, ckpt, manual etc.
     args: Namespace = load_args()
-    # [print(f'{k, v}') for k, v in vars(args).items()]
 
     # - parallel train
     if not args.parallel:  # serial
@@ -158,7 +155,7 @@ def main():
 
 
 def train(args):
-    ## set_sharing_strategy()
+    # # set_sharing_strategy()
     local_rank: int = int(os.environ["LOCAL_RANK"])
     print(f'{local_rank=}')
     setup_process_l2l(args, local_rank=local_rank, world_size=args.world_size)
@@ -167,52 +164,36 @@ def train(args):
     set_devices_and_seed_ala_l2l(args)  # args.device = rank or .device
     print(f'setup process done for rank={rank}')
 
-    # WORLD_SIZE = 2
-    #
-    # import os
-    # local_rank = int(os.environ["LOCAL_RANK"])
-    # print(f'{local_rank=}\n')
-    #
-    # torch.distributed.init_process_group(
-    #     'gloo',
-    #     init_method=None,
-    #     rank=local_rank,
-    #     world_size=WORLD_SIZE,
-    # )
-    #
-    # rank = torch.distributed.get_rank()
-    # print(f'{rank=}\n')
+    # create the model, opt & scheduler
+    get_and_create_model_opt_scheduler_for_run(args)
+    args.opt = move_opt_to_cherry_opt_and_sync_params(args)
+    print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
 
-    # # create the (ddp) model, opt & scheduler
-    # get_and_create_model_opt_scheduler_for_run(args)
-    # args.opt = move_opt_to_cherry_opt_and_sync_params(args)
-    # print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
-    #
-    # # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
-    # args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
-    # args.args.dataloader = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
-    #
-    # # Agent does everything, proving, training, evaluate, meta-learnering, etc.
-    # args.agent = MAMLMetaLearnerL2L(args, args.model)
-    # args.meta_learner = args.agent
-    #
-    # # -- Start Training Loop
-    # print_dist('====> about to start train loop', args.rank)
-    # if args.training_mode == 'meta_train_agent_fit_single_batch':
-    #     # meta_train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
-    #     raise NotImplementedError
-    # elif 'iterations' in args.training_mode:
-    #     meta_train_iterations_ala_l2l(args, args.agent, args.dataloaders, args.opt, args.scheduler)
-    # elif 'epochs' in args.training_mode:
-    #     # meta_train_epochs(args, agent, args.dataloaders, args.opt, args.scheduler) not implemented
-    #     raise NotImplementedError
-    # else:
-    #     raise ValueError(f'Invalid training_mode value, got: {args.training_mode}')
-    #
-    # # -- Clean Up Distributed Processes
-    # print(f'\n----> about to cleanup worker with rank {rank}')
-    # cleanup(rank)
-    # print(f'clean up done successfully! {rank}')
+    # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
+    args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
+    args.dataloaders = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
+
+    # Agent does everything, proving, training, evaluate, meta-learnering, etc.
+    args.agent = MAMLMetaLearnerL2L(args, args.model)
+    args.meta_learner = args.agent
+
+    # -- Start Training Loop
+    print_dist('====> about to start train loop', args.rank)
+    if args.training_mode == 'meta_train_agent_fit_single_batch':
+        # meta_train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
+        raise NotImplementedError
+    elif 'iterations' in args.training_mode:
+        meta_train_iterations_ala_l2l(args, args.agent, args.opt, args.scheduler)
+    elif 'epochs' in args.training_mode:
+        # meta_train_epochs(args, agent, args.dataloaders, args.opt, args.scheduler) not implemented
+        raise NotImplementedError
+    else:
+        raise ValueError(f'Invalid training_mode value, got: {args.training_mode}')
+
+    # -- Clean Up Distributed Processes
+    print(f'\n----> about to cleanup worker with rank {rank}')
+    cleanup(rank)
+    print(f'clean up done successfully! {rank}')
 
 
 # -- Run experiment
