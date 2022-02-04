@@ -72,7 +72,7 @@ def manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing_fit_one_batc
 
     # - outer trainer params
     args.batch_size = 4
-    args.batch_size = 2
+    args.batch_size_eval = 2
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
@@ -133,7 +133,7 @@ def manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing(args: Namesp
 
     # - outer trainer params
     args.batch_size = 4
-    args.batch_size = 2
+    args.batch_size_eval = 2
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
@@ -190,7 +190,7 @@ def manual_load_mi_resnet12rfs_maml(args: Namespace) -> Namespace:
     # - outer trainer params
     # args.lr = 1e-5
     args.batch_size = 4
-    args.batch_size = 2
+    args.batch_size_eval = 2
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
@@ -245,7 +245,7 @@ def manual_load_cifarfs_resnet12rfs_maml_official_correct_fo(args: Namespace) ->
     # - outer trainer params
     # args.lr = 1e-5
     args.batch_size = 8
-    args.batch_size = 2
+    args.batch_size_eval = 2
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
@@ -308,7 +308,7 @@ def manual_load_cifarfs_resnet12rfs_maml_unofficial_fo(args: Namespace) -> Names
     # - outer trainer params
     # args.lr = 1e-5
     args.batch_size = 8
-    args.batch_size = 2
+    args.batch_size_eval = 2
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
@@ -369,7 +369,7 @@ def manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing(args: N
 
     # - outer trainer params
     args.batch_size = 4
-    args.batch_size = 2
+    args.batch_size_eval = 2
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
@@ -424,7 +424,7 @@ def manual_load_cifarfs_resnet12rfs_maml_official_correct_fo_adam_no_scheduler(a
     # - outer trainer params
     # args.lr = 1e-5
     args.batch_size = 4
-    args.batch_size = 2
+    args.batch_size_eval = 2
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly

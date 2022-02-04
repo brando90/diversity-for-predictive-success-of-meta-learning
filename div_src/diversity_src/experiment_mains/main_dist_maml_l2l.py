@@ -26,7 +26,8 @@ from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner, MAMLMetaLearnerL2L
-from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations, meta_train_agent_fit_single_batch
+from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations, meta_train_agent_fit_single_batch, \
+    meta_train_iterations_ala_l2l
 
 from pdb import set_trace as st
 
@@ -174,7 +175,7 @@ def train(rank, args):
         # meta_train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
         raise NotImplementedError
     elif 'iterations' in args.training_mode:
-        meta_train_fixed_iterations(args, args.agent, args.dataloaders, args.opt, args.scheduler)
+        meta_train_iterations_ala_l2l(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     elif 'epochs' in args.training_mode:
         # meta_train_epochs(args, agent, args.dataloaders, args.opt, args.scheduler) not implemented
         raise NotImplementedError
