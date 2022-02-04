@@ -1,5 +1,7 @@
 """
 Main script to set up supervised learning experiments
+
+python -m torch.distributed.launch --nproc_per_node=1 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py
 """
 import os
 
@@ -163,7 +165,8 @@ def train(rank, args):
     print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
 
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
-    args.dataloaders: BenchmarkTasksets = get_l2l_tasksets(args)
+    args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
+    args.args.dataloader = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
 
     # Agent does everything, proving, training, evaluate, meta-learnering, etc.
     args.agent = MAMLMetaLearnerL2L(args, args.model)
