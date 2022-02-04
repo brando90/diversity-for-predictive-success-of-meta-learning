@@ -25,7 +25,7 @@ from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
-    print_dist, move_opt_to_cherry_opt_and_sync_params, set_devices_and_seed_ala_l2l
+    print_dist, move_opt_to_cherry_opt_and_sync_params, set_devices_and_seed_ala_l2l, setup_process_l2l
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner, MAMLMetaLearnerL2L
@@ -158,14 +158,30 @@ def main():
 
 
 def train(args):
-    # set_sharing_strategy()
+    ## set_sharing_strategy()
     local_rank: int = int(os.environ["LOCAL_RANK"])
     print(f'{local_rank=}')
-    setup_process(args, rank=local_rank, master_port=args.master_port, world_size=args.world_size)
+    setup_process_l2l(args, local_rank=local_rank, world_size=args.world_size)
     rank: int = torch.distributed.get_rank()
     args.rank = rank  # have each process save the rank
     set_devices_and_seed_ala_l2l(args)  # args.device = rank or .device
     print(f'setup process done for rank={rank}')
+
+    # WORLD_SIZE = 2
+    #
+    # import os
+    # local_rank = int(os.environ["LOCAL_RANK"])
+    # print(f'{local_rank=}\n')
+    #
+    # torch.distributed.init_process_group(
+    #     'gloo',
+    #     init_method=None,
+    #     rank=local_rank,
+    #     world_size=WORLD_SIZE,
+    # )
+    #
+    # rank = torch.distributed.get_rank()
+    # print(f'{rank=}\n')
 
     # # create the (ddp) model, opt & scheduler
     # get_and_create_model_opt_scheduler_for_run(args)
