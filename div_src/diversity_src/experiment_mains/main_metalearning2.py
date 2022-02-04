@@ -500,7 +500,7 @@ def main():
         print(f"{torch.cuda.device_count()=}")
         args.world_size = torch.cuda.device_count()
         # args.world_size = mp.cpu_count() - 1  # 1 process is main, the rest are (parallel) trainers
-        set_sharing_strategy()
+        # set_sharing_strategy()
         mp.spawn(fn=train, args=(args,), nprocs=args.world_size)
 
 
