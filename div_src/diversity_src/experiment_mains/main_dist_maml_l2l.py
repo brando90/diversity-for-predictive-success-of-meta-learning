@@ -14,7 +14,7 @@ from argparse import Namespace
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 
 from uutils import args_hardcoded_in_script, report_times
-from uutils.argparse_uu.common import setup_args_for_experiment
+from uutils.argparse_uu.common import setup_args_for_experiment, setup_wandb
 from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
 from uutils.torch_uu.agents.common import Agent
@@ -22,7 +22,7 @@ from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
-    print_dist, move_opt_to_cherry_opt_and_sync_params, set_devices_and_seed_ala_l2l, setup_process_l2l
+    print_dist, move_opt_to_cherry_opt_and_sync_params, set_devices_and_seed_ala_l2l, init_process_group_l2l, is_lead_worker
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner, MAMLMetaLearnerL2L
@@ -34,7 +34,7 @@ from pdb import set_trace as st
 from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch
 
 
-def l2l_resnet12rfs_cifarfs_adam_cl(args: Namespace) -> Namespace:
+def l2l_resnet12rfs_cifarfs_adam_cl_80k(args: Namespace) -> Namespace:
     """
     """
     from pathlib import Path
@@ -50,7 +50,7 @@ def l2l_resnet12rfs_cifarfs_adam_cl(args: Namespace) -> Namespace:
     args.training_mode = 'iterations'
 
     # note: 60K iterations for original maml 5CNN with adam
-    args.num_its = 600_000
+    args.num_its = 80_000
 
     # - debug flag
     # args.debug = True
@@ -78,7 +78,7 @@ def l2l_resnet12rfs_cifarfs_adam_cl(args: Namespace) -> Namespace:
     args.first_order = False
 
     # - outer trainer params
-    args.batch_size = 16
+    args.batch_size = 32
     args.batch_size = 8
 
     # - dist args
@@ -93,6 +93,8 @@ python -m torch.distributed.run --nproc_per_node=8 ~/diversity-for-predictive-su
     args.parallel = True
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'
+    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
 
     # -
     args.log_freq = 500
@@ -102,11 +104,11 @@ python -m torch.distributed.run --nproc_per_node=8 ~/diversity-for-predictive-su
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     # args.experiment_name = f'debug'
-    args.experiment_name = f'manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing_fit_one_batch'
+    args.experiment_name = f'l2l_resnet12rfs_cifarfs_adam_cl_80k'
     # args.run_name = f'debug: {args.jobid=}'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -120,17 +122,17 @@ def load_args() -> Namespace:
     3. setup remaining args small details from previous values (e.g. 1 and 2).
     """
     # -- parse args from terminal
-    # args: Namespace = parse_args_standard_sl()
+    args: Namespace = parse_args_standard_sl()
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'l2l_resnet12rfs_cifarfs_adam_cl'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'l2l_resnet12rfs_cifarfs_adam_cl_80k'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
     elif args_hardcoded_in_script(args):
-        if args.manual_loads_name == 'l2l_resnet12rfs_cifarfs_adam_cl':
-            args: Namespace = l2l_resnet12rfs_cifarfs_adam_cl(args)
+        if args.manual_loads_name == 'l2l_resnet12rfs_cifarfs_adam_cl_80k':
+            args: Namespace = l2l_resnet12rfs_cifarfs_adam_cl_80k(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
@@ -164,11 +166,14 @@ def train(args):
     # # set_sharing_strategy()
     local_rank: int = int(os.environ["LOCAL_RANK"])
     print(f'{local_rank=}')
-    setup_process_l2l(args, local_rank=local_rank, world_size=args.world_size)
+    init_process_group_l2l(args, local_rank=local_rank, world_size=args.world_size, init_method=args.init_method)
     rank: int = torch.distributed.get_rank()
     args.rank = rank  # have each process save the rank
     set_devices_and_seed_ala_l2l(args)  # args.device = rank or .device
     print(f'setup process done for rank={rank}')
+
+    # - set up wandb only for the lead process
+    setup_wandb(args) if is_lead_worker(args.rank) else None
 
     # create the model, opt & scheduler
     get_and_create_model_opt_scheduler_for_run(args)

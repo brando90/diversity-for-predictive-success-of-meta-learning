@@ -35,7 +35,14 @@ export OUT_FILE=$PWD/main.sh.o$SLURM_JOBID
 ##python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_metalearning2.py --manual_loads_name manual_load_cifarfs_resnet12rfs_maml_official_correct_fo > $OUT_FILE &
 ##python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_metalearning2.py --manual_loads_name manual_load_cifarfs_resnet12rfs_maml_official_correct_fo_adam_no_scheduler > $OUT_FILE &
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_metalearning2.py --manual_loads_name manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing > $OUT_FILE &
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_metalearning2.py --manual_loads_name manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing > $OUT_FILE &
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_metalearning2.py --manual_loads_name manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing > $OUT_FILE &
+
+python -m torch.distributed.run --nproc_per_node=8 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_cifarfs_adam_cl_80k > $OUT_FILE &
+
+#python -m torch.distributed.run --nproc_per_node=8 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_cifarfs_adam_cl_80k --init_method 'tcp://localhost:10001' > $OUT_FILE &
+#python -m torch.distributed.run --nproc_per_node=8 --master_addr="127.0.0.1" --master_port=$RANDOM ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_cifarfs_adam_cl_80k > $OUT_FILE &
+
+#python -m torch.distributed.run --nproc_per_node=8 --master_addr="127.0.0.1" --master_port=$RANDOM ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_cifarfs_adam_cl_80k
 echo pid = $!
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 echo SLURM_JOBID = $SLURM_JOBID
