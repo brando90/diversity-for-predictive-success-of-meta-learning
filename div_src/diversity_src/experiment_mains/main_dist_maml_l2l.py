@@ -22,7 +22,8 @@ from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
-    print_dist, move_opt_to_cherry_opt_and_sync_params, set_devices_and_seed_ala_l2l, init_process_group_l2l, is_lead_worker
+    print_dist, move_opt_to_cherry_opt_and_sync_params, set_devices_and_seed_ala_l2l, init_process_group_l2l, \
+    is_lead_worker, find_free_port
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner, MAMLMetaLearnerL2L
@@ -34,7 +35,7 @@ from pdb import set_trace as st
 from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch
 
 
-def l2l_resnet12rfs_cifarfs_adam_cl_80k(args: Namespace) -> Namespace:
+def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     """
     """
     from pathlib import Path
@@ -43,14 +44,15 @@ def l2l_resnet12rfs_cifarfs_adam_cl_80k(args: Namespace) -> Namespace:
     # args.model_option = '4CNN_l2l_cifarfs'
 
     # - data
-    args.data_option = 'cifarfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
     args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'rfs2020'
 
     # - training mode
     args.training_mode = 'iterations'
 
     # note: 60K iterations for original maml 5CNN with adam
-    args.num_its = 80_000
+    args.num_its = 100_000
 
     # - debug flag
     # args.debug = True
@@ -82,18 +84,13 @@ def l2l_resnet12rfs_cifarfs_adam_cl_80k(args: Namespace) -> Namespace:
     args.batch_size = 8
 
     # - dist args
-    """
-python -m torch.distributed.run --nproc_per_node=1 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py
-python -m torch.distributed.run --nproc_per_node=2 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py
-
-python -m torch.distributed.run --nproc_per_node=8 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py
-    """
-    # args.world_size = torch.cuda.device_count()
-    args.world_size = 8
+    args.world_size = torch.cuda.device_count()
+    # args.world_size = 7
     args.parallel = True
     args.seed = 42  # I think this might be important due to how tasksets works.
-    args.dist_option = 'l2l_dist'
+    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
 
     # -
@@ -104,7 +101,7 @@ python -m torch.distributed.run --nproc_per_node=8 ~/diversity-for-predictive-su
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     # args.experiment_name = f'debug'
-    args.experiment_name = f'l2l_resnet12rfs_cifarfs_adam_cl_80k'
+    args.experiment_name = f'l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k'
     # args.run_name = f'debug: {args.jobid=}'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
@@ -125,14 +122,14 @@ def load_args() -> Namespace:
     args: Namespace = parse_args_standard_sl()
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'l2l_resnet12rfs_cifarfs_adam_cl_80k'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
     elif args_hardcoded_in_script(args):
-        if args.manual_loads_name == 'l2l_resnet12rfs_cifarfs_adam_cl_80k':
-            args: Namespace = l2l_resnet12rfs_cifarfs_adam_cl_80k(args)
+        if args.manual_loads_name == 'l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k':
+            args: Namespace = l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
