@@ -39,8 +39,8 @@ def l2l_resnet12rfs_cifarfs_adam_cl(args: Namespace) -> Namespace:
     """
     from pathlib import Path
     # - model
-    # args.model_option = 'resnet12_rfs_cifarfs_fc100'
-    args.model_option = '4CNN_l2l_cifarfs'
+    args.model_option = 'resnet12_rfs_cifarfs_fc100'
+    # args.model_option = '4CNN_l2l_cifarfs'
 
     # - data
     args.data_option = 'cifarfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
@@ -53,32 +53,49 @@ def l2l_resnet12rfs_cifarfs_adam_cl(args: Namespace) -> Namespace:
     args.num_its = 800_000
 
     # - debug flag
-    args.debug = True
+    # args.debug = True
+    args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
     args.lr = 1e-3  # match MAML++
 
-    args.scheduler_option = 'None'
-    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
-    # args.log_scheduler_freq = 2_000
-    # args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
-    # args.eta_min = 1e-5  # match MAML++
-    # args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
-    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 2_000
+    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    args.eta_min = 1e-5  # match MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
 
     # -- Meta-Learner
     # - maml
     args.meta_learner_name = 'maml_fixed_inner_lr'
     args.inner_lr = 1e-1  # same as fast_lr in l2l
     args.nb_inner_train_steps = 5
-    args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
-    args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
-    args.fo = False  # True, disallows flow of higher order grad while still letting params track gradients.
+    # args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
+    # args.first_order = True
+    args.first_order = False
 
     # - outer trainer params
-    args.batch_size = 4
-    args.batch_size = 2
+    args.batch_size = 16
+    args.batch_size = 8
+
+    # - dist args
+    """
+python -m torch.distributed.run --nproc_per_node=1 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py
+python -m torch.distributed.run --nproc_per_node=2 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py
+
+python -m torch.distributed.run --nproc_per_node=8 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py
+    """
+    # args.world_size = torch.cuda.device_count()
+    args.world_size = 8
+    args.parallel = True
+    args.seed = 42  # I think this might be important due to how tasksets works.
+    args.dist_option = 'l2l_dist'
+
+    # -
+    args.log_freq = 500
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
@@ -90,17 +107,6 @@ def l2l_resnet12rfs_cifarfs_adam_cl(args: Namespace) -> Namespace:
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
-
-    # - dist args
-    """
-python -m torch.distributed.run --nproc_per_node=1 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py
-python -m torch.distributed.run --nproc_per_node=2 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py
-    """
-    # args.world_size = torch.cuda.device_count()
-    args.world_size = 1
-    args.parallel = True
-    args.seed = 42  # I think this might be important due to how tasksets works.
-    args.dist_option = 'l2l_dist'
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)

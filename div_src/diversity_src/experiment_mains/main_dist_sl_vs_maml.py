@@ -583,29 +583,29 @@ def comparison_via_performance(args: Namespace):
     args_mdl_rand.meta_learner.base_model = args.mdl_rand
     args_mdl_rand.meta_learner.nb_inner_train_steps = 0
     args_mdl_rand.meta_learner.lr_inner = 0.0
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='train',
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='train',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'train: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='val',
+    print(f'train: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='val',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'val: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='test',
+    print(f'val: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='test',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'test: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
+    print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
     print('---- maml0 for maml model')
     args.meta_learner.base_model = args.mdl_maml
     args.meta_learner.nb_inner_train_steps = 0
     args.meta_learner.lr_inner = 0.0
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args, split='train', training=True,
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args, split='train', training=True,
                                                                                     save_val_ckpt=False)
-    print(f'train: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args, split='val', training=True,
+    print(f'train: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args, split='val', training=True,
                                                                                     save_val_ckpt=False)
-    print(f'val: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args, split='test', training=True,
+    print(f'val: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args, split='test', training=True,
                                                                                     save_val_ckpt=False)
-    print(f'test: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
+    print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
     # commented out since the f_sl final layer model has 64 labels, which don't make sense if there is no adaptation
     print('---- maml0 for sl model')
@@ -613,15 +613,15 @@ def comparison_via_performance(args: Namespace):
     args_mdl_sl.meta_learner.base_model = args.mdl_sl
     args_mdl_sl.meta_learner.nb_inner_train_steps = 0
     args_mdl_sl.meta_learner.lr_inner = 0.0
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='train',
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='train',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'train: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='val',
+    print(f'train: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='val',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'val: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='test',
+    print(f'val: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='test',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'test: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
+    print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
     # -- maml 5
     print('\n---- maml5 for rand model')
@@ -629,29 +629,29 @@ def comparison_via_performance(args: Namespace):
     args_mdl_rand.meta_learner.base_model = args.mdl_rand
     args_mdl_rand.meta_learner.nb_inner_train_steps = 5
     args_mdl_rand.meta_learner.lr_inner = original_lr_inner
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='train',
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='train',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'train: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='val',
+    print(f'train: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='val',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'val: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='test',
+    print(f'val: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='test',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'test: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
+    print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
     print('---- maml5 for maml model')
     args.meta_learner.base_model = args.mdl_maml
     args.meta_learner.nb_inner_train_steps = 5
     args.meta_learner.lr_inner = original_lr_inner
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args, split='train', training=True,
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args, split='train', training=True,
                                                                                     save_val_ckpt=False)
-    print(f'train: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args, split='val', training=True,
+    print(f'train: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args, split='val', training=True,
                                                                                     save_val_ckpt=False)
-    print(f'val: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args, split='test', training=True,
+    print(f'val: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args, split='test', training=True,
                                                                                     save_val_ckpt=False)
-    print(f'test: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
+    print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
     # commented out since the f_sl final layer model has 64 labels, which don't make sense if there is no adaptation
     print('---- maml5 for sl model')
@@ -659,15 +659,15 @@ def comparison_via_performance(args: Namespace):
     args_mdl_sl.meta_learner.base_model = args.mdl_sl
     args_mdl_sl.meta_learner.nb_inner_train_steps = 5
     args_mdl_sl.meta_learner.lr_inner = original_lr_inner
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='train',
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='train',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'train: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='val',
+    print(f'train: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='val',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'val: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='test',
+    print(f'val: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='test',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'test: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
+    print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
     # -- maml 10
     print('\n---- maml10 for rand model')
@@ -675,86 +675,86 @@ def comparison_via_performance(args: Namespace):
     args_mdl_rand.meta_learner.base_model = args.mdl_rand
     args_mdl_rand.meta_learner.nb_inner_train_steps = 10
     args_mdl_rand.meta_learner.lr_inner = original_lr_inner
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='train',
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='train',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'train: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='val',
+    print(f'train: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='val',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'val: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='test',
+    print(f'val: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='test',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'test: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
+    print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
     print('---- maml10 for maml model')
     args.meta_learner.base_model = args.mdl_maml
     args.meta_learner.nb_inner_train_steps = 10
     args.meta_learner.lr_inner = original_lr_inner
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args, split='train', training=True,
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args, split='train', training=True,
                                                                                     save_val_ckpt=False)
-    print(f'train: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args, split='val', training=True,
+    print(f'train: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args, split='val', training=True,
                                                                                     save_val_ckpt=False)
-    print(f'val: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args, split='test', training=True,
+    print(f'val: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args, split='test', training=True,
                                                                                     save_val_ckpt=False)
-    print(f'test: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
+    print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
     print('---- maml10 for sl model')
     args_mdl_sl = copy(args)
     args_mdl_sl.meta_learner.base_model = args.mdl_sl
     args_mdl_sl.meta_learner.nb_inner_train_steps = 10
     args_mdl_sl.meta_learner.lr_inner = original_lr_inner
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='train',
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='train',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'train: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='val',
+    print(f'train: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='val',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'val: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='test',
+    print(f'val: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='test',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'test: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
+    print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
     # -- SL
     print('\n---- FFL (LR) for rand model')
     args_mdl_rand = copy(args)
     args_mdl_rand.meta_learner = FitFinalLayer(args, base_model=args.mdl_rand, target_type='classification',
                                                classifier='LR')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='train',
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='train',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'train: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='val',
+    print(f'train: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='val',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'val: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='test',
+    print(f'val: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_rand, split='test',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'test: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
+    print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
     print('---- FFL (LR) for maml model')
     args.meta_learner = FitFinalLayer(args, base_model=args.mdl_maml, target_type='classification', classifier='LR')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args, split='train', training=True,
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args, split='train', training=True,
                                                                                     save_val_ckpt=False)
     print(f'train: '
-          f'{(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args, split='val', training=True,
+          f'{(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args, split='val', training=True,
                                                                                     save_val_ckpt=False)
-    print(f'val: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args, split='test', training=True,
+    print(f'val: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args, split='test', training=True,
                                                                                     save_val_ckpt=False)
-    print(f'test: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
+    print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
     print('---- FFL (LR) for sl model')
     args_mdl_sl = copy(args)
     args_mdl_sl.meta_learner = FitFinalLayer(args, base_model=args.mdl_maml, target_type='classification',
                                              classifier='LR')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='train',
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='train',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'train: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='val',
+    print(f'train: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='val',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'val: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
-    eval_loss, eval_acc, eval_loss_std, eval_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='test',
+    print(f'val: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='test',
                                                                                     training=True, save_val_ckpt=False)
-    print(f'test: {(eval_loss, eval_acc, eval_loss_std, eval_acc_std)=}')
+    print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
     print()
 
