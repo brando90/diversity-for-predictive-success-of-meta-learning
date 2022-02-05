@@ -50,7 +50,7 @@ def l2l_resnet12rfs_cifarfs_adam_cl(args: Namespace) -> Namespace:
     args.training_mode = 'iterations'
 
     # note: 60K iterations for original maml 5CNN with adam
-    args.num_its = 800_000
+    args.num_its = 600_000
 
     # - debug flag
     # args.debug = True
@@ -66,7 +66,7 @@ def l2l_resnet12rfs_cifarfs_adam_cl(args: Namespace) -> Namespace:
     args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
     args.eta_min = 1e-5  # match MAML++
     args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
-    assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
 
     # -- Meta-Learner
     # - maml
