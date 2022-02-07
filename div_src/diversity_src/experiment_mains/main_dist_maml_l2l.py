@@ -84,7 +84,7 @@ def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
 
     # - dist args
     # args.world_size = torch.cuda.device_count()
-    args.world_size = 8
+    args.world_size = 32
     args.parallel = True
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
@@ -136,6 +136,7 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
     args.lr = 1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
 
     # args.scheduler_option = 'None'
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
@@ -194,7 +195,7 @@ def load_args() -> Namespace:
     3. setup remaining args small details from previous values (e.g. 1 and 2).
     """
     # -- parse args from terminal
-    args: Namespace = parse_args_standard_sl()
+    # args: Namespace = parse_args_standard_sl()
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k'  # <- REMOVE to remove manual loads

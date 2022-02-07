@@ -29,7 +29,7 @@ Error       = $(SUBMIT_FILE).o$(CLUSTER)
 # requirements = (CUDADeviceName == "A40") || (CUDADeviceName == "Quadro RTX 6000")
 
 # Request_cpus = 4
-Request_cpus = 16
+Request_cpus = 40
 # Request_cpus = 32
 
 Notify_user = brando.science@gmail.com

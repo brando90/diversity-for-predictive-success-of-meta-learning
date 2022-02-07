@@ -71,8 +71,59 @@ def manual_load_cifarfs_resnet12rfs_train_until_convergence(args: Namespace) -> 
     # args.log_to_wandb = False
     return args
 
+def sl_cifarfs_rfs_4cnn_adam_cl_200(args: Namespace) -> Namespace:
+    """
+    goal:
+        - model: resnet12-rfs
+        - Opt: ?
 
-def manual_load_cifarfs_resnet12rfs(args: Namespace) -> Namespace:
+    Note:
+        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
+        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
+        advantage.
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = '4CNN_l2l_cifarfs'
+
+    # - data
+    args.path_to_data_set = Path('~/data/CIFAR-FS/').expanduser()
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.num_epochs = 200
+    args.batch_size = 1024
+    args.lr = 1e-1
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 1
+    args.T_max = args.num_epochs // args.log_scheduler_freq
+    args.eta_min = 1e-5  # coincidentally, matches MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+
+    # - training mode
+    args.training_mode = 'epochs'
+    # args.training_mode = 'fit_single_batch'
+
+    # -
+    # args.debug = True
+    args.debug = False
+
+    # -
+    args.log_freq = 1
+
+    # - wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'sl_cifarfs_rfs_4cnn_adam_cl_150'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+    return args
+
+def sl_cifarfs_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
     """
     goal:
         - model: resnet12-rfs
@@ -92,27 +143,34 @@ def manual_load_cifarfs_resnet12rfs(args: Namespace) -> Namespace:
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs_sl'
+    args.num_epochs = 200
+    args.batch_size = 1024
+    args.lr = 1e-1
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 1
+    args.T_max = args.num_epochs // args.log_scheduler_freq
+    args.eta_min = 1e-5  # coincidentally, matches MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
 
     # - training mode
     args.training_mode = 'epochs'
     # args.training_mode = 'fit_single_batch'
 
-    args.num_epochs = 100
-
     # -
     # args.debug = True
     args.debug = False
+
+    # -
+    args.log_freq = 1
 
     # - wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    # args.experiment_name = f'debug'
-    args.experiment_name = f'cifarfs resnet12_rfs sl'
-    # args.run_name = f'debug (Adafactor) : {args.jobid=}'
-    # args.run_name = f'debug: {args.jobid=}'
-    args.run_name = f'lr=1e-4 : {args.jobid=} {args.training_mode}'
+    args.experiment_name = f'sl_cifarfs_rfs_resnet12rfs_adam_cl_200'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -127,16 +185,18 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_standard_sl()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_train_until_convergence'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'sl_cifarfs_rfs_resnet12rfs_adam_cl_200'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
     elif args_hardcoded_in_script(args):
-        if args.manual_loads_name == 'manual_load_cifarfs_resnet12rfs':
-            args: Namespace = manual_load_cifarfs_resnet12rfs(args)
+        if args.manual_loads_name == 'sl_cifarfs_rfs_resnet12rfs_adam_cl_200':
+            args: Namespace = sl_cifarfs_rfs_resnet12rfs_adam_cl_200(args)
         elif args.manual_loads_name == 'manual_load_cifarfs_resnet12rfs_train_until_convergence':
             args: Namespace = manual_load_cifarfs_resnet12rfs_train_until_convergence(args)
+        elif args.manual_loads_name == 'sl_cifarfs_rfs_4cnn_adam_cl_200':
+            args: Namespace = sl_cifarfs_rfs_4cnn_adam_cl_200(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
