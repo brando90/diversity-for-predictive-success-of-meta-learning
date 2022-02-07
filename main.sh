@@ -37,7 +37,7 @@ echo OUT_FILE=$OUT_FILE
 
 # - run experiment
 #python -u ~/automl-meta-learning/automl-proj-div_src/experiments/meta_learning/_main_metalearning.py
-#python -u ~/automl-meta-learning/results_plots_sl_vs_ml/fall2021/main_dist_sl_vs_maml.py
+#python -u ~/automl-meta-learning/results_plots_sl_vs_ml/fall2021/main_distance_sl_vs_maml.py
 
 # python -u ~/diversity-for-predictive-success-of-meta-learning/src/diversity_src/experiment_mains/_main_metalearning.py
 

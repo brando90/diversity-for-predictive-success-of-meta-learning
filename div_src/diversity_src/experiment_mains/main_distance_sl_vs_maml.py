@@ -2,7 +2,7 @@
 """
 main script for computing dist(f, A(f)) vs the model trained on a specific synthetic benchmark with given std.
 
-python ~/automl-meta-learning/results_plots_sl_vs_ml/fall2021/main_dist_sl_vs_maml.py
+python ~/automl-meta-learning/results_plots_sl_vs_ml/fall2021/main_distance_sl_vs_maml.py
 
 - If track_running_stats is set to False, this layer then does not keep running estimates, and batch statistics are instead used during evaluation time as well.
 - .eval() = during inference (eval/testing) running_mean, running_std is used - that was calculated from training(because they want a deterministic output and to use estimates of the population statistics).
