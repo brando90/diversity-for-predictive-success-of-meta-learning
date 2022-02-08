@@ -2,7 +2,7 @@
 """
 main script for computing dist(f, A(f)) vs the model trained on a specific synthetic benchmark with given std.
 
-python ~/automl-meta-learning/results_plots_sl_vs_ml/fall2021/main_distance_sl_vs_maml.py
+python ~/automl-meta-learning/results_plots_sl_vs_ml/fall2021/_main_distance_sl_vs_maml.py
 
 - If track_running_stats is set to False, this layer then does not keep running estimates, and batch statistics are instead used during evaluation time as well.
 - .eval() = during inference (eval/testing) running_mean, running_std is used - that was calculated from training(because they want a deterministic output and to use estimates of the population statistics).
@@ -128,6 +128,8 @@ def get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin: int = 10):
         raise ValueError(f'Not implemented for value: {safety_margin=}')
 
 
+# --
+
 def get_args_for_experiment() -> Namespace:
     # - get my default args
     args = uutils.parse_basic_meta_learning_args_from_terminal()
@@ -138,10 +140,10 @@ def get_args_for_experiment() -> Namespace:
     # args.layer_names = get_feature_extractor_conv_layers()
     # args.layer_names = get_feature_extractor_conv_layers(include_cls=True)
     # args.layer_names: list[str] = get_last_two_layers(layer_type='conv', include_cls=True)
-    # args.metric_comparison_type = 'svcca'
+    args.metric_comparison_type = 'svcca'
     # args.metric_comparison_type = 'pwcca'
     # args.metric_comparison_type = 'lincka'
-    args.metric_comparison_type = 'opd'
+    # args.metric_comparison_type = 'opd'
     args.effective_neuron_type = 'filter'
     args.layer_names: list[str] = get_last_two_layers(layer_type='conv', include_cls=True)
     # args.layer_names: list[str] = get_last_two_layers(layer_type='pool', include_cls=True)
@@ -284,16 +286,6 @@ def get_dataloader(args: Namespace) -> dict:
     print(f'{args.data_path=}')
     return dataloaders
 
-
-# def get_working_args_for_torchmeta_mini_imagenet(main_args: Namespace):
-#     """
-#     Get min args for mini-imagenet and replace all the values already set by main_args into it.
-#     This way it will have the minimum to run but with whatever we decided at the top script overwriting it.
-#     """
-#     min_args_mini_imagenet: Namespace = get_minimum_args_for_torchmeta_mini_imagenet_dataloader()
-#     # - merge args by updating/replacing collision keys of first with the values of the second updater
-#     args = uutils.merge_args(starting_args=min_args_mini_imagenet, updater_args=main_args)
-#     return args
 
 def main_run_expt():
     # - get args & merge them with the args of actual experiment run

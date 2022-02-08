@@ -25,7 +25,7 @@ python -c "import torch; print(torch.cuda.device_count())"
 echo ---- Running your python main ----
 
 #export SLURM_JOBID=-1
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_metalearning2.py --manual_loads_name manual_load_cifarfs_resnet12rfs_maml > $OUT_FILE &
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main2_metalearning.py --manual_loads_name manual_load_cifarfs_resnet12rfs_maml > $OUT_FILE &
 
 export OUT_FILE=$PWD/main.sh.o$SLURM_JOBID
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name manual_load_cifarfs_resnet12rfs_train_until_convergence > $OUT_FILE &
