@@ -1,11 +1,31 @@
 from argparse import Namespace
 from copy import deepcopy, copy
+from pathlib import Path
 
 import torch
 
+from uutils.torch_uu.mains.common import _get_agent, load_model_optimizer_scheduler_from_ckpt
 from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import meta_eval_no_context_manager
 from uutils.torch_uu.meta_learners.pretrain_convergence import FitFinalLayer
 from uutils.torch_uu.models import reset_all_weights
+
+
+def setup_args_path_for_ckpt_data_analysis(args: Namespace,
+                                           ckpt_filename: str,
+                                           ) -> Namespace:
+    """
+    ckpt_filename values:
+        'ckpt_file.pt'
+        'ckpt_file_best_loss.pt'
+        'ckpt.pt'
+        'ckpt_best_loss.pt'
+    """
+    ckpt_filename_sl = ckpt_filename  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
+    args.path_2_init_sl = (Path(args.path_2_init_sl) / ckpt_filename_sl).expanduser()
+    ckpt_filename_maml = ckpt_filename  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
+    # ckpt_filename_maml = 'ckpt_file_best_loss.pt'  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
+    args.path_2_init_maml = (Path(args.path_2_init_maml) / ckpt_filename_maml).expanduser()
+    return args
 
 
 def santity_check_maml_accuracy(args: Namespace):
@@ -33,8 +53,10 @@ def santity_check_maml_accuracy(args: Namespace):
 def get_recommended_batch_size_miniimagenet_5CNN(safety_margin: int = 10):
     """
     Loop through all the layers and computing the largest B recommnded. Most likely the H*W that is
-    smallest woll win but formally just compute B_l for each layer that your computing sims/dists and then choose
+    smallest will win but formally just compute B_l for each layer that your computing sims/dists and then choose
     the largest B_l. That ceil(B_l) satisfies B*H*W >= s*C for all l since it's the largest.
+
+        recommended_meta_batch_size = ceil( max([s*C_l/H_l*W_l for l in 1...L]) )
 
     Note: if the cls is present then we need B >= s*D since the output for it has shape
     [B, n_c] where n_c so we need, B >= 10*5 = 50 for example.
@@ -77,22 +99,23 @@ def get_sl_learner(args: Namespace):
         state_dict = ckpt['model']
     see: save_check_point_sl
     """
-    ckpt: dict = torch.load(args.path_2_init_sl, map_location=torch.device('cpu'))
-    model = ckpt['model']
-    if torch.cuda.is_available():
-        model = model.cuda()
-    print(f'from ckpt (sl), model type: {model}')
+    # ckpt: dict = torch.load(args.path_2_init_maml, map_location=torch.device('cpu'))
+    model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
+
+    # args.meta_learner = _get_agent(args)
+    # if torch.cuda.is_available():
+    #     args.meta_learner.base_model = base_model.cuda()
     return model
 
 
-def get_meta_learner(args: Namespace):
-    ckpt: dict = torch.load(args.path_2_init_maml, map_location=torch.device('cpu'))
-    meta_learner = ckpt['meta_learner']
+def get_maml_meta_learner(args: Namespace):
+    # ckpt: dict = torch.load(args.path_2_init_maml, map_location=torch.device('cpu'))
+    base_model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
+
+    args.meta_learner = _get_agent(args)
     if torch.cuda.is_available():
-        meta_learner.base_model = meta_learner.base_model.cuda()
-    print(f'from ckpt (maml), model type: {meta_learner.args.base_model_mode=}')
-    # args.nb_inner_train_steps = 10  # since ANIL paper used 10 for inference
-    return meta_learner
+        args.meta_learner.base_model = base_model.cuda()
+    return args.meta_learner
 
 
 def comparison_via_performance(args: Namespace):

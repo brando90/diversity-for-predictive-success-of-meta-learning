@@ -23,7 +23,7 @@ from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
     print_dist, move_opt_to_cherry_opt_and_sync_params, set_devices_and_seed_ala_l2l, init_process_group_l2l, \
-    is_lead_worker, find_free_port
+    is_lead_worker, find_free_port, is_running_serially, is_running_parallel
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner, MAMLMetaLearnerL2L
@@ -54,8 +54,8 @@ def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     args.num_its = 70_000
 
     # - debug flag
-    # args.debug = True
-    args.debug = False
+    args.debug = True
+    # args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
@@ -83,8 +83,11 @@ def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     args.batch_size = 8
 
     # - dist args
+    """
+python -m torch.distributed.run --nproc_per_node=1 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k
+    """
     # args.world_size = torch.cuda.device_count()
-    args.world_size = 32
+    args.world_size = 1
     args.parallel = True
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
@@ -103,8 +106,8 @@ def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     args.experiment_name = f'l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k'
     # args.run_name = f'debug: {args.jobid=}'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -198,7 +201,7 @@ def load_args() -> Namespace:
     # args: Namespace = parse_args_standard_sl()
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k'  # <- REMOVE to remove manual loads
+    args.manual_loads_name = 'l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
@@ -230,19 +233,26 @@ def main():
     if not args.parallel:  # serial
         print('RUNNING SERIALLY')
         args.world_size = 1
-        # train(rank=-1, args=args)
-        raise NotImplementedError
+        train(args=args)
     else:
         # mp.spawn(fn=train, args=(args,), nprocs=args.world_size) what ddp does
         train(args=args)
 
 
+def get_local_rank() -> int:
+    try:
+        local_rank: int = int(os.environ["LOCAL_RANK"])
+    except:
+        local_rank: int = -1
+    return local_rank
+
+
 def train(args):
     # # set_sharing_strategy()
-    local_rank: int = int(os.environ["LOCAL_RANK"])
+    local_rank: int = get_local_rank()
     print(f'{local_rank=}')
     init_process_group_l2l(args, local_rank=local_rank, world_size=args.world_size, init_method=args.init_method)
-    rank: int = torch.distributed.get_rank()
+    rank: int = torch.distributed.get_rank() if is_running_parallel(local_rank) else -1
     args.rank = rank  # have each process save the rank
     set_devices_and_seed_ala_l2l(args)  # args.device = rank or .device
     print(f'setup process done for rank={rank}')

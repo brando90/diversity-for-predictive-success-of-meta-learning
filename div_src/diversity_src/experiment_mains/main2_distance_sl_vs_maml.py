@@ -24,15 +24,16 @@ import uutils
 
 import time
 
-from diversity_src.data_analysis.common import get_sl_learner, get_meta_learner, santity_check_maml_accuracy, \
-    comparison_via_performance
+from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_learner, santity_check_maml_accuracy, \
+    comparison_via_performance, setup_args_path_for_ckpt_data_analysis
 from diversity_src.diversity.diversity import diversity
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
 
-from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal
+from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal, get_device
 from uutils.torch_uu.distributed import is_lead_worker
-from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import get_maml_inner_optimizer, dist_batch_tasks_for_all_layer_different_mdl_vs_adapted_mdl
+from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import get_maml_inner_optimizer, \
+    dist_batch_tasks_for_all_layer_different_mdl_vs_adapted_mdl
 from uutils.torch_uu.models import reset_all_weights
 from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import get_last_two_layers
 
@@ -119,7 +120,7 @@ def get_args_for_experiment() -> Namespace:
     # args.meta_batch_size_train = 500
     args.meta_batch_size_eval = args.meta_batch_size_train
     # args.k_eval = get_recommended_batch_size_miniimagenet_5CNN(safety_margin=args.safety_margin)
-    args.k_eval = get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin=args.safety_margin)
+    # args.k_eval = get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin=args.safety_margin)
 
     # -- checkpoints SL & MAML
     # 5CNN
@@ -154,14 +155,18 @@ def get_args_for_experiment() -> Namespace:
 def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     """
     """
-    from pathlib import Path
+    from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_cifarfs_resnet12rfs_body, \
+        get_feature_extractor_conv_layers
     # - model
     args.model_option = 'resnet12_rfs_cifarfs_fc100'
 
     # - data
-    args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
-    args.data_path = Path('~/data/l2l_data/').expanduser()
-    args.data_augmentation = 'rfs2020'
+    # args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    # args.data_path = Path('~/data/l2l_data/').expanduser()
+    # args.data_augmentation = 'rfs2020'
+    args.data_option = 'torchmeta_cifarfs'  # no name assumes l2l
+    args.data_path = Path('~/data/torchmeta_data/').expanduser()
+    args.augment_train = True
 
     # - training mode
     args.training_mode = 'iterations'
@@ -205,6 +210,7 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     # args.metric_comparison_type = 'pwcca'
     # args.metric_comparison_type = 'lincka'
     # args.metric_comparison_type = 'opd'
+    args.metric_as_sim_or_dist = 'dist'  # since we are trying to show meta-learning is happening, the more distance btw task & change in model the more meta-leanring is the hypothesis
 
     # - effective neuron type
     args.effective_neuron_type = 'filter'
@@ -213,7 +219,36 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     # with all the layers up to the final layer...
     # args.layer_names: list[str] = get_last_two_layers(layer_type='conv', include_cls=True)
     # args.layer_names = get_head_cls()
+    args.layer_names = get_feature_extractor_conv_layers()
 
+    args.safety_margin = 10
+    # args.safety_margin = 20
+
+    args.batch_size = 2
+    # args.batch_size = 25
+    args.batch_size_eval = args.batch_size
+
+    # - set k_eval (qry set batch_size) to make experiments safe/reliable
+    args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_body(safety_margin=args.safety_margin)
+    # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_head(safety_margin=args.safety_margin)
+
+    # - expt option
+    args.experiment_option = 'performance_comparison'
+
+    # - agent/meta_learner type
+    args.agent_opt = 'MAMLMetaLearner_default'
+
+    # - ckpt name
+    # args.path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
+    # args.path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
+    args.path_2_init_sl = '~/data/logs/logs_Feb07_13-55-06_jobid_14887_pid_58061/'
+    args.path_2_init_maml = '~/data/logs/logs_Feb05_19-21-50_jobid_11407/'
+
+    # - device
+    # args.device = torch.device('cpu')
+    # args.device = get_device()
+
+    #
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
@@ -224,6 +259,8 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
+    # - setup paths to ckpts for data analysis
+    args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
     # - fill in the missing things and make sure things make sense for run
     args = uutils.setup_args_for_experiment(args)
     return args
@@ -243,7 +280,7 @@ def load_args() -> Namespace:
     args: Namespace = l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args)
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
-    args.meta_learner = get_meta_learner(args)
+    args.meta_learner = get_maml_meta_learner(args)
     args = uutils.merge_args(starting_args=args.meta_learner.args, updater_args=args)  # second takes priority
     args.meta_learner.args = args  # to avoid meta learner running with args only from past experiment and not with metric analysis experiment
 
@@ -261,9 +298,8 @@ def main_data_analyis():
     args.mdl_maml = args.mdl1
     args.mdl_sl = args.mdl2
     print(f'{args.data_path=}')
-    assert equal_two_few_shot_cnn_models(args.mdl1,
-                                         args.mdl2), f'Error, models should have same arch but they do not:\n{args.mdl1=}\n{args.mdl2}'
-    print(f'{args.data_path=}')
+    # assert equal_two_few_shot_cnn_models(args.mdl1,
+    #                                      args.mdl2), f'Error, models should have same arch but they do not:\n{args.mdl1=}\n{args.mdl2}'
 
     # - get dataloaders and overwrites so data analysis runs as we want
     args.dataloaders: dict = get_meta_learning_dataloader(args)
@@ -299,7 +335,7 @@ def main_data_analyis():
     santity_check_maml_accuracy(args)
 
     # -- do data analysis
-    if args.experiment_option == 'performance comparison':
+    if args.experiment_option == 'performance_comparison':
         comparison_via_performance(args)
     elif args.experiment_option == 'diveristiy':
         args.mdl_rand = deepcopy(args.mdl1)
