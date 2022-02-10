@@ -19,6 +19,7 @@ from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_b
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
+from uutils.torch_uu.dataloaders.helpers import replace_final_layer
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
@@ -83,9 +84,6 @@ def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     args.batch_size = 8
 
     # - dist args
-    """
-python -m torch.distributed.run --nproc_per_node=1 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k
-    """
     # args.world_size = torch.cuda.device_count()
     args.world_size = 1
     args.parallel = True
@@ -201,7 +199,7 @@ def load_args() -> Namespace:
     # args: Namespace = parse_args_standard_sl()
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
@@ -263,17 +261,18 @@ def train(args):
     # create the model, opt & scheduler
     get_and_create_model_opt_scheduler_for_run(args)
     args.opt = move_opt_to_cherry_opt_and_sync_params(args)
-    print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
 
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
     args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
     args.dataloaders = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
+    replace_final_layer(args, n_classes=args.n_cls)  # for meta-learning, this is done at the user level not data set
 
     # Agent does everything, proving, training, evaluate, meta-learnering, etc.
     args.agent = MAMLMetaLearnerL2L(args, args.model)
     args.meta_learner = args.agent
 
     # -- Start Training Loop
+    print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)  # here to make sure mdl has the right cls
     print_dist('====> about to start train loop', args.rank)
     if args.training_mode == 'meta_train_agent_fit_single_batch':
         # meta_train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)

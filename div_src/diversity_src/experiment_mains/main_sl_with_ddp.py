@@ -361,15 +361,16 @@ def train(rank, args):
 
     # create the (ddp) model, opt & scheduler
     get_and_create_model_opt_scheduler_for_run(args)
-    print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
 
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
     args.dataloaders: dict = get_sl_dataloader(args)
+    # replace_final_layer(args, n_classes=args.n_cls)  # for SL this should be done at the dataset/loader level
 
     # Agent does everything, proving, training, evaluate etc.
     args.agent: Agent = UnionClsSLAgent(args, args.model)
 
     # -- Start Training Loop
+    print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)  # here to make sure mdl has the right cls
     print_dist('====> about to start train loop', args.rank)
     if args.training_mode == 'fit_single_batch':
         train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
