@@ -7,6 +7,9 @@ python ~/automl-meta-learning/results_plots_sl_vs_ml/fall2021/_main_distance_sl_
 - If track_running_stats is set to False, this layer then does not keep running estimates, and batch statistics are instead used during evaluation time as well.
 - .eval() = during inference (eval/testing) running_mean, running_std is used - that was calculated from training(because they want a deterministic output and to use estimates of the population statistics).
 - .train() =  the batch statistics is used but a population statistic is estimated with running averages. I assume the reason batch_stats is used during training is to introduce noise that regularizes training (noise robustness). Assuming track_running_stats is True.
+
+
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main2_distance_sl_vs_maml.py
 """
 from argparse import Namespace
 from collections import OrderedDict
@@ -30,7 +33,7 @@ from diversity_src.diversity.diversity import diversity
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
 
-from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal, get_device
+from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal, get_device, norm
 from uutils.torch_uu.distributed import is_lead_worker
 from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import get_maml_inner_optimizer, \
     dist_batch_tasks_for_all_layer_different_mdl_vs_adapted_mdl
@@ -206,7 +209,8 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
 
     # -- options I am considering to have as flags in the args_parser...later
     # - metric for comparison
-    args.metric_comparison_type = 'svcca'
+    args.metric_comparison_type = 'None'
+    # args.metric_comparison_type = 'svcca'
     # args.metric_comparison_type = 'pwcca'
     # args.metric_comparison_type = 'lincka'
     # args.metric_comparison_type = 'opd'
@@ -226,6 +230,7 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
 
     args.batch_size = 2
     # args.batch_size = 25
+    # args.batch_size = 100
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
@@ -252,8 +257,8 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'manual_args_l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.experiment_name = f'{args.experiment_option} manual_args_l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k'
+    args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
 
@@ -297,6 +302,7 @@ def main_data_analyis():
     args.mdl2 = get_sl_learner(args)
     args.mdl_maml = args.mdl1
     args.mdl_sl = args.mdl2
+    assert norm(args.mdl1) != norm(args.mdl2)
     print(f'{args.data_path=}')
     # assert equal_two_few_shot_cnn_models(args.mdl1,
     #                                      args.mdl2), f'Error, models should have same arch but they do not:\n{args.mdl1=}\n{args.mdl2}'
@@ -332,7 +338,7 @@ def main_data_analyis():
     halt: bool = False
 
     # - Checks that maml0 acc is lower
-    santity_check_maml_accuracy(args)
+    # santity_check_maml_accuracy(args)
 
     # -- do data analysis
     if args.experiment_option == 'performance_comparison':

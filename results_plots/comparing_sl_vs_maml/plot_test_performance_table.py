@@ -20,6 +20,7 @@ refs:
 
 """
 
+#%%
 import pandas as pd
 
 from uutils.plot import put_pm_to_pandas_data, get_latex_table_as_text_nice_default
@@ -104,3 +105,78 @@ print()
 # print(df.to_latex(index=False, escape=False, caption='caption goes here', label='label_goes_here'))
 print(get_latex_table_as_text_nice_default(df))
 
+#%%
+
+import pandas as pd
+
+from uutils.plot import put_pm_to_pandas_data, get_latex_table_as_text_nice_default
+
+data = {
+    'Meta-train Initialization': ['Random',
+                                  'MAML0',
+                                  'SL',
+
+                                  'Random',
+                                  'MAML5',
+                                  'SL',
+
+                                  'Random',
+                                  'MAML5',
+                                  'SL',
+
+                                  'Random',
+                                  'MAML5',
+                                  'SL',
+                                  ],
+    'Adaptation at Inference': ['no adaptation',
+                                'no adaptation',
+                                'no adaptation',
+
+                                'MAML5 adaptation',
+                                'MAML5 adaptation',
+                                'MAML5 adaptation',
+
+                                'MAML10 adaptation',
+                                'MAML10 adaptation',
+                                'MAML10 adaptation',
+
+                                'Adapt Head only (with LR)',
+                                'Adapt Head only (with LR)',
+                                'Adapt Head only (with LR)',
+                                ],
+
+    'Meta-test Accuracy': ['0.0098+-0.0139',
+                           '0.200+-0.0',
+                           '0.200+-0.0',
+
+                           '0.276+-0.0812',
+                           '0.791+-0.0780',
+                           '0.786+-0.0835',
+
+                           '0.285+-0.0718',
+                           '0.787+-0.0866',
+                           '0.796+-0.0911',
+
+                           '0.793+-0.0910',
+                           '0.803+-0.0849',
+                           '0.806+-0.088',
+                           ],
+}
+
+# - to pandas table
+df = pd.DataFrame(data)
+print(df)
+
+# https://stackoverflow.com/questions/70009242/how-does-one-generate-latex-table-images-with-proper-equations-from-python-panda
+
+# - to latex,
+# idea is to have it initially print a table and then custumize it manually
+# https://www.overleaf.com/learn/latex/Tables#Creating_a_simple_table_in_LaTeX
+data = put_pm_to_pandas_data(data)
+df = pd.DataFrame(data)
+
+print()
+# column_format = ''.join(['c' for k in data.keys()])
+# print(df.to_latex(index=False, escape=False, column_format=column_format))
+# print(df.to_latex(index=False, escape=False, caption='caption goes here', label='label_goes_here'))
+print(get_latex_table_as_text_nice_default(df))

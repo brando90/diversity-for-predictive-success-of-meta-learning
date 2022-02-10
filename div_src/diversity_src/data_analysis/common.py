@@ -5,12 +5,14 @@ from pathlib import Path
 import torch
 from torch import nn
 
+from uutils.torch_uu import norm
 from uutils.torch_uu.eval.eval import eval_sl
 from uutils.torch_uu.mains.common import _get_agent, load_model_optimizer_scheduler_from_ckpt
 from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import meta_eval_no_context_manager
 from uutils.torch_uu.meta_learners.pretrain_convergence import FitFinalLayer
 from uutils.torch_uu.models import reset_all_weights
 from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import Learner
+from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_cifarfs_fc100
 
 
 def setup_args_path_for_ckpt_data_analysis(args: Namespace,
@@ -36,6 +38,7 @@ def santity_check_maml_accuracy(args: Namespace):
     Checks that maml0 acc is lower than adapted maml and returns the good maml's test, train loss and accuracy.
     """
     # - good maml with proper adaptaiton
+    print('\n- Sanity check: MAML vs MAML0 (1st should have better performance but there is an assert to check it too)')
     print(f'{args.meta_learner.lr_inner=}')
     # eval_loss, eval_acc, _, _ = meta_eval_no_context_manager(args, split='val', training=True, save_val_ckpt=False)
     eval_loss, _, eval_acc, _ = eval_sl(args, args.agent, args.dataloaders, split='val', training=True)
@@ -52,7 +55,7 @@ def santity_check_maml_accuracy(args: Namespace):
     assert eval_acc_maml0 < eval_acc, f'The accuracy of no adaptation should be smaller but got ' \
                                       f'{eval_acc_maml0=}, {eval_acc=}'
     args.meta_learner.lr_inner = original_lr_inner
-    print(f'{args.meta_learner.lr_inner=} [should be restored lr_inner]')
+    print(f'{args.meta_learner.lr_inner=} [should be restored lr_inner]\n')
 
 
 def get_recommended_batch_size_miniimagenet_5CNN(safety_margin: int = 10):
@@ -105,7 +108,7 @@ def get_sl_learner(args: Namespace):
     see: save_check_point_sl
     """
     # ckpt: dict = torch.load(args.path_2_init_maml, map_location=torch.device('cpu'))
-    model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
+    model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_sl)
 
     # args.meta_learner = _get_agent(args)
     # if torch.cuda.is_available():
@@ -337,9 +340,19 @@ def set_maml_cls_to_maml_cls(args: Namespace, model: nn.Module):
 def comparison_via_performance(args: Namespace):
     print('\n---- comparison_via_performance ----\n')
     args.mdl_maml = args.mdl1
+    assert norm(args.mdl_maml) == norm(args.mdl1)
     args.mdl_sl = args.mdl2
-    args.mdl_rand = deepcopy(args.mdl1)
+    assert norm(args.mdl_sl) == norm(args.mdl2)
+
+    assert norm(args.mdl_maml) != norm(args.mdl_sl)
+
+    # args.mdl_rand = deepcopy(args.mdl1)
+    args.mdl_rand = deepcopy(args.mdl2)
+    # args.mdl_rand, _ = get_resnet_rfs_model_cifarfs_fc100('resnet12_rfs_cifarfs_fc100')
+    # assert norm(args.mdl_rand) == norm(args.mdl1)
     reset_all_weights(args.mdl_rand)
+    # assert norm(args.mdl_rand) != norm(args.mdl1)
+    print(f'{norm(args.mdl_rand)=}, {norm(args.mdl1)=}')
 
     #
     original_lr_inner = args.meta_learner.lr_inner
@@ -356,6 +369,7 @@ def comparison_via_performance(args: Namespace):
     print('\n---- maml0 for rand model')
     args_mdl_rand = copy(args)
     args_mdl_rand.meta_learner.base_model = args.mdl_rand
+    # args_mdl_rand.meta_learner.base_model = args.mdl_maml
     args_mdl_rand.meta_learner.nb_inner_train_steps = 0
     args_mdl_rand.meta_learner.lr_inner = 0.0
     meta_loss, meta_loss_std, meta_acc, meta_acc_std = eval_sl(args_mdl_rand, args_mdl_rand.agent, args.dataloaders,

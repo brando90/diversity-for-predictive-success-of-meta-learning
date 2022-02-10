@@ -33,7 +33,7 @@ import time
 from diversity_src.diversity.diversity import diversity
 from uutils.torch_uu.meta_learners.pretrain_convergence import FitFinalLayer
 
-from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal
+from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal, norm
 from uutils.torch_uu.dataloaders.meta_learning.torchmeta_ml_dataloaders import get_miniimagenet_dataloaders_torchmeta
 from uutils.torch_uu.distributed import is_lead_worker
 from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import get_maml_inner_optimizer, \
@@ -308,6 +308,7 @@ def main_run_expt():
     args.mdl2 = get_sl_learner(args)
     args.mdl_maml = args.mdl1
     args.mdl_sl = args.mdl2
+    assert norm(args.mdl1) != norm(args.mdl2)
     print(f'{args.data_path=}')
     assert equal_two_few_shot_cnn_models(args.mdl1,
                                          args.mdl2), f'Error, models should have same arch but they do not:\n{args.mdl1=}\n{args.mdl2}'
