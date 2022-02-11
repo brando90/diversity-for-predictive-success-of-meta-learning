@@ -5,7 +5,7 @@ from pathlib import Path
 import torch
 from torch import nn
 
-from uutils.torch_uu import norm
+from uutils.torch_uu import norm, process_meta_batch
 from uutils.torch_uu.eval.eval import eval_sl
 from uutils.torch_uu.mains.common import _get_agent, load_model_optimizer_scheduler_from_ckpt
 from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import meta_eval_no_context_manager
@@ -109,6 +109,7 @@ def get_sl_learner(args: Namespace):
     """
     # ckpt: dict = torch.load(args.path_2_init_maml, map_location=torch.device('cpu'))
     model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_sl)
+    # model = args.model
 
     # args.meta_learner = _get_agent(args)
     # if torch.cuda.is_available():
@@ -118,7 +119,11 @@ def get_sl_learner(args: Namespace):
 
 def get_maml_meta_learner(args: Namespace):
     # ckpt: dict = torch.load(args.path_2_init_maml, map_location=torch.device('cpu'))
-    base_model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
+    if '668' in str(args.path_2_init_maml):  # hack to have old 668 checkpoint work
+        # args.path_2_init_maml = Path('~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668/ckpt_file.pt').expanduser()
+        base_model = load_old_mi_resnet12rfs_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
+    else:
+        base_model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
 
     args.meta_learner = _get_agent(args)
     if torch.cuda.is_available():
@@ -130,8 +135,7 @@ def _comparison_via_performance(args: Namespace):
     print('\n---- comparison_via_performance ----\n')
     args.mdl_maml = args.mdl1
     args.mdl_sl = args.mdl2
-    args.mdl_rand = deepcopy(args.mdl1)
-    reset_all_weights(args.mdl_rand)
+
     #
     # original_lr_inner = args.meta_learner.lr_inner
     # original_lr_inner = 0.5
@@ -343,15 +347,12 @@ def comparison_via_performance(args: Namespace):
     assert norm(args.mdl_maml) == norm(args.mdl1)
     args.mdl_sl = args.mdl2
     assert norm(args.mdl_sl) == norm(args.mdl2)
-
     assert norm(args.mdl_maml) != norm(args.mdl_sl)
 
-    # args.mdl_rand = deepcopy(args.mdl1)
-    args.mdl_rand = deepcopy(args.mdl2)
-    # args.mdl_rand, _ = get_resnet_rfs_model_cifarfs_fc100('resnet12_rfs_cifarfs_fc100')
-    # assert norm(args.mdl_rand) == norm(args.mdl1)
-    reset_all_weights(args.mdl_rand)
-    # assert norm(args.mdl_rand) != norm(args.mdl1)
+    # args.mdl_rand = deepcopy(args.mdl2)
+    # assert norm(args.mdl_rand) == norm(args.mdl2)
+    # reset_all_weights(args.mdl_rand)
+    assert norm(args.mdl_rand) != norm(args.mdl1)
     print(f'{norm(args.mdl_rand)=}, {norm(args.mdl1)=}')
 
     #
@@ -569,3 +570,64 @@ def comparison_via_performance(args: Namespace):
     print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
     print()
+
+
+def load_old_mi_resnet12rfs_ckpt(args: Namespace, path_to_checkpoint: Path) -> nn.Module:
+    from meta_learning.base_models.resnet_rfs import _get_resnet_rfs_model_mi
+
+    model, _ = _get_resnet_rfs_model_mi(args.model_option)
+
+    # ckpt: dict = torch.load(args.path_to_checkpoint, map_location=torch.device('cpu'))
+    path_to_checkpoint = args.path_to_checkpoint if path_to_checkpoint is None else path_to_checkpoint
+    ckpt: dict = torch.load(path_to_checkpoint, map_location=args.device)
+    model_state_dict = ckpt['model_state_dict']
+    # model_state_dict = ckpt['f_model_state_dict']
+    model.load_state_dict(model_state_dict)
+    args.model = model
+    return args.model
+
+
+def do_diversity_data_analysis(args, meta_dataloader):
+    from diversity_src.diversity.diversity import compute_diversity
+    from pprint import pprint
+    from anatome.helper import compute_stats_from_distance_per_batch_of_data_sets_per_layer
+    from anatome.helper import compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks
+    from anatome.helper import pprint_results
+
+    print('- Choose model for computing diversity')
+    print(f'{args.run_name=}')
+    if 'f_rand' in args.run_name:
+        args.mdl_for_dv = args.mdl_rand
+        print('==> f_rand')
+    elif 'f_maml' in args.run_name:
+        args.mdl_for_dv = args.mdl_maml
+        print('==> f_maml')
+    elif 'f_sl' in args.run_name:
+        args.mdl_for_dv = args.mdl_sl
+        print('==> f_sl')
+    else:
+        raise ValueError(f'Invalid mdl option: {args.run_name=}')
+
+    # - Compute diversity: sample one batch of tasks and use a random cross product of different tasks to compute diversity.
+    div_mu, div_std, distances_for_task_pairs = compute_diversity(args, meta_dataloader)
+    print(f'{div_mu, div_std, distances_for_task_pairs=}')
+
+    # -- print results
+    print('-- raw results')
+    print(f'distances_for_task_pairs=')
+    pprint(distances_for_task_pairs)
+
+    print('\n-- dist results')
+    div_mu, div_std = compute_stats_from_distance_per_batch_of_data_sets_per_layer(distances_for_task_pairs)
+    pprint_results(div_mu, div_std)
+    mu, std = compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks(
+        distances_for_task_pairs)
+    print(f'----entire net result:\n  {mu=}, {std=}\n')
+
+    print('-- sim results')
+    div_mu, div_std = compute_stats_from_distance_per_batch_of_data_sets_per_layer(distances_for_task_pairs,
+                                                                                   dist2sim=True)
+    pprint_results(div_mu, div_std)
+    mu, std = compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks(
+        distances_for_task_pairs, dist2sim=True)
+    print(f'----entire net result:\n  {mu=}, {std=}')

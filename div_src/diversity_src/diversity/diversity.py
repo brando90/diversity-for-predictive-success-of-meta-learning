@@ -185,17 +185,17 @@ def get_all_required_distances_for_pairs_of_tasks(f1: nn.Module, f2: nn.Module,
         # - get distances for task pair [L]
         # dists_task_pair: OrderedDict[LayerIdentifier, float] = get_distances_for_task_pair(f1, f2, x1, x2,
         dists_task_pair: OrderedDict[LayerIdentifier, float] = dist_data_set_per_layer(f1, f2, x1, x2,
-                                                                                           layer_names1, layer_names2,
-                                                                                           metric_comparison_type=metric_comparison_type,
-                                                                                           iters=iters,
-                                                                                           effective_neuron_type=effective_neuron_type,
-                                                                                           downsample_method=downsample_method,
-                                                                                           downsample_size=downsample_size,
-                                                                                           subsample_effective_num_data_method=subsample_effective_num_data_method,
-                                                                                           subsample_effective_num_data_param=subsample_effective_num_data_param,
-                                                                                           metric_as_sim_or_dist=metric_as_sim_or_dist,
-                                                                                           force_cpu=force_cpu
-                                                                                           )
+                                                                                       layer_names1, layer_names2,
+                                                                                       metric_comparison_type=metric_comparison_type,
+                                                                                       iters=iters,
+                                                                                       effective_neuron_type=effective_neuron_type,
+                                                                                       downsample_method=downsample_method,
+                                                                                       downsample_size=downsample_size,
+                                                                                       subsample_effective_num_data_method=subsample_effective_num_data_method,
+                                                                                       subsample_effective_num_data_param=subsample_effective_num_data_param,
+                                                                                       metric_as_sim_or_dist=metric_as_sim_or_dist,
+                                                                                       force_cpu=force_cpu
+                                                                                       )
         assert len(dists_task_pair) == len(layer_names1) == len(layer_names2)
         distances_for_task_pairs.append(dists_task_pair)  # [B, L]
     assert len(distances_for_task_pairs) == num_tasks_to_consider
@@ -237,7 +237,7 @@ def diversity(f1: nn.Module, f2: nn.Module,
 
         num_tasks_to_consider,
         consider_diagonal
-        )
+    )
 
     # - list(OrderDict([B, L])) -> list([B, L])
     # distances_for_task_pairs: list[list[float]] = _dists_per_task_per_layer_to_list(distances_for_task_pairs)
@@ -267,7 +267,22 @@ def compute_diversity_mu_std_for_entire_net_from_all_distances_from_data_sets_ta
     return mu, std
 
 
-# def pprint_div_results(div_final, div_feature_extractor, div_final_std, div_feature_extractor_std):
+def compute_diversity(args, meta_dataloader):
+    """
+    Compute diversity: sample one batch of tasks and use a random cross product of different tasks to compute diversity.
+    """
+    batch = next(iter(meta_dataloader))
+    spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
+
+    # - compute diversity
+    args.num_tasks_to_consider = args.batch_size
+    print(f'{args.num_tasks_to_consider=}')
+    # assert spt_x.size(0) == args.num_tasks_to_consider
+    div_mu, div_std, distances_for_task_pairs = diversity(
+        f1=args.mdl_for_dv, f2=args.mdl_for_dv, X1=qry_x, X2=qry_x,
+        layer_names1=args.layer_names, layer_names2=args.layer_names,
+        num_tasks_to_consider=args.num_tasks_to_consider)
+    return div_mu, div_std, distances_for_task_pairs
 
 
 # - tests
@@ -285,7 +300,8 @@ def compute_div_example1_test():
         spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch_tasks)
         # - compute diversity
         div_final, div_feature_extractor, div_final_std, div_feature_extractor_std, distances_for_task_pairs = diversity(
-            f1=mdl, f2=mdl, X1=qry_x, X2=qry_x, layer_names1=layer_names, layer_names2=layer_names, num_tasks_to_consider=2)
+            f1=mdl, f2=mdl, X1=qry_x, X2=qry_x, layer_names1=layer_names, layer_names2=layer_names,
+            num_tasks_to_consider=2)
         pprint(distances_for_task_pairs)
         print(f'{div_final, div_feature_extractor, div_final_std, div_feature_extractor_std=}')
         break
@@ -296,6 +312,7 @@ def compute_div_example2_test():
     # - call next twice to get X1, X2
     # - run div but inclduing diagonal is fine now
     pass
+
 
 if __name__ == '__main__':
     compute_div_example1_test()
