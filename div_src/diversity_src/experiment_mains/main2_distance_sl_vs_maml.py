@@ -38,7 +38,7 @@ from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_
 from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal, get_device, norm
 from uutils.torch_uu.distributed import is_lead_worker
 from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import get_maml_inner_optimizer, \
-    dist_batch_for_all_layer_different_mdl_vs_adapted_mdl
+    dist_batch_tasks_for_all_layer_mdl_vs_adapted_mdl, dist_batch_tasks_for_all_layer_different_mdl_vs_adapted_mdl
 from uutils.torch_uu.models import reset_all_weights
 from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import get_last_two_layers
 
@@ -142,7 +142,8 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     args.agent_opt = 'MAMLMetaLearner_default'
 
     # - ckpt name
-    args.path_2_init_sl = '~/data/logs/logs_Feb10_13-36-08_jobid_3381_pid_109779/'
+    # args.path_2_init_sl = '~/data/logs/logs_Feb10_13-36-08_jobid_3381_pid_109779/'
+    args.path_2_init_sl = '~/data/logs/logs_Feb10_18-21-11_jobid_18097_pid_229674/'
     # args.path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668'
     args.path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/'
 
@@ -153,7 +154,7 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'{args.experiment_option} manual_args_l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k'
+    args.experiment_name = f'{args.experiment_option}_resnet12rfs_mi'
     args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
@@ -169,7 +170,7 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
 
 # - cifarfs
 
-def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
+def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     """
     """
     from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_cifarfs_resnet12rfs_body, \
@@ -258,10 +259,10 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     args.agent_opt = 'MAMLMetaLearner_default'
 
     # - ckpt name
-    # args.path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
-    # args.path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
-    args.path_2_init_sl = '~/data/logs/logs_Feb07_13-55-06_jobid_14887_pid_58061/'
-    args.path_2_init_maml = '~/data/logs/logs_Feb05_19-21-50_jobid_11407/'
+    args.path_2_init_sl = '~/data/logs/logs_Feb10_15-05-22_jobid_20550_pid_94325/'
+    # args.path_2_init_sl = '~/data/logs/logs_Feb10_15-05-54_jobid_12449_pid_111612/'
+    # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
+    args.path_2_init_maml = '~/data/logs/logs_Feb10_15-54-14_jobid_28881_pid_101601/'
 
     # - device
     # args.device = torch.device('cpu')
@@ -271,8 +272,8 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'{args.experiment_option} manual_args_l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k'
-    args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
+    args.experiment_name = f'{args.experiment_option}_resnet12rfs_cifarfs'
+    args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
 
@@ -296,8 +297,8 @@ def load_args() -> Namespace:
     args: Namespace = parse_args_meta_learning()
 
     # - get manual args
-    # args: Namespace = l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args)
-    args: Namespace = resnet12rfs_mi(args)
+    args: Namespace = resnet12rfs_cifarfs(args)
+    # args: Namespace = resnet12rfs_mi(args)
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)
@@ -323,6 +324,9 @@ def main_data_analyis():
     print(f'{args.data_path=}')
     # assert equal_two_few_shot_cnn_models(args.mdl1,
     #                                      args.mdl2), f'Error, models should have same arch but they do not:\n{args.mdl1=}\n{args.mdl2}'
+    # - print path to checkpoints
+    print(f'{args.path_2_init_sl=}')
+    print(f'{args.path_2_init_maml=}')
 
     # - get dataloaders and overwrites so data analysis runs as we want
     args.dataloaders: dict = get_meta_learning_dataloader(args)
@@ -367,7 +371,7 @@ def main_data_analyis():
         X: Tensor = qry_x
         if args.experiment_option == 'SL_vs_ML':
             distances_per_data_sets_per_layer: list[
-                OrderedDict[LayerIdentifier, float]] = dist_batch_data_sets_for_all_layer(args.mdl1, args.mdl2, X, X,
+                OrderedDict[LayerIdentifier, float]] = dist_batch_data_sets_for_all_layer(args.mdl1, args.mdl_sl, X, X,
                                                                                           args.layer_names,
                                                                                           args.layer_names,
                                                                                           metric_comparison_type=args.metric_comparison_type,
@@ -377,86 +381,89 @@ def main_data_analyis():
                                                                                           metric_as_sim_or_dist=args.metric_as_sim_or_dist)
 
         # -- get comparison - ML vs A(ML)
-        # inner_opt = get_maml_inner_optimizer(args.mdl1, args.inner_lr)
-        # distances_per_data_sets_per_layer: list[OrderedDict[LayerIdentifier, float]] = \
-        #     dist_batch_for_all_layer_mdl_vs_adapted_mdl(
-        #         mdl=args.mdl1,
-        #         spt_x=spt_x, spt_y=spt_y, qry_x=qry_x, qry_y=qry_y,
-        #         layer_names=args.layer_names,
-        #         inner_opt=inner_opt,
-        #         fo=args.fo,
-        #         nb_inner_train_steps=args.nb_inner_train_steps,
-        #         criterion=args.criterion,
-        #         metric_comparison_type=args.metric_comparison_type,
-        #         effective_neuron_type=args.effective_neuron_type,
-        #         subsample_effective_num_data_method=args.subsample_effective_num_data_method,
-        #         subsample_effective_num_data_param=args.subsample_effective_num_data_param,
-        #         metric_as_sim_or_dist=args.metric_as_sim_or_dist,
-        #         training=True
-        #     )
-
+        elif args.experiment_option == 'SL_vs_ML':
+            inner_opt = get_maml_inner_optimizer(args.mdl1, args.inner_lr)
+            distances_per_data_sets_per_layer: list[OrderedDict[LayerIdentifier, float]] = \
+                dist_batch_tasks_for_all_layer_mdl_vs_adapted_mdl(
+                    mdl=args.mdl1,
+                    spt_x=spt_x, spt_y=spt_y, qry_x=qry_x, qry_y=qry_y,
+                    layer_names=args.layer_names,
+                    inner_opt=inner_opt,
+                    fo=args.fo,
+                    nb_inner_train_steps=args.nb_inner_train_steps,
+                    criterion=args.criterion,
+                    metric_comparison_type=args.metric_comparison_type,
+                    effective_neuron_type=args.effective_neuron_type,
+                    subsample_effective_num_data_method=args.subsample_effective_num_data_method,
+                    subsample_effective_num_data_param=args.subsample_effective_num_data_param,
+                    metric_as_sim_or_dist=args.metric_as_sim_or_dist,
+                    training=True
+                )
         # -- get comparison - SL vs A(ML)
-        # inner_opt = get_maml_inner_optimizer(args.mdl1, args.inner_lr)
-        # distances_per_data_sets_per_layer: list[OrderedDict[LayerIdentifier, float]] = \
-        #     dist_batch_for_all_layer_different_mdl_vs_adapted_mdl(
-        #         mdl_fixed=args.mdl2, mdl_ml=args.mdl1,
-        #         spt_x=spt_x, spt_y=spt_y, qry_x=qry_x, qry_y=qry_y,
-        #         layer_names=args.layer_names,
-        #         inner_opt=inner_opt,
-        #         fo=args.fo,
-        #         nb_inner_train_steps=args.nb_inner_train_steps,
-        #         criterion=args.criterion,
-        #         metric_comparison_type=args.metric_comparison_type,
-        #         effective_neuron_type=args.effective_neuron_type,
-        #         subsample_effective_num_data_method=args.subsample_effective_num_data_method,
-        #         subsample_effective_num_data_param=args.subsample_effective_num_data_param,
-        #         metric_as_sim_or_dist=args.metric_as_sim_or_dist,
-        #         training=True
-        #     )
-
+        elif args.experiment_option == 'SL_vs_A(AML)':
+            inner_opt = get_maml_inner_optimizer(args.mdl1, args.inner_lr)
+            distances_per_data_sets_per_layer: list[OrderedDict[LayerIdentifier, float]] = \
+                dist_batch_tasks_for_all_layer_different_mdl_vs_adapted_mdl(
+                    mdl_fixed=args.mdl_sl, mdl_ml=args.mdl1,
+                    spt_x=spt_x, spt_y=spt_y, qry_x=qry_x, qry_y=qry_y,
+                    layer_names=args.layer_names,
+                    inner_opt=inner_opt,
+                    fo=args.fo,
+                    nb_inner_train_steps=args.nb_inner_train_steps,
+                    criterion=args.criterion,
+                    metric_comparison_type=args.metric_comparison_type,
+                    effective_neuron_type=args.effective_neuron_type,
+                    subsample_effective_num_data_method=args.subsample_effective_num_data_method,
+                    subsample_effective_num_data_param=args.subsample_effective_num_data_param,
+                    metric_as_sim_or_dist=args.metric_as_sim_or_dist,
+                    training=True
+                )
         # -- get comparison - LR(SL) vs A(ML)
-        # inner_opt = get_maml_inner_optimizer(args.mdl1, args.inner_lr)
-        # distances_per_data_sets_per_layer: list[OrderedDict[LayerIdentifier, float]] = \
-        #     dist_batch_for_all_layer_different_mdl_vs_adapted_mdl(
-        #         mdl_fixed=args.mdl2, mdl_ml=args.mdl1,
-        #         spt_x=spt_x, spt_y=spt_y, qry_x=qry_x, qry_y=qry_y,
-        #         layer_names=args.layer_names,
-        #         inner_opt=inner_opt,
-        #         fo=args.fo,
-        #         nb_inner_train_steps=args.nb_inner_train_steps,
-        #         criterion=args.criterion,
-        #         metric_comparison_type=args.metric_comparison_type,
-        #         effective_neuron_type=args.effective_neuron_type,
-        #         subsample_effective_num_data_method=args.subsample_effective_num_data_method,
-        #         subsample_effective_num_data_param=args.subsample_effective_num_data_param,
-        #         metric_as_sim_or_dist=args.metric_as_sim_or_dist,
-        #         training=True
-        #     )
-
+        elif args.experiment_option == 'LR(SL)_vs_A(ML)':
+            inner_opt = get_maml_inner_optimizer(args.mdl1, args.inner_lr)
+            distances_per_data_sets_per_layer: list[OrderedDict[LayerIdentifier, float]] = \
+                dist_batch_tasks_for_all_layer_different_mdl_vs_adapted_mdl(
+                    mdl_fixed=args.mdl_sl, mdl_ml=args.mdl1,
+                    spt_x=spt_x, spt_y=spt_y, qry_x=qry_x, qry_y=qry_y,
+                    layer_names=args.layer_names,
+                    inner_opt=inner_opt,
+                    fo=args.fo,
+                    nb_inner_train_steps=args.nb_inner_train_steps,
+                    criterion=args.criterion,
+                    metric_comparison_type=args.metric_comparison_type,
+                    effective_neuron_type=args.effective_neuron_type,
+                    subsample_effective_num_data_method=args.subsample_effective_num_data_method,
+                    subsample_effective_num_data_param=args.subsample_effective_num_data_param,
+                    metric_as_sim_or_dist=args.metric_as_sim_or_dist,
+                    training=True
+                )
         # -- get comparison - SL vs MAML(SL)
-        # args.mdl2.model.cls = deepcopy(args.mdl1.model.cls)
-        # print(
-        #     '-> sl_mdl has the head of the maml model to make comparisons using maml better, it does not affect when '
-        #     'fitting the final layer with LR FFL')
-        # inner_opt = get_maml_inner_optimizer(args.mdl2, args.inner_lr)
-        # distances_per_data_sets_per_layer: list[OrderedDict[LayerIdentifier, float]] = \
-        #     dist_batch_for_all_layer_different_mdl_vs_adapted_mdl(
-        #         mdl_fixed=args.mdl2, mdl_ml=args.mdl2,
-        #         spt_x=spt_x, spt_y=spt_y, qry_x=qry_x, qry_y=qry_y,
-        #         layer_names=args.layer_names,
-        #         inner_opt=inner_opt,
-        #         fo=args.fo,
-        #         nb_inner_train_steps=args.nb_inner_train_steps,
-        #         criterion=args.criterion,
-        #         metric_comparison_type=args.metric_comparison_type,
-        #         effective_neuron_type=args.effective_neuron_type,
-        #         subsample_effective_num_data_method=args.subsample_effective_num_data_method,
-        #         subsample_effective_num_data_param=args.subsample_effective_num_data_param,
-        #         metric_as_sim_or_dist=args.metric_as_sim_or_dist,
-        #         training=True
-        #     )
+        elif args.experiment_option == 'SL vs MAML(SL)':
+            args.mdl_sl.model.cls = deepcopy(args.mdl1.model.cls)  # todo - comment why this
+            print(
+                '-> sl_mdl has the head of the maml model to make comparisons using maml better, it does not affect when '
+                'fitting the final layer with LR FFL')
+            inner_opt = get_maml_inner_optimizer(args.mdl_sl, args.inner_lr)
+            distances_per_data_sets_per_layer: list[OrderedDict[LayerIdentifier, float]] = \
+                dist_batch_tasks_for_all_layer_different_mdl_vs_adapted_mdl(
+                    mdl_fixed=args.mdl_sl, mdl_ml=args.mdl_sl,
+                    spt_x=spt_x, spt_y=spt_y, qry_x=qry_x, qry_y=qry_y,
+                    layer_names=args.layer_names,
+                    inner_opt=inner_opt,
+                    fo=args.fo,
+                    nb_inner_train_steps=args.nb_inner_train_steps,
+                    criterion=args.criterion,
+                    metric_comparison_type=args.metric_comparison_type,
+                    effective_neuron_type=args.effective_neuron_type,
+                    subsample_effective_num_data_method=args.subsample_effective_num_data_method,
+                    subsample_effective_num_data_param=args.subsample_effective_num_data_param,
+                    metric_as_sim_or_dist=args.metric_as_sim_or_dist,
+                    training=True
+                )
+        else:
+            raise ValueError(f'Invalid experiment option, got{args.args.experiment_option=}')
 
-        # # - print raw results
+        # - print raw results
         print('-- raw results')
         print(f'distances_per_data_sets_per_layer=')
         pprint(distances_per_data_sets_per_layer)

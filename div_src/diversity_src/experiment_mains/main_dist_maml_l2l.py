@@ -42,6 +42,7 @@ def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.model_option = '4CNN_l2l_cifarfs'
+    args.model_hps = dict(ways=args.n_cls, hidden_size=64, embedding_size=64 * 4)
 
     # - data
     args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
@@ -118,6 +119,7 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.model_option = 'resnet12_rfs_cifarfs_fc100'
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=args.n_cls)
 
     # - data
     args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets

@@ -48,6 +48,8 @@ def sl_mi_rfs_5cnn_adam_cl_200(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=64, filter_size=32, levels=None,
+                          spp=False, in_channels=3)
 
     # - data
     args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
@@ -101,6 +103,7 @@ def sl_mi_rfs_resnet_rfs_mi_adam_cl_200(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.model_option = 'resnet12_rfs_mi'
+    args.model_hps = dict(model_opt=args.model_option, avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=64)
 
     # - data
     args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
@@ -142,48 +145,6 @@ def sl_mi_rfs_resnet_rfs_mi_adam_cl_200(args: Namespace) -> Namespace:
 
 # -- cirfarfs
 
-def manual_load_cifarfs_resnet12rfs_train_until_convergence(args: Namespace) -> Namespace:
-    """
-    goal:
-        - model: resnet12-rfs
-        - Opt: ?
-
-    Note:
-        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
-        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
-        advantage.
-    """
-    from pathlib import Path
-    # - model
-    args.model_option = 'resnet12_rfs_cifarfs_fc100'
-
-    # - data
-    # args.data_path = Path('~/data/CIFAR-FS/').expanduser()
-    args.data_option = 'cifarfs_l2l_sl'
-    args.data_path = Path('~/data/l2l_data/').expanduser()
-
-    # - opt
-    args.opt_option = 'AdafactorDefaultFair'
-    args.scheduler_option = 'AdafactorSchedule'
-
-    # - training mode
-    args.training_mode = 'epochs_train_convergence'
-    # args.training_mode = 'fit_single_batch'
-
-    # -
-    args.debug = True
-    # args.debug = False
-
-    # - wandb args
-    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
-    # - wandb expt args
-    args.experiment_name = f'cifarfs resnet12_rfs (train until convergence)'
-    args.run_name = f'{args.jobid=} {args.training_mode} {args.opt_option} {args.scheduler_option}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
-    return args
-
-
 def sl_cifarfs_rfs_4cnn_adam_cl_200(args: Namespace) -> Namespace:
     """
     goal:
@@ -198,6 +159,7 @@ def sl_cifarfs_rfs_4cnn_adam_cl_200(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.model_option = '4CNN_l2l_cifarfs'
+    args.model_hps = dict(ways=64, hidden_size=64, embedding_size=64 * 4)
 
     # - data
     # args.data_path = Path('~/data/CIFAR-FS/').expanduser()
@@ -243,7 +205,6 @@ def sl_cifarfs_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
     """
     goal:
         - model: resnet12-rfs
-        - Opt: ?
 
     Note:
         - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
@@ -253,6 +214,7 @@ def sl_cifarfs_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.model_option = 'resnet12_rfs_cifarfs_fc100'
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=64)
 
     # - data
     # args.data_path = Path('~/data/CIFAR-FS/').expanduser()
@@ -295,6 +257,62 @@ def sl_cifarfs_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
     return args
 
 
+def sl_cifarfs_rfs_resnet12rfs_adam_cl_600(args: Namespace) -> Namespace:
+    """
+    goal:
+        - model: resnet12-rfs
+
+    Note:
+        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
+        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
+        advantage.
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = 'resnet12_rfs_cifarfs_fc100'
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=64)
+
+    # - data
+    # args.data_path = Path('~/data/CIFAR-FS/').expanduser()
+    args.data_option = 'cifarfs_l2l_sl'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.num_epochs = 600
+    args.batch_size = 1024
+    # args.batch_size = 2 ** 14  # 2**14
+    args.lr = 1e-1
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 1
+    args.T_max = args.num_epochs // args.log_scheduler_freq
+    args.eta_min = 1e-5  # coincidentally, matches MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+
+    # - training mode
+    args.training_mode = 'epochs'
+    # args.training_mode = 'fit_single_batch'
+
+    # -
+    # args.debug = True
+    args.debug = False
+
+    # -
+    args.log_freq = 1
+
+    # - wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'sl_cifarfs_rfs_resnet12rfs_adam_cl_600'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
 def load_args() -> Namespace:
     """
     1. parse args from user's terminal
@@ -312,14 +330,14 @@ def load_args() -> Namespace:
     elif args_hardcoded_in_script(args):
         if args.manual_loads_name == 'sl_cifarfs_rfs_resnet12rfs_adam_cl_200':
             args: Namespace = sl_cifarfs_rfs_resnet12rfs_adam_cl_200(args)
-        elif args.manual_loads_name == 'manual_load_cifarfs_resnet12rfs_train_until_convergence':
-            args: Namespace = manual_load_cifarfs_resnet12rfs_train_until_convergence(args)
         elif args.manual_loads_name == 'sl_cifarfs_rfs_4cnn_adam_cl_200':
             args: Namespace = sl_cifarfs_rfs_4cnn_adam_cl_200(args)
         elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_cl_200':
             args: Namespace = sl_mi_rfs_5cnn_adam_cl_200(args)
         elif args.manual_loads_name == 'sl_mi_rfs_resnet_rfs_mi_adam_cl_200':
             args: Namespace = sl_mi_rfs_resnet_rfs_mi_adam_cl_200(args)
+        elif args.manual_loads_name == 'sl_cifarfs_rfs_resnet12rfs_adam_cl_600':
+            args: Namespace = sl_cifarfs_rfs_resnet12rfs_adam_cl_600(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
