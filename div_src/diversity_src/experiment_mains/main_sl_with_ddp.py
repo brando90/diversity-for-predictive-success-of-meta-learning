@@ -103,7 +103,7 @@ def sl_mi_rfs_resnet_rfs_mi_adam_cl_200(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.model_option = 'resnet12_rfs_mi'
-    args.model_hps = dict(model_opt=args.model_option, avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=64)
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=64)
 
     # - data
     args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
