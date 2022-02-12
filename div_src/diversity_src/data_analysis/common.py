@@ -196,7 +196,7 @@ def comparison_via_performance(args: Namespace):
     assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl)
     print(f'{norm(args.mdl_rand)=}, {norm(args.mdl_maml)=} {norm(args.mdl_sl)=}')
 
-    #
+    # - varying lr_inner
     original_lr_inner = args.meta_learner.lr_inner
     # original_lr_inner = 0.5
     # original_lr_inner = 0.1
@@ -210,61 +210,46 @@ def comparison_via_performance(args: Namespace):
     # -
     assert isinstance(args.meta_learner, MAMLMetaLearner)
     args_mdl_rand = copy(args)
+    args_mdl_maml = copy(args)
     args_mdl_sl = copy(args)
 
-    # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
+    # # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     print('\n---- maml0 for rand model')
-    print_performance_results_for_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
     print('---- maml0 for maml model')
-    print_performance_results_for_maml(args, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
     print('---- maml0 for sl model')
-    print_performance_results_for_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=0, lr_inner=0.0)
 
     # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
     print('\n---- maml5 for rand model')
-    print_performance_results_for_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=5, lr_inner=original_lr_inner)
+    print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=5, lr_inner=original_lr_inner)
     print('---- maml5 for maml model')
-    print_performance_results_for_maml(args, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
+    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
     print('---- maml5 for sl model')
-    print_performance_results_for_maml(args_mdl_sl, model=args.args, nb_inner_steps=5, lr_inner=original_lr_inner)
+    print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=5, lr_inner=original_lr_inner)
 
     # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
     print('\n---- maml10 for rand model')
-    args_mdl_rand = copy(args)
-    args_mdl_rand.meta_learner.base_model = args.mdl_rand
-    args_mdl_rand.meta_learner.nb_inner_train_steps = 10
-    args_mdl_rand.meta_learner.lr_inner = original_lr_inner
-    print_performance_results(args_mdl_rand)
+    print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=10, lr_inner=original_lr_inner)
     print('---- maml10 for maml model')
-    args.meta_learner.base_model = args.mdl_maml
-    args.meta_learner.nb_inner_train_steps = 10
-    args.meta_learner.lr_inner = original_lr_inner
-    print_performance_results(args)
+    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
     print('---- maml10 for sl model')
-    args_mdl_sl = copy(args)
-    args_mdl_sl.meta_learner.base_model = args.mdl_sl
-    args_mdl_sl.meta_learner.nb_inner_train_steps = 10
-    args_mdl_sl.meta_learner.lr_inner = original_lr_inner
-    print_performance_results(args_mdl_sl)
+    print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=10, lr_inner=original_lr_inner)
 
     # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
     print('\n---- FFL (LR) for rand model')
-    args_mdl_rand = copy(args)
-    args_mdl_rand.meta_learner = FitFinalLayer(args, base_model=args.mdl_rand)
-    print_performance_results(args_mdl_rand)
+    print_performance_4_sl(args_mdl_rand, model=args.mdl_rand)
     print('---- FFL (LR) for maml model')
-    args.meta_learner = FitFinalLayer(args, base_model=args.mdl_maml)
-    print_performance_results(args)
+    print_performance_4_sl(args_mdl_maml, model=args.mdl_maml)
     print('---- FFL (LR) for sl model')
-    args_mdl_sl = copy(args)
-    args_mdl_sl.meta_learner = FitFinalLayer(args, base_model=args.mdl_sl)
-    print_performance_results(args_mdl_sl)
+    print_performance_4_sl(args_mdl_sl, model=args.mdl_sl)
 
     print()
 
 
 def print_performance_results(args: Namespace):
-    assert args.meta_learner is args.agent
+    # assert args.meta_learner is args.agent
     meta_loss, meta_loss_std, meta_acc, meta_acc_std = eval_sl(args, args.meta_learner, args.dataloaders,
                                                                split='train',
                                                                training=True)
@@ -279,18 +264,36 @@ def print_performance_results(args: Namespace):
     print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
 
 
-def print_performance_results_for_maml(args: Namespace,
-                                       model: nn.Module,
-                                       nb_inner_steps: int,
-                                       lr_inner: float,
-                                       ):
+def print_performance_4_maml(args: Namespace,
+                             model: nn.Module,
+                             nb_inner_steps: int,
+                             lr_inner: float,
+                             ):
+    original_meta_learner = args.meta_learner
     assert isinstance(args.meta_learner, MAMLMetaLearner)
+    # - this still gives issues create a new instance of MAMLMetaLearner
+    # args.meta_learner = MAMLMetaLearner(args, model, inner_debug=False, target_type='classification')
     args.meta_learner.base_model = model
     args.meta_learner.nb_inner_train_steps = nb_inner_steps
     args.meta_learner.lr_inner = lr_inner
     assert isinstance(args.meta_learner, MAMLMetaLearner)
     print_performance_results(args)
     assert isinstance(args.meta_learner, MAMLMetaLearner)
+    args.meta_learner = original_meta_learner
+    args.agent = original_meta_learner
+
+
+def print_performance_4_sl(args: Namespace,
+                           model: nn.Module,
+                           ):
+    original_meta_learner = args.meta_learner
+    args.meta_learner = FitFinalLayer(args, base_model=model)
+    args.agent = args.meta_learner
+    assert isinstance(args.meta_learner, FitFinalLayer)
+    print_performance_results(args)
+    assert isinstance(args.meta_learner, FitFinalLayer)
+    args.meta_learner = original_meta_learner
+    args.agent = original_meta_learner
 
 
 def load_old_mi_resnet12rfs_ckpt(args: Namespace, path_to_checkpoint: Path) -> nn.Module:
