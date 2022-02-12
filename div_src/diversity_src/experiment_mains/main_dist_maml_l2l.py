@@ -124,6 +124,7 @@ def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     """
     from pathlib import Path
     # - model
+    args.n_cls = 64
     args.model_option = '4CNN_l2l_cifarfs'
     args.model_hps = dict(ways=args.n_cls, hidden_size=64, embedding_size=64 * 4)
 
@@ -139,8 +140,8 @@ def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     args.num_its = 70_000
 
     # - debug flag
-    args.debug = True
-    # args.debug = False
+    # args.debug = True
+    args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
@@ -168,8 +169,8 @@ def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     args.batch_size = 8
 
     # - dist args
-    # args.world_size = torch.cuda.device_count()
-    args.world_size = 1
+    args.world_size = torch.cuda.device_count()
+    # args.world_size = 1
     args.parallel = True
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
@@ -188,8 +189,8 @@ def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     args.experiment_name = f'l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k'
     # args.run_name = f'debug: {args.jobid=}'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)

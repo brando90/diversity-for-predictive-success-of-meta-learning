@@ -29,9 +29,9 @@ import time
 
 # from meta_learning.diversity.diversity import diversity
 
-# from meta_learning.meta_learners.pretrain_convergence import FitFinalLayer
+from meta_learning.meta_learners.pretrain_convergence import FitFinalLayer
 from diversity_src.diversity.diversity import diversity
-from uutils.torch_uu.meta_learners.pretrain_convergence import FitFinalLayer
+# from uutils.torch_uu.meta_learners.pretrain_convergence import FitFinalLayer
 
 from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal, norm
 from uutils.torch_uu.dataloaders.meta_learning.torchmeta_ml_dataloaders import get_miniimagenet_dataloaders_torchmeta
@@ -132,18 +132,17 @@ def get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin: int = 10):
 
 def get_args_for_experiment() -> Namespace:
     # - get my default args
-    args = uutils.parse_basic_meta_learning_args_from_terminal()
-    args.log_to_wandb = False
-    # args.log_to_wandb = True
+    args = uutils._parse_basic_meta_learning_args_from_terminal()
     # args.layer_names = get_feature_extractor_pool_layers()
     # args.layer_names = get_all_layers_minus_cls()
     # args.layer_names = get_feature_extractor_conv_layers()
     # args.layer_names = get_feature_extractor_conv_layers(include_cls=True)
     # args.layer_names: list[str] = get_last_two_layers(layer_type='conv', include_cls=True)
-    args.metric_comparison_type = 'svcca'
+    # args.metric_comparison_type = 'svcca'
     # args.metric_comparison_type = 'pwcca'
     # args.metric_comparison_type = 'lincka'
     # args.metric_comparison_type = 'opd'
+    args.metric_comparison_type = 'none'
     args.effective_neuron_type = 'filter'
     args.layer_names: list[str] = get_last_two_layers(layer_type='conv', include_cls=True)
     # args.layer_names: list[str] = get_last_two_layers(layer_type='pool', include_cls=True)
@@ -160,7 +159,6 @@ def get_args_for_experiment() -> Namespace:
     # args.run_name = 'd(f_sl, A(f_maml)) - pwcca - filter - safety=10 - conv - rep2'
     # args.experiment_name = 'd(f_sl, A(f_sl)) - (choose metric) using conv'
     # args.run_name = 'd(f_sl, A(f_sl)) - pwcca - filter - safety=10 - conv - rep2'
-    # args.experiment_name = 'performance comparison'
     # args.run_name = 'performance comparison - 0.01 - meta-batch = 500 - head of sl using head of maml for maml adaptation'
     # args.run_name = 'performance comparison - 0.01 - meta-batch = 500 - head of sl NOT using head of maml'
     # args.run_name = 'performance comparison - 0.01 - meta-batch = 500 - head of sl NOT using head of maml - run 2'
@@ -185,11 +183,10 @@ def get_args_for_experiment() -> Namespace:
     # args.run_name = 'd(f_sl, A(f_maml)) - pwcca - filter - safety=10 - conv - rep2'
     # args.run_name = 'd(LR(f_sl), A(f_maml)) - pwcca - filter - safety=10 - conv - rep2'
     # args.run_name = 'd(LR(f_sl), A(f_sl)) - pwcca - filter - safety=10 - conv - rep2'
-    args.experiment_name = 'diveristiy on mini-imagenet (MI)'
+    # args.experiment_name = 'diveristiy on mini-imagenet (MI)'
     # args.run_name = f'dv(B_MI) = dv(B_MI, f) - f=f_rand - {args.metric_comparison_type} - filter - safety=10 - {args.layer_names} [DEBUG]'
     # args.run_name = f'dv(B_MI) = dv(B_MI, f) - f=f_maml - {args.metric_comparison_type} - filter - safety=10 - {args.layer_names}'
-    args.run_name = f'dv(B_MI) = dv(B_MI, f) - f=f_sl - {args.metric_comparison_type} - filter - safety=10 - {args.layer_names}'
-    args = uutils.setup_args_for_experiment(args)
+    # args.run_name = f'dv(B_MI) = dv(B_MI, f) - f=f_sl - {args.metric_comparison_type} - filter - safety=10 - {args.layer_names}'
 
     # - my args
     args.num_workers = 0
@@ -201,25 +198,31 @@ def get_args_for_experiment() -> Namespace:
     args.num_its = 1
     # args.meta_batch_size_train = 5
     # args.meta_batch_size_train = 10
-    args.meta_batch_size_train = 25
+    # args.meta_batch_size_train = 25
     # args.meta_batch_size_train = 50
-    # args.meta_batch_size_train = 100
+    args.meta_batch_size_train = 100
     # args.meta_batch_size_train = 200
     # args.meta_batch_size_train = 500
     args.meta_batch_size_eval = args.meta_batch_size_train
     # args.k_eval = get_recommended_batch_size_miniimagenet_5CNN(safety_margin=args.safety_margin)
     args.k_eval = get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin=args.safety_margin)
 
+    # args.log_to_wandb = False
+    args.log_to_wandb = True
+    args.experiment_name = 'performance comparison'
+    args.run_name = f'{args.meta_batch_size_eval=} (reproduction)'
+    args = uutils.setup_args_for_experiment(args)
     # -- checkpoints SL & MAML
     # 5CNN
     # ####ckpt_filename = 'ckpt_file_best_loss.pt'  # idk if the they have the same acc for this one, the goal is to minimize diffs so that only SL & MAML is the one causing the difference
-    # path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
+    path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
     # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
     path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-17-50_jobid_13_pid_177628/'
 
     # resnet12rfs
-    path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
-    path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT'
+    # path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
+    # path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT'
+    # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668'
 
     # - path2checkpoint_file
     ckpt_filename_sl = 'ckpt_file.pt'  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
@@ -559,17 +562,20 @@ def comparison_via_performance(args: Namespace):
     args.mdl_sl = args.mdl2
     args.mdl_rand = deepcopy(args.mdl1)
     reset_all_weights(args.mdl_rand)
+    assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl)
+
     #
-    # original_lr_inner = args.meta_learner.lr_inner
+    original_lr_inner = args.meta_learner.lr_inner
     # original_lr_inner = 0.5
     # original_lr_inner = 0.1
     # original_lr_inner = 0.01
-    original_lr_inner = -0.01
+    # original_lr_inner = -0.01
 
     args.mdl_sl.model.cls = deepcopy(args.mdl_maml.model.cls)
     print('-> sl_mdl has the head of the maml model to make comparisons using maml better, it does not affect when '
           'fitting the final layer with LR FFL')
 
+    print(f'NOTE, order is really (meta_loss, meta_acc, meta_loss_std, meta_acc_std)')
     # -- maml 0
     print('\n---- maml0 for rand model')
     args_mdl_rand = copy(args)
@@ -756,6 +762,6 @@ def comparison_via_performance(args: Namespace):
 
 if __name__ == '__main__':
     main_run_expt()
-    # from meta_learning.diversity.task2vec_based_metrics.diversity_task2vec.diversity import get_data_sets_from_example
+    # from meta_learning.diversity.task2vec_based_metrics.diversity_ask2vec.diversity import get_data_sets_from_example
     # get_data_sets_from_example()
     print('--> Success Done!\a\n')

@@ -168,6 +168,14 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     return args
 
 
+def old_5ccnn():
+    # -- checkpoints SL & MAML
+    # 5CNN
+    # ####ckpt_filename = 'ckpt_file_best_loss.pt'  # idk if the they have the same acc for this one, the goal is to minimize diffs so that only SL & MAML is the one causing the difference
+    path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
+    # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
+    path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-17-50_jobid_13_pid_177628/'
+
 # - cifarfs
 
 def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
