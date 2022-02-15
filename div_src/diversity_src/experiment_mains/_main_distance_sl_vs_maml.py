@@ -743,8 +743,6 @@ def comparison_via_performance(args: Namespace):
 
     print('---- FFL (LR) for sl model')
     args_mdl_sl = copy(args)
-    # args_mdl_sl.meta_learner = FitFinalLayer(args, base_model=args.mdl_maml, target_type='classification',
-    #                                          classifier='LR')  # BUG!!!!
     args_mdl_sl.meta_learner = FitFinalLayer(args, base_model=args.mdl_sl, target_type='classification',
                                              classifier='LR')
     meta_loss, meta_loss_std, meta_acc, meta_acc_std = meta_eval_no_context_manager(args_mdl_sl, split='train',
