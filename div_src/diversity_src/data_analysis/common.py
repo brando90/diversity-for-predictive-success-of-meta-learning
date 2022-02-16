@@ -42,7 +42,6 @@ def santity_check_maml_accuracy(args: Namespace):
     # - good maml with proper adaptaiton
     print('\n- Sanity check: MAML vs MAML0 (1st should have better performance but there is an assert to check it too)')
     print(f'{args.meta_learner.lr_inner=}')
-    # eval_loss, eval_acc, _, _ = meta_eval_no_context_manager(args, split='val', training=True, save_val_ckpt=False)
     eval_loss, _, eval_acc, _ = eval_sl(args, args.agent, args.dataloaders, split='val', training=True)
     print(f'{eval_loss=}, {eval_acc=}')
 
@@ -50,8 +49,6 @@ def santity_check_maml_accuracy(args: Namespace):
     original_lr_inner = args.meta_learner.lr_inner
     args.meta_learner.lr_inner = 0
     print(f'{args.meta_learner.lr_inner=}')
-    # eval_loss_maml0, eval_acc_maml0, _, _ = meta_eval_no_context_manager(args, split='val', training=True,
-    #                                                                      save_val_ckpt=False)
     eval_loss_maml0, _, eval_acc_maml0, _ = eval_sl(args, args.agent, args.dataloaders, split='val', training=True)
     print(f'{eval_loss_maml0=}, {eval_acc_maml0=}')
     assert eval_acc_maml0 < eval_acc, f'The accuracy of no adaptation should be smaller but got ' \
