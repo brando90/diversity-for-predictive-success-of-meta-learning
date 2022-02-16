@@ -67,28 +67,6 @@ def get_rand_batch():
     return spt_x, spt_y, qry_x, qry_y
 
 
-def santity_check_maml_accuracy(args: Namespace):
-    """
-    Checks that maml0 acc is lower than adapted maml and returns the good maml's test, train loss and accuracy.
-    """
-    # - good maml with proper adaptaiton
-    print(f'{args.meta_learner.lr_inner=}')
-    eval_loss, eval_acc, _, _ = meta_eval_no_context_manager(args, split='val', training=True, save_val_ckpt=False)
-    print(f'{eval_loss=}, {eval_acc=}')
-
-    # - with no adaptation
-    original_lr_inner = args.meta_learner.lr_inner
-    args.meta_learner.lr_inner = 0
-    print(f'{args.meta_learner.lr_inner=}')
-    eval_loss_maml0, eval_acc_maml0, _, _ = meta_eval_no_context_manager(args, split='val', training=True,
-                                                                         save_val_ckpt=False)
-    print(f'{eval_loss_maml0=}, {eval_acc_maml0=}')
-    assert eval_acc_maml0 < eval_acc, f'The accuracy of no adaptation should be smaller but got ' \
-                                      f'{eval_acc_maml0=}, {eval_acc=}'
-    args.meta_learner.lr_inner = original_lr_inner
-    print(f'{args.meta_learner.lr_inner=} [should be restored lr_inner]')
-
-
 def get_recommended_batch_size_miniimagenet_5CNN(safety_margin: int = 10):
     """
     Loop through all the layers and computing the largest B recommnded. Most likely the H*W that is
@@ -199,9 +177,9 @@ def get_args_for_experiment() -> Namespace:
     args.num_its = 1
     # args.meta_batch_size_train = 5
     # args.meta_batch_size_train = 10
-    # args.meta_batch_size_train = 25
+    args.meta_batch_size_train = 25
     # args.meta_batch_size_train = 50
-    args.meta_batch_size_train = 100
+    # args.meta_batch_size_train = 100
     # args.meta_batch_size_train = 200
     # args.meta_batch_size_train = 500
     args.meta_batch_size_eval = args.meta_batch_size_train
@@ -264,6 +242,7 @@ def get_meta_learner(args: Namespace):
     meta_learner = ckpt['meta_learner']
     from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
     meta_learner = MAMLMetaLearner(meta_learner.args, meta_learner.base_model)
+    args.agent = meta_learner
     if torch.cuda.is_available():
         meta_learner.base_model = meta_learner.base_model.cuda()
     print(f'from ckpt (maml), model type: {meta_learner.args.base_model_mode=}')
@@ -342,7 +321,7 @@ def main_run_expt():
     args.fo = True  # True, dissallows flow of higher order grad while still letting params track gradients.
 
     # -- start analysis
-    print('---------- start analysis ----------')
+    print('---------- start (original) analysis ----------')
     # X: Tensor = torch.randn(16, 3, 84, 84)
     # assert_sim_of_model_with_itself_is_approx_one(args.mdl1, X, layer_name='model.features.conv4')
     print(f'{args.num_workers=}')
@@ -361,9 +340,11 @@ def main_run_expt():
     halt: bool = False
     # -- get meta-train and meta-val
     # - with good adaptation
+    from diversity_src.data_analysis.common import santity_check_maml_accuracy
     santity_check_maml_accuracy(args)
     # -- do network comparison
     if args.experiment_name == 'performance comparison':
+        from diversity_src.data_analysis.common import comparison_via_performance
         comparison_via_performance(args)
     elif 'diveristiy on' in args.experiment_name:
         args.mdl_rand = deepcopy(args.mdl1)
