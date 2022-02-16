@@ -176,6 +176,7 @@ def old_5ccnn():
     # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
     path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-17-50_jobid_13_pid_177628/'
 
+
 # - cifarfs
 
 def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
@@ -252,8 +253,8 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     # args.safety_margin = 20
 
     # args.batch_size = 2
-    # args.batch_size = 25
-    args.batch_size = 100
+    args.batch_size = 25
+    # args.batch_size = 100
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
@@ -282,8 +283,8 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_resnet12rfs_cifarfs'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -305,8 +306,8 @@ def load_args() -> Namespace:
     args: Namespace = parse_args_meta_learning()
 
     # - get manual args
-    # args: Namespace = resnet12rfs_cifarfs(args)
-    args: Namespace = resnet12rfs_mi(args)
+    args: Namespace = resnet12rfs_cifarfs(args)
+    # args: Namespace = resnet12rfs_mi(args)
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)
@@ -376,6 +377,7 @@ def main_data_analyis():
         spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
 
         # -- get comparison - SL vs ML
+        # TODO: fix confidence inervals CI
         X: Tensor = qry_x
         if args.experiment_option == 'SL_vs_ML':
             distances_per_data_sets_per_layer: list[

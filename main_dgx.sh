@@ -9,11 +9,11 @@ echo SLURM_JOBID = $SLURM_JOBID
 #export CUDA_VISIBLE_DEVICES=0
 #export CUDA_VISIBLE_DEVICES=1
 #export CUDA_VISIBLE_DEVICES=2
-export CUDA_VISIBLE_DEVICES=3
+#export CUDA_VISIBLE_DEVICES=3
 #export CUDA_VISIBLE_DEVICES=4
 #export CUDA_VISIBLE_DEVICES=5
 #export CUDA_VISIBLE_DEVICES=6
-#export CUDA_VISIBLE_DEVICES=7
+export CUDA_VISIBLE_DEVICES=7
 #export CUDA_VISIBLE_DEVICES=4,5,6,7
 #export CUDA_VISIBLE_DEVICES=4,5,7
 #export CUDA_VISIBLE_DEVICES=0,1,2,3
@@ -60,7 +60,7 @@ echo SLURM_JOBID = $SLURM_JOBID
 #echo SLURM_JOBID = $SLURM_JOBID
 
 # - Data analysis
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main2_distance_sl_vs_maml.py
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main2_distance_sl_vs_maml.py
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/_main_distance_sl_vs_maml.py
 
 echo -- Done submitting job in dgx A100-SXM4-40G

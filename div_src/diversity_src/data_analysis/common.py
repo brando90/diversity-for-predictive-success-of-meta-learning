@@ -247,21 +247,26 @@ def comparison_via_performance(args: Namespace):
 
     print()
 
+def items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci) -> tuple[float, float, float, float]:
+    return meta_loss.item(), meta_loss_ci.item(), meta_acc.item(), meta_acc_ci.item()
 
 def print_performance_results(args: Namespace):
     # assert args.meta_learner is args.agent
-    meta_loss, meta_loss_std, meta_acc, meta_acc_std = eval_sl(args, args.meta_learner, args.dataloaders,
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = eval_sl(args, args.meta_learner, args.dataloaders,
                                                                split='train',
                                                                training=True)
-    print(f'train: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
-    meta_loss, meta_loss_std, meta_acc, meta_acc_std = eval_sl(args, args.meta_learner, args.dataloaders,
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
+    print(f'train: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = eval_sl(args, args.meta_learner, args.dataloaders,
                                                                split='val',
                                                                training=True)
-    print(f'val: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
-    meta_loss, meta_loss_std, meta_acc, meta_acc_std = eval_sl(args, args.meta_learner, args.dataloaders,
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
+    print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = eval_sl(args, args.meta_learner, args.dataloaders,
                                                                split='test',
                                                                training=True)
-    print(f'test: {(meta_loss, meta_loss_std, meta_acc, meta_acc_std)=}')
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
+    print(f'test: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
 
 
 def print_performance_4_maml(args: Namespace,
