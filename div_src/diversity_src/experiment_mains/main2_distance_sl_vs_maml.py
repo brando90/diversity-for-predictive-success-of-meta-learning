@@ -179,6 +179,118 @@ def old_5ccnn():
 
 # - cifarfs
 
+
+def args_5cnn_cifarfs(args: Namespace) -> Namespace:
+    """
+    """
+    from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_cifarfs_resnet12rfs_body, \
+        get_feature_extractor_conv_layers
+    # - model
+    args.model_option = '4CNN_l2l_cifarfs'
+
+    # - data
+    args.data_option = 'torchmeta_cifarfs'  # no name assumes l2l
+    args.data_path = Path('~/data/torchmeta_data/').expanduser()
+    args.augment_train = True
+
+    # - training mode
+    args.training_mode = 'iterations'
+
+    # note: 60K iterations for original maml 5CNN with adam
+    args.num_its = 100_000
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.nb_inner_train_steps = 5
+    # args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
+    # args.first_order = True
+    # args.first_order = False
+
+    # - outer trainer params
+    # args.batch_size = 32
+    # args.batch_size = 8
+
+    # - dist args
+    # args.world_size = torch.cuda.device_count()
+    # args.world_size = 8
+    # args.parallel = True
+    # args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
+    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+
+    # # -
+    # args.log_freq = 500
+
+    # -- options I am considering to have as flags in the args_parser...later
+    # - metric for comparison
+    args.metric_comparison_type = 'None'
+    # args.metric_comparison_type = 'svcca'
+    # args.metric_comparison_type = 'pwcca'
+    # args.metric_comparison_type = 'lincka'
+    # args.metric_comparison_type = 'opd'
+    args.metric_as_sim_or_dist = 'dist'  # since we are trying to show meta-learning is happening, the more distance btw task & change in model the more meta-leanring is the hypothesis
+
+    # - effective neuron type
+    args.effective_neuron_type = 'filter'
+
+    # - layers, this gets the feature layers it seems... unsure why I'm doing this. I thought I was doing a comparison
+    # with all the layers up to the final layer...
+    # args.layer_names: list[str] = get_last_two_layers(layer_type='conv', include_cls=True)
+    # args.layer_names = get_head_cls()
+    args.layer_names = get_feature_extractor_conv_layers()
+
+    args.safety_margin = 10
+    # args.safety_margin = 20
+
+    # args.batch_size = 2
+    # args.batch_size = 25
+    args.batch_size = 100
+    args.batch_size_eval = args.batch_size
+
+    # - set k_eval (qry set batch_size) to make experiments safe/reliable
+    args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_body(safety_margin=args.safety_margin)
+    # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_head(safety_margin=args.safety_margin)
+
+    # - expt option
+    args.experiment_option = 'performance_comparison'
+
+    # - agent/meta_learner type
+    args.agent_opt = 'MAMLMetaLearner_default'
+
+    # - ckpt name
+    args.path_2_init_sl = '~/data/logs/logs_Feb12_13-24-10_jobid_13887_pid_199696'
+    args.path_2_init_maml = '~/data/logs/logs_Feb12_13-08-09_jobid_23901_pid_137639'
+
+    # - device
+    # args.device = torch.device('cpu')
+    # args.device = get_device()
+
+    #
+    # -- wandb args
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'{args.experiment_option}_args_5cnn_cifarfs'
+    args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    # - setup paths to ckpts for data analysis
+    args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
+    # - fill in the missing things and make sure things make sense for run
+    args = uutils.setup_args_for_experiment(args)
+    return args
+
+
 def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     """
     """
@@ -253,8 +365,8 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     # args.safety_margin = 20
 
     # args.batch_size = 2
-    args.batch_size = 25
-    # args.batch_size = 100
+    # args.batch_size = 25
+    args.batch_size = 100
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
@@ -283,8 +395,8 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_resnet12rfs_cifarfs'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -306,8 +418,9 @@ def load_args() -> Namespace:
     args: Namespace = parse_args_meta_learning()
 
     # - get manual args
+    args: Namespace = args_5cnn_cifarfs(args)
     # args: Namespace = resnet12rfs_cifarfs(args)
-    args: Namespace = resnet12rfs_mi(args)
+    # args: Namespace = resnet12rfs_mi(args)
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)
@@ -327,9 +440,9 @@ def main_data_analyis():
     args.mdl2 = get_sl_learner(args)
     args.mdl_maml = args.mdl1
     args.mdl_sl = args.mdl2
-    args.mdl_rand = deepcopy(args.mdl1)
+    args.mdl_rand = deepcopy(args.mdl_maml)
     reset_all_weights(args.mdl_rand)
-    assert norm(args.mdl1) != norm(args.mdl2)
+    assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl)
     print(f'{args.data_path=}')
     # assert equal_two_few_shot_cnn_models(args.mdl1,
     #                                      args.mdl2), f'Error, models should have same arch but they do not:\n{args.mdl1=}\n{args.mdl2}'

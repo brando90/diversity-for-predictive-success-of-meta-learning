@@ -42,7 +42,7 @@ from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import get_maml
 from uutils.torch_uu.meta_learners.pretrain_convergence import FitFinalLayer
 from uutils.torch_uu.models import reset_all_weights
 from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import get_all_layers_minus_cls, \
-    get_feature_extractor_conv_layers, get_head_cls, get_last_two_layers
+    get_feature_extractor_conv_layers, get_head_cls, get_last_two_layers, Learner, get_default_learner
 
 from pdb import set_trace as st
 
@@ -177,20 +177,21 @@ def get_args_for_experiment() -> Namespace:
     args.num_its = 1
     # args.meta_batch_size_train = 5
     # args.meta_batch_size_train = 10
-    args.meta_batch_size_train = 25
+    # args.meta_batch_size_train = 25
     # args.meta_batch_size_train = 50
-    # args.meta_batch_size_train = 100
+    args.meta_batch_size_train = 100
     # args.meta_batch_size_train = 200
     # args.meta_batch_size_train = 500
     args.meta_batch_size_eval = args.meta_batch_size_train
     # args.k_eval = get_recommended_batch_size_miniimagenet_5CNN(safety_margin=args.safety_margin)
     args.k_eval = get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin=args.safety_margin)
 
-    args.log_to_wandb = False
-    # args.log_to_wandb = True
+    # args.log_to_wandb = False
+    args.log_to_wandb = True
     args.experiment_name = 'performance comparison'
     args.run_name = f'{args.meta_batch_size_eval=} (reproduction)'
     args = uutils.setup_args_for_experiment(args)
+
     # -- checkpoints SL & MAML
     # 5CNN
     # ####ckpt_filename = 'ckpt_file_best_loss.pt'  # idk if the they have the same acc for this one, the goal is to minimize diffs so that only SL & MAML is the one causing the difference
@@ -231,6 +232,11 @@ def get_sl_learner(args: Namespace):
     """
     ckpt: dict = torch.load(args.path_2_init_sl, map_location=torch.device('cpu'))
     model = ckpt['model']
+    base_model: nn.Module = get_default_learner(n_classes=64)
+    base_model.load_state_dict(model.state_dict())
+    assert base_model is not model
+    assert norm(base_model) == norm(model)
+    model = base_model
     if torch.cuda.is_available():
         model = model.cuda()
     print(f'from ckpt (sl), model type: {model}')
@@ -238,11 +244,21 @@ def get_sl_learner(args: Namespace):
 
 
 def get_meta_learner(args: Namespace):
-    ckpt: dict = torch.load(args.path_2_init_maml, map_location=torch.device('cpu'))
-    meta_learner = ckpt['meta_learner']
     from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
+    ckpt: dict = torch.load(args.path_2_init_maml, map_location=torch.device('cpu'))
+
+    # - get stuff from ckpt
+    meta_learner = ckpt['meta_learner']
+    base_model: nn.Module = get_default_learner()
+    base_model.load_state_dict(meta_learner.base_model.state_dict())
+    assert base_model is not meta_learner.base_model
+    meta_learner.base_model = base_model
+
+    # - load it to up-to-date objects
     meta_learner = MAMLMetaLearner(meta_learner.args, meta_learner.base_model)
+    args.meta_learner = meta_learner
     args.agent = meta_learner
+    assert args.agent is args.meta_learner
     if torch.cuda.is_available():
         meta_learner.base_model = meta_learner.base_model.cuda()
     print(f'from ckpt (maml), model type: {meta_learner.args.base_model_mode=}')
@@ -293,11 +309,15 @@ def main_run_expt():
     args.mdl2 = get_sl_learner(args)
     args.mdl_maml = args.mdl1
     args.mdl_sl = args.mdl2
-    assert norm(args.mdl1) != norm(args.mdl2)
+    args.mdl_rand = deepcopy(args.mdl_maml)
+    reset_all_weights(args.mdl_rand)
+    assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl)
     print(f'{args.data_path=}')
     assert equal_two_few_shot_cnn_models(args.mdl1,
                                          args.mdl2), f'Error, models should have same arch but they do not:\n{args.mdl1=}\n{args.mdl2}'
     print(f'{args.data_path=}')
+    assert hasattr(args.mdl1, 'cls')
+    assert hasattr(args.mdl2, 'cls')
 
     # - get dataloaders and overwrites so data analysis runs as we want
     print(f'{args.data_path=}')
@@ -338,11 +358,10 @@ def main_run_expt():
     # bar_it = uutils.get_good_progressbar(max_value=args.num_its)
     args.it = 1
     halt: bool = False
-    # -- get meta-train and meta-val
-    # - with good adaptation
+
+    # -- Do data analysis
     from diversity_src.data_analysis.common import santity_check_maml_accuracy
     santity_check_maml_accuracy(args)
-    # -- do network comparison
     if args.experiment_name == 'performance comparison':
         from diversity_src.data_analysis.common import comparison_via_performance
         comparison_via_performance(args)

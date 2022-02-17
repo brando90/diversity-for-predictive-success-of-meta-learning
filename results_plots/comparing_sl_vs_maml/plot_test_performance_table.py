@@ -28,19 +28,19 @@ from uutils.plot import put_pm_to_pandas_data, get_latex_table_as_text_nice_defa
 data = {
     'Meta-train Initialization': ['Random',
                                   'MAML0',
-                                  'SL',
+                                  'USL',
 
                                   'Random',
                                   'MAML5',
-                                  'SL',
+                                  'USL',
 
                                   'Random',
                                   'MAML5',
-                                  'SL',
+                                  'USL',
 
                                   'Random',
                                   'MAML5',
-                                  'SL',
+                                  'USL',
                                   ],
     'Adaptation at Inference': ['no adaptation',
                                 'no adaptation',
@@ -111,22 +111,24 @@ import pandas as pd
 
 from uutils.plot import put_pm_to_pandas_data, get_latex_table_as_text_nice_default
 
+print('---> 5CNN MI (original, higher results, redone)')
+
 data = {
     'Meta-train Initialization': ['Random',
                                   'MAML0',
-                                  'SL',
+                                  'USL',
 
                                   'Random',
                                   'MAML5',
-                                  'SL',
+                                  'USL',
 
                                   'Random',
                                   'MAML5',
-                                  'SL',
+                                  'USL',
 
                                   'Random',
                                   'MAML5',
-                                  'SL',
+                                  'USL',
                                   ],
     'Adaptation at Inference': ['no adaptation',
                                 'no adaptation',
@@ -145,21 +147,21 @@ data = {
                                 'Adapt Head only (with LR)',
                                 ],
 
-    'Meta-test Accuracy': ['0.0098+-0.0139',
-                           '0.200+-0.0',
-                           '0.200+-0.0',
+    'Meta-test Accuracy': ['19.3+-0.80',
+                           '20.0+-0.00',
+                           '15.0+-0.26',
 
-                           '0.276+-0.0812',
-                           '0.791+-0.0780',
-                           '0.786+-0.0835',
+                           '34.2+-1.16',
+                           '62.4+-1.64',
+                           '25.1+-0.98',
 
-                           '0.285+-0.0718',
-                           '0.787+-0.0866',
-                           '0.796+-0.0911',
+                           '34.1+-1.23',
+                           '62.3+-1.50',
+                           '25.1+-0.97',
 
-                           '0.793+-0.0910',
-                           '0.803+-0.0849',
-                           '0.806+-0.088',
+                           '40.2+-1.30',
+                           '59.7+-1.37',
+                           '60.1+-1.37',
                            ],
 }
 

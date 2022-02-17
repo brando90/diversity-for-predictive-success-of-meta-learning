@@ -130,6 +130,28 @@ def load_model_cifarfs_fix_model_hps(args, path_to_checkpoint):
     return args.model
 
 
+def load_4cnn_cifarfs_fix_model_hps_sl(args, path_to_checkpoint):
+    path_to_checkpoint = args.path_to_checkpoint if path_to_checkpoint is None else path_to_checkpoint
+    ckpt: dict = torch.load(path_to_checkpoint, map_location=args.device)
+    from uutils.torch_uu.models.l2l_models import cnn4_cifarsfs
+    model, model_hps = cnn4_cifarsfs(ways=64)
+    model.cls = model.classifier
+    model.load_state_dict(ckpt['model_state_dict'])
+    args.model = model
+    return model
+
+
+def load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint):
+    path_to_checkpoint = args.path_to_checkpoint if path_to_checkpoint is None else path_to_checkpoint
+    ckpt: dict = torch.load(path_to_checkpoint, map_location=args.device)
+    from uutils.torch_uu.models.l2l_models import cnn4_cifarsfs
+    model, model_hps = cnn4_cifarsfs(ways=5)
+    model.cls = model.classifier
+    model.load_state_dict(ckpt['model_state_dict'])
+    args.model = model
+    return model
+
+
 def get_sl_learner(args: Namespace):
     """
     perhaps useful:
@@ -138,12 +160,15 @@ def get_sl_learner(args: Namespace):
     see: save_check_point_sl
     """
     # ckpt: dict = torch.load(args.path_2_init_maml, map_location=torch.device('cpu'))
-    model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_sl)
-    # model = args.model
+    if '13887' in str(args.path_2_init_sl):
+        model = load_4cnn_cifarfs_fix_model_hps_sl(args, path_to_checkpoint=args.path_2_init_sl)
+    else:
+        model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_sl)
+    args.model = model
 
     # args.meta_learner = _get_agent(args)
-    # if torch.cuda.is_available():
-    #     args.meta_learner.base_model = base_model.cuda()
+    if torch.cuda.is_available():
+        args.meta_learner.base_model = args.model.cuda()
     return model
 
 
@@ -153,10 +178,12 @@ def get_maml_meta_learner(args: Namespace):
         # args.path_2_init_maml = Path('~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668/ckpt_file.pt').expanduser()
         base_model = load_old_mi_resnet12rfs_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
     elif '101601' in str(args.path_2_init_maml):
-
         base_model = load_model_cifarfs_fix_model_hps(args, path_to_checkpoint=args.path_2_init_maml)
+    elif '23901' in str(args.path_2_init_maml):
+        base_model = load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint=args.path_2_init_maml)
     else:
         base_model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
+    args.model = base_model
 
     args.meta_learner = _get_agent(args)
     if torch.cuda.is_available():
@@ -181,15 +208,9 @@ def set_maml_cls_to_maml_cls(args: Namespace, model: nn.Module):
 def comparison_via_performance(args: Namespace):
     print('\n---- comparison_via_performance ----\n')
     assert norm(args.mdl1) != norm(args.mdl2)
-    args.mdl_maml = args.mdl1
     assert norm(args.mdl_maml) == norm(args.mdl1)
-    args.mdl_sl = args.mdl2
     assert norm(args.mdl_sl) == norm(args.mdl2)
     assert norm(args.mdl_maml) != norm(args.mdl_sl)
-
-    # args.mdl_rand = deepcopy(args.mdl2)
-    # assert norm(args.mdl_rand) == norm(args.mdl2)
-    reset_all_weights(args.mdl_rand)
     assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl)
     print(f'{norm(args.mdl_rand)=}, {norm(args.mdl_maml)=} {norm(args.mdl_sl)=}')
 
@@ -210,7 +231,7 @@ def comparison_via_performance(args: Namespace):
     args_mdl_maml = copy(args)
     args_mdl_sl = copy(args)
 
-    # # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
+    # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     print('\n---- maml0 for rand model')
     print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
     print('---- maml0 for maml model')
@@ -244,24 +265,26 @@ def comparison_via_performance(args: Namespace):
 
     print()
 
+
 def items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci) -> tuple[float, float, float, float]:
     return meta_loss.item(), meta_loss_ci.item(), meta_acc.item(), meta_acc_ci.item()
+
 
 def print_performance_results(args: Namespace):
     # assert args.meta_learner is args.agent
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = eval_sl(args, args.meta_learner, args.dataloaders,
-                                                               split='train',
-                                                               training=True)
+                                                             split='train',
+                                                             training=True)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'train: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = eval_sl(args, args.meta_learner, args.dataloaders,
-                                                               split='val',
-                                                               training=True)
+                                                             split='val',
+                                                             training=True)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = eval_sl(args, args.meta_learner, args.dataloaders,
-                                                               split='test',
-                                                               training=True)
+                                                             split='test',
+                                                             training=True)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'test: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
 
