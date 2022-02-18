@@ -246,8 +246,8 @@ def l2l_5CNNl2l_mi_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     args.batch_size = 8
 
     # - dist args
-    # args.world_size = torch.cuda.device_count()
-    args.world_size = 4
+    args.world_size = torch.cuda.device_count()
+    # args.world_size = 4
     args.parallel = True
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
