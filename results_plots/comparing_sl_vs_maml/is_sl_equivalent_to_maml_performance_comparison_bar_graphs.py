@@ -165,22 +165,24 @@ plt.show()
 import pandas as pd
 import matplotlib.pyplot as plt
 
-groups = ['MI 5CNN']
-adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']
+groups = ['MI 5CNN', 'MI 5CNN 2']  # the rows of a df
+adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']  # columns of a df
 meta_test_acc = [62.4, 62.3, 60.1]
 meta_test_ci = [1.64, 1.5, 1.37]
-row1 = array([meta_test_acc + meta_test_ci])
-data = row1
+row1 = meta_test_acc + meta_test_ci
+row2 = meta_test_acc + meta_test_ci
+data = [row1, row2]
+print(data)
 
 df = pd.DataFrame(data, columns=adapted_models, index=groups)
 print(df)
 
 # convert the std columns to an array
 yerr = df[['MAML5 ci', 'MAML10 ci', 'USL ci']].to_numpy().T
-print(yerr)
+print(f'{yerr=}')
 
 # df[['MAML5', 'MAML10', 'USL']].plot(kind='bar', yerr=yerr, alpha=0.5, error_kw=dict(ecolor='k'), capsize=5.0)
-df[['MAML5', 'MAML10', 'USL']].plot(kind='bar', yerr=yerr, alpha=0.7, capsize=5.0, width=0.08)
+df[['MAML5', 'MAML10', 'USL']].plot(kind='bar', yerr=yerr, alpha=0.7, capsize=2.5, width=0.15)
 # plt.grid(True)
 plt.grid(linestyle='--')
 plt.tight_layout()
