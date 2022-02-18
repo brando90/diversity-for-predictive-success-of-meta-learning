@@ -602,7 +602,6 @@ def sl_cifarfs_rfs_5cnn_sgd_cl_600(args: Namespace) -> Namespace:
     """
     from pathlib import Path
     # - model
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
     args.model_option = '4CNN_l2l_cifarfs'
     args.model_hps = dict(ways=64, hidden_size=64, embedding_size=64 * 4)
 
@@ -656,7 +655,7 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_standard_sl()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'sl_cifarfs_rfs_5cnn_sgd_cl_600'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'sl_cifarfs_rfs_5cnn_sgd_cl_600'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
