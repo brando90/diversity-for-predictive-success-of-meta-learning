@@ -11,6 +11,7 @@ import random
 import numpy as np
 import torch
 import learn2learn as l2l
+import torch.distributions as dist
 
 from torch import nn, optim
 
@@ -79,19 +80,27 @@ def get_gaussian_tasksets(mu_B, sigma_B, num_fixed_classes, ways, samples, num_t
 
     #-----EDIT 2/17 after BRANDO meeting: We want to keep a fixed amount of gaussians sampled from N(mu_B, sigma_B)----#
     task_dist = dist.Normal(mu_B * torch.ones(2 * num_fixed_classes), sigma_B * torch.ones(2*num_fixed_classes))
-    all_mus_sigmas = zip(task_params[:num_fixed_classes], torch.abs(task_params[num_fixed_classes:]))
+    task_params = task_dist.sample()
+    all_mus_sigmas = list(zip(task_params[:num_fixed_classes], torch.abs(task_params[num_fixed_classes:])))
+    #print(all_mus_sigmas)
     #----------#
 
-    train_gaussian_xs = []
-    train_gaussian_ys = []
+    #gaussian_xs = []
+    #gaussian_ys = []
+    all_tasksets = []
     for i in range(num_tasks):
         #sample TRUE data distribution gaussians for way 0...{ways-1}
         #such that mu_i = {mu_ij ~ N(mu_B, sigma_B) | 0 <= j < ways}
         # sigma_i = {sigma_ij ~ abs(N(mu_B, sigma_B)) | 0 <= j < ways}
         #Both will contain ways elements
 
+        gaussian_xs_task = []
+        gaussian_ys_task = []
+        #print(np.random.choice(np.array(all_mus_sigmas), ways))
         #-----EDIT 2/17 after BRANDO meeting: We want to keep a fixed amount of gaussians sampled from N(mu_B, sigma_B)----#
-        mu_i, sigma_i = zip(*np.random.choice(all_mus_sigmas, ways)) #unzip the list with zip(*x)
+        #workaround to draw samples from list of tuples: https://stackoverflow.com/questions/30821071/how-to-use-numpy-random-choice-in-a-list-of-tuples
+        ways_classes = [all_mus_sigmas[i] for i in np.random.choice(len(all_mus_sigmas), ways)]
+        mu_i, sigma_i = zip(*ways_classes) #unzip the list with zip(*x)
         #----------#
         #task_params = task_dist.sample()
         #mu_i, sigma_i = task_params[:ways], torch.abs(task_params[ways:])
@@ -107,10 +116,15 @@ def get_gaussian_tasksets(mu_B, sigma_B, num_fixed_classes, ways, samples, num_t
                 #sample a point from our TRUE data distribution for way j:
                 #val_ij ~ N(mu_ij, sigma_ij)
                 val_ij = task_i_way_j.sample()
-                train_gaussian_xs.append(val_ij) #datapoint from task i, sampled for way j
-                train_gaussian_ys.append(j) #we are in way j
+                gaussian_xs_task.append(val_ij) #datapoint from task i, sampled for way j
+                gaussian_ys_task.append(j) #we are in way j
 
-    return (train_gaussian_xs, train_gaussian_ys)
+        all_tasksets.append((gaussian_xs_task, gaussian_ys_task))
+        #gaussian_xs.append(gaussian_xs_task)
+        #gaussian_ys.append(gaussian_ys_task)
+
+
+    return all_tasksets#(gaussian_xs, gaussian_ys)
 
 
 #5-way 10-shot
