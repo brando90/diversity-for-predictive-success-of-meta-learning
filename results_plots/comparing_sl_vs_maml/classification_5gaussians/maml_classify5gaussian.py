@@ -116,32 +116,32 @@ def get_gaussian_tasksets(mu_B, sigma_B, num_fixed_classes, ways, samples, num_t
                 #sample a point from our TRUE data distribution for way j:
                 #val_ij ~ N(mu_ij, sigma_ij)
                 val_ij = task_i_way_j.sample()
-                gaussian_xs_task.append(val_ij) #datapoint from task i, sampled for way j
+                gaussian_xs_task.append(val_ij.numpy().reshape(-1,1,1)) #datapoint from task i, sampled for way j
                 gaussian_ys_task.append(j) #we are in way j
 
-        all_tasksets.append((gaussian_xs_task, gaussian_ys_task))
+
+        all_tasksets.append((torch.from_numpy(np.array(gaussian_xs_task)), torch.from_numpy(np.array(gaussian_ys_task))))
         #gaussian_xs.append(gaussian_xs_task)
         #gaussian_ys.append(gaussian_ys_task)
 
 
     return all_tasksets#(gaussian_xs, gaussian_ys)
 
-
 #5-way 10-shot
 def main(
         ways=5, #number of classes
-        shots=15, #number of samples per train step. change to 10?
+        shots=30, #number of samples per train step. change to 10?
         meta_lr=0.003,
         fast_lr=0.5,
         meta_batch_size=32, #number of tasks per epoch
         adaptation_steps=1,
         num_iterations=60000,
-        cuda=True,
+        cuda=False,
         seed=42,
-        mu_B = 10,
-        sigma_B = 10,
-        num_fixed_classes = 100,
-        num_tasks = 20000
+        mu_B = 0.1,
+        sigma_B = 0.01,
+        num_fixed_classes = 50, #number of fixed classes in each dataset
+        num_tasks = 500 #number of tasks we want to GENERATE (each task has 5 classes/ways, or whatever ways is)
 ):
     #Keep the seed for more "determnisitic behavior"
     random.seed(seed)
@@ -176,7 +176,7 @@ def main(
 
     # Create model
     #model = l2l.vision.models.OmniglotFC(28 ** 2, ways) #change this to 1 -> 5
-    model = l2l.vision.models.OmniglotFC(1,5,sizes=[15,10]) #[1,15]->[15,10]->[10,5]
+    model = l2l.vision.models.OmniglotFC(1,5,sizes=[15,15]) #[1,15]->[15,10]->[10,5]
     model.to(device)
     maml = l2l.algorithms.MAML(model, lr=fast_lr, first_order=False)
     opt = optim.Adam(maml.parameters(), meta_lr)
