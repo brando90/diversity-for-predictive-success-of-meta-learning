@@ -273,6 +273,84 @@ def l2l_5CNNl2l_mi_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     return args
 
 
+def l2l_resnet12rfs_mi_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
+    """
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = 'resnet12_rfs_mi'
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)
+
+    # - data
+    args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'lee2019'
+
+    # - training mode
+    args.training_mode = 'iterations'
+
+    # note: 60K iterations for original maml 5CNN with adam
+    args.num_its = 100_000
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Sgd_rfs'
+    args.lr = 5e-2
+    args.opt_hps: dict = dict(lr=args.lr, momentum=0.9, weight_decay=5e-4)
+
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Cosine_scheduler_sgd_rfs'
+    args.T_max = args.num_epochs // args.log_scheduler_freq
+    args.lr_decay_rate = 1e-1
+    # lr_decay_rate ** 3 does a smooth version of decaying 3 times, but using cosine annealing
+    # args.eta_min = args.lr * (lr_decay_rate ** 3)  # note, MAML++ uses 1e-5, if you calc it seems rfs uses 5e-5
+    args.scheduler_hps: dict = dict(T_max=args.T_max, lr=args.lr, lr_decay_rate=args.lr_decay_rate)
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.nb_inner_train_steps = 5
+    # args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
+    # args.first_order = True
+    args.first_order = False
+
+    # - outer trainer params
+    args.batch_size = 32
+    args.batch_size = 8
+
+    # - dist args
+    args.world_size = torch.cuda.device_count()
+    # args.world_size = 8
+    args.parallel = True
+    args.seed = 42  # I think this might be important due to how tasksets works.
+    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
+    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+
+    # -
+    args.log_freq = 500
+
+    # -- wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    # args.experiment_name = f'debug'
+    args.experiment_name = f'l2l_resnet12rfs_mi_rfs_sgd_cl_100k'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
 # - cifarfs
 
 def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
@@ -428,6 +506,7 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+
 def l2l_5CNNl2l_cifarfs_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     """
     """
@@ -505,6 +584,84 @@ def l2l_5CNNl2l_cifarfs_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+
+def l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
+    """
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = 'resnet12_rfs_cifarfs_fc100'
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=args.n_cls)
+
+    # - data
+    args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'rfs2020'
+
+    # - training mode
+    args.training_mode = 'iterations'
+
+    # note: 60K iterations for original maml 5CNN with adam
+    args.num_its = 100_000
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Sgd_rfs'
+    args.lr = 5e-2
+    args.opt_hps: dict = dict(lr=args.lr, momentum=0.9, weight_decay=5e-4)
+
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Cosine_scheduler_sgd_rfs'
+    args.T_max = args.num_epochs // args.log_scheduler_freq
+    args.lr_decay_rate = 1e-1
+    # lr_decay_rate ** 3 does a smooth version of decaying 3 times, but using cosine annealing
+    # args.eta_min = args.lr * (lr_decay_rate ** 3)  # note, MAML++ uses 1e-5, if you calc it seems rfs uses 5e-5
+    args.scheduler_hps: dict = dict(T_max=args.T_max, lr=args.lr, lr_decay_rate=args.lr_decay_rate)
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.nb_inner_train_steps = 5
+    # args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
+    # args.first_order = True
+    args.first_order = False
+
+    # - outer trainer params
+    args.batch_size = 32
+    args.batch_size = 8
+
+    # - dist args
+    args.world_size = torch.cuda.device_count()
+    # args.world_size = 8
+    args.parallel = True
+    args.seed = 42  # I think this might be important due to how tasksets works.
+    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
+    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+
+    # -
+    args.log_freq = 500
+
+    # -- wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    # args.experiment_name = f'debug'
+    args.experiment_name = f'l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
 # - load args
 
 def load_args() -> Namespace:
@@ -517,7 +674,7 @@ def load_args() -> Namespace:
     # args: Namespace = parse_args_standard_sl()
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'l2l_5CNNl2l_mi_rfs_adam_cl_70k'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
@@ -535,6 +692,10 @@ def load_args() -> Namespace:
             args: Namespace = l2l_5CNNl2l_mi_rfs_sgd_cl_100k(args)
         elif args.manual_loads_name == 'l2l_5CNNl2l_cifarfs_rfs_sgd_cl_100k':
             args: Namespace = l2l_5CNNl2l_cifarfs_rfs_sgd_cl_100k(args)
+        elif args.manual_loads_name == 'l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k':
+            args: Namespace = l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k(args)
+        elif args.manual_loads_name == 'l2l_resnet12rfs_mi_rfs_sgd_cl_100k':
+            args: Namespace = l2l_resnet12rfs_mi_rfs_sgd_cl_100k(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:

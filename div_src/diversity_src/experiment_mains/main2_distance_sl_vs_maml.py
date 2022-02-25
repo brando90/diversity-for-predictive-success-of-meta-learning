@@ -261,7 +261,9 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
 
     # - ckpt name
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2y7mrwx3/logs?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Feb15_16-38-47_jobid_10063_pid_185552'  # idk, not a fan of my current ckpts...with l2l, seems need to use SGD?
+    # args.path_2_init_sl = '~/data/logs/logs_Feb15_16-38-47_jobid_10063_pid_185552'  # idk, not a fan of my current ckpts...with l2l, seems need to use SGD?
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/33frd31p?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Feb19_10-13-22_jobid_2411_pid_28656'  # good! SGD converged with 0.9994 train acc
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/29hc25u2/overview?workspace=user-brando
     args.path_2_init_maml = '~/data/logs/logs_Feb16_11-59-55_jobid_29315_pid_102939'
 

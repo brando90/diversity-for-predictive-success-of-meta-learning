@@ -1,190 +1,179 @@
 # %%
 """
-plot (maml5, maml5), (maml5, maml), (USL, LR) with error bars to see if the CI intersect.
+
+ref:
+    - runs (first round of results):
+        https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/reports/SL-vs-MAML-MI-Cifarfs-5CNN-Resnet12-preliminary-experiments---VmlldzoxNTcyNDk3
+    - runs (2nd round): TODO
 """
 
-# - plot bands
+# %%
+"""
+1
+MI, 5CNN
+
+
+details:
+- using original (old code). Thus:
+- 5CNN is SL rfs with SGD my_rfs_code (REDO, run sgd_rfs)
+- 5CNN MAML is adam until convergence my_torchmeta_maml_code (REDO, use new l2l ckpt)
+"""
+from uutils.plot import bar_graph_with_error_using_pandas, save_to_desktop
 from matplotlib import pyplot as plt
 
-# x = [1]
-# y = [62.4]
-# yerr = [1.64]
-# plt.errorbar(x=x, y=y, yerr=yerr, color='blue')
-# # x = [1]
-# # y = [62.3]
-# # yerr = [1.50]
-# # plt.errorbar(x=x, y=y, yerr=yerr, color='red')
-# x = [3]
-# y = [60.1]
-# yerr = [1.37]
-# plt.errorbar(x=x, y=y, yerr=yerr, color='red')
-
-
-import matplotlib.pyplot as plt
-
-fig = plt.figure()
-# ax = fig.add_axes([0, 0, 1])
-adapted_models = ['MAML5', 'MAML10', 'USL (TL)']
-meta_test_acc = [62.4, 62.3, 60.1]
-meta_test_ci = [1.64, 1.5, 1.37]
-ax.bar(adapted_models, meta_test_acc)
-plt.show()
-
-# %%
-"""
-5CNN MI
-"""
-
-import numpy as np
-import matplotlib.pyplot as plt
-
-N = 5
-menMeans = (20, 35, 30, 35, 27)
-womenMeans = (25, 32, 34, 20, 25)
-ind = np.arange(N)  # the x locations for the groups
-width = 0.35
-fig = plt.figure()
-ax = fig.add_axes([0, 0, 1, 1])
-ax.bar(ind, menMeans, width, color='r')
-ax.bar(ind, womenMeans, width, bottom=menMeans, color='b')
-ax.set_ylabel('Scores')
-ax.set_title('Scores by group and gender')
-ax.set_xticks(ind, ('G1', 'G2', 'G3', 'G4', 'G5'))
-ax.set_yticks(np.arange(0, 81, 10))
-ax.legend(labels=['Men', 'Women'])
-plt.show()
-
-# %%
-"""
-resnet12 MI
-"""
-
-# %%
-"""
-alla archs, all models
-"""
-
-import matplotlib.pyplot as plt
-
-fig = plt.figure()
-ax = fig.add_axes([0, 0, 1, 1])
-langs = ['C', 'C++', 'Java', 'Python', 'PHP']
-students = [23, 17, 35, 29, 12]
-ax.bar(langs, students)
-plt.show()
-
-# %%
-
-import numpy as np
-import matplotlib.pyplot as plt
-
-data = [[30, 25, 50, 20],
-        [40, 23, 51, 17],
-        [35, 22, 45, 19]]
-X = np.arange(4)
-fig = plt.figure()
-ax = fig.add_axes([0, 0, 1, 1])
-ax.bar(X + 0.00, data[0], color='b', width=0.25)
-ax.bar(X + 0.25, data[1], color='g', width=0.25)
-ax.bar(X + 0.50, data[2], color='r', width=0.25)
-
-# %%
-
-import pandas as pd
-
-speed = [0.1, 17.5, 40, 48, 52, 69, 88]
-lifespan = [2, 8, 70, 1.5, 25, 12, 28]
-index = ['snail', 'pig', 'elephant',
-         'rabbit', 'giraffe', 'coyote', 'horse']
-df = pd.DataFrame({'speed': speed,
-                   'lifespan': lifespan}, index=index)
-print(df)
-ax = df.plot.bar(rot=0)
-
-plt.show()
-
-# %%
-import pandas as pd
-
-speed = [0.1, 17.5, 40, 48, 52, 69, 88]
-index = ['snail', 'pig', 'elephant',
-         'rabbit', 'giraffe', 'coyote', 'horse']
-df = pd.DataFrame({'speed': speed,
-                   }, index=index)
-print(df)
-ax = df.plot.bar(rot=0)
-
-plt.show()
-
-# %%
-
-import pandas as pd
-import matplotlib.pyplot as plt
-from numpy import array
-
-df = pd.DataFrame([[4, 6, 1, 3],
-                   [5, 7, 5, 2]],
-                  columns=['mean1', 'mean2', 'std1', 'std2'], index=['A', 'B'])
-print(df)
-
-# convert the std columns to an array
-yerr = df[['std1', 'std2']].to_numpy().T
-
-df[['mean1', 'mean2']].plot(kind='bar', yerr=yerr, alpha=0.5, error_kw=dict(ecolor='k'), capsize=5.0)
-plt.show()
-
-# %%
-
-import pandas as pd
-import matplotlib.pyplot as plt
-
-groups = ['MI 5CNN']
-adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']
-meta_test_acc = [62.4, 62.3, 60.1]
-meta_test_ci = [1.64, 1.5, 1.37]
-row1 = array([meta_test_acc + meta_test_ci])
-data = row1
-
-df = pd.DataFrame(data, columns=adapted_models, index=groups)
-print(df)
-
-# convert the std columns to an array
-yerr = df[['MAML5 ci', 'MAML10 ci', 'USL ci']].to_numpy().T
-print(yerr)
-
-# df[['MAML5', 'MAML10', 'USL']].plot(kind='bar', yerr=yerr, alpha=0.5, error_kw=dict(ecolor='k'), capsize=5.0)
-df[['MAML5', 'MAML10', 'USL']].plot(kind='bar', yerr=yerr, alpha=0.7, capsize=5.0, width=0.08)
-# plt.grid(True)
-plt.grid(linestyle='--')
-plt.tight_layout()
-plt.xticks(rotation=0)
-plt.show()
-
-# %%
-
-import pandas as pd
-import matplotlib.pyplot as plt
-
-groups = ['MI 5CNN', 'MI 5CNN 2']  # the rows of a df
+groups = ['MI, 5CNN']  # the rows of a df
 adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']  # columns of a df
 meta_test_acc = [62.4, 62.3, 60.1]
 meta_test_ci = [1.64, 1.5, 1.37]
 row1 = meta_test_acc + meta_test_ci
+data = [row1]
+
+bar_graph_with_error_using_pandas(group_row_names=groups,
+                                  columns=adapted_models,
+                                  rows=data,
+                                  val_names=adapted_models[0:3],
+                                  error_bar_names=adapted_models[3:],
+                                  title='Performance Comparsion MAML vs TL (USL)',
+                                  xlabel='Dataset, Architecture',
+                                  ylabel='Meta-Test Accuracy'
+                                  )
+save_to_desktop(plot_name='maml_vs_tl_mi_5cnn_perf_comp_bar')
+plt.show()
+
+# %%
+"""
+2
+MI, resnet12
+
+
+details:
+- resnet12 is SL rfs with adam my_l2l_code
+- resnet12 MAML is adam until convergence my_l2l_maml_code (REDO, use new l2l ckpt)
+"""
+from uutils.plot import bar_graph_with_error_using_pandas, save_to_desktop
+from matplotlib import pyplot as plt
+
+groups = ['MI, ResNet12']  # the rows of a df
+adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']  # columns of a df
+meta_test_acc = [73.8, 72.8, 70.8]
+meta_test_ci = [1.76, 1.61, 1.70]
+row1 = meta_test_acc + meta_test_ci
+data = [row1]
+
+bar_graph_with_error_using_pandas(group_row_names=groups,
+                                  columns=adapted_models,
+                                  rows=data,
+                                  val_names=adapted_models[0:3],
+                                  error_bar_names=adapted_models[3:],
+                                  title='Performance Comparsion MAML vs TL (USL)',
+                                  xlabel='Dataset, Architecture',
+                                  ylabel='Meta-Test Accuracy'
+                                  )
+save_to_desktop(plot_name='maml_vs_tl_mi_resnet12rfs_perf_comp_bar')
+plt.show()
+
+# %%
+"""
+3
+Cifar-fs, 5CNN
+
+
+details:
+- using original (old code). Thus:
+- 5CNN is SL rfs with adam my_l2l_code (REDO, SGD_rfs)
+- 5CNN MAML is adam until convergence my_torchmeta_maml_code
+"""
+from uutils.plot import bar_graph_with_error_using_pandas, save_to_desktop
+from matplotlib import pyplot as plt
+
+groups = ['Cifar-fs, 5CNN']  # the rows of a df
+adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']  # columns of a df
+meta_test_acc = [74.3, 75.1, 68.1]
+meta_test_ci = [1.89, 1.90, 2.0]
+row1 = meta_test_acc + meta_test_ci
+data = [row1]
+
+bar_graph_with_error_using_pandas(group_row_names=groups,
+                                  columns=adapted_models,
+                                  rows=data,
+                                  val_names=adapted_models[0:3],
+                                  error_bar_names=adapted_models[3:],
+                                  title='Performance Comparsion MAML vs TL (USL)',
+                                  xlabel='Dataset, Architecture',
+                                  ylabel='Meta-Test Accuracy'
+                                  )
+save_to_desktop(plot_name='maml_vs_tl_cifarfs_5cnn_perf_comp_bar')
+plt.show()
+
+#%%
+"""
+4
+Cifar-fs, resnet12
+
+
+details:
+- resnet12 is SL rfs with adam my_l2l_code
+- resnet12 MAML is adam until convergence my_l2l_maml_code
+"""
+from uutils.plot import bar_graph_with_error_using_pandas, save_to_desktop
+from matplotlib import pyplot as plt
+
+groups = ['MI, ResNet12']  # the rows of a df
+adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']  # columns of a df
+meta_test_acc = [78.2, 77.4, 75.4]
+meta_test_ci = [1.73, 1.78, 1.69]
+row1 = meta_test_acc + meta_test_ci
+data = [row1]
+
+bar_graph_with_error_using_pandas(group_row_names=groups,
+                                  columns=adapted_models,
+                                  rows=data,
+                                  val_names=adapted_models[0:3],
+                                  error_bar_names=adapted_models[3:],
+                                  title='Performance Comparsion MAML vs TL (USL)',
+                                  xlabel='Dataset, Architecture',
+                                  ylabel='Meta-Test Accuracy'
+                                  )
+save_to_desktop(plot_name='maml_vs_tl_mi_resnet12rfs_perf_comp_bar')
+plt.show()
+
+# %%
+"""
+alla data sets, all archs
+"""
+from uutils.plot import bar_graph_with_error_using_pandas, save_to_desktop
+from matplotlib import pyplot as plt
+
+groups = ['MI, 5CNN', 'MI, ResNet12', 'Cifar-fs, 5CNN', 'MI, ResNet12']  # the rows of a df
+adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']  # columns of a df
+# MI, 5CNN
+meta_test_acc = [62.4, 62.3, 60.1]
+meta_test_ci = [1.64, 1.5, 1.37]
+row1 = meta_test_acc + meta_test_ci
+# MI, resnet12
+meta_test_acc = [73.8, 72.8, 70.8]
+meta_test_ci = [1.76, 1.61, 1.70]
 row2 = meta_test_acc + meta_test_ci
-data = [row1, row2]
-print(data)
+# cifar-fs, 5CNN
+meta_test_acc = [74.3, 75.1, 68.1]
+meta_test_ci = [1.89, 1.90, 2.0]
+row3 = meta_test_acc + meta_test_ci
+# cifar-fs, resnet12
+meta_test_acc = [78.2, 77.4, 75.4]
+meta_test_ci = [1.73, 1.78, 1.69]
+row4 = meta_test_acc + meta_test_ci
+#  join all rows
+data = [row1, row2, row3, row4]
 
-df = pd.DataFrame(data, columns=adapted_models, index=groups)
-print(df)
-
-# convert the std columns to an array
-yerr = df[['MAML5 ci', 'MAML10 ci', 'USL ci']].to_numpy().T
-print(f'{yerr=}')
-
-# df[['MAML5', 'MAML10', 'USL']].plot(kind='bar', yerr=yerr, alpha=0.5, error_kw=dict(ecolor='k'), capsize=5.0)
-df[['MAML5', 'MAML10', 'USL']].plot(kind='bar', yerr=yerr, alpha=0.7, capsize=2.5, width=0.15)
-# plt.grid(True)
-plt.grid(linestyle='--')
-plt.tight_layout()
-plt.xticks(rotation=0)
+bar_graph_with_error_using_pandas(group_row_names=groups,
+                                  columns=adapted_models,
+                                  rows=data,
+                                  val_names=adapted_models[0:3],
+                                  error_bar_names=adapted_models[3:],
+                                  title='Performance Comparison MAML vs Transfer Learning (USL)',
+                                  xlabel='Dataset, Architecture',
+                                  ylabel='Meta-Test Accuracy',
+                                  loc='upper left'
+                                  )
+save_to_desktop(plot_name='all_archs_all_data_sets_maml_vs_tl_mi_cirfarfs_5cnn_resnet12rfs_perf_comp_bar')
 plt.show()
