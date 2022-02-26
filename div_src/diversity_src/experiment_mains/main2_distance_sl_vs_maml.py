@@ -142,6 +142,8 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     args.agent_opt = 'MAMLMetaLearner_default'
 
     # - ckpt name
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/t9hpyoms?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Feb25_13-23-05_jobid_32368_pid_112292  # SL SGD CL to see if it beats maml/has same test acc as in original rfs paper
     # args.path_2_init_sl = '~/data/logs/logs_Feb10_13-36-08_jobid_3381_pid_109779/'
     args.path_2_init_sl = '~/data/logs/logs_Feb10_18-21-11_jobid_18097_pid_229674/'
     # args.path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668'
@@ -393,6 +395,13 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     args.path_2_init_sl = '~/data/logs/logs_Feb12_13-24-10_jobid_13887_pid_199696'
     args.path_2_init_maml = '~/data/logs/logs_Feb12_13-08-09_jobid_23901_pid_137639'
 
+    # sgd models
+    args.path_2_init_sl = ''
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1u7e0gx6?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Feb25_14-36-24_jobid_12915'  # 1024 model
+    # args.path_2_init_maml = ''
+
+
     # - device
     # args.device = torch.device('cpu')
     # args.device = get_device()
@@ -504,7 +513,9 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     args.agent_opt = 'MAMLMetaLearner_default'
 
     # - ckpt name
-    args.path_2_init_sl = '~/data/logs/logs_Feb10_15-05-22_jobid_20550_pid_94325/'
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2rhe2d04?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Feb25_13-29-11_jobid_2631_pid_129270'  # SL SGD CL! To see if SGD beats my maml adam
+    # args.path_2_init_sl = '~/data/logs/logs_Feb10_15-05-22_jobid_20550_pid_94325/'
     # args.path_2_init_sl = '~/data/logs/logs_Feb10_15-05-54_jobid_12449_pid_111612/'
     # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
     args.path_2_init_maml = '~/data/logs/logs_Feb10_15-54-14_jobid_28881_pid_101601/'

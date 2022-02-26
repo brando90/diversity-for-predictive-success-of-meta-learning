@@ -6,7 +6,7 @@ export SLURM_JOBID=$(((RANDOM)))
 echo SLURM_JOBID = $SLURM_JOBID
 
 #export CUDA_VISIBLE_DEVICES=$(((RANDOM%8)))
-#export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=0
 #export CUDA_VISIBLE_DEVICES=1
 #export CUDA_VISIBLE_DEVICES=2
 #export CUDA_VISIBLE_DEVICES=3
@@ -21,7 +21,8 @@ echo SLURM_JOBID = $SLURM_JOBID
 #export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 #export CUDA_VISIBLE_DEVICES=0,2,3,4,5,6,7
 #export CUDA_VISIBLE_DEVICES=0,1,3,4,5,6,7
-export CUDA_VISIBLE_DEVICES=3,4,5,6,7
+#export CUDA_VISIBLE_DEVICES=3,4,5,6,7
+export CUDA_VISIBLE_DEVICES=2,3,4,5,6,7
 
 echo CUDA_VISIBLE_DEVICES
 echo $CUDA_VISIBLE_DEVICES
@@ -53,8 +54,9 @@ pip install wandb --upgrade
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_rfs_5cnn_sgd_cl_600 > $OUT_FILE &
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_mi_rfs_resnet12rfs_sgd_cl_200 > $OUT_FILE &
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_resnet12rfs_sgd_cl_200 > $OUT_FILE &
-#
-#
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_500 > $OUT_FILE &
+
+
 #echo pid = $!
 #echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 #echo SLURM_JOBID = $SLURM_JOBID
@@ -71,8 +73,10 @@ export OUT_FILE=$PWD/main.sh.o$SLURM_JOBID
 #python -m torch.distributed.run --nproc_per_node=5 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNNl2l_mi_rfs_sgd_cl_100k > $OUT_FILE &
 #python -m torch.distributed.run --nproc_per_node=5 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNNl2l_cifarfs_rfs_sgd_cl_100k > $OUT_FILE &
 
-python -m torch.distributed.run --nproc_per_node=5 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k > $OUT_FILE &
+#python -m torch.distributed.run --nproc_per_node=5 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k > $OUT_FILE &
 #python -m torch.distributed.run --nproc_per_node=5 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_mi_rfs_sgd_cl_100k > $OUT_FILE &
+
+python -m torch.distributed.run --nproc_per_node=6 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k > $OUT_FILE &
 echo pid = $!
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 echo SLURM_JOBID = $SLURM_JOBID

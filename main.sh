@@ -42,7 +42,8 @@ pip install wandb --upgrade
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_mi_rfs_resnet12rfs_sgd_cl_200
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_rfs_5cnn_adafactor_1000
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_4cnn_hidden_size_128_sgd_cl_rfs_500
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_4cnn_hidden_size_1024_sgd_cl_rfs_500
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_4cnn_hidden_size_1024_sgd_cl_rfs_500
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_500
 
 # - MAML
 #python -m torch.distributed.run --nproc_per_node=4 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNNl2l_mi_rfs_adam_cl_70k

@@ -926,6 +926,62 @@ def sl_cifarfs_4cnn_hidden_size_1024_sgd_cl_rfs_500(args: Namespace) -> Namespac
     return args
 
 
+def sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_500(args: Namespace) -> Namespace:
+    """
+    goal:
+        - model: resnet12-rfs
+        - Opt: ?
+
+    Note:
+        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
+        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
+        advantage.
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = '4CNN_l2l_cifarfs'
+    args.hidden_size = 1024
+    args.model_hps = dict(ways=64, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)
+
+    # - data
+    args.data_option = 'cifarfs_l2l_sl'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.num_epochs = 500
+    args.batch_size = 256  # 256 used to work on titans...
+    args.lr = 5e-2
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 1
+    args.T_max = args.num_epochs // args.log_scheduler_freq
+    args.eta_min = 1e-5  # coincidentally, matches MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+
+    # - training mode
+    args.training_mode = 'epochs'
+    # args.training_mode = 'fit_single_batch'
+
+    # -
+    # args.debug = True
+    args.debug = False
+
+    # -
+    args.log_freq = 1  # SL, epochs training
+
+    # - wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_500'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
 def load_args() -> Namespace:
     """
     1. parse args from user's terminal
@@ -973,6 +1029,8 @@ def load_args() -> Namespace:
             args: Namespace = sl_cifarfs_4cnn_hidden_size_128_sgd_cl_rfs_500(args)
         elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_sgd_cl_rfs_500':
             args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_sgd_cl_rfs_500(args)
+        elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_500':
+            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_500(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
