@@ -143,13 +143,22 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
 
     # - ckpt name
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/t9hpyoms?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Feb25_13-23-05_jobid_32368_pid_112292  # SL SGD CL to see if it beats maml/has same test acc as in original rfs paper
-    # args.path_2_init_sl = '~/data/logs/logs_Feb10_13-36-08_jobid_3381_pid_109779/'
-    args.path_2_init_sl = '~/data/logs/logs_Feb10_18-21-11_jobid_18097_pid_229674/'
+    args.path_2_init_sl = '~/data/logs/logs_Feb25_13-23-05_jobid_32368_pid_112292'  # SL SGD CL to see if it beats maml/has same test acc as in original rfs paper
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1gxb5uds?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Feb10_13-36-08_jobid_3381_pid_109779/'  # Adam CL
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/qlubpsfi?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Feb10_18-21-11_jobid_18097_pid_229674/'  # Adam CL
+    # https://github.com/WangYueFt/rfs
+    args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
+
+    # original ckpt (likely not compatible with this code)
     # args.path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668'
-    args.path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/'
+    # old checkpoint 688 in new format location
+    args.path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/'  # Adam (no CL, old higher ckpt)
     # new ckpt using lrl https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/jakzsyhv?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_Feb17_15-28-58_jobid_8957_pid_206937/'
+    # args.path_2_init_maml = '~/data/logs/logs_Feb17_15-28-58_jobid_8957_pid_206937/'
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2w2iezpb?workspace=user-brando
+    # args.path_2_init_maml = '/home/miranda9/data/logs/logs_Feb27_09-11-46_jobid_14483_pid_16068'
 
     # - device
     # args.device = torch.device('cpu')
@@ -159,9 +168,9 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_resnet12rfs_mi'
-    args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl=} {args.path_2_init_maml=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -324,6 +333,19 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
 
     # note: 60K iterations for original maml 5CNN with adam
     args.num_its = 100_000
+    # args.opt_option = 'Sgd_rfs'
+    # args.num_epochs = 600
+    # args.batch_size = 1024
+    # args.lr = 5e-2
+    # args.opt_hps: dict = dict(lr=args.lr, momentum=0.9, weight_decay=5e-4)
+    #
+    # args.scheduler_option = 'Cosine_scheduler_sgd_rfs'
+    # args.log_scheduler_freq = 1
+    # args.T_max = args.num_epochs // args.log_scheduler_freq
+    # args.lr_decay_rate = 1e-1
+    # # lr_decay_rate ** 3 does a smooth version of decaying 3 times, but using cosine annealing
+    # # args.eta_min = args.lr * (lr_decay_rate ** 3)  # note, MAML++ uses 1e-5, if you calc it seems rfs uses 5e-5
+    # args.scheduler_hps: dict = dict(T_max=args.T_max, lr=args.lr, lr_decay_rate=args.lr_decay_rate)
 
     # - debug flag
     # args.debug = True
@@ -377,8 +399,8 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     # args.safety_margin = 20
 
     # args.batch_size = 2
-    # args.batch_size = 25
-    args.batch_size = 100
+    args.batch_size = 25
+    # args.batch_size = 100
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
@@ -392,11 +414,10 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     args.agent_opt = 'MAMLMetaLearner_default'
 
     # - ckpt name
-    args.path_2_init_sl = '~/data/logs/logs_Feb12_13-24-10_jobid_13887_pid_199696'
+    # args.path_2_init_sl = '~/data/logs/logs_Feb12_13-24-10_jobid_13887_pid_199696'
     args.path_2_init_maml = '~/data/logs/logs_Feb12_13-08-09_jobid_23901_pid_137639'
 
     # sgd models
-    args.path_2_init_sl = ''
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1u7e0gx6?workspace=user-brando
     args.path_2_init_sl = '~/data/logs/logs_Feb25_14-36-24_jobid_12915'  # 1024 model
     # args.path_2_init_maml = ''
@@ -554,9 +575,9 @@ def load_args() -> Namespace:
 
     # - get manual args
     # args: Namespace = args_5cnn_cifarfs(args)
-    args: Namespace = args_5cnn_mi(args)
+    # args: Namespace = args_5cnn_mi(args)
     # args: Namespace = resnet12rfs_cifarfs(args)
-    # args: Namespace = resnet12rfs_mi(args)
+    args: Namespace = resnet12rfs_mi(args)
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)
@@ -578,7 +599,10 @@ def main_data_analyis():
     args.mdl_sl = args.mdl2
     args.mdl_rand = deepcopy(args.mdl_maml)
     reset_all_weights(args.mdl_rand)
-    assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl)
+    assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl), f"Error, norms should be different: " \
+                                                                            f"{norm(args.mdl_rand)=} " \
+                                                                            f"{args.mdl_sl=}" \
+                                                                            f"{args.mdl_rand=}"
     print(f'{args.data_path=}')
     # assert equal_two_few_shot_cnn_models(args.mdl1,
     #                                      args.mdl2), f'Error, models should have same arch but they do not:\n{args.mdl1=}\n{args.mdl2}'

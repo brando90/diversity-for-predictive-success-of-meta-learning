@@ -150,19 +150,23 @@ adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']  
 meta_test_acc = [62.4, 62.3, 60.1]
 meta_test_ci = [1.64, 1.5, 1.37]
 row1 = meta_test_acc + meta_test_ci
-# MI, resnet12
+# - MI, resnet12
+# old ckpts
 meta_test_acc = [73.8, 72.8, 70.8]
 meta_test_ci = [1.76, 1.61, 1.70]
+# new matching ckpts
+# meta_test_acc = [73.8, 72.8, 70.8]
+# meta_test_ci = [1.76, 1.61, 1.70]
 row2 = meta_test_acc + meta_test_ci
-# cifar-fs, 5CNN
+# - cifar-fs, 5CNN
 meta_test_acc = [74.3, 75.1, 68.1]
 meta_test_ci = [1.89, 1.90, 2.0]
 row3 = meta_test_acc + meta_test_ci
-# cifar-fs, resnet12
+# - cifar-fs, resnet12
 meta_test_acc = [78.2, 77.4, 75.4]
 meta_test_ci = [1.73, 1.78, 1.69]
 row4 = meta_test_acc + meta_test_ci
-#  join all rows
+#  - join all rows
 data = [row1, row2, row3, row4]
 
 bar_graph_with_error_using_pandas(group_row_names=groups,

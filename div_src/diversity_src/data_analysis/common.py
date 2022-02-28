@@ -8,7 +8,7 @@ from torch import nn
 from uutils.torch_uu import norm, process_meta_batch
 from uutils.torch_uu.eval.eval import eval_sl
 from uutils.torch_uu.mains.common import _get_agent, load_model_optimizer_scheduler_from_ckpt, \
-    _get_and_create_model_opt_scheduler
+    _get_and_create_model_opt_scheduler, load_model_ckpt
 from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import meta_eval_no_context_manager
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
 from uutils.torch_uu.meta_learners.pretrain_convergence import FitFinalLayer
@@ -21,17 +21,29 @@ def setup_args_path_for_ckpt_data_analysis(args: Namespace,
                                            ckpt_filename: str,
                                            ) -> Namespace:
     """
+    note: you didn't actually need this...if the ckpts pointed to the file already this would be redundant...
+
     ckpt_filename values:
         'ckpt_file.pt'
         'ckpt_file_best_loss.pt'
         'ckpt.pt'
         'ckpt_best_loss.pt'
     """
-    ckpt_filename_sl = ckpt_filename  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
-    args.path_2_init_sl = (Path(args.path_2_init_sl) / ckpt_filename_sl).expanduser()
-    ckpt_filename_maml = ckpt_filename  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
-    # ckpt_filename_maml = 'ckpt_file_best_loss.pt'  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
-    args.path_2_init_maml = (Path(args.path_2_init_maml) / ckpt_filename_maml).expanduser()
+    args.path_2_init_sl = Path(args.path_2_init_sl).expanduser()
+    if args.path_2_init_sl.is_file():
+        pass
+    else:
+        ckpt_filename_sl = ckpt_filename  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
+        args.path_2_init_sl = (Path(args.path_2_init_sl) / ckpt_filename_sl).expanduser()
+
+    args.path_2_init_maml = Path(args.path_2_init_maml).expanduser()
+    if args.path_2_init_maml.is_file():
+        pass
+    else:
+        ckpt_filename_maml = ckpt_filename  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
+        # if you need that name just put t in the path from the beginning
+        # ckpt_filename_maml = 'ckpt_file_best_loss.pt'  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
+        args.path_2_init_maml = (Path(args.path_2_init_maml) / ckpt_filename_maml).expanduser()
     return args
 
 
@@ -152,6 +164,23 @@ def load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint):
     return model
 
 
+def load_original_rfs_ckpt(args: Namespace, path_to_checkpoint: str):
+    ckpt = torch.load(path_to_checkpoint, map_location=args.device)
+    from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_mi
+    args.model, _ = get_resnet_rfs_model_mi(model_opt='resnet12_rfs_mi')
+    norm_before_load: float = float(norm(args.model))
+    ckpt['model']['cls.weight'] = ckpt['model']['classifier.weight']
+    assert ckpt['model']['cls.weight'] is ckpt['model']['classifier.weight']
+    ckpt['model']['cls.bias'] = ckpt['model']['classifier.bias']
+    assert ckpt['model']['cls.bias'] is ckpt['model']['classifier.bias']
+    args.model.load_state_dict(ckpt['model'])
+    norm_after_load: float = float(norm(args.model))
+    assert norm_before_load != norm_after_load, f'Error, ckpt not loaded correctly {norm_before_load=}, ' \
+                                                f'{norm_after_load=}. These should be different!'
+    args.model.to(args.device)
+    return args.model
+
+
 def get_sl_learner(args: Namespace):
     """
     perhaps useful:
@@ -162,8 +191,11 @@ def get_sl_learner(args: Namespace):
     # ckpt: dict = torch.load(args.path_2_init_maml, map_location=torch.device('cpu'))
     if '13887' in str(args.path_2_init_sl):
         model = load_4cnn_cifarfs_fix_model_hps_sl(args, path_to_checkpoint=args.path_2_init_sl)
+    elif 'rfs_checkpoints' in str(args.path_2_init_sl):  # original rfs ckpt
+        model = load_original_rfs_ckpt(args, path_to_checkpoint=args.path_2_init_sl)
     else:
-        model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_sl)
+        # model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_sl)
+        model = load_model_ckpt(args, path_to_checkpoint=args.path_2_init_sl)
     args.model = model
 
     # args.meta_learner = _get_agent(args)
@@ -182,7 +214,8 @@ def get_maml_meta_learner(args: Namespace):
     elif '23901' in str(args.path_2_init_maml):
         base_model = load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint=args.path_2_init_maml)
     else:
-        base_model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
+        # base_model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
+        base_model = load_model_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
     args.model = base_model
 
     args.meta_learner = _get_agent(args)
