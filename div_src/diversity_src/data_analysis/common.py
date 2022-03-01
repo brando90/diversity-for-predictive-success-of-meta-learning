@@ -16,6 +16,8 @@ from uutils.torch_uu.models import reset_all_weights
 from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import Learner
 from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_cifarfs_fc100
 
+from pdb import set_trace as st
+
 
 def setup_args_path_for_ckpt_data_analysis(args: Namespace,
                                            ckpt_filename: str,
@@ -142,6 +144,22 @@ def load_model_cifarfs_fix_model_hps(args, path_to_checkpoint):
     return args.model
 
 
+def load_old_mi_resnet12rfs_ckpt(args: Namespace, path_to_checkpoint: Path) -> nn.Module:
+    # from meta_learning.base_models.resnet_rfs import _get_resnet_rfs_model_mi
+    from diversity_src.models.resnet_rfs import _get_resnet_rfs_model_mi
+
+    model, _ = _get_resnet_rfs_model_mi(args.model_option)
+
+    # ckpt: dict = torch.load(args.path_to_checkpoint, map_location=torch.device('cpu'))
+    path_to_checkpoint = args.path_to_checkpoint if path_to_checkpoint is None else path_to_checkpoint
+    ckpt: dict = torch.load(path_to_checkpoint, map_location=args.device)
+    model_state_dict = ckpt['model_state_dict']
+    # model_state_dict = ckpt['f_model_state_dict']
+    model.load_state_dict(model_state_dict)
+    args.model = model
+    return args.model
+
+
 def load_4cnn_cifarfs_fix_model_hps_sl(args, path_to_checkpoint):
     path_to_checkpoint = args.path_to_checkpoint if path_to_checkpoint is None else path_to_checkpoint
     ckpt: dict = torch.load(path_to_checkpoint, map_location=args.device)
@@ -165,14 +183,18 @@ def load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint):
 
 
 def load_original_rfs_ckpt(args: Namespace, path_to_checkpoint: str):
+    # from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_mi
+    # from meta_learning.base_models.resnet_rfs import _get_resnet_rfs_model_mi
+    from diversity_src.models.resnet_rfs import _get_resnet_rfs_model_mi
+
     ckpt = torch.load(path_to_checkpoint, map_location=args.device)
-    from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_mi
-    args.model, _ = get_resnet_rfs_model_mi(model_opt='resnet12_rfs_mi')
+
+    args.model, _ = _get_resnet_rfs_model_mi(model_opt='resnet12_rfs_mi', num_classes=64)
     norm_before_load: float = float(norm(args.model))
-    ckpt['model']['cls.weight'] = ckpt['model']['classifier.weight']
-    assert ckpt['model']['cls.weight'] is ckpt['model']['classifier.weight']
-    ckpt['model']['cls.bias'] = ckpt['model']['classifier.bias']
-    assert ckpt['model']['cls.bias'] is ckpt['model']['classifier.bias']
+    # ckpt['model']['cls.weight'] = ckpt['model']['classifier.weight']
+    # assert ckpt['model']['cls.weight'] is ckpt['model']['classifier.weight']
+    # ckpt['model']['cls.bias'] = ckpt['model']['classifier.bias']
+    # assert ckpt['model']['cls.bias'] is ckpt['model']['classifier.bias']
     args.model.load_state_dict(ckpt['model'])
     norm_after_load: float = float(norm(args.model))
     assert norm_before_load != norm_after_load, f'Error, ckpt not loaded correctly {norm_before_load=}, ' \
@@ -352,21 +374,6 @@ def print_performance_4_sl(args: Namespace,
     assert isinstance(args.meta_learner, FitFinalLayer)
     args.meta_learner = original_meta_learner
     args.agent = original_meta_learner
-
-
-def load_old_mi_resnet12rfs_ckpt(args: Namespace, path_to_checkpoint: Path) -> nn.Module:
-    from meta_learning.base_models.resnet_rfs import _get_resnet_rfs_model_mi
-
-    model, _ = _get_resnet_rfs_model_mi(args.model_option)
-
-    # ckpt: dict = torch.load(args.path_to_checkpoint, map_location=torch.device('cpu'))
-    path_to_checkpoint = args.path_to_checkpoint if path_to_checkpoint is None else path_to_checkpoint
-    ckpt: dict = torch.load(path_to_checkpoint, map_location=args.device)
-    model_state_dict = ckpt['model_state_dict']
-    # model_state_dict = ckpt['f_model_state_dict']
-    model.load_state_dict(model_state_dict)
-    args.model = model
-    return args.model
 
 
 def do_diversity_data_analysis(args, meta_dataloader):
