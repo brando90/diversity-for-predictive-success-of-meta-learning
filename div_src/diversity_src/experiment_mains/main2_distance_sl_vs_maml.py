@@ -124,6 +124,7 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
 
     # args.batch_size = 2
     # args.batch_size = 25
+    # args.batch_size = 30
     args.batch_size = 100
     args.batch_size_eval = args.batch_size
 
@@ -149,17 +150,17 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/qlubpsfi?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb10_18-21-11_jobid_18097_pid_229674/'  # Adam CL
     # https://github.com/WangYueFt/rfs
-    # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
-    args.path_2_init_sl = '~/data/rfs_checkpoints/mini_distilled.pt'
+    args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
+    # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_distilled.pt'
 
     # original ckpt (likely not compatible with this code)
     # args.path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668'
     # old checkpoint 688 in new format location
-    # args.path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/'  # Adam (no CL, old higher ckpt)
+    args.path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/'  # Adam (no CL, old higher ckpt)
     # new ckpt using l2l https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/jakzsyhv?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb17_15-28-58_jobid_8957_pid_206937/'
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2w2iezpb?workspace=user-brando
-    args.path_2_init_maml = '/home/miranda9/data/logs/logs_Feb27_09-11-46_jobid_14483_pid_16068'
+    # args.path_2_init_maml = '/home/miranda9/data/logs/logs_Feb27_09-11-46_jobid_14483_pid_16068'
 
     # - device
     # args.device = torch.device('cpu')
@@ -170,8 +171,8 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_resnet12rfs_mi'
     args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl=} {args.path_2_init_maml=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)

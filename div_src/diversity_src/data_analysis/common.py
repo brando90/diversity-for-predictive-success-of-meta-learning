@@ -289,30 +289,30 @@ def comparison_via_performance(args: Namespace):
     # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     print('\n---- maml0 for rand model')
     print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
-    print('---- maml0 for maml model')
-    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
-    print('---- maml0 for sl model')
-    print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=0, lr_inner=0.0)
+    # print('---- maml0 for maml model')
+    # print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
+    # print('---- maml0 for sl model')
+    # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=0, lr_inner=0.0)
 
     # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
-    print('\n---- maml5 for rand model')
-    print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=5, lr_inner=original_lr_inner)
+    # print('\n---- maml5 for rand model')
+    # print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=5, lr_inner=original_lr_inner)
     print('---- maml5 for maml model')
     print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
-    print('---- maml5 for sl model')
-    print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=5, lr_inner=original_lr_inner)
+    # print('---- maml5 for sl model')
+    # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=5, lr_inner=original_lr_inner)
 
     # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
-    print('\n---- maml10 for rand model')
-    print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=10, lr_inner=original_lr_inner)
+    # print('\n---- maml10 for rand model')
+    # print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=10, lr_inner=original_lr_inner)
     print('---- maml10 for maml model')
     print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
-    print('---- maml10 for sl model')
-    print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=10, lr_inner=original_lr_inner)
+    # print('---- maml10 for sl model')
+    # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=10, lr_inner=original_lr_inner)
 
     # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
-    print('\n---- FFL (LR) for rand model')
-    print_performance_4_sl(args_mdl_rand, model=args.mdl_rand)
+    # print('\n---- FFL (LR) for rand model')
+    # print_performance_4_sl(args_mdl_rand, model=args.mdl_rand)
     print('---- FFL (LR) for maml model')
     print_performance_4_sl(args_mdl_maml, model=args.mdl_maml)
     print('---- FFL (LR) for sl model')
@@ -325,21 +325,23 @@ def items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci) -> tuple[float, float,
     return meta_loss.item(), meta_loss_ci.item(), meta_acc.item(), meta_acc_ci.item()
 
 
-def print_performance_results(args: Namespace):
+def print_performance_results(args: Namespace,
+                              training: bool = True,  # might be good to put false for sl? probably makes maml worse...?
+                              ):
     # assert args.meta_learner is args.agent
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = eval_sl(args, args.meta_learner, args.dataloaders,
                                                              split='train',
-                                                             training=True)
+                                                             training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'train: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = eval_sl(args, args.meta_learner, args.dataloaders,
                                                              split='val',
-                                                             training=True)
+                                                             training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = eval_sl(args, args.meta_learner, args.dataloaders,
                                                              split='test',
-                                                             training=True)
+                                                             training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'test: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
 
