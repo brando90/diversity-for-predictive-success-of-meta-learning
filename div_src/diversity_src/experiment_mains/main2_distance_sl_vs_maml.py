@@ -61,8 +61,10 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
     # args.data_path = Path('~/data/l2l_data/').expanduser()
     # args.data_augmentation = 'rfs2020'
-    args.data_option = 'torchmeta_miniimagenet'  # no name assumes l2l
-    args.data_path = Path('~/data/torchmeta_data/').expanduser()
+    # args.data_option = 'torchmeta_miniimagenet'  # no name assumes l2l
+    # args.data_path = Path('~/data/torchmeta_data/').expanduser()
+    args.data_option = 'rfs_meta_learning_miniimagenet'  # no name assumes l2l
+    args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
     args.augment_train = True
 
     # - training mode
@@ -119,13 +121,20 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # args.layer_names = get_head_cls()
     args.layer_names = get_feature_extractor_conv_layers()
 
+    # args.n_aug_support_samples = 1
+    # args.n_aug_support_samples = 5
+    # args.n_aug_support_samples = 10
+    args.n_aug_support_samples = 15
+
     args.safety_margin = 10
     # args.safety_margin = 20
 
     # args.batch_size = 2
     # args.batch_size = 25
     # args.batch_size = 30
-    args.batch_size = 100
+    # args.batch_size = 100
+    args.batch_size = 200
+    # args.batch_size = 600
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
@@ -169,10 +178,10 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'{args.experiment_option}_resnet12rfs_mi'
+    args.experiment_name = f'{args.experiment_option}_resnet12rfs_mi_spt_1_vs_5_rfs_ckpt'
     args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl=} {args.path_2_init_maml=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -555,7 +564,7 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'{args.experiment_option}_resnet12rfs_cifarfs'
+    args.experiment_name = f'{args.experiment_option}_resnet12rfs_cifarfs_600_meta_batch_size'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -591,6 +600,7 @@ def load_args() -> Namespace:
     args.meta_learner.args = args  # to avoid meta learner running with args only from past experiment and not with metric analysis experiment
 
     uutils.print_args(args)
+    args.criterion
     return args
 
 

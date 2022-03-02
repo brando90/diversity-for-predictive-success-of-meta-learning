@@ -6,7 +6,7 @@ import torch
 from torch import nn
 
 from uutils.torch_uu import norm, process_meta_batch
-from uutils.torch_uu.eval.eval import eval_sl
+from uutils.torch_uu.eval.eval import eval_sl, meta_eval
 from uutils.torch_uu.mains.common import _get_agent, load_model_optimizer_scheduler_from_ckpt, \
     _get_and_create_model_opt_scheduler, load_model_ckpt
 from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import meta_eval_no_context_manager
@@ -286,35 +286,35 @@ def comparison_via_performance(args: Namespace):
     args_mdl_maml = copy(args)
     args_mdl_sl = copy(args)
 
-    # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
-    print('\n---- maml0 for rand model')
-    print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
-    # print('---- maml0 for maml model')
-    # print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
-    # print('---- maml0 for sl model')
-    # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=0, lr_inner=0.0)
-
-    # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
-    # print('\n---- maml5 for rand model')
-    # print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=5, lr_inner=original_lr_inner)
-    print('---- maml5 for maml model')
-    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
-    # print('---- maml5 for sl model')
-    # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=5, lr_inner=original_lr_inner)
-
-    # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
-    # print('\n---- maml10 for rand model')
-    # print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=10, lr_inner=original_lr_inner)
-    print('---- maml10 for maml model')
-    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
-    # print('---- maml10 for sl model')
-    # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=10, lr_inner=original_lr_inner)
-
-    # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
-    # print('\n---- FFL (LR) for rand model')
-    # print_performance_4_sl(args_mdl_rand, model=args.mdl_rand)
-    print('---- FFL (LR) for maml model')
-    print_performance_4_sl(args_mdl_maml, model=args.mdl_maml)
+    # # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
+    # print('\n---- maml0 for rand model')
+    # print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
+    # # print('---- maml0 for maml model')
+    # # print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
+    # # print('---- maml0 for sl model')
+    # # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=0, lr_inner=0.0)
+    #
+    # # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
+    # # print('\n---- maml5 for rand model')
+    # # print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=5, lr_inner=original_lr_inner)
+    # print('---- maml5 for maml model')
+    # print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
+    # # print('---- maml5 for sl model')
+    # # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=5, lr_inner=original_lr_inner)
+    #
+    # # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
+    # # print('\n---- maml10 for rand model')
+    # # print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=10, lr_inner=original_lr_inner)
+    # print('---- maml10 for maml model')
+    # print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
+    # # print('---- maml10 for sl model')
+    # # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=10, lr_inner=original_lr_inner)
+    #
+    # # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
+    # # print('\n---- FFL (LR) for rand model')
+    # # print_performance_4_sl(args_mdl_rand, model=args.mdl_rand)
+    # print('---- FFL (LR) for maml model')
+    # print_performance_4_sl(args_mdl_maml, model=args.mdl_maml)
     print('---- FFL (LR) for sl model')
     print_performance_4_sl(args_mdl_sl, model=args.mdl_sl)
 
@@ -329,21 +329,22 @@ def print_performance_results(args: Namespace,
                               training: bool = True,  # might be good to put false for sl? probably makes maml worse...?
                               ):
     # assert args.meta_learner is args.agent
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = eval_sl(args, args.meta_learner, args.dataloaders,
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
                                                              split='train',
                                                              training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'train: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = eval_sl(args, args.meta_learner, args.dataloaders,
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
                                                              split='val',
                                                              training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = eval_sl(args, args.meta_learner, args.dataloaders,
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
                                                              split='test',
                                                              training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'test: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
+
 
 
 def print_performance_4_maml(args: Namespace,
