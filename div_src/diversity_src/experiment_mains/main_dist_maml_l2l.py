@@ -24,7 +24,7 @@ from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
     print_dist, move_opt_to_cherry_opt_and_sync_params, set_devices_and_seed_ala_l2l, init_process_group_l2l, \
-    is_lead_worker, find_free_port, is_running_serially, is_running_parallel
+    is_lead_worker, find_free_port, is_running_serially, is_running_parallel, get_local_rank
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner, MAMLMetaLearnerL2L
@@ -559,8 +559,7 @@ def l2l_5CNNl2l_cifarfs_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
 
     # - dist args
     args.world_size = torch.cuda.device_count()
-    # args.world_size = 1
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -641,8 +640,8 @@ def l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
 
     # -
     args.log_freq = 500
@@ -714,8 +713,7 @@ def l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
 
     # - dist args
     args.world_size = torch.cuda.device_count()
-    # args.world_size = 1
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -752,7 +750,7 @@ def load_args() -> Namespace:
     # args: Namespace = parse_args_standard_sl()
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
@@ -798,41 +796,40 @@ def main():
     if not args.parallel:  # serial
         print('RUNNING SERIALLY')
         args.world_size = 1
+        args.rank = get_local_rank()
+        assert args.world_size == 1, f'Running serially but world_size is > 1, see: {args.world_size=}'
+        assert args.rank == -1
         train(args=args)
     else:
         # mp.spawn(fn=train, args=(args,), nprocs=args.world_size) what ddp does
+        args.rank = get_local_rank()
+        assert args.world_size > 1, f'Running parallel but world_size is <= 1, see: {args.world_size=}'
+        assert args.rank != -1
         train(args=args)
 
 
-def get_local_rank() -> int:
-    try:
-        local_rank: int = int(os.environ["LOCAL_RANK"])
-    except:
-        local_rank: int = -1
-    return local_rank
-
-
 def train(args):
-    # # set_sharing_strategy()
-    local_rank: int = get_local_rank()
-    print(f'{local_rank=}')
-    init_process_group_l2l(args, local_rank=local_rank, world_size=args.world_size, init_method=args.init_method)
-    rank: int = torch.distributed.get_rank() if is_running_parallel(local_rank) else -1
-    args.rank = rank  # have each process save the rank
-    set_devices_and_seed_ala_l2l(args)  # args.device = rank or .device
-    print(f'setup process done for rank={rank}')
+    if is_running_parallel(args.rank):
+        # - set up processes a la l2l
+        local_rank: int = get_local_rank()
+        print(f'{local_rank=}')
+        init_process_group_l2l(args, local_rank=local_rank, world_size=args.world_size, init_method=args.init_method)
+        rank: int = torch.distributed.get_rank() if is_running_parallel(local_rank) else -1
+        args.rank = rank  # have each process save the rank
+        set_devices_and_seed_ala_l2l(args)  # args.device = rank or .device
+    print(f'setup process done for rank={args.rank}')
 
     # - set up wandb only for the lead process
     setup_wandb(args) if is_lead_worker(args.rank) else None
 
     # create the model, opt & scheduler
     get_and_create_model_opt_scheduler_for_run(args)
-    args.opt = move_opt_to_cherry_opt_and_sync_params(args)
+    args.opt = move_opt_to_cherry_opt_and_sync_params(args) if is_running_parallel(args.rank) else args.opt
 
-    # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
+    # create the loaders, note: you might have to change the number of layers in the final layer
     args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
     args.dataloaders = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
-    replace_final_layer(args, n_classes=args.n_cls)  # for meta-learning, this is done at the user level not data set
+    assert args.model.cls.out_features == 5
 
     # Agent does everything, proving, training, evaluate, meta-learnering, etc.
     args.agent = MAMLMetaLearnerL2L(args, args.model)

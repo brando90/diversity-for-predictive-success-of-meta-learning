@@ -61,10 +61,10 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
     # args.data_path = Path('~/data/l2l_data/').expanduser()
     # args.data_augmentation = 'rfs2020'
-    # args.data_option = 'torchmeta_miniimagenet'  # no name assumes l2l
-    # args.data_path = Path('~/data/torchmeta_data/').expanduser()
-    args.data_option = 'rfs_meta_learning_miniimagenet'  # no name assumes l2l
-    args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
+    args.data_option = 'torchmeta_miniimagenet'  # no name assumes l2l
+    args.data_path = Path('~/data/torchmeta_data/').expanduser()
+    # args.data_option = 'rfs_meta_learning_miniimagenet'  # no name assumes l2l
+    # args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
     args.augment_train = True
 
     # - training mode
@@ -124,7 +124,12 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # args.n_aug_support_samples = 1
     # args.n_aug_support_samples = 5
     # args.n_aug_support_samples = 10
-    args.n_aug_support_samples = 15
+    # args.n_aug_support_samples = 15
+    # args.k_shots = 1
+    # args.k_shots = 5
+    # args.k_shots = 10
+    # args.k_shots = 15
+    # args.k_shots = 30
 
     args.safety_margin = 10
     # args.safety_margin = 20
@@ -178,10 +183,10 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'{args.experiment_option}_resnet12rfs_mi_spt_1_vs_5_rfs_ckpt'
+    args.experiment_name = f'{args.experiment_option}_resnet12rfs_mi_k_shots_1_5_10_15_30'
     args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl=} {args.path_2_init_maml=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -433,7 +438,6 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     args.path_2_init_sl = '~/data/logs/logs_Feb25_14-36-24_jobid_12915'  # 1024 model
     # args.path_2_init_maml = ''
 
-
     # - device
     # args.device = torch.device('cpu')
     # args.device = get_device()
@@ -652,6 +656,8 @@ def main_data_analyis():
     print(f'-->{args.inner_lr=}')
     print(f'-->{args.metric_comparison_type=}')
     print(f'-->{args.metric_as_sim_or_dist=}')
+    print(f'-->{args.n_aug_support_samples=}') if hasattr(args, 'n_aug_support_samples') else None
+    print(f'-->{args.k_shots=}')
 
     # - Checks that maml0 acc is lower
     # santity_check_maml_accuracy(args)

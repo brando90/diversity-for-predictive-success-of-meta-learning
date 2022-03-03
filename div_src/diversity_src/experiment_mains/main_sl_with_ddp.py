@@ -660,7 +660,9 @@ def sl_cifarfs_rfs_5cnn_sgd_cl_1000(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.model_option = '4CNN_l2l_cifarfs'
-    args.model_hps = dict(ways=64, hidden_size=64, embedding_size=64 * 4)
+    args.n_cls = 64
+    args.model_hps = dict(ways=args.n_cls, hidden_size=64, embedding_size=64 * 4)
+
 
     # - data
     args.data_option = 'cifarfs_l2l_sl'
@@ -717,7 +719,9 @@ def sl_cifarfs_resnet12rfs_sgd_cl_200(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.model_option = 'resnet12_rfs_cifarfs_fc100'
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=64)
+    args.n_cls = 64
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=args.n_cls)
+
 
     # - data
     args.data_option = 'cifarfs_l2l_sl'
@@ -774,7 +778,8 @@ def sl_cifarfs_rfs_5cnn_adafactor_1000(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.model_option = '4CNN_l2l_cifarfs'
-    args.model_hps = dict(ways=64, hidden_size=64, embedding_size=64 * 4)
+    args.n_cls = 64
+    args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)
 
     # - data
     args.data_option = 'cifarfs_l2l_sl'
@@ -825,7 +830,8 @@ def sl_cifarfs_4cnn_hidden_size_128_sgd_cl_rfs_500(args: Namespace) -> Namespace
     # - model
     args.model_option = '4CNN_l2l_cifarfs'
     args.hidden_size = 128
-    args.model_hps = dict(ways=64, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)
+    args.n_cls = 64
+    args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)
 
     # - data
     args.data_option = 'cifarfs_l2l_sl'
@@ -883,7 +889,8 @@ def sl_cifarfs_4cnn_hidden_size_1024_sgd_cl_rfs_500(args: Namespace) -> Namespac
     # - model
     args.model_option = '4CNN_l2l_cifarfs'
     args.hidden_size = 1024
-    args.model_hps = dict(ways=64, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)
+    args.n_cls = 64
+    args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)
 
     # - data
     args.data_option = 'cifarfs_l2l_sl'
@@ -941,7 +948,8 @@ def sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_500(args: Namespace) -> Namespace:
     # - model
     args.model_option = '4CNN_l2l_cifarfs'
     args.hidden_size = 1024
-    args.model_hps = dict(ways=64, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)
+    args.n_cls = 64
+    args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)
 
     # - data
     args.data_option = 'cifarfs_l2l_sl'
@@ -1076,6 +1084,8 @@ def train(rank, args):
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
     args.dataloaders: dict = get_sl_dataloader(args)
     # replace_final_layer(args, n_classes=args.n_cls)  # for SL this should be done at the dataset/loader level
+    assert args.model.cls.out_features > 5
+    assert args.model.cls.out_features == 64
 
     # Agent does everything, proving, training, evaluate etc.
     args.agent: Agent = UnionClsSLAgent(args, args.model)
