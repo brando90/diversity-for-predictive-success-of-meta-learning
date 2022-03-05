@@ -54,6 +54,7 @@ echo OUT_FILE=$OUT_FILE
 
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k
 python -m torch.distributed.run --nproc_per_node=4 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k
+python -m torch.distributed.run --nproc_per_node=2 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k
 echo pid = $!
 
 echo "Done with bash script (experiment or dispatched daemon experiments). "
