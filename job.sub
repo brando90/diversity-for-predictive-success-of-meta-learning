@@ -28,8 +28,9 @@ requirements = (CUDADeviceName != "Tesla K40m")
 # requirements = (CUDADeviceName == "A40")
 # requirements = (CUDADeviceName == "A40") || (CUDADeviceName == "Quadro RTX 6000")
 
-Request_cpus = 4
-# Request_cpus = 8
+# Request_cpus = 4
+Request_cpus = 8
+# Request_cpus = 12
 # Request_cpus = 40
 # Request_cpus = 32
 

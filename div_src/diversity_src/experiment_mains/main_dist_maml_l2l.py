@@ -796,20 +796,23 @@ def main():
     if not args.parallel:  # serial
         print('RUNNING SERIALLY')
         args.world_size = 1
-        args.rank = get_local_rank()
+        args.rank = -1
         assert args.world_size == 1, f'Running serially but world_size is > 1, see: {args.world_size=}'
         assert args.rank == -1
         train(args=args)
     else:
         # mp.spawn(fn=train, args=(args,), nprocs=args.world_size) what ddp does
-        args.rank = get_local_rank()
+        # args.rank = get_local_rank()
+        print(f'{torch.cuda.device_count()=}')
+        print(f'local rank before train function: {args.rank=}')
         assert args.world_size > 1, f'Running parallel but world_size is <= 1, see: {args.world_size=}'
-        assert args.rank != -1
+        # assert args.rank != -1
         train(args=args)
 
 
 def train(args):
-    if is_running_parallel(args.rank):
+    # if is_running_parallel(args.rank):
+    if args.parallel:
         # - set up processes a la l2l
         local_rank: int = get_local_rank()
         print(f'{local_rank=}')

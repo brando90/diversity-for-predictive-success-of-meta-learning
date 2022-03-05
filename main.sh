@@ -33,7 +33,7 @@ echo SLURM_JOBID=$SLURM_JOBID
 export OUT_FILE=$PWD/main.sh.o$SLURM_JOBID
 echo OUT_FILE=$OUT_FILE
 
-pip install wandb --upgrade
+#pip install wandb --upgrade
 
 # - run experiment
 # - SL
