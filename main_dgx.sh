@@ -78,6 +78,7 @@ export OUT_FILE=$PWD/main.sh.o$SLURM_JOBID
 #python -m torch.distributed.run --nproc_per_node=5 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_mi_rfs_sgd_cl_100k > $OUT_FILE &
 
 python -m torch.distributed.run --nproc_per_node=3 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k > $OUT_FILE &
+#python -m torch.distributed.run --nproc_per_node=4 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_mi_adam_no_scheduler_100k > $OUT_FILE &
 echo pid = $!
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 echo SLURM_JOBID = $SLURM_JOBID
