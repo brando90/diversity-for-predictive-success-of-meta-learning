@@ -232,11 +232,12 @@ def main():
         assert args.rank == -1
         train_serial(args=args)
     else:
-        # mp.spawn(fn=train, args=(args,), nprocs=args.world_size) what ddp does
-        args.rank = get_local_rank()
-        assert args.world_size > 1, f'Running parallel but world_size is <= 1, see: {args.world_size=}'
-        assert args.rank != -1
-        train(args=args)
+        # assert args.world_size > 1, f'Running parallel but world_size is <= 1, see: {args.world_size=}'
+        # print(f'{torch.cuda.device_count()=}')
+        # print(f'local rank before train function: {args.rank=}')
+        # assert args.world_size > 1, f'Running parallel but world_size is <= 1, see: {args.world_size=}'
+        # train(args=args)
+        raise NotImplementedError  # if you want this see my main_dist_maml_l2l.py script, hopefully you don't need it
 
 
 def train_serial(args):
@@ -268,54 +269,6 @@ def train_serial(args):
         raise NotImplementedError
     else:
         raise ValueError(f'Invalid training_mode value, got: {args.training_mode}')
-
-
-def train(args):
-    if is_running_parallel(args.rank):
-        # - set up processes a la l2l
-        local_rank: int = get_local_rank()
-        print(f'{local_rank=}')
-        init_process_group_l2l(args, local_rank=local_rank, world_size=args.world_size, init_method=args.init_method)
-        rank: int = torch.distributed.get_rank() if is_running_parallel(local_rank) else -1
-        args.rank = rank  # have each process save the rank
-        set_devices_and_seed_ala_l2l(args)  # args.device = rank or .device
-    print(f'setup process done for rank={args.rank}')
-
-    # - set up wandb only for the lead process
-    setup_wandb(args) if is_lead_worker(args.rank) else None
-
-    # create the model, opt & scheduler
-    get_and_create_model_opt_scheduler_for_run(args)
-    args.opt = move_opt_to_cherry_opt_and_sync_params(args) if is_running_parallel(args.rank) else args.opt
-
-    # create the loaders, note: you might have to change the number of layers in the final layer
-    args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
-    args.dataloaders = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
-    assert args.model.cls.out_features == 5
-
-    # Agent does everything, proving, training, evaluate, meta-learnering, etc.
-    args.agent = MAMLMetaLearnerL2L(args, args.model)
-    args.meta_learner = args.agent
-
-    # -- Start Training Loop
-    print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)  # here to make sure mdl has the right cls
-    print_dist('====> about to start train loop', args.rank)
-    if args.training_mode == 'meta_train_agent_fit_single_batch':
-        # meta_train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
-        raise NotImplementedError
-    elif 'iterations' in args.training_mode:
-        meta_train_iterations_ala_l2l(args, args.agent, args.opt, args.scheduler)
-    elif 'epochs' in args.training_mode:
-        # meta_train_epochs(args, agent, args.dataloaders, args.opt, args.scheduler) not implemented
-        raise NotImplementedError
-    else:
-        raise ValueError(f'Invalid training_mode value, got: {args.training_mode}')
-
-    # -- Clean Up Distributed Processes
-    print(f'\n----> about to cleanup worker with rank {rank}')
-    cleanup(rank)
-    print(f'clean up done successfully! {rank}')
-
 
 # -- Run experiment
 
