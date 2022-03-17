@@ -110,7 +110,10 @@ def get_gaussian_tasksets(mu_B, sigma_B, num_fixed_classes, ways, samples, num_t
         #TODO: PARALLELIZE, convert to TORCH
         for j in range(ways):
             #Get our TRUE data distribution for task i, way j
-            task_i_way_j = dist.Normal(mu_i[j], sigma_i[j])
+
+
+            #task_i_way_j = dist.Normal(mu_i[j], sigma_i[j]) #DOESN'T CONVERGE!!!!!! Too much overlap perhaps since sigma is large?
+            task_i_way_j = dist.Normal(mu_i[j], 0.3*sigma_i[j]) #Note that if I set sigma_i[j] = 0.1 constant, this converges!!!
 
             for k in range(samples):
                 #sample a point from our TRUE data distribution for way j:
@@ -138,8 +141,8 @@ def main(
         num_iterations=60000,
         cuda=False,
         seed=42,
-        mu_B = 0.1,
-        sigma_B = 0.01,
+        mu_B = 2,
+        sigma_B = 1,
         num_fixed_classes = 50, #number of fixed classes in each dataset
         num_tasks = 500 #number of tasks we want to GENERATE (each task has 5 classes/ways, or whatever ways is)
 ):

@@ -120,12 +120,13 @@ def l2l_gaussian_1d(args: Namespace) -> Namespace:
     # - model
     args.n_cls = 5
     # TODO
-    args.model_option = '4CNN_l2l_cifarfs'
-    args.hidden_size = 1024
-    args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)  # TODO
+    args.model_option = '3FNN_5_gaussian' #'4CNN_l2l_cifarfs'
+    #args.hidden_size = 1024
+    #args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)  # TODO
+    args.model_hps = dict(ways = 5, hidden_layer1 = 15, hidden_layer2 = 15, input_size=1) #TODO: Implement this!
 
     # - data TODO
-    args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.data_option = 'n_way_gaussians'#'cifarfs_rfs'  #CIFAR RFS dataset # no name assumes l2l, make sure you're calling get_l2l_tasksets
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.data_augmentation = 'rfs2020'
 
@@ -172,10 +173,10 @@ def l2l_gaussian_1d(args: Namespace) -> Namespace:
     args.log_freq = 500
 
     # -- wandb args
-    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'  # TODO
+    args.wandb_project = 'maml_5_gaussians' #'sl_vs_ml_iclr_workshop_paper'  # TODO
     # - wandb expt args
     # args.experiment_name = f'debug'
-    args.experiment_name = f'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # TODO
+    args.experiment_name = 'l2l_gaussian_1d' #f'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # TODO
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'  # TODO
     # args.log_to_wandb = True  # TODO when real
     args.log_to_wandb = False
@@ -196,15 +197,15 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # <- REMOVE to remove manual loads
+    args.manual_loads_name = 'l2l_gaussian_1d' #'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
         raise NotImplementedError
     elif args_hardcoded_in_script(args):
-        if args.manual_loads_name == 'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k':
-            args: Namespace = l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k(args)
+        if args.manual_loads_name == 'l2l_gaussian_1d': #'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k':
+            args: Namespace = l2l_gaussian_1d(args) #l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
@@ -250,6 +251,7 @@ def train_serial(args):
     # create the loaders, note: you might have to change the number of layers in the final layer
     args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)  # TODO, create your own or extend
     args.dataloaders = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
+    print(args.model.cls)
     assert args.model.cls.out_features == 5
 
     # Agent does everything, proving, training, evaluate, meta-learnering, etc.
