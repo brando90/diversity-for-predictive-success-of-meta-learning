@@ -21,12 +21,12 @@ Error       = $(SUBMIT_FILE).o$(CLUSTER)
 # Error        = $(SUBMIT_FILE).e$(CLUSTER)
 
 # Use this to make sure x gpu is available. The key words are case insensitive.
-REquest_gpus = 4
+REquest_gpus = 1
 requirements = (CUDADeviceName != "Tesla K40m")
 # requirements = (CUDADeviceName == "Titan Xp")
 # requirements = (CUDADeviceName == "Quadro RTX 6000")
 # requirements = (CUDADeviceName == "A40")
-requirements = (CUDADeviceName == "Quadro RTX 6000") || (CUDADeviceName == "A40")
+# requirements = (CUDADeviceName == "Quadro RTX 6000") || (CUDADeviceName == "A40")
 
 # Request_cpus = 4
 Request_cpus = 8

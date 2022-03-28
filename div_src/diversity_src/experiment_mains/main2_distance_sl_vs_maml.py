@@ -176,6 +176,10 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2w2iezpb?workspace=user-brando
     # args.path_2_init_maml = '/home/miranda9/data/logs/logs_Feb27_09-11-46_jobid_14483_pid_16068'
 
+    # reproduction in l2l
+    # /home/miranda9/data/logs/logs_Feb27_09-11-46_jobid_14483_pid_16068, https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2w2iezpb/overview?workspace=user-brando
+    # args.path_2_init_maml = '~/data/logs/logs_Feb27_09-11-46_jobid_14483_pid_16068'
+
     # - device
     # args.device = torch.device('cpu')
     # args.device = get_device()
@@ -414,9 +418,11 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     args.safety_margin = 10
     # args.safety_margin = 20
 
-    # args.batch_size = 2
-    args.batch_size = 25
+    args.batch_size = 2
+    # args.batch_size = 25
     # args.batch_size = 100
+    # args.batch_size = 400
+    # args.batch_size = 600
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
@@ -430,12 +436,15 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     args.agent_opt = 'MAMLMetaLearner_default'
 
     # - ckpt name
-    # args.path_2_init_sl = '~/data/logs/logs_Feb12_13-24-10_jobid_13887_pid_199696'
-    args.path_2_init_maml = '~/data/logs/logs_Feb12_13-08-09_jobid_23901_pid_137639'
+    # adam models
+    #  https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1yz87dry?workspace=user-brando 13363
+    args.path_2_init_maml = '~/data/logs/logs_Mar02_18-13-23_jobid_13363'  # 0.966 acc, 0.639
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2ni2m08h/overview?workspace=user-brando 13860
+    # args.path_2_init_maml = '~/data/logs/logs_Mar24_21-06-59_jobid_13860/'  # 1.0 train acc, 0.56 val
 
     # sgd models
-    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1u7e0gx6?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Feb25_14-36-24_jobid_12915'  # 1024 model
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1u7e0gx6?workspace=user-brando 12915, SL
+    args.path_2_init_sl = '~/data/logs/logs_Feb25_14-36-24_jobid_12915'  # 0.9998 acc, na VAL (since it's SL)
     # args.path_2_init_maml = ''
 
     # - device
@@ -448,8 +457,8 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_args_5cnn_cifarfs'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -554,6 +563,7 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     # args.path_2_init_sl = '~/data/logs/logs_Feb10_15-05-22_jobid_20550_pid_94325/'
     # args.path_2_init_sl = '~/data/logs/logs_Feb10_15-05-54_jobid_12449_pid_111612/'
     # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2hjq1vmu/overview?workspace=user-brando 28881
     args.path_2_init_maml = '~/data/logs/logs_Feb10_15-54-14_jobid_28881_pid_101601/'
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2q39rflm?workspace=user-brando
     args.path_2_init_maml = ''
@@ -593,10 +603,10 @@ def load_args() -> Namespace:
     args: Namespace = parse_args_meta_learning()
 
     # - get manual args
-    # args: Namespace = args_5cnn_cifarfs(args)
+    args: Namespace = args_5cnn_cifarfs(args)
     # args: Namespace = args_5cnn_mi(args)
     # args: Namespace = resnet12rfs_cifarfs(args)
-    args: Namespace = resnet12rfs_mi(args)
+    # args: Namespace = resnet12rfs_mi(args)
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)

@@ -1,6 +1,7 @@
 from argparse import Namespace
 from copy import deepcopy, copy
 from pathlib import Path
+from typing import Optional
 
 import torch
 from torch import nn
@@ -159,16 +160,16 @@ def load_old_mi_resnet12rfs_ckpt(args: Namespace, path_to_checkpoint: Path) -> n
     args.model = model
     return args.model
 
-
-def load_4cnn_cifarfs_fix_model_hps_sl(args, path_to_checkpoint):
-    path_to_checkpoint = args.path_to_checkpoint if path_to_checkpoint is None else path_to_checkpoint
-    ckpt: dict = torch.load(path_to_checkpoint, map_location=args.device)
-    from uutils.torch_uu.models.l2l_models import cnn4_cifarsfs
-    model, model_hps = cnn4_cifarsfs(ways=64)
-    model.cls = model.classifier
-    model.load_state_dict(ckpt['model_state_dict'])
-    args.model = model
-    return model
+# Don't think this is correct, use the model_hps from the ckpt, so use K
+# def load_4cnn_cifarfs_fix_model_hps_sl(args, path_to_checkpoint):
+#     path_to_checkpoint = args.path_to_checkpoint if path_to_checkpoint is None else path_to_checkpoint
+#     ckpt: dict = torch.load(path_to_checkpoint, map_location=args.device)
+#     from uutils.torch_uu.models.l2l_models import cnn4_cifarsfs
+#     model, model_hps = cnn4_cifarsfs(ways=64)
+#     model.cls = model.classifier
+#     model.load_state_dict(ckpt['model_state_dict'])
+#     args.model = model
+#     return model
 
 
 def load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint):
@@ -210,9 +211,8 @@ def get_sl_learner(args: Namespace):
         state_dict = ckpt['model']
     see: save_check_point_sl
     """
-    # ckpt: dict = torch.load(args.path_2_init_maml, map_location=torch.device('cpu'))
-    if '13887' in str(args.path_2_init_sl):
-        model = load_4cnn_cifarfs_fix_model_hps_sl(args, path_to_checkpoint=args.path_2_init_sl)
+    if '12915' in str(args.path_2_init_sl):
+        model = load_model_force_add_cls_layer_as_module(args, path_to_checkpoint=args.path_2_init_sl)
     elif 'rfs_checkpoints' in str(args.path_2_init_sl):  # original rfs ckpt
         model = load_original_rfs_ckpt(args, path_to_checkpoint=args.path_2_init_sl)
     else:
@@ -227,14 +227,13 @@ def get_sl_learner(args: Namespace):
 
 
 def get_maml_meta_learner(args: Namespace):
-    # ckpt: dict = torch.load(args.path_2_init_maml, map_location=torch.device('cpu'))
     if '668' in str(args.path_2_init_maml):  # hack to have old 668 checkpoint work
         # args.path_2_init_maml = Path('~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668/ckpt_file.pt').expanduser()
         base_model = load_old_mi_resnet12rfs_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
     elif '101601' in str(args.path_2_init_maml):
         base_model = load_model_cifarfs_fix_model_hps(args, path_to_checkpoint=args.path_2_init_maml)
-    elif '23901' in str(args.path_2_init_maml):
-        base_model = load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint=args.path_2_init_maml)
+    # elif '23901' in str(args.path_2_init_maml):
+    #     base_model = load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint=args.path_2_init_maml)
     else:
         # base_model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
         base_model = load_model_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
@@ -330,21 +329,20 @@ def print_performance_results(args: Namespace,
                               ):
     # assert args.meta_learner is args.agent
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
-                                                             split='train',
-                                                             training=training)
+                                                               split='train',
+                                                               training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'train: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
-                                                             split='val',
-                                                             training=training)
+                                                               split='val',
+                                                               training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
-                                                             split='test',
-                                                             training=training)
+                                                               split='test',
+                                                               training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'test: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
-
 
 
 def print_performance_4_maml(args: Namespace,
@@ -423,6 +421,52 @@ def do_diversity_data_analysis(args, meta_dataloader):
     mu, std = compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks(
         distances_for_task_pairs, dist2sim=True)
     print(f'----entire net result:\n  {mu=}, {std=}')
+
+
+def load_model_force_add_cls_layer_as_module(args: Namespace,
+                        path_to_checkpoint: Optional[str] = None,
+
+                        add_cls_layer: bool = True,  # FORCE HACK :(
+                        ) -> nn.Module:
+    """
+    Load the most important things: model for USL hack.
+
+    Ref:
+        - standard way: https://pytorch.org/tutorials/recipes/recipes/saving_and_loading_a_general_checkpoint.html
+
+    Hack explained:
+    - I accidentally added a .cls layer via .cls = nn.Linear(...) only on cls.
+    This made the checkpointing and thus loading checkpointing. This made the load of ckpts from MAML vs USL asymmtric
+    and this is needed to fix it.
+    """
+    # - prepare args from ckpt
+    path_to_checkpoint = args.path_to_checkpoint if path_to_checkpoint is None else path_to_checkpoint
+    ckpt: dict = torch.load(path_to_checkpoint, map_location=args.device)
+    model_option = ckpt['model_option']
+    model_hps = ckpt['model_hps']
+
+    _get_and_create_model_opt_scheduler(args,
+                                        model_option,
+                                        model_hps,
+
+                                        opt_option='None',
+                                        opt_hps='None',
+
+                                        scheduler_option='None',
+                                        scheduler_hps='None',
+                                        )
+
+    # - load state dicts
+    if add_cls_layer:
+        # HACK
+        args.model.cls = nn.Linear(args.model.cls.in_features, args.model.cls.out_features).to(args.device)
+        # print(args.model.state_dict().keys())
+
+    model_state_dict: dict = ckpt['model_state_dict']
+    print(model_state_dict.keys())
+    args.model.load_state_dict(model_state_dict)
+    args.model.to(args.device)
+    return args.model
 
 
 # -
