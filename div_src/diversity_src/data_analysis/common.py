@@ -460,7 +460,6 @@ def load_model_force_add_cls_layer_as_module(args: Namespace,
     if add_cls_layer:
         # HACK
         args.model.cls = nn.Linear(args.model.cls.in_features, args.model.cls.out_features).to(args.device)
-        # print(args.model.state_dict().keys())
 
     model_state_dict: dict = ckpt['model_state_dict']
     print(model_state_dict.keys())

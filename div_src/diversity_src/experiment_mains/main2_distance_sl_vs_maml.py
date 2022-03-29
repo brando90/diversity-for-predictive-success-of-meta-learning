@@ -418,8 +418,8 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     args.safety_margin = 10
     # args.safety_margin = 20
 
-    args.batch_size = 2
-    # args.batch_size = 25
+    # args.batch_size = 2
+    args.batch_size = 25
     # args.batch_size = 100
     # args.batch_size = 400
     # args.batch_size = 600
@@ -438,14 +438,19 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     # - ckpt name
     # adam models
     #  https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1yz87dry?workspace=user-brando 13363
-    args.path_2_init_maml = '~/data/logs/logs_Mar02_18-13-23_jobid_13363'  # 0.966 acc, 0.639
+    # args.path_2_init_maml = '~/data/logs/logs_Mar02_18-13-23_jobid_13363'  # 0.966 acc, 0.639
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2ni2m08h/overview?workspace=user-brando 13860
-    # args.path_2_init_maml = '~/data/logs/logs_Mar24_21-06-59_jobid_13860/'  # 1.0 train acc, 0.56 val
+    args.path_2_init_maml = '~/data/logs/logs_Mar24_21-06-59_jobid_13860/'  # 1.0 train acc, 0.56 val
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/ehntkv81/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Mar28_18-31-34_jobid_15884/'
 
     # sgd models
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1u7e0gx6?workspace=user-brando 12915, SL
-    args.path_2_init_sl = '~/data/logs/logs_Feb25_14-36-24_jobid_12915'  # 0.9998 acc, na VAL (since it's SL)
+    # args.path_2_init_sl = '~/data/logs/logs_Feb25_14-36-24_jobid_12915'  # 0.9998 acc, na VAL (since it's SL)
     # args.path_2_init_maml = ''
+
+    # adafactor models
+    # args.path_2_init_sl = '~/data/logs/logs_Mar29_05-52-51_jobid_15883/'
 
     # - device
     # args.device = torch.device('cpu')
@@ -457,8 +462,8 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_args_5cnn_cifarfs'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
