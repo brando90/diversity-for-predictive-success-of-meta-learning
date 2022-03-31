@@ -112,23 +112,55 @@ def l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+def Hellinger(mu1,sigma1,mu2,sigma2):
+    return torch.sqrt(2*sigma1*sigma2/(sigma1.pow(2)+sigma2.pow(2)))*torch.exp(-(mu1-mu2).pow(2)/(4*(sigma1.pow(2)+sigma2.pow(2))))
+
+
+def hellinger_div(mu_m_B, sigma_m_B, mu_s_B, sigma_s_B):
+    N = 10000#500000
+    dv_H = 0
+    for i in range(N):
+        # mu1,mu2 ~ N(mu1, mu2 | mu_m_B, sigma_m_B)
+        # sigma1,sigma2 ~ N(sigma1,sigma2 | mu_s_B, sigma_s_B)
+        mu1 = mu_m_B + sigma_m_B * torch.randn(1)  # b_dist.sample()#torch.normal(mu_b, sigma_b)
+        mu2 = mu_m_B + sigma_m_B * torch.randn(1)  # b_dist.sample()#torch.normal(mu_b, sigma_b)
+        sigma1 = torch.abs(mu_s_B + sigma_s_B * torch.randn(1))  # torch.normal(mu_b, sigma_b)
+        sigma2 = torch.abs(mu_s_B + sigma_s_B * torch.randn(1))  # torch.normal(mu_b, sigma_b)
+        dv_H += Hellinger(mu1, sigma1, mu2, sigma2)
+    dv_H /= N
+    return 1 - dv_H
+
 
 def l2l_gaussian_1d(args: Namespace) -> Namespace:
     """
     """
     from pathlib import Path
-    # - model
+    # - model - we define a 1 x 15 x 15 x 5 FNN
+    # 3 layers, takes 1 input (float) and guesses which of 5 1-hot output classes
+    # the gaussian belong to.
     args.n_cls = 5
+    args.hidden_layer1 = 15
+    args.hidden_layer2 = 15
+    args.input_size = 1
     # TODO
-    args.model_option = '3FNN_5_gaussian' #'4CNN_l2l_cifarfs'
-    #args.hidden_size = 1024
-    #args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)  # TODO
-    args.model_hps = dict(ways = 5, hidden_layer1 = 15, hidden_layer2 = 15, input_size=1) #TODO: Implement this!
+    args.model_option = '3FNN_5_gaussian' # '4CNN_l2l_cifarfs'
+    # args.hidden_size = 1024
+    # args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)  # TODO
+    args.model_hps = dict(ways = args.n_cls, hidden_layer1 = args.hidden_layer1, hidden_layer2 = args.hidden_layer2, input_size=args.input_size) #TODO: Implement this!
 
     # - data TODO
-    args.data_option = 'n_way_gaussians'#'cifarfs_rfs'  #CIFAR RFS dataset # no name assumes l2l, make sure you're calling get_l2l_tasksets
-    args.data_path = Path('~/data/l2l_data/').expanduser()
-    args.data_augmentation = 'rfs2020'
+    args.data_option = 'n_way_gaussians'#' cifarfs_rfs'  #CIFAR RFS dataset # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.mu_m_B = 0 #doesn't matter
+    args.sigma_m_B = 10
+    args.mu_s_B = 2
+    args.sigma_s_B = 1
+    args.div_H = hellinger_div(args.mu_m_B, args.sigma_m_B, args.mu_s_B, args.sigma_s_B)
+    #args.rho = 0.1
+    args.k_shots = 10
+    args.k_eval = 30
+
+    # args.data_path = Path('~/data/l2l_data/').expanduser()
+    # args.data_augmentation = 'rfs2020'
 
     # - training mode
     args.training_mode = 'iterations'
@@ -177,7 +209,7 @@ def l2l_gaussian_1d(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = 'l2l_gaussian_1d' #f'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # TODO
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'  # TODO
+    args.run_name = f'{args.div_H} {args.mu_m_B} {args.sigma_m_B} {args.mu_s_B} {args.sigma_s_B} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'  # TODO
     # args.log_to_wandb = True  # TODO when real
     args.log_to_wandb = False
 
