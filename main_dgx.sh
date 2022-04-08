@@ -8,7 +8,7 @@ echo SLURM_JOBID = $SLURM_JOBID
 #export CUDA_VISIBLE_DEVICES=$(((RANDOM%8)))
 #export CUDA_VISIBLE_DEVICES=0
 #export CUDA_VISIBLE_DEVICES=1
-#export CUDA_VISIBLE_DEVICES=2
+export CUDA_VISIBLE_DEVICES=2
 #export CUDA_VISIBLE_DEVICES=3
 #export CUDA_VISIBLE_DEVICES=4
 #export CUDA_VISIBLE_DEVICES=5
@@ -23,7 +23,7 @@ echo SLURM_JOBID = $SLURM_JOBID
 #export CUDA_VISIBLE_DEVICES=0,1,3,4,5,6,7
 #export CUDA_VISIBLE_DEVICES=3,4,5,6,7
 #export CUDA_VISIBLE_DEVICES=2,3,4,5,6,7
-export CUDA_VISIBLE_DEVICES=0,6,7
+#export CUDA_VISIBLE_DEVICES=0,6,7
 
 echo CUDA_VISIBLE_DEVICES
 echo $CUDA_VISIBLE_DEVICES
@@ -32,12 +32,13 @@ python -c "import torch; print(torch.cuda.device_count())"
 echo ---- Running your python main ----
 
 pip install wandb --upgrade
+/home/miranda9/miniconda3/envs/meta_learning_a100/bin/python -m pip install --upgrade pip
 
 #export SLURM_JOBID=-1
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main2_metalearning.py --manual_loads_name manual_load_cifarfs_resnet12rfs_maml > $OUT_FILE &
 
 # - SL
-#export OUT_FILE=$PWD/main.sh.o$SLURM_JOBID
+export OUT_FILE=$PWD/main.sh.o$SLURM_JOBID
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_mi_rfs_5cnn_adam_cl_200 > $OUT_FILE &
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_mi_rfs_5cnn_adam_cl > $OUT_FILE &
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_mi_rfs_5cnn_adam_cl_200 > $OUT_FILE &
@@ -57,10 +58,12 @@ pip install wandb --upgrade
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_resnet12rfs_sgd_cl_200 > $OUT_FILE &
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_500 > $OUT_FILE &
 
-
-#echo pid = $!
-#echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
-#echo SLURM_JOBID = $SLURM_JOBID
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_1000 > $OUT_FILE &
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_1000 > $OUT_FILE &
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_many_epochs > $OUT_FILE &
+echo pid = $!
+echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
+echo SLURM_JOBID = $SLURM_JOBID
 
 # - MAML
 #export OUT_FILE=$PWD/main.sh.o$SLURM_JOBID

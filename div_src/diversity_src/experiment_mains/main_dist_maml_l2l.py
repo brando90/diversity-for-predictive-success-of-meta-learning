@@ -729,8 +729,8 @@ def l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -807,8 +807,10 @@ def l2l_resnet12rfs_mi_adam_no_scheduler_100k(args: Namespace) -> Namespace:
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_resnet12rfs_mi_rfs_adam_cl_100k'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    # args.parallel = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
