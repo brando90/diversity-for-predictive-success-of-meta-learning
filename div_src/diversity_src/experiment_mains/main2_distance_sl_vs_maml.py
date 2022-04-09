@@ -30,7 +30,8 @@ import uutils
 import time
 
 from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_learner, santity_check_maml_accuracy, \
-    comparison_via_performance, setup_args_path_for_ckpt_data_analysis, do_diversity_data_analysis
+    comparison_via_performance, setup_args_path_for_ckpt_data_analysis, do_diversity_data_analysis, \
+    performance_comparison_with_l2l_end_to_end
 from diversity_src.diversity.diversity import diversity
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
@@ -501,8 +502,8 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_args_5cnn_cifarfs'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -700,6 +701,7 @@ def main_data_analyis():
 
     # -- start analysis
     print('---------- start analysis ----------')
+    print(f'{args.dataloaders=}')
     print(f'{args.num_workers=}')
     print(f'-->{args.meta_learner.args.copy_initial_weights}')
     print(f'-->{args.meta_learner.args.track_higher_grads}')
@@ -861,7 +863,19 @@ def main_data_analyis():
         import wandb
         wandb.finish()
 
+def main_data_analyis_check_sl_error():
+    args: Namespace = load_args()
+
+    performance_comparison_with_l2l_end_to_end(args)
+
+    # - done!
+    print(f'time_passed_msg = {uutils.report_times(start)}')
+    # - wandb
+    if is_lead_worker(args.rank) and args.log_to_wandb:
+        import wandb
+        wandb.finish()
 
 if __name__ == '__main__':
-    main_data_analyis()
+    # main_data_analyis()
+    main_data_analyis_check_sl_error()
     print('--> Success Done!\a\n')
