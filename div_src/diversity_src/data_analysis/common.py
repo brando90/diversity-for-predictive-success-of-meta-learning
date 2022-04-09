@@ -1,3 +1,4 @@
+import logging
 from argparse import Namespace
 from copy import deepcopy, copy
 from pathlib import Path
@@ -489,6 +490,23 @@ def load_model_force_add_cls_layer_as_module(args: Namespace,
     args.model.load_state_dict(model_state_dict)
     args.model.to(args.device)
     return args.model
+
+def get_meta_learning_dataloaders_for_data_analysis(args: Namespace):
+    from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
+    # - to load torchmeta
+    args.dataloaders: dict = get_meta_learning_dataloader(args)
+    # - to load l2l
+    from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
+    from learn2learn.vision.benchmarks import BenchmarkTasksets
+    try:
+        args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
+    except Exception as e:
+        # this hack is here so that if it was meant not meant as l2l, to no-op and only use the torchmeta data set
+        logging.warning(f'{e}')
+        pass
+    # todo: not sure if this is the ver we need args.dataloaders = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
+    args.dataloaders['']
+
 
 
 # -

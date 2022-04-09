@@ -344,8 +344,11 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     args.model_option = '4CNN_l2l_cifarfs'
 
     # - data
-    args.data_option = 'torchmeta_cifarfs'  # no name assumes l2l
-    args.data_path = Path('~/data/torchmeta_data/').expanduser()
+    args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'rfs2020'
+    # args.data_option = 'torchmeta_cifarfs'  # no name assumes l2l
+    # args.data_path = Path('~/data/torchmeta_data/').expanduser()
     args.augment_train = True
 
     # - training mode
