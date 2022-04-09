@@ -75,21 +75,19 @@ plt.show()
 # %%
 """
 3
-Cifar-fs, 5CNN
+Cifar-fs, 5CNN1024
 
 
 details:
-- using original (old code). Thus:
-- 5CNN is SL rfs with adam my_l2l_code (REDO, SGD_rfs)
-- 5CNN MAML is adam until convergence my_torchmeta_maml_code
+- train to convergence & train-acc==0: https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3sxs4q08/logs?workspace=user-brando
 """
 from uutils.plot import bar_graph_with_error_using_pandas, save_to_desktop
 from matplotlib import pyplot as plt
 
 groups = ['Cifar-fs, 5CNN']  # the rows of a df
 adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']  # columns of a df
-meta_test_acc = [74.3, 75.1, 68.1]
-meta_test_ci = [1.89, 1.90, 2.0]
+meta_test_acc = [76.9, 75.9, 70.1]
+meta_test_ci = [1.97, 1.75, 1.48]
 row1 = meta_test_acc + meta_test_ci
 data = [row1]
 
@@ -118,7 +116,7 @@ details:
 from uutils.plot import bar_graph_with_error_using_pandas, save_to_desktop
 from matplotlib import pyplot as plt
 
-groups = ['MI, ResNet12']  # the rows of a df
+groups = ['Ficar-fs, ResNet12']  # the rows of a df
 adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']  # columns of a df
 meta_test_acc = [78.2, 77.4, 75.4]
 meta_test_ci = [1.73, 1.78, 1.69]
@@ -140,11 +138,17 @@ plt.show()
 # %%
 """
 alla data sets, all archs
+
+wanbds:
+- mi resnet12
+- mi 5cnn
+- cifarfs resnet12
+- cifarfs 5cnn1025: https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3sxs4q08/logs?workspace=user-brando
 """
 from uutils.plot import bar_graph_with_error_using_pandas, save_to_desktop
 from matplotlib import pyplot as plt
 
-groups = ['MI, 5CNN', 'MI, ResNet12', 'Cifar-fs, 5CNN', 'MI, ResNet12']  # the rows of a df
+groups = ['MI, 5CNN', 'MI, ResNet12', 'Cifar-fs, 5CNN', 'Cirfar-fs, ResNet12']  # the rows of a df
 adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']  # columns of a df
 # MI, 5CNN
 meta_test_acc = [62.4, 62.3, 60.1]
@@ -158,9 +162,9 @@ meta_test_ci = [1.76, 1.61, 1.70]
 # meta_test_acc = [73.8, 72.8, 70.8]
 # meta_test_ci = [1.76, 1.61, 1.70]
 row2 = meta_test_acc + meta_test_ci
-# - cifar-fs, 5CNN
-meta_test_acc = [74.3, 75.1, 68.1]
-meta_test_ci = [1.89, 1.90, 2.0]
+# - cifar-fs, 5CNN1024
+meta_test_acc = [76.9, 75.9, 70.1]
+meta_test_ci = [1.97, 1.75, 1.48]
 row3 = meta_test_acc + meta_test_ci
 # - cifar-fs, resnet12
 meta_test_acc = [78.2, 77.4, 75.4]
