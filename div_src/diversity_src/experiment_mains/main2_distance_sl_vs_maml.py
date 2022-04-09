@@ -31,7 +31,7 @@ import time
 
 from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_learner, santity_check_maml_accuracy, \
     comparison_via_performance, setup_args_path_for_ckpt_data_analysis, do_diversity_data_analysis, \
-    performance_comparison_with_l2l_end_to_end
+    performance_comparison_with_l2l_end_to_end, get_recommended_batch_size_miniimagenet_5CNN
 from diversity_src.diversity.diversity import diversity
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
@@ -138,8 +138,8 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # args.batch_size = 2
     # args.batch_size = 25
     # args.batch_size = 30
-    # args.batch_size = 100
-    args.batch_size = 200
+    args.batch_size = 100
+    # args.batch_size = 200
     # args.batch_size = 600
     args.batch_size_eval = args.batch_size
 
@@ -161,11 +161,11 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/t9hpyoms?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb25_13-23-05_jobid_32368_pid_112292'  # SL SGD CL to see if it beats maml/has same test acc as in original rfs paper
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1gxb5uds?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Feb10_13-36-08_jobid_3381_pid_109779/'  # Adam CL
+    args.path_2_init_sl = '~/data/logs/logs_Feb10_13-36-08_jobid_3381_pid_109779/'  # Adam CL
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/qlubpsfi?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb10_18-21-11_jobid_18097_pid_229674/'  # Adam CL
     # https://github.com/WangYueFt/rfs
-    args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
+    # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
     # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_distilled.pt'
 
     # original ckpt (likely not compatible with this code)
@@ -278,8 +278,8 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
-    args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_body(safety_margin=args.safety_margin)
-    # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_head(safety_margin=args.safety_margin)
+    args.k_eval = get_recommended_batch_size_miniimagenet_5CNN(safety_margin=args.safety_margin)
+    # args.k_eval = get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin=args.safety_margin)
 
     # - expt option
     args.experiment_option = 'performance_comparison'
@@ -458,7 +458,7 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/m3qbz1bl/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Mar28_18-31-35_jobid_15887'  # 0.987 train acc
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1fzto97d?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Mar30_08-17-19_jobid_17733_pid_142663'  # 0.993 train acc
+    args.path_2_init_sl = '~/data/logs/logs_Mar30_08-17-19_jobid_17733_pid_142663'  # 0.993 train acc, #THIS ONE FOR RESULTS
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3lhh7lry/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Mar30_08-18-46_jobid_28878_pid_153020'  # 0.993 train acc
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2k9udmd3/overview?workspace=user-brando
@@ -648,10 +648,10 @@ def load_args() -> Namespace:
     args: Namespace = parse_args_meta_learning()
 
     # - get manual args
-    args: Namespace = args_5cnn_cifarfs(args)
+    # args: Namespace = args_5cnn_cifarfs(args)
     # args: Namespace = args_5cnn_mi(args)
     # args: Namespace = resnet12rfs_cifarfs(args)
-    # args: Namespace = resnet12rfs_mi(args)
+    args: Namespace = resnet12rfs_mi(args)
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)
@@ -863,6 +863,7 @@ def main_data_analyis():
         import wandb
         wandb.finish()
 
+
 def main_data_analyis_check_sl_error():
     args: Namespace = load_args()
 
@@ -874,6 +875,7 @@ def main_data_analyis_check_sl_error():
     if is_lead_worker(args.rank) and args.log_to_wandb:
         import wandb
         wandb.finish()
+
 
 if __name__ == '__main__':
     main_data_analyis()
