@@ -61,7 +61,6 @@ def get_num_examples_needed_to_reach_a_certain_saftey_margin(safety_margin: floa
 batch_size = 25
 n_ways = 5
 HW = 640
-k_eval =
 
 
 print()

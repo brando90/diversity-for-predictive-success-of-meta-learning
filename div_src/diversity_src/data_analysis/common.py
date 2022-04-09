@@ -403,7 +403,7 @@ def print_performance_4_sl(args: Namespace,
 
 
 def do_diversity_data_analysis(args, meta_dataloader):
-    from diversity_src.diversity.diversity import compute_diversity
+    from diversity_src.diversity.diversity import compute_diversity_fixed_probe_net
     from pprint import pprint
     from anatome.helper import compute_stats_from_distance_per_batch_of_data_sets_per_layer
     from anatome.helper import compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks
@@ -424,7 +424,7 @@ def do_diversity_data_analysis(args, meta_dataloader):
         raise ValueError(f'Invalid mdl option: {args.run_name=}')
 
     # - Compute diversity: sample one batch of tasks and use a random cross product of different tasks to compute diversity.
-    div_mu, div_std, distances_for_task_pairs = compute_diversity(args, meta_dataloader)
+    div_mu, div_std, distances_for_task_pairs = compute_diversity_fixed_probe_net(args, meta_dataloader)
     print(f'{div_mu, div_std, distances_for_task_pairs=}')
 
     # -- print results
