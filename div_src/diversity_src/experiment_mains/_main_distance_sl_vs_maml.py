@@ -175,21 +175,29 @@ def get_args_for_experiment() -> Namespace:
     args.subsample_effective_num_data_param = args.safety_margin
     args.metric_as_sim_or_dist = 'dist'  # since we are trying to show meta-learning is happening, the more distance btw task & change in model the more meta-leanring is the hypothesis
     args.num_its = 1
-    # args.meta_batch_size_train = 5
+    args.meta_batch_size_train = 5
     # args.meta_batch_size_train = 10
     # args.meta_batch_size_train = 25
     # args.meta_batch_size_train = 50
-    args.meta_batch_size_train = 100
+    # args.meta_batch_size_train = 100
     # args.meta_batch_size_train = 200
     # args.meta_batch_size_train = 500
     args.meta_batch_size_eval = args.meta_batch_size_train
+    args.batch_size = args.meta_batch_size_train
     # args.k_eval = get_recommended_batch_size_miniimagenet_5CNN(safety_margin=args.safety_margin)
     args.k_eval = get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin=args.safety_margin)
 
     # args.log_to_wandb = False
-    args.log_to_wandb = True
-    args.experiment_name = 'performance comparison'
-    args.run_name = f'{args.meta_batch_size_eval=} (reproduction)'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    # args.experiment_name = 'performance comparison'
+
+    # args.experiment_option = 'diveristiy_f_rand'
+    # args.experiment_option = 'diveristiy_f_maml'
+    args.experiment_option = 'diveristiy_f_sl'
+
+    args.run_name = f'{args.experiment_option=} {args.meta_batch_size_eval=} (reproduction)'
     args = uutils.setup_args_for_experiment(args)
 
     # -- checkpoints SL & MAML
@@ -362,59 +370,12 @@ def main_run_expt():
     # -- Do data analysis
     from diversity_src.data_analysis.common import santity_check_maml_accuracy
     santity_check_maml_accuracy(args)
-    if args.experiment_name == 'performance comparison':
+    if args.experiment_option == 'performance comparison':
         from diversity_src.data_analysis.common import comparison_via_performance
         comparison_via_performance(args)
-    elif 'diveristiy on' in args.experiment_name:
-        args.mdl_rand = deepcopy(args.mdl1)
-        reset_all_weights(args.mdl_rand)
-
-        print('- Choose model for computing diversity')
-        print(f'{args.run_name=}')
-        if 'f_rand' in args.run_name:
-            args.mdl_for_dv = args.mdl_rand
-            print('==> f_rand')
-        elif 'f_maml' in args.run_name:
-            args.mdl_for_dv = args.mdl_maml
-            print('==> f_maml')
-        elif 'f_sl' in args.run_name:
-            args.mdl_for_dv = args.mdl_sl
-            print('==> f_sl')
-        else:
-            raise ValueError(f'Invalid mdl option: {args.run_name=}')
-        # - Compute diversity: sample one batch of tasks and use a random cross product of different tasks to compute diversity.
-        args.num_tasks_to_consider = args.meta_batch_size_train
-        print(f'{args.num_tasks_to_consider=}')
-        for batch_idx, batch_tasks in enumerate(meta_dataloader):
-            spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch_tasks)
-
-            # - compute diversity
-            div_mu, div_std, distances_for_task_pairs = diversity(
-                f1=args.mdl_for_dv, f2=args.mdl_for_dv, X1=qry_x, X2=qry_x,
-                layer_names1=args.layer_names, layer_names2=args.layer_names,
-                num_tasks_to_consider=args.num_tasks_to_consider)
-            print(f'{div_mu, div_std, distances_for_task_pairs=}')
-
-            # -- print results
-            print('-- raw results')
-            print(f'distances_for_task_pairs=')
-            pprint(distances_for_task_pairs)
-
-            print('\n-- dist results')
-            div_mu, div_std = compute_stats_from_distance_per_batch_of_data_sets_per_layer(distances_for_task_pairs)
-            pprint_results(div_mu, div_std)
-            mu, std = compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks(
-                distances_for_task_pairs)
-            print(f'----entire net result:\n  {mu=}, {std=}\n')
-
-            print('-- sim results')
-            div_mu, div_std = compute_stats_from_distance_per_batch_of_data_sets_per_layer(distances_for_task_pairs,
-                                                                                           dist2sim=True)
-            pprint_results(div_mu, div_std)
-            mu, std = compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks(
-                distances_for_task_pairs, dist2sim=True)
-            print(f'----entire net result:\n  {mu=}, {std=}')
-            break
+    elif args.experiment_option.startswith('diveristiy'):
+        from diversity_src.data_analysis.common import do_diversity_data_analysis
+        do_diversity_data_analysis(args, meta_dataloader)
     else:
         while not halt:
             for batch_idx, batch_tasks in enumerate(meta_dataloader):

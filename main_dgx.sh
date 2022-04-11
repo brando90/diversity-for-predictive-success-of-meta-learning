@@ -6,7 +6,7 @@ export SLURM_JOBID=$(((RANDOM)))
 echo SLURM_JOBID = $SLURM_JOBID
 
 #export CUDA_VISIBLE_DEVICES=$(((RANDOM%8)))
-#export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=0
 #export CUDA_VISIBLE_DEVICES=1
 export CUDA_VISIBLE_DEVICES=2
 #export CUDA_VISIBLE_DEVICES=3
@@ -18,6 +18,7 @@ export CUDA_VISIBLE_DEVICES=2
 #export CUDA_VISIBLE_DEVICES=4,5,7
 #export CUDA_VISIBLE_DEVICES=4,5,7
 #export CUDA_VISIBLE_DEVICES=0,1,2,3
+#export CUDA_VISIBLE_DEVICES=1,2,3
 #export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 #export CUDA_VISIBLE_DEVICES=0,2,3,4,5,6,7
 #export CUDA_VISIBLE_DEVICES=0,1,3,4,5,6,7
@@ -60,7 +61,9 @@ export OUT_FILE=$PWD/main.sh.o$SLURM_JOBID
 
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_1000 > $OUT_FILE &
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_1000 > $OUT_FILE &
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_many_epochs > $OUT_FILE &
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_many_epochs > $OUT_FILE &
+
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_mi_rfs_5cnn_adam > $OUT_FILE &
 echo pid = $!
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 echo SLURM_JOBID = $SLURM_JOBID
@@ -82,12 +85,14 @@ echo SLURM_JOBID = $SLURM_JOBID
 
 #python -m torch.distributed.run --nproc_per_node=3 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k > $OUT_FILE &
 #python -m torch.distributed.run --nproc_per_node=4 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_mi_adam_no_scheduler_100k > $OUT_FILE &
+
+#python -m torch.distributed.run --nproc_per_node=3 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_mi_adam_filter_size > $OUT_FILE &
 #echo pid = $!
 #echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 #echo SLURM_JOBID = $SLURM_JOBID
 
 # - Data analysis
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main2_distance_sl_vs_maml.py
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/_main_distance_sl_vs_maml.py
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main2_distance_sl_vs_maml.py
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/_main_distance_sl_vs_maml.py
 
 echo -- Done submitting job in dgx A100-SXM4-40G

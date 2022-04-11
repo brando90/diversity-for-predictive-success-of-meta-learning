@@ -45,6 +45,8 @@ from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import get_last_t
 
 from pdb import set_trace as st
 
+from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_mi_resnet12rfs_body
+
 start = time.time()
 
 
@@ -136,22 +138,23 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # args.safety_margin = 20
 
     # args.batch_size = 2
+    args.batch_size = 5
     # args.batch_size = 25
     # args.batch_size = 30
-    args.batch_size = 100
+    # args.batch_size = 100
     # args.batch_size = 200
     # args.batch_size = 600
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
-    args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_body(safety_margin=args.safety_margin)
-    # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_head(safety_margin=args.safety_margin)
+    args.k_eval = get_recommended_batch_size_mi_resnet12rfs_body(safety_margin=args.safety_margin)
+    # args.k_eval = get_recommended_batch_size_mi_resnet12rfs_head(safety_margin=args.safety_margin)
 
     # - expt option
-    args.experiment_option = 'performance_comparison'
+    # args.experiment_option = 'performance_comparison'
 
     # args.experiment_option = 'diveristiy_f_rand'
-    # args.experiment_option = 'diveristiy_f_maml'
+    args.experiment_option = 'diveristiy_f_maml'
     # args.experiment_option = 'diveristiy_f_sl'
 
     # - agent/meta_learner type
@@ -190,8 +193,8 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_resnet12rfs_mi_k_shots_1_5_10_15_30'
     args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl=} {args.path_2_init_maml=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -273,8 +276,9 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # args.safety_margin = 20
 
     # args.batch_size = 2
+    args.batch_size = 5
     # args.batch_size = 25
-    args.batch_size = 100
+    # args.batch_size = 100
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
@@ -282,9 +286,9 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # args.k_eval = get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin=args.safety_margin)
 
     # - expt option
-    args.experiment_option = 'performance_comparison'
+    # args.experiment_option = 'performance_comparison'
 
-    # args.experiment_option = 'diveristiy_f_rand'
+    args.experiment_option = 'diveristiy_f_rand'
     # args.experiment_option = 'diveristiy_f_maml'
     # args.experiment_option = 'diveristiy_f_sl'
 
@@ -292,12 +296,39 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     args.agent_opt = 'MAMLMetaLearner_default'
 
     # - ckpt name
-    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2y7mrwx3/logs?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Feb15_16-38-47_jobid_10063_pid_185552'  # idk, not a fan of my current ckpts...with l2l, seems need to use SGD?
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/33frd31p?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Feb19_10-13-22_jobid_2411_pid_28656'  # good! SGD converged with 0.9994 train acc
+    # args.path_2_init_sl = '~/data/logs/logs_Feb19_10-13-22_jobid_2411_pid_28656'  # good! SGD converged with 0.9994 train acc
+
+    # -- 32
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2y7mrwx3/logs?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Feb15_16-38-47_jobid_10063_pid_185552'  # OLD, ignore, idk, not a fan of my current ckpts...with l2l, seems need to use SGD? Adam + CL is bad
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/e86rmved?workspace=user-brando
+    # args.path_2_init_sl = ''  # Adam
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1tzdyoxp?workspace=
+    # args.path_2_init_sl = ''  # Adam
+
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/29hc25u2/overview?workspace=user-brando
     args.path_2_init_maml = '~/data/logs/logs_Feb16_11-59-55_jobid_29315_pid_102939'
+
+    # -- 128 version todo, both need to be with adam.
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/9r7q98vz?workspace=user-brando
+    args.path_2_init_sl = ''  #
+    #
+    args.path_2_init_maml = ''
+
+    # -- 512 version todo, both need to be with adam.
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2tmzp9p5?workspace=
+    args.path_2_init_sl = ''  #
+    #
+    args.path_2_init_maml = ''
+
+    # -- 1024 version todo, both need to be with adam.
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/gdmphf5w/logs?workspace=user-brando
+    args.path_2_init_sl = ''  #
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/wi1whoh0?workspace=user-brando
+    args.path_2_init_sl = ''  #
+    #
+    args.path_2_init_maml = ''
 
     # path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
     # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
@@ -312,8 +343,8 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_args_5cnn_mi'
     args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -423,16 +454,17 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     # args.safety_margin = 20
 
     # args.batch_size = 2
-    # args.batch_size = 5
+    args.batch_size = 5
     # args.batch_size = 30
-    args.batch_size = 100
+    # args.batch_size = 100
     # args.batch_size = 400
     # args.batch_size = 600
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
-    args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_body(safety_margin=args.safety_margin)
+    # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_body(safety_margin=args.safety_margin)
     # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_head(safety_margin=args.safety_margin)
+    args.k_eva = 5
 
     # - expt option
     args.experiment_option = 'performance_comparison'
@@ -649,9 +681,9 @@ def load_args() -> Namespace:
 
     # - get manual args
     # args: Namespace = args_5cnn_cifarfs(args)
-    # args: Namespace = args_5cnn_mi(args)
+    args: Namespace = args_5cnn_mi(args)
     # args: Namespace = resnet12rfs_cifarfs(args)
-    args: Namespace = resnet12rfs_mi(args)
+    # args: Namespace = resnet12rfs_mi(args)
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)

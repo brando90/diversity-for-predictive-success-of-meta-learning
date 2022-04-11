@@ -316,32 +316,32 @@ def comparison_via_performance(args: Namespace):
     # print_performance_4_sl(args_mdl_rand, model=args.mdl_rand)
     # print('---- FFL (LR) for maml model')
     # print_performance_4_sl(args_mdl_maml, model=args.mdl_maml)
-    print('---- FFL (LR) for sl model')
-    print_performance_4_sl(args_mdl_sl, model=args.mdl_sl)
-
-    print()
-
-    # # - quick
-    # assert isinstance(args.meta_learner, MAMLMetaLearner)
-    # args_mdl_rand = copy(args)
-    # args_mdl_maml = copy(args)
-    # args_mdl_sl = copy(args)
-    #
-    # # # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
-    # #
-    # # # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
-    # print('---- maml5 for maml model')
-    # print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
-    # #
-    # # # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
-    # print('---- maml10 for maml model')
-    # print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
-    # #
-    # # # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
     # print('---- FFL (LR) for sl model')
     # print_performance_4_sl(args_mdl_sl, model=args.mdl_sl)
     #
     # print()
+
+    # - quick
+    assert isinstance(args.meta_learner, MAMLMetaLearner)
+    args_mdl_rand = copy(args)
+    args_mdl_maml = copy(args)
+    args_mdl_sl = copy(args)
+
+    # # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
+    #
+    # # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
+    print('---- maml5 for maml model')
+    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
+    #
+    # # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
+    print('---- maml10 for maml model')
+    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
+    #
+    # # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
+    print('---- FFL (LR) for sl model')
+    print_performance_4_sl(args_mdl_sl, model=args.mdl_sl)
+
+    print()
 
 
 
