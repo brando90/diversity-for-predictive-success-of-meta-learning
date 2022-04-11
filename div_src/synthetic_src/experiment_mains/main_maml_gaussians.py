@@ -14,7 +14,7 @@ from argparse import Namespace
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 
 from uutils import args_hardcoded_in_script, report_times
-from uutils.argparse_uu.common import setup_args_for_experiment, setup_wandb
+from uutils.argparse_uu.common_negworkers import setup_args_for_experiment, setup_wandb # modified 4/7/22
 from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
 from uutils.torch_uu.agents.common import Agent
@@ -139,14 +139,15 @@ def l2l_gaussian_1d(args: Namespace) -> Namespace:
     # 3 layers, takes 1 input (float) and guesses which of 5 1-hot output classes
     # the gaussian belong to.
     args.n_cls = 5
-    args.hidden_layer1 = 15
-    args.hidden_layer2 = 15
+    args.hidden_layers = [15,15]#[128,128,128]#[128,128,128,128]#[32,32,64,128]#[15,15]#[32,32,64,128,128,128]#[32,32,64,128]#[32,32,64,128,128,128]
+    #args.hidden_layer1 = 15
+    #args.hidden_layer2 = 15
     args.input_size = 1
     # TODO
     args.model_option = '3FNN_5_gaussian' # '4CNN_l2l_cifarfs'
     # args.hidden_size = 1024
     # args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)  # TODO
-    args.model_hps = dict(ways = args.n_cls, hidden_layer1 = args.hidden_layer1, hidden_layer2 = args.hidden_layer2, input_size=args.input_size) #TODO: Implement this!
+    args.model_hps = dict(ways = args.n_cls, hidden_layers = args.hidden_layers, input_size=args.input_size) #TODO: Implement this!
 
     # - data TODO
     args.data_option = 'n_way_gaussians'#' cifarfs_rfs'  #CIFAR RFS dataset # no name assumes l2l, make sure you're calling get_l2l_tasksets
@@ -156,8 +157,8 @@ def l2l_gaussian_1d(args: Namespace) -> Namespace:
     args.sigma_s_B = 1
     args.div_H = hellinger_div(args.mu_m_B, args.sigma_m_B, args.mu_s_B, args.sigma_s_B)
     #args.rho = 0.1
-    args.k_shots = 10
-    args.k_eval = 30
+    args.k_shots = 10#10
+    args.k_eval = 30#30
 
     # args.data_path = Path('~/data/l2l_data/').expanduser()
     # args.data_augmentation = 'rfs2020'
@@ -189,7 +190,7 @@ def l2l_gaussian_1d(args: Namespace) -> Namespace:
 
     # - outer trainer params
     args.batch_size = 32
-    args.batch_size = 8
+    #args.batch_size = 8
 
     # - dist args
     args.world_size = 1
@@ -209,9 +210,10 @@ def l2l_gaussian_1d(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = 'l2l_gaussian_1d' #f'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # TODO
-    args.run_name = f'{args.div_H} {args.mu_m_B} {args.sigma_m_B} {args.mu_s_B} {args.sigma_s_B} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'  # TODO
+    args.run_name = f'{args.div_H} {args.mu_m_B} {args.sigma_m_B} {args.mu_s_B} {args.sigma_s_B} {args.hidden_layers} {args.k_shots} {args.k_eval} {args.batch_size} {args.model_option} {args.opt_option} {args.scheduler_option} {args.input_size} {args.n_cls} {args.lr} {args.inner_lr}: {args.jobid=}'  # TODO
     # args.log_to_wandb = True  # TODO when real
-    args.log_to_wandb = False
+    args.log_to_wandb = False#True
+    args.wandb_entity ="brando-uiuc"# "patrickyu"
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
