@@ -30,7 +30,8 @@ import uutils
 import time
 
 from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_learner, santity_check_maml_accuracy, \
-    comparison_via_performance, setup_args_path_for_ckpt_data_analysis, do_diversity_data_analysis
+    comparison_via_performance, setup_args_path_for_ckpt_data_analysis, do_diversity_data_analysis, \
+    performance_comparison_with_l2l_end_to_end, get_recommended_batch_size_miniimagenet_5CNN
 from diversity_src.diversity.diversity import diversity
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
@@ -137,8 +138,8 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # args.batch_size = 2
     # args.batch_size = 25
     # args.batch_size = 30
-    # args.batch_size = 100
-    args.batch_size = 200
+    args.batch_size = 100
+    # args.batch_size = 200
     # args.batch_size = 600
     args.batch_size_eval = args.batch_size
 
@@ -160,11 +161,11 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/t9hpyoms?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb25_13-23-05_jobid_32368_pid_112292'  # SL SGD CL to see if it beats maml/has same test acc as in original rfs paper
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1gxb5uds?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Feb10_13-36-08_jobid_3381_pid_109779/'  # Adam CL
+    args.path_2_init_sl = '~/data/logs/logs_Feb10_13-36-08_jobid_3381_pid_109779/'  # Adam CL
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/qlubpsfi?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb10_18-21-11_jobid_18097_pid_229674/'  # Adam CL
     # https://github.com/WangYueFt/rfs
-    args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
+    # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
     # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_distilled.pt'
 
     # original ckpt (likely not compatible with this code)
@@ -277,8 +278,8 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
-    args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_body(safety_margin=args.safety_margin)
-    # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_head(safety_margin=args.safety_margin)
+    args.k_eval = get_recommended_batch_size_miniimagenet_5CNN(safety_margin=args.safety_margin)
+    # args.k_eval = get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin=args.safety_margin)
 
     # - expt option
     args.experiment_option = 'performance_comparison'
@@ -344,8 +345,11 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     args.model_option = '4CNN_l2l_cifarfs'
 
     # - data
-    args.data_option = 'torchmeta_cifarfs'  # no name assumes l2l
-    args.data_path = Path('~/data/torchmeta_data/').expanduser()
+    args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'rfs2020'
+    # args.data_option = 'torchmeta_cifarfs'  # no name assumes l2l
+    # args.data_path = Path('~/data/torchmeta_data/').expanduser()
     args.augment_train = True
 
     # - training mode
@@ -419,8 +423,9 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     # args.safety_margin = 20
 
     # args.batch_size = 2
-    args.batch_size = 25
-    # args.batch_size = 100
+    # args.batch_size = 5
+    # args.batch_size = 30
+    args.batch_size = 100
     # args.batch_size = 400
     # args.batch_size = 600
     args.batch_size_eval = args.batch_size
@@ -438,19 +443,54 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     # - ckpt name
     # adam models
     #  https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1yz87dry?workspace=user-brando 13363
-    # args.path_2_init_maml = '~/data/logs/logs_Mar02_18-13-23_jobid_13363'  # 0.966 acc, 0.639
+    args.path_2_init_maml = '~/data/logs/logs_Mar02_18-13-23_jobid_13363'  # 0.966 acc, 0.639
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2ni2m08h/overview?workspace=user-brando 13860
-    args.path_2_init_maml = '~/data/logs/logs_Mar24_21-06-59_jobid_13860/'  # 1.0 train acc, 0.56 val
+    # args.path_2_init_maml = '~/data/logs/logs_Mar24_21-06-59_jobid_13860/'  # 1.0 train acc, 0.56 val
+
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/tmp1d5u2/overview?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Mar28_18-31-34_jobid_15883/'  # 0.9899 train acc
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/ehntkv81/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Mar28_18-31-34_jobid_15884/'
+    # args.path_2_init_sl = '~/data/logs/logs_Mar28_18-31-34_jobid_15884/'  # 0.988 train acc
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2f5m59ys/overview?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Mar28_18-31-36_jobid_15885/'  # 0.988 train acc
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/378tku4q/overview?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Mar28_18-31-48_jobid_15886/'  # 0.985 train acc
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/m3qbz1bl/overview?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Mar28_18-31-35_jobid_15887'  # 0.987 train acc
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1fzto97d?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Mar30_08-17-19_jobid_17733_pid_142663'  # 0.993 train acc, #THIS ONE FOR RESULTS
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3lhh7lry/overview?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Mar30_08-18-46_jobid_28878_pid_153020'  # 0.993 train acc
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2k9udmd3/overview?workspace=user-brando
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2cmtzxhm/overview?workspace=user-brando
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1hjhrza6/overview?workspace=user-brando
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/kix252xd/overview?workspace=user-brando
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/7njz49ii/overview?workspace=user-brando
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1qx0qqgw/overview?workspace=user-brando
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2k1hhcca/overview?workspace=user-brando
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/36vraue2/overview?workspace=user-brando
 
     # sgd models
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1u7e0gx6?workspace=user-brando 12915, SL
     # args.path_2_init_sl = '~/data/logs/logs_Feb25_14-36-24_jobid_12915'  # 0.9998 acc, na VAL (since it's SL)
-    # args.path_2_init_maml = ''
 
     # adafactor models
-    # args.path_2_init_sl = '~/data/logs/logs_Mar29_05-52-51_jobid_15883/'
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/21dgxvh9?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Mar28_18-58-06_jobid_15888/'
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2l22kzde/overview?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Mar28_18-59-10_jobid_15889/'
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/39wx0tj3/overview?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Mar28_18-58-06_jobid_15890/'
+
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/5g0zo5ti/overview?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Mar28_19-03-15_jobid_15891/'
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/19yvqm90/overview?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Mar28_19-03-15_jobid_15892/'
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3oqrztad/overview?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Mar28_19-09-03_jobid_15893/'
+
+    #
+    # args.path_2_init_sl = '~/data/logs/logs_Mar29_08-22-38_jobid_15889'
 
     # - device
     # args.device = torch.device('cpu')
@@ -585,8 +625,8 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_resnet12rfs_cifarfs_600_meta_batch_size'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -608,10 +648,10 @@ def load_args() -> Namespace:
     args: Namespace = parse_args_meta_learning()
 
     # - get manual args
-    args: Namespace = args_5cnn_cifarfs(args)
+    # args: Namespace = args_5cnn_cifarfs(args)
     # args: Namespace = args_5cnn_mi(args)
     # args: Namespace = resnet12rfs_cifarfs(args)
-    # args: Namespace = resnet12rfs_mi(args)
+    args: Namespace = resnet12rfs_mi(args)
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)
@@ -661,6 +701,7 @@ def main_data_analyis():
 
     # -- start analysis
     print('---------- start analysis ----------')
+    print(f'{args.dataloaders=}')
     print(f'{args.num_workers=}')
     print(f'-->{args.meta_learner.args.copy_initial_weights}')
     print(f'-->{args.meta_learner.args.track_higher_grads}')
@@ -823,6 +864,20 @@ def main_data_analyis():
         wandb.finish()
 
 
+def main_data_analyis_check_sl_error():
+    args: Namespace = load_args()
+
+    performance_comparison_with_l2l_end_to_end(args)
+
+    # - done!
+    print(f'time_passed_msg = {uutils.report_times(start)}')
+    # - wandb
+    if is_lead_worker(args.rank) and args.log_to_wandb:
+        import wandb
+        wandb.finish()
+
+
 if __name__ == '__main__':
     main_data_analyis()
+    # main_data_analyis_check_sl_error()
     print('--> Success Done!\a\n')

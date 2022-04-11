@@ -807,8 +807,10 @@ def l2l_resnet12rfs_mi_adam_no_scheduler_100k(args: Namespace) -> Namespace:
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_resnet12rfs_mi_rfs_adam_cl_100k'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    args.parallel = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -826,7 +828,7 @@ def load_args() -> Namespace:
     # args: Namespace = parse_args_standard_sl()
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # <- REMOVE to remove manual loads
+    args.manual_loads_name = 'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):

@@ -141,7 +141,7 @@ def get_all_required_distances_for_pairs_of_tasks(f1: nn.Module, f2: nn.Module,
                                                   ) -> list[OrderedDict[LayerIdentifier, float]]:
     """
     Compute the pairwise distances between the collection of tasks in X1 and X2:
-        get_distances_for_task_pairs = [d(f1(tau1), tau2)_s]_{s \in [num_tasks_to_consider]}
+        get_distances_for_task_pairs = [d(f(tau_s1), f(tau_s2))]_{s1,s2 \in {num_tasks_to_consider}}
     used to compute diversity:
         div = mean(get_distances_for_task_pairs)
         std = std(get_distances_for_task_pairs)
@@ -218,9 +218,23 @@ def diversity(f1: nn.Module, f2: nn.Module,
               num_tasks_to_consider: int = 25,
               consider_diagonal: bool = False
               ) -> tuple[Tensor, Tensor, list[OrderedDict[LayerIdentifier, float]]]:
+    """
+    Div computes as follows:
+        - takes in a set of layers [L]
+        - a set of batch of tasks data  [B, n*k, C,H,W]
+        - for each layer compute the div value [L, 1]
+    Thus signature is:
+        div: [L] x [B, n*k, C,H,W]^2 -> [L, 1]
+
+    X1, X2 = [B, n*k, C,H,W]
+    layer_names = [L]
+
+    :return: [L]^2, [B, L]
+    """
     assert len(layer_names1) >= 2, f'For now the final and one before final layer are the way to compute diversity'
     L = len(layer_names1)
     B = num_tasks_to_consider
+    # - compute the distance for each task. So you get B distances (from which to compute div) for each layer [L]
     distances_for_task_pairs: list[OrderedDict[LayerIdentifier, float]] = get_all_required_distances_for_pairs_of_tasks(
         f1, f2,
         X1, X2,
@@ -238,25 +252,22 @@ def diversity(f1: nn.Module, f2: nn.Module,
         num_tasks_to_consider,
         consider_diagonal
     )
+    # [L] * [B, n*k, C,H,W]^2 -> [B, L]
+    assert len(distances_for_task_pairs) == B
+    assert len(distances_for_task_pairs[0]) == L
 
     # - list(OrderDict([B, L])) -> list([B, L])
     # distances_for_task_pairs: list[list[float]] = _dists_per_task_per_layer_to_list(distances_for_task_pairs)
     # distances_for_task_pairs: Tensor = tensorify(distances_for_task_pairs)
     # assert distances_for_task_pairs.size() == torch.Size([B, L])
 
-    # - compute diversity
-    div_mu, div_std = compute_stats_from_distance_per_batch_of_data_sets_per_layer(distances_for_task_pairs)
-    # compute div mean
-    # div_final: Tensor = distances_for_task_pairs[-1].mean(dim=0)
-    # div_feature_extractor: Tensor = distances_for_task_pairs[-2].mean(dim=0)
-    # assert div_final.size() == torch.Size([])
-    # assert div_feature_extractor.size() == torch.Size([])
-    # # compute div std
-    # div_final_std: Tensor = distances_for_task_pairs[-1].mean(dim=0)
-    # div_feature_extractor_std: Tensor = distances_for_task_pairs[-2].mean(dim=0)
-    # assert div_final_std.size() == torch.Size([])
-    # assert div_feature_extractor_std.size() == torch.Size([])
-    return div_mu, div_std, distances_for_task_pairs
+    # - compute diversity: [B, L] -> [L, 1]^2 (the 2 due to one for div other ci for div)
+    div_mu, div_ci = compute_stats_from_distance_per_batch_of_data_sets_per_layer(distances_for_task_pairs)
+    # assert div_mu.size() == [L]
+    # assert div_ci.size() == [L]
+    # assert len(distances_for_task_pairs) == B
+    # assert len(distances_for_task_pairs[0]) == L
+    return div_mu, div_ci, distances_for_task_pairs
 
 
 def compute_diversity_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks(distances_for_task_pairs: Tensor,
@@ -267,21 +278,28 @@ def compute_diversity_mu_std_for_entire_net_from_all_distances_from_data_sets_ta
     return mu, std
 
 
-def compute_diversity(args, meta_dataloader):
+def compute_diversity_fixed_probe_net(args, meta_dataloader):
     """
     Compute diversity: sample one batch of tasks and use a random cross product of different tasks to compute diversity.
+
+    [L] * [B', n*K, C,H,W]^2 -> [L, 1]
+    for a set of layers & batch of tasks -> computes div for each layer.
     """
     batch = next(iter(meta_dataloader))
+    # [B, n*k, C,H,W]
     spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
 
     # - compute diversity
     args.num_tasks_to_consider = args.batch_size
     print(f'{args.num_tasks_to_consider=}')
     # assert spt_x.size(0) == args.num_tasks_to_consider
+    # - [L] * [B', n*K, C,H,W]^2 -> [L, 1]^2, [B, L] i.e. output is div for each layer name
     div_mu, div_std, distances_for_task_pairs = diversity(
         f1=args.mdl_for_dv, f2=args.mdl_for_dv, X1=qry_x, X2=qry_x,
         layer_names1=args.layer_names, layer_names2=args.layer_names,
         num_tasks_to_consider=args.num_tasks_to_consider)
+    # assert div.size() == [L]
+    # assert distances_for_task_pairs.size() == [B, L]
     return div_mu, div_std, distances_for_task_pairs
 
 

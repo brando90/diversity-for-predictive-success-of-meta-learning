@@ -1,7 +1,8 @@
+import logging
 from argparse import Namespace
 from copy import deepcopy, copy
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Any
 
 import torch
 from torch import nn
@@ -261,6 +262,7 @@ def set_maml_cls_to_maml_cls(args: Namespace, model: nn.Module):
 
 def comparison_via_performance(args: Namespace):
     print('\n---- comparison_via_performance ----\n')
+    print(f'{args.dataloaders=}')
     assert norm(args.mdl1) != norm(args.mdl2)
     assert norm(args.mdl_maml) == norm(args.mdl1)
     assert norm(args.mdl_sl) == norm(args.mdl2)
@@ -279,7 +281,7 @@ def comparison_via_performance(args: Namespace):
     print('-> sl_mdl has the head of the maml model to make comparisons using maml better, it does not affect when '
           'fitting the final layer with LR FFL')
 
-    # -
+    # - full table
     assert isinstance(args.meta_learner, MAMLMetaLearner)
     args_mdl_rand = copy(args)
     args_mdl_maml = copy(args)
@@ -288,36 +290,59 @@ def comparison_via_performance(args: Namespace):
     # # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     # print('\n---- maml0 for rand model')
     # print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
-    # # print('---- maml0 for maml model')
-    # # print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
-    # # print('---- maml0 for sl model')
-    # # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=0, lr_inner=0.0)
+    # print('---- maml0 for maml model')
+    # print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
+    # print('---- maml0 for sl model')
+    # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=0, lr_inner=0.0)
     #
     # # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
-    # # print('\n---- maml5 for rand model')
-    # # print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=5, lr_inner=original_lr_inner)
-    print('---- maml5 for maml model')
-    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
-    # # print('---- maml5 for sl model')
-    # # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=5, lr_inner=original_lr_inner)
+    # print('\n---- maml5 for rand model')
+    # print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=5, lr_inner=original_lr_inner)
+    # print('---- maml5 for maml model')
+    # print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
+    # print('---- maml5 for sl model')
+    # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=5, lr_inner=original_lr_inner)
     #
     # # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
-    # # print('\n---- maml10 for rand model')
-    # # print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=10, lr_inner=original_lr_inner)
-    print('---- maml10 for maml model')
-    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
-    # # print('---- maml10 for sl model')
-    # # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=10, lr_inner=original_lr_inner)
+    # print('\n---- maml10 for rand model')
+    # print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=10, lr_inner=original_lr_inner)
+    # print('---- maml10 for maml model')
+    # print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
+    # print('---- maml10 for sl model')
+    # print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=10, lr_inner=original_lr_inner)
     #
     # # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
-    # # print('\n---- FFL (LR) for rand model')
-    # # print_performance_4_sl(args_mdl_rand, model=args.mdl_rand)
+    # print('\n---- FFL (LR) for rand model')
+    # print_performance_4_sl(args_mdl_rand, model=args.mdl_rand)
     # print('---- FFL (LR) for maml model')
     # print_performance_4_sl(args_mdl_maml, model=args.mdl_maml)
     print('---- FFL (LR) for sl model')
     print_performance_4_sl(args_mdl_sl, model=args.mdl_sl)
 
     print()
+
+    # # - quick
+    # assert isinstance(args.meta_learner, MAMLMetaLearner)
+    # args_mdl_rand = copy(args)
+    # args_mdl_maml = copy(args)
+    # args_mdl_sl = copy(args)
+    #
+    # # # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
+    # #
+    # # # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
+    # print('---- maml5 for maml model')
+    # print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
+    # #
+    # # # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
+    # print('---- maml10 for maml model')
+    # print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
+    # #
+    # # # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
+    # print('---- FFL (LR) for sl model')
+    # print_performance_4_sl(args_mdl_sl, model=args.mdl_sl)
+    #
+    # print()
+
 
 
 def items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci) -> tuple[float, float, float, float]:
@@ -378,7 +403,7 @@ def print_performance_4_sl(args: Namespace,
 
 
 def do_diversity_data_analysis(args, meta_dataloader):
-    from diversity_src.diversity.diversity import compute_diversity
+    from diversity_src.diversity.diversity import compute_diversity_fixed_probe_net
     from pprint import pprint
     from anatome.helper import compute_stats_from_distance_per_batch_of_data_sets_per_layer
     from anatome.helper import compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks
@@ -399,7 +424,7 @@ def do_diversity_data_analysis(args, meta_dataloader):
         raise ValueError(f'Invalid mdl option: {args.run_name=}')
 
     # - Compute diversity: sample one batch of tasks and use a random cross product of different tasks to compute diversity.
-    div_mu, div_std, distances_for_task_pairs = compute_diversity(args, meta_dataloader)
+    div_mu, div_std, distances_for_task_pairs = compute_diversity_fixed_probe_net(args, meta_dataloader)
     print(f'{div_mu, div_std, distances_for_task_pairs=}')
 
     # -- print results
@@ -466,6 +491,73 @@ def load_model_force_add_cls_layer_as_module(args: Namespace,
     args.model.load_state_dict(model_state_dict)
     args.model.to(args.device)
     return args.model
+
+def get_meta_learning_dataloaders_for_data_analysis(args: Namespace):
+    from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
+    # - to load torchmeta
+    args.dataloaders: dict = get_meta_learning_dataloader(args)
+    # - to load l2l
+    from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
+    from learn2learn.vision.benchmarks import BenchmarkTasksets
+    try:
+        args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
+    except Exception as e:
+        # this hack is here so that if it was meant not meant as l2l, to no-op and only use the torchmeta data set
+        logging.warning(f'{e}')
+        pass
+    # todo: not sure if this is the ver we need args.dataloaders = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
+    args.dataloaders['']
+
+# -
+
+def performance_comparison_with_l2l_end_to_end(args: Namespace):
+    """
+
+    Alg:
+        - get the standard pytorch dataloaders that fetch the l2l data
+        - use the SL agent (not the meta-learner), with a good batch size e.g. 1024 or more with the original CLS.
+            Is the meta-train acc 0.993?
+    """
+    # -
+    args.world_size = 1
+
+    # -
+    args.mdl_sl = get_sl_learner(args)
+
+    # -
+    args.data_option = 'cifarfs_l2l_sl'  # need to remove this to work for other data sets
+    from uutils.torch_uu.dataloaders.helpers import get_sl_dataloader
+    args.dataloaders: dict = get_sl_dataloader(args)
+    assert args.mdl_sl.cls.out_features > 5
+    assert args.mdl_sl.cls.out_features == 64
+
+    # -
+    from uutils.torch_uu.agents.common import Agent
+    from uutils.torch_uu.agents.supervised_learning import UnionClsSLAgent
+    # assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl)
+    assert not hasattr(args, 'mdl_maml') and not hasattr(args, "mdl_rand")
+    args.agent: Agent = UnionClsSLAgent(args, args.mdl_sl)
+
+    # -
+    print('---- Print original SL error ----')
+    args.batch_size = 1024
+    batch: Any = next(iter(args.dataloaders['train']))
+    # train_loss, train_acc = args.agent(batch, training=True)
+    # print(f'(train_loss, train_acc)=')
+    eval_loss_mean, eval_loss_ci, eval_acc_mean, eval_acc_ci = args.agent.eval_forward(batch, training=True)
+    print(f'train (SL): {(eval_loss_mean, eval_loss_ci, eval_acc_mean, eval_acc_ci)=}')
+
+    # -
+    args.data_option = 'cifarfs_rfs'
+    args.batch_size = 100
+    from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
+    args.dataloaders: dict = get_meta_learning_dataloader(args)
+    args.meta_learner = FitFinalLayer(args, base_model=args.mdl_sl)
+    args.agent = args.meta_learner
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
+                                                               split='train',
+                                                               training=True)
+    print(f'train (Meta-Traon) [TLUSL]: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci )=}')
 
 
 # -

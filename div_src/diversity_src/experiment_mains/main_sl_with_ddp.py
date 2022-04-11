@@ -663,7 +663,6 @@ def sl_cifarfs_rfs_5cnn_sgd_cl_1000(args: Namespace) -> Namespace:
     args.n_cls = 64
     args.model_hps = dict(ways=args.n_cls, hidden_size=64, embedding_size=64 * 4)
 
-
     # - data
     args.data_option = 'cifarfs_l2l_sl'
     args.data_path = Path('~/data/l2l_data/').expanduser()
@@ -721,7 +720,6 @@ def sl_cifarfs_resnet12rfs_sgd_cl_200(args: Namespace) -> Namespace:
     args.model_option = 'resnet12_rfs_cifarfs_fc100'
     args.n_cls = 64
     args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=args.n_cls)
-
 
     # - data
     args.data_option = 'cifarfs_l2l_sl'
@@ -1089,7 +1087,8 @@ def sl_cifarfs_4cnn_hidden_size_1024_adafactor_rfs_epochs_train_convergence(args
     return args
 
 
-def sl_cifarfs_4cnn_hidden_size_1024_adafactor_adafactor_scheduler_rfs_epochs_train_convergence(args: Namespace) -> Namespace:
+def sl_cifarfs_4cnn_hidden_size_1024_adafactor_adafactor_scheduler_rfs_epochs_train_convergence(
+        args: Namespace) -> Namespace:
     """
     goal:
         - model: resnet12-rfs
@@ -1136,6 +1135,169 @@ def sl_cifarfs_4cnn_hidden_size_1024_adafactor_adafactor_scheduler_rfs_epochs_tr
     return args
 
 
+def sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_1000(args: Namespace) -> Namespace:
+    """
+    goal:
+        - model: resnet12-rfs
+        - Opt: ?
+
+    Note:
+        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
+        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
+        advantage.
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = '4CNN_l2l_cifarfs'
+    args.hidden_size = 1024
+    args.n_cls = 64
+    args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)
+
+    # - data
+    args.data_option = 'cifarfs_l2l_sl'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.num_epochs = 1000
+    args.batch_size = 256  # 256 used to work on titans...
+    args.lr = 5e-2
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 1
+    args.T_max = args.num_epochs // args.log_scheduler_freq
+    args.eta_min = 1e-5  # coincidentally, matches MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+
+    # - training mode
+    args.training_mode = 'epochs'
+    # args.training_mode = 'fit_single_batch'
+
+    # -
+    # args.debug = True
+    args.debug = False
+
+    # -
+    args.log_freq = 10  # SL, epochs training
+
+    # - wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_1000'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
+def sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_1000(args: Namespace) -> Namespace:
+    """
+    goal:
+        - model: resnet12-rfs
+        - Opt: ?
+
+    Note:
+        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
+        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
+        advantage.
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = '4CNN_l2l_cifarfs'
+    args.hidden_size = 1024
+    args.n_cls = 64
+    args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)
+
+    # - data
+    args.data_option = 'cifarfs_l2l_sl'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.num_epochs = 1000
+    args.batch_size = 256  # 256 used to work on titans...
+    args.lr = 5e-2
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'None'
+
+    # - training mode
+    args.training_mode = 'epochs'
+    # args.training_mode = 'fit_single_batch'
+
+    # -
+    # args.debug = True
+    args.debug = False
+
+    # -
+    args.log_freq = 10  # SL, epochs training
+
+    # - wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_1000'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
+def sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_many_epochs(args: Namespace) -> Namespace:
+    """
+    goal:
+        - model: resnet12-rfs
+        - Opt: ?
+
+    Note:
+        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
+        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
+        advantage.
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = '4CNN_l2l_cifarfs'
+    args.hidden_size = 1024
+    args.n_cls = 64
+    args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)
+
+    # - data
+    args.data_option = 'cifarfs_l2l_sl'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.num_epochs = 1_000_000
+    args.batch_size = 256  # 256 used to work on titans...
+    args.lr = 5e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'None'
+
+    # - training mode
+    args.training_mode = 'epochs'
+    # args.training_mode = 'fit_single_batch'
+
+    # -
+    # args.debug = True
+    args.debug = False
+
+    # -
+    args.log_freq = 10  # SL, epochs training
+
+    # - wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_many_epochs'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.num_epochs}: {args.jobid=} {args.hidden_size=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
 def load_args() -> Namespace:
     """
     1. parse args from user's terminal
@@ -1145,7 +1307,7 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_standard_sl()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_epochs_train_convergence'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_many_epochs'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
@@ -1190,7 +1352,14 @@ def load_args() -> Namespace:
         elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_adafactor_rfs_epochs_train_convergence':
             args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adafactor_rfs_epochs_train_convergence(args)
         elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_adafactor_adafactor_scheduler_rfs_epochs_train_convergence':
-            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adafactor_adafactor_scheduler_rfs_epochs_train_convergence(args)
+            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adafactor_adafactor_scheduler_rfs_epochs_train_convergence(
+                args)
+        elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_1000':
+            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_1000(args)
+        elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_1000':
+            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_1000(args)
+        elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_many_epochs':
+            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_many_epochs(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
