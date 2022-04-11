@@ -169,6 +169,7 @@ def get_all_required_distances_for_pairs_of_tasks(f1: nn.Module, f2: nn.Module,
     same tasks to each other and that has a distance = 0.0
     :return:
     """
+    assert metric_as_sim_or_dist == 'dist'
     L = len(layer_names1)
     B1, B2 = X1.size(0), X2.size(0)
     B_ = num_tasks_to_consider
@@ -195,6 +196,7 @@ def get_all_required_distances_for_pairs_of_tasks(f1: nn.Module, f2: nn.Module,
 
         # - get distances (index b_) for task pair per layers [1, L]
         print(f'{x1.size()=}, is the input to anatome/dist func [B,M,C,H,W]')
+        assert metric_as_sim_or_dist == 'dist'
         dists_task_pair: OrderedDict[LayerIdentifier, float] = dist_data_set_per_layer(f1, f2, x1, x2,
                                                                                        layer_names1, layer_names2,
                                                                                        metric_comparison_type=metric_comparison_type,
@@ -249,6 +251,8 @@ def diversity(f1: nn.Module, f2: nn.Module,
 
     :return: [L]^2, [B', L]
     """
+    assert metric_as_sim_or_dist == 'dist'
+    # assert args.args.metric_as_sim_or_dist == 'dist'
     assert len(layer_names1) >= 2, f'For now the final and one before final layer are the way to compute diversity'
     L = len(layer_names1)
     B_ = num_tasks_to_consider
@@ -279,17 +283,20 @@ def diversity(f1: nn.Module, f2: nn.Module,
 
     # - compute diversity: [B, L] -> [L, 1]^2 (the 2 due to one for div other ci for div)
     div_mu, div_ci = compute_stats_from_distance_per_batch_of_data_sets_per_layer(distances_for_task_pairs)
+    print(f'{div_mu=}')
+    print(f'{div_ci=}')
+    st()
     assert len(div_mu) == L
     assert len(div_ci) == L
     return div_mu, div_ci, distances_for_task_pairs
 
 
-def compute_diversity_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks(distances_for_task_pairs: Tensor,
-                                                                                    dist2sim: bool = False):
-    if dist2sim:
-        distances_for_task_pairs: Tensor = 1.0 - distances_for_task_pairs
-    mu, std = distances_for_task_pairs.mean(), distances_for_task_pairs.std()
-    return mu, std
+# def compute_diversity_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks(distances_for_task_pairs: Tensor,
+#                                                                                     dist2sim: bool = False):
+#     # if dist2sim:
+#     #     distances_for_task_pairs: Tensor = 1.0 - distances_for_task_pairs
+#     mu, std = distances_for_task_pairs.mean(), distances_for_task_pairs.std()
+#     return mu, std
 
 
 def compute_diversity_fixed_probe_net(args, meta_dataloader):
@@ -299,6 +306,9 @@ def compute_diversity_fixed_probe_net(args, meta_dataloader):
     div: [L] x [B', n*K, C,H,W]^2 -> [L, 1]
     for a set of layers & batch of tasks -> computes div for each layer.
     """
+    args.num_tasks_to_consider = args.batch_size
+    print(f'{args.num_tasks_to_consider=}')
+
     L: int = len(args.layer_names)
     B_: int = args.num_tasks_to_consider
 
@@ -308,10 +318,7 @@ def compute_diversity_fixed_probe_net(args, meta_dataloader):
     # print(f'M = n*k = {spt_x.size(1)=}')
     print(f"M = n*k = {qry_x.size(1)=} (before doing [B, n*k*H*W, D] for [B, N, D'] ")
 
-
     # - Compute diversity: [L] x [B', n*K, C,H,W]^2 -> [L, 1]^2, [B, L] i.e. output is div for each layer name
-    args.num_tasks_to_consider = args.batch_size
-    print(f'{args.num_tasks_to_consider=}')
     # assert spt_x.size(0) == args.num_tasks_to_consider
     from copy import deepcopy
     f1 = args.mdl_for_dv
@@ -321,10 +328,15 @@ def compute_diversity_fixed_probe_net(args, meta_dataloader):
     # assert they are different objects
     assert f1 is not f2
     # assert they are the same model (e.g. compute if the norm is equal, actually, just check they are the same obj before doing deepcopy)
+    assert args.metric_as_sim_or_dist == 'dist', f'Diversity is the expected variation/distance of task, ' \
+                                                 f'so you need dist but got {args.metric_as_sim_or_dist=}'
     div_mu, div_ci, distances_for_task_pairs = diversity(
         f1=f1, f2=f2, X1=qry_x, X2=qry_x,
         layer_names1=args.layer_names, layer_names2=args.layer_names,
-        num_tasks_to_consider=args.num_tasks_to_consider)
+        num_tasks_to_consider=args.num_tasks_to_consider,
+        metric_comparison_type=args.metric_comparison_type,
+        metric_as_sim_or_dist=args.metric_as_sim_or_dist
+    )
     print(f'{args.experiment_option=}')
     print(f'{div_mu=}')
     print(f'{div_ci=}')

@@ -117,11 +117,13 @@ def get_args_for_experiment() -> Namespace:
     # args.layer_names = get_feature_extractor_conv_layers()
     # args.layer_names = get_feature_extractor_conv_layers(include_cls=True)
     # args.layer_names: list[str] = get_last_two_layers(layer_type='conv', include_cls=True)
+
     # args.metric_comparison_type = 'svcca'
     # args.metric_comparison_type = 'pwcca'
     # args.metric_comparison_type = 'lincka'
-    # args.metric_comparison_type = 'opd'
-    args.metric_comparison_type = 'none'
+    args.metric_comparison_type = 'opd'
+    # args.metric_comparison_type = 'none'
+
     args.effective_neuron_type = 'filter'
     args.layer_names: list[str] = get_last_two_layers(layer_type='conv', include_cls=True)
     # args.layer_names: list[str] = get_last_two_layers(layer_type='pool', include_cls=True)
