@@ -15,102 +15,27 @@ from learn2learn.vision.benchmarks import BenchmarkTasksets
 
 from uutils import args_hardcoded_in_script, report_times
 from uutils.argparse_uu.common_negworkers import setup_args_for_experiment, setup_wandb # modified 4/7/22
-from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
+#from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
 from uutils.torch_uu.dataloaders.helpers import replace_final_layer
-from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
-from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
+from uutils.torch_uu.dataloaders.helpers import get_sl_dataloader
+#from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
+#from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
     print_dist, move_opt_to_cherry_opt_and_sync_params, set_devices_and_seed_ala_l2l, init_process_group_l2l, \
     is_lead_worker, find_free_port, is_running_serially, is_running_parallel, get_local_rank
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
 from uutils.torch_uu.mains.main_sl_with_ddp import train
-from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner, MAMLMetaLearnerL2L
-from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations, meta_train_agent_fit_single_batch, \
-    meta_train_iterations_ala_l2l
+from uutils.torch_uu.agents.supervised_learning import ClassificationSLAgent, UnionClsSLAgent
+#from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations, meta_train_agent_fit_single_batch, \
+#    meta_train_iterations_ala_l2l
 
 from pdb import set_trace as st
 
-from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch
-
-
-def l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
-    """
-    """
-    from pathlib import Path
-    # - model
-    args.n_cls = 5
-    args.model_option = '4CNN_l2l_cifarfs'
-    args.hidden_size = 1024
-    args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)
-
-    # - data
-    args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
-    args.data_path = Path('~/data/l2l_data/').expanduser()
-    args.data_augmentation = 'rfs2020'
-
-    # - training mode
-    args.training_mode = 'iterations'
-
-    # note: 60K iterations for original maml 5CNN with adam
-    args.num_its = 100_000
-
-    # - debug flag
-    # args.debug = True
-    args.debug = False
-
-    # - opt
-    args.opt_option = 'Adam_rfs_cifarfs'
-    args.lr = 1e-3  # match MAML++
-
-    # args.scheduler_option = 'None'
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
-    args.log_scheduler_freq = 2_000
-    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
-    args.eta_min = 1e-5  # match MAML++
-    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
-    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
-
-    # -- Meta-Learner
-    # - maml
-    args.meta_learner_name = 'maml_fixed_inner_lr'
-    args.inner_lr = 1e-1  # same as fast_lr in l2l
-    args.nb_inner_train_steps = 5
-    # args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
-    # args.first_order = True
-    args.first_order = False
-
-    # - outer trainer params
-    args.batch_size = 32
-    args.batch_size = 8
-
-    # - dist args
-    args.world_size = torch.cuda.device_count()
-    args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
-    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
-    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-
-    # -
-    args.log_freq = 500
-
-    # -- wandb args
-    # args.wandb_project = 'playground'  # needed to log to wandb properly
-    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
-    # - wandb expt args
-    # args.experiment_name = f'debug'
-    args.experiment_name = f'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
-
-    # - fix for backwards compatibility
-    args = fix_for_backwards_compatibility(args)
-    return args
+from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch, train_agent_iterations, \
+    train_agent_epochs
 
 def Hellinger(mu1,sigma1,mu2,sigma2):
     return torch.sqrt(2*sigma1*sigma2/(sigma1.pow(2)+sigma2.pow(2)))*torch.exp(-(mu1-mu2).pow(2)/(4*(sigma1.pow(2)+sigma2.pow(2))))
@@ -131,26 +56,23 @@ def hellinger_div(mu_m_B, sigma_m_B, mu_s_B, sigma_s_B):
     return 1 - dv_H
 
 
-def l2l_gaussian_1d(args: Namespace) -> Namespace:
+def l2l_gaussian_1d_sl(args: Namespace) -> Namespace:
     """
     """
     from pathlib import Path
     # - model - we define a 1 x 15 x 15 x 5 FNN
     # 3 layers, takes 1 input (float) and guesses which of 5 1-hot output classes
     # the gaussian belong to.
-    args.n_cls = 5
+    args.model_option = '3FNN_5_gaussian'  # network architecture is same, but we just do all 100 classes instead of 5-shot
+    args.n_cls = 100#5
     args.hidden_layers = [128,128]#[128,128]#[2048,2048,2048,2048,2048,2048,2048,2048] #[128,128,128,128,128,128]###[128,128,128,128]#[15,15]#[128,128,128]#[128,128,128,128]#[32,32,64,128]#[15,15]#[32,32,64,128,128,128]#[32,32,64,128]#[32,32,64,128,128,128]
     #args.hidden_layer1 = 15
     #args.hidden_layer2 = 15
     args.input_size = 1
-    # TODO
-    args.model_option = '3FNN_5_gaussian' # '4CNN_l2l_cifarfs'
-    # args.hidden_size = 1024
-    # args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)  # TODO
-    args.model_hps = dict(ways = args.n_cls, hidden_layers = args.hidden_layers, input_size=args.input_size) #TODO: Implement this!
+    args.model_hps = dict(ways = args.n_cls, hidden_layers = args.hidden_layers, input_size=args.input_size)
 
     # - data TODO
-    args.data_option = 'n_way_gaussians'#' cifarfs_rfs'  #CIFAR RFS dataset # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.data_option = 'n_way_gaussians_sl'#TODO
     args.mu_m_B = 0 #doesn't matter
     args.sigma_m_B = 10
     args.mu_s_B = 2
@@ -160,37 +82,24 @@ def l2l_gaussian_1d(args: Namespace) -> Namespace:
     args.k_shots = 10#10#10#10
     args.k_eval = 30#30#30#30
 
-    # args.data_path = Path('~/data/l2l_data/').expanduser()
+    #args.data_path = Path('~/data/l2l_data/').expanduser()
     # args.data_augmentation = 'rfs2020'
-
-    # - training mode
-    args.training_mode = 'iterations'
-
-    # note: 60K iterations for original maml 5CNN with adam
-    args.num_its = 20_000#100_000
-
-    # - debug flag, # TODO when real maml experiments
-    args.debug = True
-    # args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
-    args.lr = 1e-3  # match MAML++
-
+    args.num_epochs = 1_000_000
+    args.batch_size = 8#256 #TODO: How to make learning rates fair comparison with MAML?
+    args.batch_size_eval = 8# TODO: WHat is this?
+    args.lr = 1e-3#5e-3 #TODO: How to make learning rates fair comparison with MAML?
+    args.opt_hps: dict = dict(lr=args.lr)
     args.scheduler_option = 'None'
 
-    # -- Meta-Learner
-    # - maml
-    args.meta_learner_name = 'maml_fixed_inner_lr'
-    args.inner_lr = 1e-1  # same as fast_lr in l2l
-    args.nb_inner_train_steps = 5
-    # args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
-    # args.first_order = True
-    args.first_order = False
+    # - training mode
+    args.training_mode = 'epochs' #'iterations' #TODO: whats the difference?
 
-    # - outer trainer params
-    #args.batch_size = 32
-    args.batch_size = 8
+
+    args.debug = True
+    args.log_freq = 10 #SL, epochs training
 
     # - dist args
     args.world_size = 1
@@ -202,21 +111,18 @@ def l2l_gaussian_1d(args: Namespace) -> Namespace:
     # # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
 
-    # -
-    args.log_freq = 500
-
     # -- wandb args
-    args.wandb_project = 'maml_5_gaussians' #'sl_vs_ml_iclr_workshop_paper'  # TODO
+    args.wandb_project = 'maml_5_gaussians_sl' #'sl_vs_ml_iclr_workshop_paper'  # TODO
     # - wandb expt args
     # args.experiment_name = f'debug'
-    args.experiment_name = 'l2l_gaussian_1d' #f'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # TODO
-    args.run_name = f'{args.div_H} {args.mu_m_B} {args.sigma_m_B} {args.mu_s_B} {args.sigma_s_B} {args.hidden_layers} {args.k_shots} {args.k_eval} {args.batch_size} {args.model_option} {args.opt_option} {args.scheduler_option} {args.input_size} {args.n_cls} {args.lr} {args.inner_lr}: {args.jobid=}'  # TODO
+    args.experiment_name = 'l2l_gaussian_1d_sl' #f'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # TODO
+    args.run_name = f'{args.div_H} {args.mu_m_B} {args.sigma_m_B} {args.mu_s_B} {args.sigma_s_B} {args.hidden_layers} {args.batch_size} {args.model_option} {args.opt_option} {args.scheduler_option} {args.input_size} {args.n_cls} {args.lr}: {args.jobid=}'  # TODO
     # args.log_to_wandb = True  # TODO when real
     args.log_to_wandb = False#True
     args.wandb_entity ="brando-uiuc"# "patrickyu"
 
     # - fix for backwards compatibility
-    args = fix_for_backwards_compatibility(args)
+    #args = fix_for_backwards_compatibility(args)
     return args
 
 
@@ -229,17 +135,18 @@ def load_args() -> Namespace:
     3. setup remaining args small details from previous values (e.g. 1 and 2).
     """
     # -- parse args from terminal
-    args: Namespace = parse_args_meta_learning()
+    args: Namespace = parse_args_standard_sl() # TODO - New
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'l2l_gaussian_1d' #'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # <- REMOVE to remove manual loads
+    args.manual_loads_name = 'l2l_gaussian_1d_sl' #'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
         raise NotImplementedError
     elif args_hardcoded_in_script(args):
-        if args.manual_loads_name == 'l2l_gaussian_1d': #'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k':
-            args: Namespace = l2l_gaussian_1d(args) #l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k(args)
+        print("loading!!")
+        if args.manual_loads_name == 'l2l_gaussian_1d_sl': #'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k':
+            args: Namespace = l2l_gaussian_1d_sl(args) #l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
@@ -283,26 +190,31 @@ def train_serial(args):
     get_and_create_model_opt_scheduler_for_run(args)  # TODO, create your own or extend mine
 
     # create the loaders, note: you might have to change the number of layers in the final layer
-    args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)  # TODO, create your own or extend
-    args.dataloaders = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
-    print(args.model.cls)
-    assert args.model.cls.out_features == 5
+    #args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)  # TODO, create your own or extend
+    #args.dataloaders = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
+    #print(args.model.cls)
+    #assert args.model.cls.out_features == 5
+    args.dataloaders: dict = get_sl_dataloader(args) #TODO
+    assert args.model.cls.out_features > 5
+    assert args.model.cls.out_features == 100 # 100 classes
 
     # Agent does everything, proving, training, evaluate, meta-learnering, etc.
-    args.agent = MAMLMetaLearnerL2L(args, args.model)
-    args.meta_learner = args.agent
+    args.agent = UnionClsSLAgent(args, args.model)#MAMLMetaLearnerL2L(args, args.model)
+    #args.meta_learner = args.agent
 
     # -- Start Training Loop
     print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)  # here to make sure mdl has the right cls
     print_dist('====> about to start train loop', args.rank)
-    if args.training_mode == 'meta_train_agent_fit_single_batch':
-        # meta_train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
-        raise NotImplementedError
+    if args.training_mode == 'fit_single_batch':
+        train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     elif 'iterations' in args.training_mode:
-        meta_train_iterations_ala_l2l(args, args.agent, args.opt, args.scheduler)
+        # note train code will see training mode to determine halting criterion
+        train_agent_iterations(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     elif 'epochs' in args.training_mode:
-        # meta_train_epochs(args, agent, args.dataloaders, args.opt, args.scheduler) not implemented
-        raise NotImplementedError
+        # note train code will see training mode to determine halting criterion
+        train_agent_epochs(args, args.agent, args.dataloaders, args.opt, args.scheduler)
+    # note: the other options do not appear directly since they are checked in
+    # the halting condition.
     else:
         raise ValueError(f'Invalid training_mode value, got: {args.training_mode}')
 
