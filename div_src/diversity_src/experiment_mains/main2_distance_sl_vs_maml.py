@@ -286,9 +286,9 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # args.k_eval = get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin=args.safety_margin)
 
     # - expt option
-    # args.experiment_option = 'performance_comparison'
+    args.experiment_option = 'performance_comparison'
 
-    args.experiment_option = 'diveristiy_f_rand'
+    # args.experiment_option = 'diveristiy_f_rand'
     # args.experiment_option = 'diveristiy_f_maml'
     # args.experiment_option = 'diveristiy_f_sl'
 
@@ -299,16 +299,25 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/33frd31p?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb19_10-13-22_jobid_2411_pid_28656'  # good! SGD converged with 0.9994 train acc
 
+    # -- 16
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3o5rsvne?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_May02_17-15-30_jobid_25765'  # Adam
+
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2d06xdie/overview?workspace=user-brando
+    # args.path_2_init_maml = '~/data/logs/logs_May02_17-22-17_jobid_25766'
+
     # -- 32
-    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2y7mrwx3/logs?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Feb15_16-38-47_jobid_10063_pid_185552'  # OLD, ignore, idk, not a fan of my current ckpts...with l2l, seems need to use SGD? Adam + CL is bad
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/e86rmved?workspace=user-brando
-    # args.path_2_init_sl = ''  # Adam
+    # args.path_2_init_sl = '~/data/logs/logs_Apr11_14-52-47_jobid_29253_pid_21780'  # Adam
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1tzdyoxp?workspace=
-    # args.path_2_init_sl = ''  # Adam
+    # args.path_2_init_sl = '~/data/logs/logs_Apr11_14-53-51_jobid_9971_pid_25156'  # Adam
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1uyz497h?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_May02_17-05-36_jobid_25763'  # Adam
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/29hc25u2/overview?workspace=user-brando
     args.path_2_init_maml = '~/data/logs/logs_Feb16_11-59-55_jobid_29315_pid_102939'
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/kpujevkp?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_May02_17-11-03_jobid_25764'
 
     # -- 128 version todo, both need to be with adam.
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/9r7q98vz?workspace=user-brando

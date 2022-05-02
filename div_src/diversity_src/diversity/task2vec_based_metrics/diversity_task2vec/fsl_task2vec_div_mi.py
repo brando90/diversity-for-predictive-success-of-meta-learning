@@ -41,13 +41,20 @@ Paper says embedding of task wrt fixed network & data set corresponding to a tas
 
 div(f, B) = E_{tau1, tau2} E_{spt_tau1, spt_tau2}[d(task2vec(f, spt_tau1),task2vec(f, spt_tau2)) ]
 
+for div operator on set of distances btw tasks use:
+    - expectation
+    - symmetric R^2 (later)
+    - NED (later)
+
 """
+import numpy as np
+from learn2learn.vision.benchmarks import BenchmarkTasksets
 from torch import nn, Tensor
 
+from task2vec import Task2Vec
 
 def distance_tasks_task2vec(probe_net: nn.Module, spt1: Tensor, spt2: Tensor) -> Tensor:
     """
-
     """
     dataset1 = tensor2dataset(spt1)
     dataset2 = tensor2dataset(spt2)
@@ -58,32 +65,33 @@ def distance_tasks_task2vec(probe_net: nn.Module, spt1: Tensor, spt2: Tensor) ->
     return dist
 
 
-def diversity_task2vec(probe_net: nn.Module,
-                       fsl_l2l_loader,
-                       ):
-    """
+def diversity_task2vec(tasksets: BenchmarkTasksets,
+                       probe_net: nn.Module,
 
-    """
-    for t in range(num_pair_task_to_consider):
-        print(t)
+                       num_pair_tasks_to_consider: int = 100,
+                       ):
+    embeddings: list[Tensor] = []
+    for t in range(num_pair_tasks_to_consider):
         task_data1: list = task_dataset.sample()  # data, labels
         task_data2: list = task_dataset.sample()  # data, labels
         embed: Tensor = distance_tasks_task2vec()
 
 
-def get_div_task2vec():
-    from task2vec import Task2Vec
-    # from models import get_model
+# - tests
+
+def get_div_task2vec_on_MI_test():
+    """
+    Compute diversity of tasks in MI
+
+    div(B_mi, probe_net) = div_op([d_i,j])
+    """
     from datasets import get_dataset
 
-    dataset = get_dataset('cifar10')
-    # probe_network = get_model('resnet34', pretrained=True, num_classes=10)
-    embedding = Task2Vec(probe_network).embed(dataset)
+    embeddings = Task2Vec(probe_network).embed(dataset)
+    div: Tensor = get_div_task2vec()
 
-    pass
 
-#
 
 if __name__ == '__main__':
-    get_div_task2vec()
+    get_div_task2vec_on_MI_test()
 
