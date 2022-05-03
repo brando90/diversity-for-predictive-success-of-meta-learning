@@ -276,9 +276,10 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # args.safety_margin = 20
 
     # args.batch_size = 2
-    args.batch_size = 5
+    # args.batch_size = 5
     # args.batch_size = 25
     # args.batch_size = 100
+    args.batch_size = 500
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
@@ -299,12 +300,19 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/33frd31p?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb19_10-13-22_jobid_2411_pid_28656'  # good! SGD converged with 0.9994 train acc
 
+    # -- 8
+    #
+    # args.path_2_init_sl = ''  # Adam
+
+    #
+    # args.path_2_init_maml = ''  # Adam
+
     # -- 16
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3o5rsvne?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_May02_17-15-30_jobid_25765'  # Adam
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2d06xdie/overview?workspace=user-brando
-    # args.path_2_init_maml = '~/data/logs/logs_May02_17-22-17_jobid_25766'
+    # args.path_2_init_maml = '~/data/logs/logs_May02_17-22-17_jobid_25766'  # Adam
 
     # -- 32
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/e86rmved?workspace=user-brando
@@ -314,30 +322,30 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1uyz497h?workspace=user-brando
     args.path_2_init_sl = '~/data/logs/logs_May02_17-05-36_jobid_25763'  # Adam
 
-    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/29hc25u2/overview?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_Feb16_11-59-55_jobid_29315_pid_102939'
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/29hc25u2/overview?workspace=user-brando (NOT GOOD)
+    # args.path_2_init_maml = '~/data/logs/logs_Feb16_11-59-55_jobid_29315_pid_102939'  # uses scheduler :'(
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/kpujevkp?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_May02_17-11-03_jobid_25764'
+    args.path_2_init_maml = '~/data/logs/logs_May02_17-11-03_jobid_25764'  # Adam
 
     # -- 128 version todo, both need to be with adam.
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/9r7q98vz?workspace=user-brando
-    args.path_2_init_sl = ''  #
+    # args.path_2_init_sl = ''  #
     #
-    args.path_2_init_maml = ''
+    # args.path_2_init_maml = ''
 
     # -- 512 version todo, both need to be with adam.
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2tmzp9p5?workspace=
-    args.path_2_init_sl = ''  #
+    # args.path_2_init_sl = ''  #
     #
-    args.path_2_init_maml = ''
+    # args.path_2_init_maml = ''
 
     # -- 1024 version todo, both need to be with adam.
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/gdmphf5w/logs?workspace=user-brando
-    args.path_2_init_sl = ''  #
+    # args.path_2_init_sl = ''  #
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/wi1whoh0?workspace=user-brando
-    args.path_2_init_sl = ''  #
+    # args.path_2_init_sl = ''  #
     #
-    args.path_2_init_maml = ''
+    # args.path_2_init_maml = ''
 
     # path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
     # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
@@ -700,7 +708,6 @@ def load_args() -> Namespace:
     args.meta_learner.args = args  # to avoid meta learner running with args only from past experiment and not with metric analysis experiment
 
     uutils.print_args(args)
-    args.criterion
     return args
 
 

@@ -579,6 +579,114 @@ def sl_mi_rfs_5cnn_adam_16_filter_size(args: Namespace) -> Namespace:
     return args
 
 
+def sl_mi_rfs_5cnn_adam_8_filter_size(args: Namespace) -> Namespace:
+    """
+    goal:
+        - model: resnet12-rfs
+        - Opt: ?
+
+    Note:
+        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
+        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
+        advantage.
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.filter_size = 8
+    args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=64, filter_size=args.filter_size,
+                          levels=None,
+                          spp=False, in_channels=3)
+
+    # - data
+    args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.num_epochs = 400
+    args.batch_size = 128
+    # args.batch_size = 1024
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'None'
+
+    # - training mode
+    args.training_mode = 'epochs'
+    # args.training_mode = 'fit_single_batch'
+
+    # -
+    # args.debug = True
+    args.debug = False
+
+    # -
+    args.log_freq = 1  # SL, epochs training
+
+    # - wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'sl_mi_rfs_5cnn_adam'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
+def sl_mi_rfs_5cnn_adam_4_filter_size(args: Namespace) -> Namespace:
+    """
+    goal:
+        - model: resnet12-rfs
+        - Opt: ?
+
+    Note:
+        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
+        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
+        advantage.
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.filter_size = 4
+    args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=64, filter_size=args.filter_size,
+                          levels=None,
+                          spp=False, in_channels=3)
+
+    # - data
+    args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.num_epochs = 400
+    args.batch_size = 128
+    # args.batch_size = 1024
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'None'
+
+    # - training mode
+    args.training_mode = 'epochs'
+    # args.training_mode = 'fit_single_batch'
+
+    # -
+    # args.debug = True
+    args.debug = False
+
+    # -
+    args.log_freq = 1  # SL, epochs training
+
+    # - wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'sl_mi_rfs_5cnn_adam'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
 # -- cirfarfs
 
 def sl_cifarfs_rfs_4cnn_adam_cl_200(args: Namespace) -> Namespace:
@@ -1580,6 +1688,10 @@ def load_args() -> Namespace:
             args: Namespace = sl_mi_rfs_5cnn_adam_32_filter_size(args)
         elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_16_filter_size':
             args: Namespace = sl_mi_rfs_5cnn_adam_16_filter_size(args)
+        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_8_filter_size':
+            args: Namespace = sl_mi_rfs_5cnn_adam_8_filter_size(args)
+        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_4_filter_size':
+            args: Namespace = sl_mi_rfs_5cnn_adam_4_filter_size(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
