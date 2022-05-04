@@ -63,6 +63,7 @@ from learn2learn.vision.benchmarks import BenchmarkTasksets
 from torch import nn, Tensor
 from torch.utils.data import Dataset
 
+import task2vec
 from dataset import TaskDataset
 from models import get_model
 from task2vec import Embedding, Task2Vec, ProbeNetwork
@@ -167,7 +168,7 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
 
                                                     split: str = 'validation',
                                                     split_task: bool = False
-                                                    ) -> list[Tensor]:
+                                                    ) -> list[task2vec.Embedding]:
     """
 
     note:
@@ -179,8 +180,9 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
     task_dataset: TaskDataset = getattr(tasksets, split)  # tasksets.train
 
     # - compute embeddings for tasks
-    embeddings: list[Tensor] = []
-    for t in range(num_tasks_to_consider):
+    embeddings: list[task2vec.Embedding] = []
+    for task_num in range(num_tasks_to_consider):
+        print(f'{task_num=}')
         # - Samples all data data for spt & qry sets for current task: thus size [n*(k+k_eval), C, H, W] (or [n(k+k_eval), D])
         task_data: list = task_dataset.sample()  # data, labels
         if split_task:
