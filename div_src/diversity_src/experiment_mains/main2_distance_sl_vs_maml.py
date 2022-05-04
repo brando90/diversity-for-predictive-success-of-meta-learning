@@ -300,6 +300,19 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/33frd31p?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb19_10-13-22_jobid_2411_pid_28656'  # good! SGD converged with 0.9994 train acc
 
+    # -- 4
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/16id6w11
+    # args.path_2_init_sl = ''  # Adam
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3susfzse
+    # args.path_2_init_sl = ''  # Adam
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/hdgn6xfd
+    # args.path_2_init_sl = ''  # Adam
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/l9rdcfcr?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_May03_18-05-01_jobid_26093'  # Adam
+
+    #
+    # args.path_2_init_maml = ''  # Adam
+
     # -- 8
     #
     # args.path_2_init_sl = ''  # Adam
