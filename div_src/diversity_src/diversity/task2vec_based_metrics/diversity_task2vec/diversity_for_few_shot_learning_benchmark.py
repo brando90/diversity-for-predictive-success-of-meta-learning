@@ -234,7 +234,7 @@ def plot_distance_matrix_and_div_for_MI_test():
     # - get args for test
     args: Namespace = parse_args_meta_learning()
     args = fix_for_backwards_compatibility(args)
-    args.batch_size = 5
+    args.batch_size = 2
     args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.data_augmentation = 'lee2019'
@@ -260,10 +260,10 @@ def plot_distance_matrix_and_div_for_MI_test():
     print(f'{distance_matrix=}')
 
     # this code is similar to above but put computes the distance matrix internally & then displays it
-    task_similarity.plot_distance_matrix(embeddings, label=list(range(len(embeddings))), distance='cosine')
+    task_similarity.plot_distance_matrix(embeddings, labels=list(range(len(embeddings))), distance='cosine')
 
-    div, ci = task_similarity.stats_of_distance_matrix(distance_matrix, diagonal=False)
-    print(f'Diversity resulst (ala task2vec) = {(div, ci)=}')
+    div, ci = task_similarity.stats_of_distance_matrix(distance_matrix)
+    print(f'Diversity: {(div, ci)=}')
 
 
 if __name__ == '__main__':

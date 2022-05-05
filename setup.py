@@ -61,6 +61,8 @@ setup(
         'learn2learn',
         'cherry-rl',
 
+        'seaborn',
+
         # 'fairseq',
     ]  # see readme, we'll fill this when we release
 )
