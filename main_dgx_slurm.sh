@@ -40,9 +40,6 @@ echo torch.cuda.device_count is:
 python -c "import torch; print(torch.cuda.device_count())"
 echo ---- Running your python main ----
 
-/home/miranda9/miniconda3/envs/meta_learning_a100/bin/python -m pi install --upgrade pip
-pip install wandb --upgrade
-
 # -- Run Experiment
 # - SL
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_mi_rfs_5cnn_adam_32_filter_size
@@ -59,5 +56,9 @@ python -m torch.distributed.run --nproc_per_node=4 ~/diversity-for-predictive-su
 # - Data analysis
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main2_distance_sl_vs_maml.py
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/_main_distance_sl_vs_maml.py
+
+# - other wrap up
+/home/miranda9/miniconda3/envs/meta_learning_a100/bin/python -m pi install --upgrade pip
+pip install wandb --upgrade
 
 echo -- Done submitting job in dgx A100-SXM4-40G

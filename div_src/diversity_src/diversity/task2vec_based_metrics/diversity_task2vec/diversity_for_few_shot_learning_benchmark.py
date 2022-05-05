@@ -193,6 +193,7 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
             # - use all the data in the task
             data, labels = task_data
             fsl_task_dataset: Dataset = FSLTaskDataSet(spt_x=None, spt_y=None, qry_x=data, qry_y=labels)
+            print(f'{len(fsl_task_dataset)=}')
             task2vec_embedding: Tensor = Task2Vec(probe_network).embed(fsl_task_dataset)
         embeddings.append(task2vec_embedding)
     return embeddings
@@ -209,6 +210,7 @@ def plot_distance_matrix_and_div_for_MI_test():
     """
     - sample one batch of tasks and use a random cross product of different tasks to compute diversity.
     """
+    import uutils
     from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
     from uutils.argparse_uu.meta_learning import parse_args_meta_learning
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
@@ -221,6 +223,7 @@ def plot_distance_matrix_and_div_for_MI_test():
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.data_augmentation = 'lee2019'
     args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
+    uutils.print_args(args)
 
     # - create probe_network
     # probe_network: nn.Module = get_default_learner()

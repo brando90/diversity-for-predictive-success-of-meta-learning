@@ -301,6 +301,8 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # args.path_2_init_sl = '~/data/logs/logs_Feb19_10-13-22_jobid_2411_pid_28656'  # good! SGD converged with 0.9994 train acc
 
     # -- 4
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/7sfgxss7/logs?workspace=user-brando
+    # args.path_2_init_sl = ''  # Adam
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/16id6w11
     # args.path_2_init_sl = ''  # Adam
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3susfzse
