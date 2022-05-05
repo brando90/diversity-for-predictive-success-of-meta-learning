@@ -15,17 +15,15 @@
 # hal-dgx website: https://wiki.ncsa.illinois.edu/display/ISL20/Access+hal-dgx+and+overdrive+with+hal-login3+Node
 # -- Example 0
 #Request 1x GPU along with 32x CPU cores for 4 hours
-# srun --partition=x86 --time=4:00:00 --nodes=1 --ntasks-per-node=32 --sockets-per-node=1 --cores-per-socket=16
-# --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --gres=gpu:a100:1 --pty /bin/bash
+
 
 # -- Example 1
 # Request 2x GPU along with 64x CPU cores for 12 hours
-# srun --partition=x86 --time=12:00:00 --nodes=1 --ntasks-per-node=64 --sockets-per-node=1 --cores-per-socket=32
-# --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --gres=gpu:a100:2 --pty /bin/bash
+
 
 # -- Example 2
 # Request 4x GPU along with 128x CPU cores for 24 hours
-# srun --partition=x86 --time=24:00:00 --nodes=1 --ntasks-per-node=128 --sockets-per-node=1 --cores-per-socket=64
+# srun --partition=x86 --time=24:00:00 --nodes=1 --ntasks-per-node=128 --sockets-per-node=4 --cores-per-socket=16
 # --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --gres=gpu:a100:4 --pty /bin/bash
 
 # - Print stuff
@@ -56,6 +54,8 @@ python -m torch.distributed.run --nproc_per_node=4 ~/diversity-for-predictive-su
 # - Data analysis
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main2_distance_sl_vs_maml.py
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/_main_distance_sl_vs_maml.py
+
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/diversity/task2vec_based_metrics/diversity_task2vec/diversity_for_few_shot_learning_benchmark.py
 
 # - other wrap up
 /home/miranda9/miniconda3/envs/meta_learning_a100/bin/python -m pi install --upgrade pip

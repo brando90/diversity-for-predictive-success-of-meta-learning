@@ -17,8 +17,8 @@ import task_similarity
 
 # %%
 
-# dataset_names = ('stl10', 'mnist', 'cifar10', 'cifar100', 'letters', 'kmnist')
-dataset_names = ('mnist', )
+# dataset_names = ('mnist', )
+dataset_names = ('stl10', 'mnist', 'cifar10', 'cifar100', 'letters', 'kmnist')
 # Change `root` with the directory you want to use to download the datasets
 dataset_list = [datasets.__dict__[name](root=Path('~/data').expanduser())[0] for name in dataset_names]
 

@@ -55,6 +55,7 @@ l2l comments:
 
 """
 from argparse import Namespace
+from copy import deepcopy
 from pathlib import Path
 
 import learn2learn
@@ -175,6 +176,10 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
         - you can't just pass a nn.Module, it has to have the classifier setter & getter due to how task2vec works. My
         guess is that since it does have to fine tune the final layer before computing FIM, then it requires to have
         access to the modules considered the final layer.
+        - note that the task2vec code has side effects on your probe network, so you have to have some type of code that
+        "removes" those side effects. Two options is if the function takes in a probe_network directly then it has to
+        create a deep copy when feeding it to Task2Vec. Otherwise another option is to load a new probe nework every
+        time we create a new fsl.
     """
     # - get the data set of (n-way, k-shot) tasks
     task_dataset: TaskDataset = getattr(tasksets, split)  # tasksets.train
@@ -182,7 +187,7 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
     # - compute embeddings for tasks
     embeddings: list[task2vec.Embedding] = []
     for task_num in range(num_tasks_to_consider):
-        print(f'{task_num=}')
+        print(f'\n--> {task_num=}\n')
         # - Samples all data data for spt & qry sets for current task: thus size [n*(k+k_eval), C, H, W] (or [n(k+k_eval), D])
         task_data: list = task_dataset.sample()  # data, labels
         if split_task:
@@ -194,8 +199,10 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
             data, labels = task_data
             fsl_task_dataset: Dataset = FSLTaskDataSet(spt_x=None, spt_y=None, qry_x=data, qry_y=labels)
             print(f'{len(fsl_task_dataset)=}')
-            task2vec_embedding: Tensor = Task2Vec(probe_network).embed(fsl_task_dataset)
-        embeddings.append(task2vec_embedding)
+            # probe_network: ProbeNetwork = get_model('resnet18', pretrained=True, num_classes=5)
+            # embedding: task2vec.Embedding = Task2Vec(probe_network).embed(fsl_task_dataset)
+            embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network)).embed(fsl_task_dataset)
+        embeddings.append(embedding)
     return embeddings
 
 
