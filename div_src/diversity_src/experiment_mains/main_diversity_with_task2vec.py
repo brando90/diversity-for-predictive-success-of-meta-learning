@@ -26,8 +26,7 @@ from uutils.torch_uu.models.probe_networks import get_probe_network
 
 
 def diversity_ala_task2vec_mi_resnet18_pretrained_imagenet(args: Namespace) -> Namespace:
-    # args.batch_size = 50
-    args.batch_size = 2
+    args.batch_size = 500
     args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.data_augmentation = 'lee2019'
@@ -39,12 +38,76 @@ def diversity_ala_task2vec_mi_resnet18_pretrained_imagenet(args: Namespace) -> N
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_mi_resnet18'
-    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     args = fix_for_backwards_compatibility(args)
     return args
+
+
+def diversity_ala_task2vec_mi_resnet18_random(args: Namespace) -> Namespace:
+    args.batch_size = 500
+    args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'lee2019'
+
+    # - probe_network
+    args.model_option = 'resnet18_random'
+
+    # -- wandb args
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_mi_resnet18'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+def diversity_ala_task2vec_mi_resnet34_imagenet(args: Namespace) -> Namespace:
+    args.batch_size = 500
+    args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'lee2019'
+
+    # - probe_network
+    args.model_option = 'resnet34_pretrained_imagenet'
+
+    # -- wandb args
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_mi_resnet34'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+def diversity_ala_task2vec_mi_resnet34_random(args: Namespace) -> Namespace:
+    args.batch_size = 500
+    args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'lee2019'
+
+    # - probe_network
+    args.model_option = 'resnet34_random'
+
+    # -- wandb args
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_mi_resnet34'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    args = fix_for_backwards_compatibility(args)
+    return args
+
 
 # -
 
@@ -63,7 +126,12 @@ def load_args() -> Namespace:
     if args_hardcoded_in_script(args):
         if args.manual_loads_name == 'diversity_ala_task2vec_mi_resnet18_pretrained_imagenet':
             args: Namespace = diversity_ala_task2vec_mi_resnet18_pretrained_imagenet(args)
-
+        elif args.manual_loads_name == 'diversity_ala_task2vec_mi_resnet18_random':
+            args: Namespace = diversity_ala_task2vec_mi_resnet18_random(args)
+        elif args.manual_loads_name == 'diversity_ala_task2vec_mi_resnet34_imagenet':
+            args: Namespace = diversity_ala_task2vec_mi_resnet34_imagenet(args)
+        elif args.manual_loads_name == 'diversity_ala_task2vec_mi_resnet34_random':
+            args: Namespace = diversity_ala_task2vec_mi_resnet34_random(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
@@ -75,6 +143,7 @@ def load_args() -> Namespace:
     setup_wand(args)
     create_default_log_root(args)
     return args
+
 
 def main():
     # - load the args from either terminal, ckpt, manual etc.
@@ -117,7 +186,8 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace):
     print(f'Diversity: {(div, ci)=}')
 
     # this code is similar to above but put computes the distance matrix internally & then displays it
-    task_similarity.plot_distance_matrix(embeddings, labels=list(range(len(embeddings))), distance='cosine', show_plot=False)
+    task_similarity.plot_distance_matrix(embeddings, labels=list(range(len(embeddings))), distance='cosine',
+                                         show_plot=False)
     save_to(args.log_root, plot_name=f'distance_matrix_fsl_{args.data_option}'.replace('-', '_'))
     import matplotlib.pyplot as plt
     plt.show()
