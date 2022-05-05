@@ -233,7 +233,7 @@ def plot_distance_matrix_and_div_for_MI_test():
 
     # - get args for test
     args: Namespace = parse_args_meta_learning()
-    args = fix_for_backwards_compatibility(args)
+    args = fix_for_backwards_compatibility(args)  # TODO fix me
     args.batch_size = 2
     args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
     args.data_path = Path('~/data/l2l_data/').expanduser()
