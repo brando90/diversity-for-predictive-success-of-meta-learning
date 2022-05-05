@@ -59,12 +59,14 @@ from copy import deepcopy
 from pathlib import Path
 
 import learn2learn
+import numpy as np
 import torch.utils.data
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 from torch import nn, Tensor
 from torch.utils.data import Dataset
 
 import task2vec
+import task_similarity
 from dataset import TaskDataset
 from models import get_model
 from task2vec import Embedding, Task2Vec, ProbeNetwork
@@ -206,9 +208,16 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
     return embeddings
 
 
-def compute_diversity():
-    # TODO
-    pass
+def compute_diversity(distance_matrix: np.array,
+                      remove_diagonal: bool = True,
+                      variance_type: str = 'ci_0.95',
+                      ) -> tuple[float, float]:
+    """
+    Computes diversity using task2vec embeddings from a distance matrix as:
+        div(B, f) = E_{t1, t2 ~ p(t|B)} E_{X1 ~ p(X|t1) X1 ~ p(X|t2)}[dist(emb(X1, f), emb(X2, f)]
+    """
+    div, ci = task_similarity.stats_of_distance_matrix(distance_matrix, remove_diagonal, variance_type)
+    return div, ci
 
 
 # - tests
@@ -239,19 +248,22 @@ def plot_distance_matrix_and_div_for_MI_test():
     probe_network: ProbeNetwork = get_model('resnet18', pretrained=True, num_classes=5)
 
     # - compute task embeddings according to task2vec
+    print(f'number of tasks to consider: {args.batch_size=}')
     embeddings: list[Tensor] = get_task_embeddings_from_few_shot_l2l_benchmark(args.tasksets,
                                                                                probe_network,
                                                                                num_tasks_to_consider=args.batch_size)
-    print(f'{embeddings=}')
+    print(f'\n {len(embeddings)=}')
 
     # - compute distance matrix & task2vec based diversity
-    # task_similarity.plot_distance_matrix(embeddings, label=list(range(len(meta_batch_list))))
-    # distance_matrix: np.ndarray = task_similarity.pdist(embeddings, distance='cosine')
-    # div_task2vec_mu, div_task2vec_std = task_similarity.stats_of_distance_matrix(distance_matrix, diagonal=False)
-    # embeddings.append(Task2Vec(probe_network, max_samples=1000, skip_layers=6).embed(dataset))
-    # print(f'{div_task2vec_mu, div_task2vec_std=}')
-    # print(f'{div_task2vec_mu}+-{div_task2vec_std}')
-    # task_similarity.plot_distance_matrix_from_distance_matrix(distance_matrix, list(range(len(meta_batch_list))))
+    # to demo task2vec, this code computes pair-wise distance between task embeddings
+    distance_matrix: np.ndarray = task_similarity.pdist(embeddings, distance='cosine')
+    print(f'{distance_matrix=}')
+
+    # this code is similar to above but put computes the distance matrix internally & then displays it
+    task_similarity.plot_distance_matrix(embeddings, label=list(range(len(embeddings))), distance='cosine')
+
+    div, ci = task_similarity.stats_of_distance_matrix(distance_matrix, diagonal=False)
+    print(f'Diversity resulst (ala task2vec) = {(div, ci)=}')
 
 
 if __name__ == '__main__':
