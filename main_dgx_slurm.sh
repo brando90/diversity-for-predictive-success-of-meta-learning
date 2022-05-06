@@ -16,7 +16,7 @@
 # -- Example 0
 #Request 1x GPU along with 32x CPU cores for 4 hours
 #srun --partition=x86 --time=4:00:00 --nodes=1 --ntasks-per-node=32 --sockets-per-node=1 --cores-per-socket=16 --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --gres=gpu:a100:1 --pty /bin/bash
-srun --partition=x86 --time=48:00:00 --nodes=1 --ntasks-per-node=32 --sockets-per-node=1 --cores-per-socket=16 --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --gres=gpu:a100:1 --pty /bin/bash
+#srun --partition=x86 --time=48:00:00 --nodes=1 --ntasks-per-node=32 --sockets-per-node=1 --cores-per-socket=16 --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --gres=gpu:a100:1 --pty /bin/bash
 
 # -- Example 1
 # Request 2x GPU along with 64x CPU cores for 12 hours
