@@ -278,8 +278,8 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # args.batch_size = 2
     # args.batch_size = 5
     # args.batch_size = 25
-    # args.batch_size = 100
-    args.batch_size = 500
+    args.batch_size = 100
+    # args.batch_size = 500
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
@@ -310,17 +310,17 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/hdgn6xfd
     # args.path_2_init_sl = ''  # Adam
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/l9rdcfcr?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_May03_18-05-01_jobid_26093'  # Adam
+    args.path_2_init_sl = '~/data/logs/logs_May03_18-05-01_jobid_26093'  # Adam
 
-    #
-    # args.path_2_init_maml = ''  # Adam
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/ip20v98t/logs?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_May05_11-31-02_jobid_27495'  # Adam
 
     # -- 8
-    #
-    # args.path_2_init_sl = ''  # Adam
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/35qt9vlj?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_May05_11-44-39_jobid_27496'  # Adam
 
-    #
-    # args.path_2_init_maml = ''  # Adam
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1ws40w58/logs?workspace=user-brando
+    # args.path_2_init_maml = '~/data/logs/logs_May05_11-27-28_jobid_27494'  # Adam
 
     # -- 16
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3o5rsvne?workspace=user-brando
@@ -335,12 +335,12 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1tzdyoxp?workspace=
     # args.path_2_init_sl = '~/data/logs/logs_Apr11_14-53-51_jobid_9971_pid_25156'  # Adam
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1uyz497h?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May02_17-05-36_jobid_25763'  # Adam
+    # args.path_2_init_sl = '~/data/logs/logs_May02_17-05-36_jobid_25763'  # Adam
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/29hc25u2/overview?workspace=user-brando (NOT GOOD)
     # args.path_2_init_maml = '~/data/logs/logs_Feb16_11-59-55_jobid_29315_pid_102939'  # uses scheduler :'(
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/kpujevkp?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_May02_17-11-03_jobid_25764'  # Adam
+    # args.path_2_init_maml = '~/data/logs/logs_May02_17-11-03_jobid_25764'  # Adam
 
     # -- 128 version todo, both need to be with adam.
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/9r7q98vz?workspace=user-brando
@@ -375,8 +375,8 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_args_5cnn_mi'
     args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)

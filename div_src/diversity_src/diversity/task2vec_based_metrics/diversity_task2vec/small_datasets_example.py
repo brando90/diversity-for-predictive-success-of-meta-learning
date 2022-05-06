@@ -8,6 +8,7 @@ https://colab.research.google.com/drive/1DoIbWPmfuIaNul2eP4IYhEn23HfHW5zJ#scroll
 # %%
 from pathlib import Path
 
+import numpy as np
 import torch
 
 from task2vec import Task2Vec
@@ -33,6 +34,10 @@ for name, dataset in zip(dataset_names, dataset_list):
     embeddings.append(Task2Vec(probe_network, max_samples=1000, skip_layers=6).embed(dataset)).to(device)
     # embeddings.append(Task2Vec(probe_network, max_samples=100, skip_layers=6).embed(dataset))
 
+print(f'{embeddings=}')
+# %%
+distance_matrix: np.ndarray = task_similarity.pdist(embeddings, distance='cosine')
+print(f'{distance_matrix=}')
 # %%
 
 task_similarity.plot_distance_matrix(embeddings, dataset_names)

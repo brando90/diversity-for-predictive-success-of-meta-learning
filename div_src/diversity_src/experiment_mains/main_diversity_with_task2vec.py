@@ -182,7 +182,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace):
     print(f'\n {len(embeddings)=}')
 
     # - compute distance matrix & task2vec based diversity
-    # to demo task2vec, this code computes pair-wise distance between task embeddings
+    # to demo` task2vec, this code computes pair-wise distance between task embeddings
     distance_matrix: np.ndarray = task_similarity.pdist(embeddings, distance='cosine')
     print(f'{distance_matrix=}')
 

@@ -18,16 +18,16 @@ import numpy as np
 
 
 # -- filter size is the number of different filters per layer filter_size (=out_channels, Number of channels produced by the convolution) is changing, so the size of the tensor/box. Each channel corresponds to 1 filter, so one feature detactor (that is shared spatially)
-filter_size_per_layer = [16, 32]
+filter_size_per_layer = [4, 8, 16, 32]
 
-maml5_test_acc = [0.5448923252224922, 0.5421846333742142]
-maml5_test_acc_ci = [0.00776597815176418, 0.008195475209108384]
+maml5_test_acc = [0.44661539666354655, 0.4936923223733902, 0.5448923252224922, 0.5421846333742142]
+maml5_test_acc_ci = [0.01775986305264694, 0.017453206930661463, 0.00776597815176418, 0.008195475209108384]
 
-maml10_test_acc = [0.542400018543005, 0.543046172440052]
-maml10_test_acc_ci = [0.007827878078656139, 0.007480880752067012]
+maml10_test_acc = [0.44492308765649796, 0.5253846320509911, 0.542400018543005, 0.543046172440052]
+maml10_test_acc_ci = [0.01610450589248847, 0.01487515373453232, 0.007827878078656139, 0.007480880752067012]
 
-usl_test_acc = [0.5422461538461539, 0.5587692307692307]
-usl_test_acc_ci = [0.00736747015201177, 0.007960446033549236]
+usl_test_acc = [0.4596923076923077, 0.5304615384615385, 0.5422461538461539, 0.5587692307692307]
+usl_test_acc_ci = [0.016529084680426163, 0.01898447608198154, 0.00736747015201177, 0.007960446033549236]
 
 # test_performance_diff = np.array(maml5_test_acc) - np.array(usl_test_acc)
 # test_performance_diff = np.array(maml10_test_acc) - np.array(usl_test_acc)
@@ -41,7 +41,7 @@ x_axis = filter_size_per_layer
 y_axis = []
 
 # - plot it
-ylim = (0.5, 0.6)
+ylim = (0.4, 0.6)
 # ylim = None
 title = 'Model Size Effect in Performance Difference of USL vs MAML'
 plot_with_error_bands(x=filter_size_per_layer,
@@ -51,6 +51,23 @@ plot_with_error_bands(x=filter_size_per_layer,
 
                       xlabel='filter size', ylabel=f'Meta-Test Accuracy',
                       title=title, curve_label='MAML5 Acc', ylim=ylim)
+plot_with_error_bands(x=filter_size_per_layer,
+                      y=np.asarray(list(usl_test_acc)),
+
+                      yerr=np.asarray(list(usl_test_acc_ci)),
+
+                      xlabel='filter size', ylabel=f'Meta-Test Accuracy',
+                      title=title, curve_label='USL Acc', ylim=ylim)
+save_to_desktop(plot_name=f'diff_maml5_usl_vs_filter_size')
+plt.show()
+
+plot_with_error_bands(x=filter_size_per_layer,
+                      y=np.asarray(list(maml10_test_acc)),
+
+                      yerr=np.asarray(list(maml10_test_acc_ci)),
+
+                      xlabel='filter size', ylabel=f'Meta-Test Accuracy',
+                      title=title, curve_label='MAML10 Acc', ylim=ylim)
 
 plot_with_error_bands(x=filter_size_per_layer,
                       y=np.asarray(list(usl_test_acc)),
@@ -59,9 +76,7 @@ plot_with_error_bands(x=filter_size_per_layer,
 
                       xlabel='filter size', ylabel=f'Meta-Test Accuracy',
                       title=title, curve_label='USL Acc', ylim=ylim)
-
-
-save_to_desktop(plot_name=f'diff_maml_usl_vs_filter_size')
+save_to_desktop(plot_name=f'diff_maml10_usl_vs_filter_size')
 plt.show()
 
 #%%
