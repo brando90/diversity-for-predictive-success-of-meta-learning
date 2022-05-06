@@ -204,6 +204,7 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
             # probe_network: ProbeNetwork = get_model('resnet18', pretrained=True, num_classes=5)
             # embedding: task2vec.Embedding = Task2Vec(probe_network).embed(fsl_task_dataset)
             embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network)).embed(fsl_task_dataset)
+            print(f'{embedding.hessian.shape=}')
         embeddings.append(embedding)
     return embeddings
 

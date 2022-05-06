@@ -12,10 +12,17 @@
 #SBATCH --export=ALL
 #SBATCH --gres=gpu:a100:1
 
+# email: https://www.hpc.caltech.edu/documentation/faq/why-am-i-not-getting-job-notification-emails-how-do-i-make-them-stop
+
 # hal-dgx website: https://wiki.ncsa.illinois.edu/display/ISL20/Access+hal-dgx+and+overdrive+with+hal-login3+Node
+
+# -- Running 1 cpu core and many cpu cores:
+#srun --partition=x86 --time=48:00:00 --pty /bin/bash
+#srun --partition=x86 --time=48:00:00 --nodes=1 --ntasks-per-node=32 --sockets-per-node=1 --cores-per-socket=16 --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --pty /bin/bash
+
 # -- Example 0
 #Request 1x GPU along with 32x CPU cores for 48 hours
-srun --partition=x86 --time=48:00:00 --nodes=1 --ntasks-per-node=32 --sockets-per-node=1 --cores-per-socket=16 --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --gres=gpu:a100:1 --pty /bin/bash
+#srun --partition=x86 --time=48:00:00 --nodes=1 --ntasks-per-node=32 --sockets-per-node=1 --cores-per-socket=16 --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --gres=gpu:a100:1 --pty /bin/bash
 
 # -- Example 1
 # Request 2x GPU along with 64x CPU cores for 12 hours
@@ -60,7 +67,7 @@ echo ---- Running your python main ----
 
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py
 
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/diversity/task2vec_based_metrics/diversity_task2vec/small_datasets_example.py
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/diversity/task2vec_based_metrics/diversity_task2vec/small_datasets_example.py
 
 # - other wrap up
 /home/miranda9/miniconda3/envs/meta_learning_a100/bin/python -m pi install --upgrade pip
