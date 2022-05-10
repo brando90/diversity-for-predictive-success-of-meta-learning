@@ -120,8 +120,8 @@ def diversity_ala_task2vec_mi_resnet34_random(args: Namespace) -> Namespace:
 # -cifar-fs
 
 def diversity_ala_task2vec_cifarfs_resnet18_pretrained_imagenet(args: Namespace) -> Namespace:
-    # args.batch_size = 500
-    args.batch_size = 3
+    args.batch_size = 500
+    # args.batch_size = 3
     args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.data_augmentation = 'rfs2020'
@@ -134,8 +134,8 @@ def diversity_ala_task2vec_cifarfs_resnet18_pretrained_imagenet(args: Namespace)
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_cifarfs_resnet18'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     args = fix_for_backwards_compatibility(args)
     return args
@@ -215,7 +215,7 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'diversity_ala_task2vec_cifarfs_resnet18_pretrained_imagenet'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'diversity_ala_task2vec_cifarfs_resnet34_pretrained_imagenet'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if args_hardcoded_in_script(args):
