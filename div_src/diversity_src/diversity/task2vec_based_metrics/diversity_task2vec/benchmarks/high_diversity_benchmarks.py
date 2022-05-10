@@ -16,7 +16,6 @@ Step 2) sample support and query examples from C (n-way).
 - The non-episodic baselines are trained to solve the large classification problem that results from ‘concatenating’ the training classes of all datasets.
 """
 
-from pathlib import Path
 import random
 from typing import Callable
 
@@ -26,6 +25,8 @@ import torch
 from learn2learn.data import TaskDataset, MetaDataset, DataDescription
 from learn2learn.data.transforms import TaskTransform
 from torch.utils.data import Dataset
+
+from models import get_model
 
 
 class IndexableDataSet(Dataset):
@@ -40,10 +41,21 @@ class IndexableDataSet(Dataset):
         return self.datasets[idx]
 
 
-class NWayReceivingDataset(Callable):
+class SingleDatasetPerTaskTransform(Callable):
+    """
+    Transform that samples a data set first, then creates a task (e.g. n-way, k-shot) and finally
+    applies the remaining task transforms.
+    """
 
-    def __init__(self, indexable_dataset: IndexableDataSet):
-        self.indexable_dataset = indexable_dataset
+    def __init__(self, indexable_dataset: IndexableDataSet, cons_remaining_task_transforms: Callable):
+        """
+
+        :param: cons_remaining_task_transforms; constructor that builds the remaining task transforms. Cannot be a list
+        of transforms because we don't know apriori which is the data set we will use. So this function should be of
+        type MetaDataset -> list[TaskTransforms] i.e. given the dataset it returns the transforms for it.
+        """
+        self.indexable_dataset = MetaDataset(indexable_dataset)
+        self.cons_remaining_task_transforms = cons_remaining_task_transforms
 
     def __call__(self, task_description: list):
         """
@@ -51,12 +63,9 @@ class NWayReceivingDataset(Callable):
         - receives the index of the dataset to use
         - then use the normal NWays l2l function
         """
-        # assert len(task_description) == 1, f'You should only have 1 task description here because you sample a single' \
-        #                                    f'data set for each task (ala meta-dataset).'
-
-        # - this is what I wish could have gone in a seperate callable transform
+        # - this is what I wish could have gone in a seperate callable transform, but idk how since the transforms take apriori (not dynamically) which data set to use.
         i = random.randint(0, len(self.indexable_dataset) - 1)
-        task_description = [DataDescription(index=i)]
+        task_description = [DataDescription(index=i)]  # using this to follow the l2l convention
 
         # - get the sampled data set
         dataset_index = task_description[0].index
@@ -64,15 +73,9 @@ class NWayReceivingDataset(Callable):
         dataset = MetaDataset(dataset)
 
         # - use the sampled data set to create task
-        transforms = [
-            l2l.data.transforms.NWays(dataset, n=5),
-            l2l.data.transforms.KShots(dataset, k=5),
-            l2l.data.transforms.LoadData(dataset),
-            l2l.data.transforms.RemapLabels(dataset),
-            l2l.data.transforms.ConsecutiveLabels(dataset),
-        ]
+        remaining_task_transforms: list[TaskTransform] = self.cons_remaining_task_transforms(dataset)
         description = None
-        for transform in transforms:
+        for transform in remaining_task_transforms:
             description = transform(description)
         return description
 
@@ -94,8 +97,7 @@ def get_task_transforms(dataset: IndexableDataSet) -> list[TaskTransform]:
     """
     transforms = [
         sample_dataset(dataset),
-        # l2l.data.transforms.NWays(dataset, n=5),
-        NWayReceivingDataset(dataset, n=5),
+        l2l.data.transforms.NWays(dataset, n=5),
         l2l.data.transforms.KShots(dataset, k=5),
         l2l.data.transforms.LoadData(dataset),
         l2l.data.transforms.RemapLabels(dataset),
@@ -109,6 +111,38 @@ def print_datasets(dataset_lst: list):
         print(f'\n{dataset=}\n')
 
 
+def get_indexable_list_of_datasets_mi_and_cifarfs(root: str = '~/data/l2l_data/') -> IndexableDataSet:
+    from learn2learn.vision.benchmarks import mini_imagenet_tasksets
+    datasets, transforms = mini_imagenet_tasksets(root=root)
+    mi = datasets[0].dataset
+
+    from learn2learn.vision.benchmarks import cifarfs_tasksets
+    datasets, transforms = cifarfs_tasksets(root=root)
+    cifarfs = datasets[0].dataset
+
+    dataset_list = [mi, cifarfs]
+
+    dataset_list = [l2l.data.MetaDataset(dataset) for dataset in dataset_list]
+    dataset = IndexableDataSet(dataset_list)
+    return dataset
+
+
+def get_indexable_list_of_datasets_mi_and_omniglot(root: str = '~/data/l2l_data/') -> IndexableDataSet:
+    from learn2learn.vision.benchmarks import mini_imagenet_tasksets
+    datasets, transforms = mini_imagenet_tasksets(root=root)
+    mi = datasets[0].dataset
+
+    from learn2learn.vision.benchmarks import omniglot_tasksets
+    datasets, transforms = omniglot_tasksets(root=root)
+    omniglot = datasets[0].dataset
+
+    dataset_list = [mi, omniglot]
+
+    dataset_list = [l2l.data.MetaDataset(dataset) for dataset in dataset_list]
+    dataset = IndexableDataSet(dataset_list)
+    return dataset
+
+
 # -- tests
 
 def loop_through_l2l_indexable_datasets_test():
@@ -120,52 +154,40 @@ def loop_through_l2l_indexable_datasets_test():
 
     :return:
     """
-    # import datasets
-    # print(f'{datasets=}')
+    # - for determinism
     random.seed(0)
     torch.manual_seed(0)
     np.random.seed(0)
 
-    # --
-    batch_size: int = 5
+    # - options for number of tasks/meta-batch size
+    batch_size: int = 10
 
-    # -- get data sets
-    # dataset_names = ('stl10', 'mnist', 'cifar10', 'cifar100', 'letters', 'kmnist')
-    # dataset_names = ('cifar100', 'letters')
-    # dataset_names = ('cifar10', 'mnist')
-    # Change `root` with the directory you want to use to download the datasets
-    # dataset_list = [datasets.__dict__[name](root=Path('~/data').expanduser())[0] for name in dataset_names]
-    # print_datasets(dataset_list)
+    # - create indexable data set
+    indexable_dataset: IndexableDataSet = get_indexable_list_of_datasets_mi_and_cifarfs()
 
-    #
-    from learn2learn.vision.benchmarks import mini_imagenet_tasksets
-    datasets, transforms = mini_imagenet_tasksets(root='~/data/l2l_data/')
-    mi = datasets[0].dataset
+    # - get task transforms
+    def get_remaining_transforms(dataset: MetaDataset) -> list[TaskTransform]:
+        remaining_task_transforms = [
+            l2l.data.transforms.NWays(dataset, n=5),
+            l2l.data.transforms.KShots(dataset, k=5),
+            l2l.data.transforms.LoadData(dataset),
+            l2l.data.transforms.RemapLabels(dataset),
+            l2l.data.transforms.ConsecutiveLabels(dataset),
+        ]
+        return remaining_task_transforms
+    task_transforms: TaskTransform = SingleDatasetPerTaskTransform(indexable_dataset, get_remaining_transforms)
 
-    from learn2learn.vision.benchmarks import cifarfs_tasksets
-    datasets, transforms = cifarfs_tasksets(root='~/data/l2l_data/')
-    cifarfs = datasets[0].dataset
-
-    dataset_list = [mi, cifarfs]
-
-    #
-    # dataset = mi[0]
-
-    dataset_list = [l2l.data.MetaDataset(dataset) for dataset in dataset_list]
-    dataset = IndexableDataSet(dataset_list)
-    dataset = MetaDataset(dataset)
-
-    # task_transforms: list[TaskTransform] = get_task_transforms(dataset)
-    task_transforms: list[TaskTransform] = NWayReceivingDataset(dataset)
-
-    taskset: TaskDataset = TaskDataset(dataset=dataset, task_transforms=task_transforms)
+    # -
+    taskset: TaskDataset = TaskDataset(dataset=indexable_dataset, task_transforms=task_transforms)
 
     # - loop through tasks
-    # for task in taskset:
-    # X, y = task
-    for t in range(batch_size):
-        print(f'{t=}')
+    device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
+    # model = get_model('resnet18', pretrained=True, num_classes=int(max(dataset.targets) + 1)).to(device)
+    model = get_model('resnet18', pretrained=False, num_classes=5).to(device)
+    for task_num in range(batch_size):
+        print(f'{task_num=}')
         X, y = taskset.sample()
+
         print(f'{X.size()=}')
         print(f'{y.size()=}')
         print(f'{y=}')
