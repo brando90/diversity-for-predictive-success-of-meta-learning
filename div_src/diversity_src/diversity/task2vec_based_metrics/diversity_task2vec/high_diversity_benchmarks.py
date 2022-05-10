@@ -18,6 +18,7 @@ Step 2) sample support and query examples from C (n-way).
 
 from pathlib import Path
 import random
+from typing import Callable
 
 import learn2learn as l2l
 import numpy as np
@@ -39,6 +40,43 @@ class IndexableDataSet(Dataset):
         return self.datasets[idx]
 
 
+class NWayReceivingDataset(Callable):
+
+    def __init__(self, indexable_dataset: IndexableDataSet):
+        self.indexable_dataset = indexable_dataset
+
+    def __call__(self, task_description: list):
+        """
+        idea:
+        - receives the index of the dataset to use
+        - then use the normal NWays l2l function
+        """
+        # assert len(task_description) == 1, f'You should only have 1 task description here because you sample a single' \
+        #                                    f'data set for each task (ala meta-dataset).'
+
+        # - this is what I wish could have gone in a seperate callable transform
+        i = random.randint(0, len(self.indexable_dataset) - 1)
+        task_description = [DataDescription(index=i)]
+
+        # - get the sampled data set
+        dataset_index = task_description[0].index
+        dataset = self.indexable_dataset[dataset_index]
+        dataset = MetaDataset(dataset)
+
+        # - use the sampled data set to create task
+        transforms = [
+            l2l.data.transforms.NWays(dataset, n=5),
+            l2l.data.transforms.KShots(dataset, k=5),
+            l2l.data.transforms.LoadData(dataset),
+            l2l.data.transforms.RemapLabels(dataset),
+            l2l.data.transforms.ConsecutiveLabels(dataset),
+        ]
+        description = None
+        for transform in transforms:
+            description = transform(description)
+        return description
+
+
 def sample_dataset(dataset):
     def sample_random_dataset(x):
         print(f'{x=}')
@@ -56,7 +94,8 @@ def get_task_transforms(dataset: IndexableDataSet) -> list[TaskTransform]:
     """
     transforms = [
         sample_dataset(dataset),
-        l2l.data.transforms.NWays(dataset, n=5),
+        # l2l.data.transforms.NWays(dataset, n=5),
+        NWayReceivingDataset(dataset, n=5),
         l2l.data.transforms.KShots(dataset, k=5),
         l2l.data.transforms.LoadData(dataset),
         l2l.data.transforms.RemapLabels(dataset),
@@ -72,7 +111,7 @@ def print_datasets(dataset_lst: list):
 
 # -- tests
 
-def loop_through_l2l_hdb_test():
+def loop_through_l2l_indexable_datasets_test():
     """
     Generate
 
@@ -116,7 +155,8 @@ def loop_through_l2l_hdb_test():
     dataset = IndexableDataSet(dataset_list)
     dataset = MetaDataset(dataset)
 
-    task_transforms: list[TaskTransform] = get_task_transforms(dataset)
+    # task_transforms: list[TaskTransform] = get_task_transforms(dataset)
+    task_transforms: list[TaskTransform] = NWayReceivingDataset(dataset)
 
     taskset: TaskDataset = TaskDataset(dataset=dataset, task_transforms=task_transforms)
 
@@ -142,6 +182,6 @@ if __name__ == "__main__":
 
     start = time.time()
     # - run experiment
-    loop_through_l2l_hdb_test()
+    loop_through_l2l_indexable_datasets_test()
     # - Done
     print(f"\nSuccess Done!: {report_times(start)}\a")
