@@ -24,6 +24,7 @@ import numpy as np
 import torch
 from learn2learn.data import TaskDataset, MetaDataset, DataDescription
 from learn2learn.data.transforms import TaskTransform
+from torch import nn
 from torch.utils.data import Dataset
 
 from models import get_model
@@ -133,7 +134,7 @@ def get_indexable_list_of_datasets_mi_and_omniglot(root: str = '~/data/l2l_data/
     mi = datasets[0].dataset
 
     from learn2learn.vision.benchmarks import omniglot_tasksets
-    datasets, transforms = omniglot_tasksets(root=root)
+    datasets, transforms = omniglot_tasksets(root=root, train_ways=5, train_samples=5, test_ways=5, test_samples=10)
     omniglot = datasets[0].dataset
 
     dataset_list = [mi, omniglot]
@@ -142,6 +143,21 @@ def get_indexable_list_of_datasets_mi_and_omniglot(root: str = '~/data/l2l_data/
     dataset = IndexableDataSet(dataset_list)
     return dataset
 
+
+# def f():
+#     dataset_names = ('stl10', 'mnist', 'cifar10', 'cifar100', 'letters', 'kmnist')
+#     dataset_list = [datasets.__dict__[name](root=Path('~/data').expanduser())[0] for name in dataset_names]
+#
+#
+#     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
+#
+#     embeddings = []
+#     for name, dataset in zip(dataset_names, dataset_list):
+#         print(f"{name=}")
+#         probe_network = get_model('resnet18', pretrained=True, num_classes=int(max(dataset.targets) + 1)).to(device)
+#         # embeddings.append(Task2Vec(probe_network, max_samples=1000, skip_layers=6).embed(dataset)).to(device)
+#         # embeddings.append(Task2Vec(probe_network, max_samples=100, skip_layers=6).embed(dataset))
+#         embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network)).embed(dataset)
 
 # -- tests
 
@@ -160,10 +176,11 @@ def loop_through_l2l_indexable_datasets_test():
     np.random.seed(0)
 
     # - options for number of tasks/meta-batch size
-    batch_size: int = 10
+    batch_size: int = 5
 
     # - create indexable data set
-    indexable_dataset: IndexableDataSet = get_indexable_list_of_datasets_mi_and_cifarfs()
+    # indexable_dataset: IndexableDataSet = get_indexable_list_of_datasets_mi_and_cifarfs()
+    indexable_dataset: IndexableDataSet = get_indexable_list_of_datasets_mi_and_omniglot()
 
     # - get task transforms
     def get_remaining_transforms(dataset: MetaDataset) -> list[TaskTransform]:
@@ -175,6 +192,7 @@ def loop_through_l2l_indexable_datasets_test():
             l2l.data.transforms.ConsecutiveLabels(dataset),
         ]
         return remaining_task_transforms
+
     task_transforms: TaskTransform = SingleDatasetPerTaskTransform(indexable_dataset, get_remaining_transforms)
 
     # -
@@ -182,12 +200,9 @@ def loop_through_l2l_indexable_datasets_test():
 
     # - loop through tasks
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
-    # model = get_model('resnet18', pretrained=True, num_classes=int(max(dataset.targets) + 1)).to(device)
-    model = get_model('resnet18', pretrained=False, num_classes=5).to(device)
     for task_num in range(batch_size):
         print(f'{task_num=}')
         X, y = taskset.sample()
-
         print(f'{X.size()=}')
         print(f'{y.size()=}')
         print(f'{y=}')
@@ -205,5 +220,6 @@ if __name__ == "__main__":
     start = time.time()
     # - run experiment
     loop_through_l2l_indexable_datasets_test()
+    # loop_through_l2l_indexable_datasets_with_model_test()
     # - Done
     print(f"\nSuccess Done!: {report_times(start)}\a")
