@@ -1,11 +1,17 @@
+"""
+Note:
+    - train_samples != k_shots and test_samples != k_eval. Instead train_samples = test_samples = k_shots + k_eval.
+"""
 import os
-from random import random
+import random
+from typing import Callable
 
 import learn2learn as l2l
 import numpy as np
 import torch
 import torchvision
-from learn2learn.data import MetaDataset, FilteredMetaDataset
+from learn2learn.data import MetaDataset, FilteredMetaDataset, DataDescription
+from learn2learn.data.transforms import TaskTransform
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 from torch import nn
 from torchvision.transforms import Compose, Normalize, ToPILImage, RandomCrop, ColorJitter, RandomHorizontalFlip, \
@@ -18,45 +24,49 @@ from PIL.Image import LANCZOS
 
 from models import get_model
 
+# e.g. <class 'learn2learn.vision.datasets.full_omniglot.FullOmniglot'> (if it were a string "<class 'learn2learn.vision.datasets.full_omniglot.FullOmniglot'>")
+BenchmarkName = str # e.g. train_mi
 
-def get_remaining_transforms_mi(dataset: MetaDataset, ways:int, shots: int) -> list[TaskTransform]:
+def get_remaining_transforms_mi(dataset: MetaDataset, ways:int, samples: int) -> list[TaskTransform]:
     import learn2learn as l2l
     remaining_task_transforms = [
-        l2l.data.transforms.NWays(dataset, n=ways),
-        l2l.data.transforms.KShots(dataset, k=shots),
+        l2l.data.transforms.NWays(dataset, ways),
+        l2l.data.transforms.KShots(dataset, samples),
         l2l.data.transforms.LoadData(dataset),
         l2l.data.transforms.RemapLabels(dataset),
         l2l.data.transforms.ConsecutiveLabels(dataset),
     ]
     return remaining_task_transforms
 
-def get_remaining_transforms_omnigglot(dataset: MetaDataset, ways: int, shots: int) -> list[TaskTransform]:
+def get_remaining_transforms_omniglot(dataset: MetaDataset, ways: int, shots: int) -> list[TaskTransform]:
     import learn2learn as l2l
     remaining_task_transforms = [
-        l2l.data.transforms.FusedNWaysKShots(dataset,
-                                             n=ways,
-                                             k=shots),
+        l2l.data.transforms.FusedNWaysKShots(dataset, ways, shots),
         l2l.data.transforms.LoadData(dataset),
         l2l.data.transforms.RemapLabels(dataset),
         l2l.data.transforms.ConsecutiveLabels(dataset),
         l2l.vision.transforms.RandomClassRotation(dataset, [0.0, 90.0, 180.0, 270.0])
+    ]
     return remaining_task_transforms
 
-class SingleDatasetPerTaskTransform(Callable):
+class TaskTransformIndexableDataset(Callable):
     """
-    Transform that samples a data set first, then creates a task (e.g. n-way, k-shot) and finally
-    applies the remaining task transforms.
+    Transform that samples a data set first (from indexable data set),
+    then creates a cls fls task (e.g. n-way, k-shot) and finally
+    gets the remaining task transforms for that data set and applies it.
     """
 
     def __init__(self,
                  indexable_dataset: IndexableDataSet,
-                 dict_cons_remaining_task_transforms: dict[str, Callable],
+                 dict_cons_remaining_task_transforms: dict[BenchmarkName, Callable],
                  ):
         """
 
-        :param: cons_remaining_task_transforms; constructor that builds the remaining task transforms. Cannot be a list
-        of transforms because we don't know apriori which is the data set we will use. So this function should be of
-        type MetaDataset -> list[TaskTransforms] i.e. given the dataset it returns the transforms for it.
+        :param cons_remaining_task_transforms: list of constructors to constructs of task transforms for each data set.
+        Given a data set you get the remaining task transforms for that data set so to create tasks properly for
+        that data set. One the right data set (and thus split) is known from the name, by indexing using the name you
+        get a constructor (function) that should be of type MetaDataset -> list[TaskTransforms]
+        i.e. given the actualy dataset (not the name) it returns the remaining transforms for it.
         """
         self.indexable_dataset = MetaDataset(indexable_dataset)
         self.cons_remaining_task_transforms = dict_cons_remaining_task_transforms
@@ -74,19 +84,27 @@ class SingleDatasetPerTaskTransform(Callable):
         # - get the sampled data set
         dataset_index = task_description[0].index
         dataset = self.indexable_dataset[dataset_index]
-        dataset = MetaDataset(dataset)
-        dataset_type = type(dataset.dataset.dataset.dataset)
+        dataset = MetaDataset(dataset) if not isinstance(dataset, MetaDataset) else dataset
+        dataset_name = dataset.name
+        # self.assert_right_dataset(dataset)
 
         # - use the sampled data set to create task
-        remaining_task_transforms: list[TaskTransform] = self.cons_remaining_task_transforms[dataset_type](dataset)
+        remaining_task_transforms: list[TaskTransform] = self.cons_remaining_task_transforms[dataset_name](dataset)
         description = None
         for transform in remaining_task_transforms:
             description = transform(description)
         return description
 
+    # def assert_right_dataset(dataset):
+    #     if 'mi' in dataset.name:
+    #         assert isinstance(dataset.dataset, l2l.vision.datasets.mini_imagenet.MiniImagenet)
+    #     else:
+    #         assert isinstance(dataset.dataset.dataset, l2l.vision.datasets.full_omniglot.FullOmniglot)
+
+
 def get_omniglot_datasets(
         root: str = '~/data/l2l_data/',
-        data_transform_option: bool = 'hd1',
+        data_transform_option: str = 'hd1',
         device=None,
         **kwargs,
 ):
@@ -108,16 +126,16 @@ def get_omniglot_datasets(
             lambda x: 1.0 - x,  # note: task2vec doesn't have this for mnist, wonder why...
         ])
     else:
-        raise ValueError(f'Invalid data transform option for omniglot, got {}')
+        raise ValueError(f'Invalid data transform option for omniglot, got instead {data_transform_option=}')
 
-    omniglot = l2l.vision.datasets.FullOmniglot(
+    dataset = l2l.vision.datasets.FullOmniglot(
         root=root,
         transform=data_transforms,
         download=True,
     )
     if device is not None:
-        dataset = l2l.data.OnDeviceDataset(omniglot, device=device)  # bug in l2l
-    dataset: MetaDataset = l2l.data.MetaDataset(omniglot)
+        dataset = l2l.data.OnDeviceDataset(dataset, device=device)  # bug in l2l
+    # dataset: MetaDataset = l2l.data.MetaDataset(omniglot)
 
     classes = list(range(1623))
     random.shuffle(classes)
@@ -125,6 +143,13 @@ def get_omniglot_datasets(
     validation_dataset: FilteredMetaDataset = l2l.data.FilteredMetaDataset(dataset, labels=classes[1100:1200])
     test_dataset: FilteredMetaDataset = l2l.data.FilteredMetaDataset(dataset, labels=classes[1200:])
     assert isinstance(train_dataset, MetaDataset)
+    assert isinstance(validation_dataset, MetaDataset)
+    assert isinstance(test_dataset, MetaDataset)
+
+    # - add names to be able to get the right task transform for the indexable dataset
+    train_dataset.name = 'train_omniglot'
+    validation_dataset.name = 'val_omniglot'
+    test_dataset.name = 'test_omniglot'
 
     _datasets = (train_dataset, validation_dataset, test_dataset)
     return _datasets
@@ -202,6 +227,11 @@ def get_mi_datasets(
     valid_dataset = l2l.data.MetaDataset(valid_dataset)
     test_dataset = l2l.data.MetaDataset(test_dataset)
 
+    # - add names to be able to get the right task transform for the indexable dataset
+    train_dataset.name = 'train_mi'
+    valid_dataset.name = 'val_mi'
+    test_dataset.name = 'test_mi'
+
     _datasets = (train_dataset, valid_dataset, test_dataset)
     return _datasets
 
@@ -225,7 +255,7 @@ def get_indexable_list_of_datasets_mi_and_omniglot(
     dataset_list_train.append(train_dataset)
     dataset_list_validation.append(validation_dataset)
     dataset_list_test.append(test_dataset)
-    train_dataset, validation_dataset, test_dataset = get_omniglot_datasets(root, device)
+    train_dataset, validation_dataset, test_dataset = get_omniglot_datasets(root, device=device)
     dataset_list_train.append(train_dataset)
     dataset_list_validation.append(validation_dataset)
     dataset_list_test.append(test_dataset)
@@ -242,7 +272,7 @@ def hd1_mi_omniglot_tasksets(
         train_samples=10,
         test_ways=5,
         test_samples=10,
-        num_tasks = -1,
+        num_tasks=-1,
         root='~/data/l2l_data/',
         device=None,
         **kwargs,
@@ -252,16 +282,33 @@ def hd1_mi_omniglot_tasksets(
     #
     _datasets: tuple[IndexableDataSet] = get_indexable_list_of_datasets_mi_and_omniglot(root)
     train_dataset, validation_dataset, test_dataset = _datasets
+    assert isinstance(train_dataset[0].dataset, l2l.vision.datasets.mini_imagenet.MiniImagenet)
+    assert isinstance(train_dataset[1].dataset.dataset, l2l.vision.datasets.full_omniglot.FullOmniglot)
+    assert isinstance(validation_dataset[0].dataset, l2l.vision.datasets.mini_imagenet.MiniImagenet)
+    assert isinstance(validation_dataset[1].dataset.dataset, l2l.vision.datasets.full_omniglot.FullOmniglot)
+    assert isinstance(test_dataset[0].dataset, l2l.vision.datasets.mini_imagenet.MiniImagenet)
+    assert isinstance(test_dataset[1].dataset.dataset, l2l.vision.datasets.full_omniglot.FullOmniglot)
+    # TODO addition assert to check its the right split by checking the name
 
     # - get task transforms
-    # "<class 'learn2learn.vision.datasets.full_omniglot.FullOmniglot'>"
-    # dataset.dataset.dataset.dataset
-    train_task_transforms = None
-    test_val_task_transforms = None
-    dict_cons_remaining_task_transforms = {}
-    train_transforms: TaskTransform = SingleDatasetPerTaskTransform(indexable_dataset, get_remaining_transforms)
-    validation_transforms: TaskTransform = SingleDatasetPerTaskTransform(indexable_dataset, get_remaining_transforms)
-    test_transforms: TaskTransform = SingleDatasetPerTaskTransform(indexable_dataset, get_remaining_transforms)
+    train_task_transform_mi = lambda dataset: get_remaining_transforms_mi(dataset, train_ways, train_samples)
+    test_task_transform_mi = lambda dataset: get_remaining_transforms_mi(dataset, test_ways, test_samples)
+
+    train_task_transform_omni = lambda dataset: get_remaining_transforms_omniglot(dataset, train_ways, train_samples)
+    test_task_transform_omni = lambda dataset: get_remaining_transforms_omniglot(dataset, test_ways, test_samples)
+
+    dict_cons_remaining_task_transforms: dict = {
+        train_dataset[0].dataset: train_task_transform_mi,
+        train_dataset[1].dataset.dataset: train_task_transform_omni,
+        validation_dataset[0].dataset: test_task_transform_mi,
+        validation_dataset[1].dataset.dataset: test_task_transform_omni,
+        test_dataset[0].dataset: test_task_transform_mi,
+        test_dataset[1].dataset.dataset: test_task_transform_omni
+    }
+
+    train_transforms: TaskTransform = TaskTransformIndexableDataset(train_dataset, dict_cons_remaining_task_transforms)
+    validation_transforms: TaskTransform = TaskTransformIndexableDataset(validation_dataset, dict_cons_remaining_task_transforms)
+    test_transforms: TaskTransform = TaskTransformIndexableDataset(test_dataset, dict_cons_remaining_task_transforms)
 
     # Instantiate the tasksets
     train_tasks = l2l.data.TaskDataset(
@@ -291,28 +338,31 @@ def loop_through_l2l_indexable_benchmark_with_model_test():
 
     # - options for number of tasks/meta-batch size
     # args TODO
+    batch_size = 5
 
     # - get benchmark
     benchmark: BenchmarkTasksets = hd1_mi_omniglot_tasksets()
 
     # - get train taskdata set
-    taskset = getattr(benchmark, 'train')
+    splits = ['train', 'validation', 'test']
+    tasksets = [getattr(benchmark, split) for split in splits]
 
     # - loop through tasks
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     model = get_model('resnet18', pretrained=False, num_classes=5).to(device)
-    # TODO: model = resnet12
     criterion = nn.CrossEntropyLoss()
-    for task_num in range(batch_size):
-        print(f'{task_num=}')
-        X, y = taskset.sample()
-        y_pred = model(X)
-        print(f'{X.size()=}')
-        print(f'{y.size()=}')
-        print(f'{y=}')
-        loss = criterion(y_pred, y)
-        print(f'{loss=}')
-        print()
+    # TODO: model = resnet12
+    for taskset in tasksets:
+        for task_num in range(batch_size):
+            print(f'{task_num=}')
+            X, y = taskset.sample()
+            y_pred = model(X)
+            print(f'{X.size()=}')
+            print(f'{y.size()=}')
+            print(f'{y=}')
+            loss = criterion(y_pred, y)
+            print(f'{loss=}')
+            print()
 
     print('-- end of test --')
 
@@ -324,5 +374,6 @@ if __name__ == "__main__":
 
     start = time.time()
     # - run experiment
+    loop_through_l2l_indexable_benchmark_with_model_test()
     # - Done
     print(f"\nSuccess Done!: {report_times(start)}\a")
