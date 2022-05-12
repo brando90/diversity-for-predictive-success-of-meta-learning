@@ -13,7 +13,7 @@ class ToRGB(nn.Module):
         pass
 
     def __call__(self, x, *args, **kwargs):
-        return x.conver("RGB")
+        return x.convert("RGB")
 
 class IndexableDataSet(Dataset):
 

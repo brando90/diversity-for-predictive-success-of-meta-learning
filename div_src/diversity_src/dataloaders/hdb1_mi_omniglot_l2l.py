@@ -69,7 +69,7 @@ class TaskTransformIndexableDataset(Callable):
         i.e. given the actualy dataset (not the name) it returns the remaining transforms for it.
         """
         self.indexable_dataset = MetaDataset(indexable_dataset)
-        self.cons_remaining_task_transforms = dict_cons_remaining_task_transforms
+        self.dict_cons_remaining_task_transforms = dict_cons_remaining_task_transforms
 
     def __call__(self, task_description: list):
         """
@@ -89,7 +89,8 @@ class TaskTransformIndexableDataset(Callable):
         # self.assert_right_dataset(dataset)
 
         # - use the sampled data set to create task
-        remaining_task_transforms: list[TaskTransform] = self.cons_remaining_task_transforms[dataset_name](dataset)
+        print(f'{dataset_name=}')
+        remaining_task_transforms: list[TaskTransform] = self.dict_cons_remaining_task_transforms[dataset_name](dataset)
         description = None
         for transform in remaining_task_transforms:
             description = transform(description)
@@ -298,12 +299,12 @@ def hd1_mi_omniglot_tasksets(
     test_task_transform_omni = lambda dataset: get_remaining_transforms_omniglot(dataset, test_ways, test_samples)
 
     dict_cons_remaining_task_transforms: dict = {
-        train_dataset[0].dataset: train_task_transform_mi,
-        train_dataset[1].dataset.dataset: train_task_transform_omni,
-        validation_dataset[0].dataset: test_task_transform_mi,
-        validation_dataset[1].dataset.dataset: test_task_transform_omni,
-        test_dataset[0].dataset: test_task_transform_mi,
-        test_dataset[1].dataset.dataset: test_task_transform_omni
+        train_dataset[0].name: train_task_transform_mi,
+        train_dataset[1].name: train_task_transform_omni,
+        validation_dataset[0].name: test_task_transform_mi,
+        validation_dataset[1].name: test_task_transform_omni,
+        test_dataset[0].name: test_task_transform_mi,
+        test_dataset[1].name: test_task_transform_omni
     }
 
     train_transforms: TaskTransform = TaskTransformIndexableDataset(train_dataset, dict_cons_remaining_task_transforms)
@@ -352,14 +353,17 @@ def loop_through_l2l_indexable_benchmark_with_model_test():
     model = get_model('resnet18', pretrained=False, num_classes=5).to(device)
     criterion = nn.CrossEntropyLoss()
     # TODO: model = resnet12
-    for taskset in tasksets:
+    for i, taskset in enumerate(tasksets):
+        print(f'-- {splits[i]=}')
         for task_num in range(batch_size):
             print(f'{task_num=}')
+
             X, y = taskset.sample()
-            y_pred = model(X)
             print(f'{X.size()=}')
             print(f'{y.size()=}')
             print(f'{y=}')
+
+            y_pred = model(X)
             loss = criterion(y_pred, y)
             print(f'{loss=}')
             print()
