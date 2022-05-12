@@ -6,6 +6,8 @@ from learn2learn.data.transforms import TaskTransform
 from torch import nn
 from torch.utils.data import Dataset
 
+# e.g. <class 'learn2learn.vision.datasets.full_omniglot.FullOmniglot'> (if it were a string "<class 'learn2learn.vision.datasets.full_omniglot.FullOmniglot'>")
+BenchmarkName = str  # e.g. train_mi
 
 class ToRGB(nn.Module):
 

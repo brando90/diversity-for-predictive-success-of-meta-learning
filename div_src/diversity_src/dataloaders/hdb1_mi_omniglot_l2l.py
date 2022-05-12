@@ -17,15 +17,12 @@ from torch import nn
 from torchvision.transforms import Compose, Normalize, ToPILImage, RandomCrop, ColorJitter, RandomHorizontalFlip, \
     ToTensor
 
-from diversity_src.dataloaders.common import IndexableDataSet, ToRGB
+from diversity_src.dataloaders.common import IndexableDataSet, ToRGB, BenchmarkName
 
 from torchvision import transforms
 from PIL.Image import LANCZOS
 
 from models import get_model
-
-# e.g. <class 'learn2learn.vision.datasets.full_omniglot.FullOmniglot'> (if it were a string "<class 'learn2learn.vision.datasets.full_omniglot.FullOmniglot'>")
-BenchmarkName = str # e.g. train_mi
 
 def get_remaining_transforms_mi(dataset: MetaDataset, ways:int, samples: int) -> list[TaskTransform]:
     import learn2learn as l2l
@@ -86,10 +83,10 @@ class TaskTransformIndexableDataset(Callable):
         dataset = self.indexable_dataset[dataset_index]
         dataset = MetaDataset(dataset) if not isinstance(dataset, MetaDataset) else dataset
         dataset_name = dataset.name
+        print(f'{dataset_name=}')
         # self.assert_right_dataset(dataset)
 
         # - use the sampled data set to create task
-        print(f'{dataset_name=}')
         remaining_task_transforms: list[TaskTransform] = self.dict_cons_remaining_task_transforms[dataset_name](dataset)
         description = None
         for transform in remaining_task_transforms:
@@ -105,7 +102,7 @@ class TaskTransformIndexableDataset(Callable):
 
 def get_omniglot_datasets(
         root: str = '~/data/l2l_data/',
-        data_transform_option: str = 'hd1',
+        data_transform_option: str = 'hdb1',
         device=None,
         **kwargs,
 ):
@@ -115,14 +112,25 @@ def get_omniglot_datasets(
             transforms.ToTensor(),
             lambda x: 1.0 - x,
         ])
-    elif data_transform_option == 'hd1':
+    elif data_transform_option == 'hdb1':
         data_transforms = transforms.Compose([
             ToRGB(),
             # lambda x: x.convert("RGB")
             # transforms.Resize(84, interpolation=LANCZOS),
             # mimicking RandomCrop(84, padding=8) in mi
             transforms.Resize(84),
-            torchvision.transforms.Pad(8),
+            # torchvision.transforms.Pad(8),
+            transforms.ToTensor(),
+            lambda x: 1.0 - x,  # note: task2vec doesn't have this for mnist, wonder why...
+        ])
+    elif data_transform_option == 'hdb2':
+        data_transforms = transforms.Compose([
+            ToRGB(),
+            # lambda x: x.convert("RGB")
+            # transforms.Resize(84, interpolation=LANCZOS),
+            # mimicking RandomCrop(84, padding=8) in mi
+            transforms.Resize(32),
+            # torchvision.transforms.Pad(8),
             transforms.ToTensor(),
             lambda x: 1.0 - x,  # note: task2vec doesn't have this for mnist, wonder why...
         ])
@@ -158,7 +166,7 @@ def get_omniglot_datasets(
 
 def get_mi_datasets(
         root='~/data/l2l_data/',
-        data_augmentation='hd1',
+        data_augmentation='hdb1',
         device=None,
         **kwargs,
 ):
@@ -170,7 +178,7 @@ def get_mi_datasets(
             lambda x: x / 255.0,
         ])
         test_data_transforms = train_data_transforms
-    elif data_augmentation == 'lee2019' or data_augmentation == 'hd1':
+    elif data_augmentation == 'lee2019' or data_augmentation == 'hdb1':
         normalize = Normalize(
             mean=[120.39586422 / 255.0, 115.59361427 / 255.0, 104.54012653 / 255.0],
             std=[70.68188272 / 255.0, 68.27635443 / 255.0, 72.54505529 / 255.0],
@@ -239,7 +247,7 @@ def get_mi_datasets(
 
 def get_indexable_list_of_datasets_mi_and_omniglot(
         root: str = '~/data/l2l_data/',
-        data_augmentation='hd1',
+        data_augmentation='hdb1',
         device=None,
         **kwargs,
 ) -> tuple[IndexableDataSet]:
