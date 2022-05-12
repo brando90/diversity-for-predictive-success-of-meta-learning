@@ -22,7 +22,9 @@
 
 # -- Example 0
 #Request 1x GPU along with 32x CPU cores for 48 hours
-srun --partition=x86 --time=48:00:00 --nodes=1 --ntasks-per-node=32 --sockets-per-node=1 --cores-per-socket=16 --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --gres=gpu:a100:1 --pty /bin/bash
+#srun --partition=x86 --time=48:00:00 --nodes=1 --ntasks-per-node=32 --sockets-per-node=1 --cores-per-socket=16 --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --gres=gpu:a100:1 --pty /bin/bash
+srun --partition=x86 --time=48:00:00 --nodes=1 --ntasks-per-node=128 --sockets-per-node=1 --cores-per-socket=16 --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --gres=gpu:a100:4 --pty /bin/bash
+#srun --partition=x86 --time=48:00:00 --nodes=1 --ntasks-per-node=32 --sockets-per-node=1 --cores-per-socket=16 --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --gres=gpu:a100:8 --pty /bin/bash
 
 # -- Example 1
 # Request 2x GPU along with 64x CPU cores for 12 hours
@@ -40,6 +42,9 @@ cd ~
 echo STARTING `date`
 # why srun inside sbatch: https://stackoverflow.com/questions/53636752/slurm-why-use-srun-inside-sbatch
 srun hostname
+nvidia-smi
+python -c "import torch;print(torch.version.cuda)"
+nvcc -V
 
 echo CUDA_VISIBLE_DEVICES
 echo $CUDA_VISIBLE_DEVICES
@@ -60,13 +65,18 @@ echo ---- Running your python main ----
 #python -m torch.distributed.run --nproc_per_node=4 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_mi_adam_filter_size_8_filter_size
 #python -m torch.distributed.run --nproc_per_node=4 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_mi_adam_filter_size_4_filter_size
 
+#python -m torch.distributed.run --nproc_per_node=4 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_hdb1_100k
+python -m torch.distributed.run --nproc_per_node=1 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_hdb1_100k
+#python -m torch.distributed.run --nproc_per_node=4 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet18task2vec_hdb1_100k
+#python -m torch.distributed.run --nproc_per_node=1 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet18task2vec_hdb1_100k
+
 # - Data analysis
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main2_distance_sl_vs_maml.py
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/_main_distance_sl_vs_maml.py
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/diversity/task2vec_based_metrics/diversity_task2vec/diversity_for_few_shot_learning_benchmark.py
 
 # - task2vec div
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py
 
 # - task2vec div individual jobs
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_cifarfs_resnet18_random
@@ -81,5 +91,9 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 # - other wrap up
 /home/miranda9/miniconda3/envs/meta_learning_a100/bin/python -m pi install --upgrade pip
 pip install wandb --upgrade
+conda update conda
+conda update --all
+pip install --upgrade pip
+pip3 install --upgrade pip
 
 echo -- Done submitting job in dgx A100-SXM4-40G

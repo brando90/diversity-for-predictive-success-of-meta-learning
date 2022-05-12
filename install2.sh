@@ -20,6 +20,8 @@ pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f h
 pip3 install torch==1.9.1 torchvision==0.10.1 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
 pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
 
+#conda install pytorch torchvision torchaudio cudatoolkit=11.1 -c pytorch -c nvidia
+
 #host_v=$(hostname)
 #if [ $host_v = vision-submit.cs.illinois.edu ]; then
 ##    echo "Strings are equal."

@@ -83,7 +83,7 @@ class TaskTransformIndexableDataset(Callable):
         dataset = self.indexable_dataset[dataset_index]
         dataset = MetaDataset(dataset) if not isinstance(dataset, MetaDataset) else dataset
         dataset_name = dataset.name
-        print(f'{dataset_name=}')
+        # print(f'{dataset_name=}')
         # self.assert_right_dataset(dataset)
 
         # - use the sampled data set to create task
