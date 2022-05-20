@@ -15,8 +15,8 @@ MI, 5CNN
 
 details:
 - using original (old code). Thus:
-- 5CNN is SL rfs with SGD my_rfs_code (REDO, run sgd_rfs)
-- 5CNN MAML is adam until convergence my_torchmeta_maml_code (REDO, use new l2l ckpt)
+- 5CNN is SL rfs 
+- 5CNN MAML is adam until convergence my_torchmeta_maml_code 
 """
 from uutils.plot import bar_graph_with_error_using_pandas, save_to_desktop
 from matplotlib import pyplot as plt
@@ -116,7 +116,7 @@ details:
 from uutils.plot import bar_graph_with_error_using_pandas, save_to_desktop
 from matplotlib import pyplot as plt
 
-groups = ['Ficar-fs, ResNet12']  # the rows of a df
+groups = ['Cifar-fs, ResNet12']  # the rows of a df
 adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']  # columns of a df
 meta_test_acc = [78.2, 77.4, 75.4]
 meta_test_ci = [1.73, 1.78, 1.69]
@@ -143,7 +143,7 @@ wanbds:
 - mi resnet12
 - mi 5cnn
 - cifarfs resnet12
-- cifarfs 5cnn1025: https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3sxs4q08/logs?workspace=user-brando
+- cifarfs 5cnn1024: https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3sxs4q08/logs?workspace=user-brando
 """
 from uutils.plot import bar_graph_with_error_using_pandas, save_to_desktop
 from matplotlib import pyplot as plt

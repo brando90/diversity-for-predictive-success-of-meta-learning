@@ -138,7 +138,8 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # args.safety_margin = 20
 
     # args.batch_size = 2
-    args.batch_size = 5
+    # args.batch_size = 5
+    args.batch_size = 10
     # args.batch_size = 25
     # args.batch_size = 30
     # args.batch_size = 100
@@ -151,32 +152,30 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # args.k_eval = get_recommended_batch_size_mi_resnet12rfs_head(safety_margin=args.safety_margin)
 
     # - expt option
-    # args.experiment_option = 'performance_comparison'
+    args.experiment_option = 'performance_comparison'
 
     # args.experiment_option = 'diveristiy_f_rand'
-    args.experiment_option = 'diveristiy_f_maml'
+    # args.experiment_option = 'diveristiy_f_maml'
     # args.experiment_option = 'diveristiy_f_sl'
 
     # - agent/meta_learner type
     args.agent_opt = 'MAMLMetaLearner_default'
 
     # - ckpt name
-    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/t9hpyoms?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Feb25_13-23-05_jobid_32368_pid_112292'  # SL SGD CL to see if it beats maml/has same test acc as in original rfs paper
-    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1gxb5uds?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Feb10_13-36-08_jobid_3381_pid_109779/'  # Adam CL
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/qlubpsfi?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Feb10_18-21-11_jobid_18097_pid_229674/'  # Adam CL
+    args.path_2_init_sl = '~/data/logs/logs_Feb10_18-21-11_jobid_18097_pid_229674/'  # Adam CL (THIS ONE)
     # https://github.com/WangYueFt/rfs
     # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
     # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_distilled.pt'
 
-    # original ckpt (likely not compatible with this code)
-    # args.path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668'
-    # old checkpoint 688 in new format location
+    # original old ckpt (likely not compatible with this code) in old format
+    # #### (OLD) args.path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668'
+    # usable old checkpoint 688 in new format location
     args.path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/'  # Adam (no CL, old higher ckpt)
+
     # new ckpt using l2l https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/jakzsyhv?workspace=user-brando
-    # args.path_2_init_maml = '~/data/logs/logs_Feb17_15-28-58_jobid_8957_pid_206937/'
+    # args.path_2_init_maml = '~/data/logs/logs_Feb17_15-28-58_jobid_8957_pid_206937/'  # Adam CL
+
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2w2iezpb?workspace=user-brando
     # args.path_2_init_maml = '/home/miranda9/data/logs/logs_Feb27_09-11-46_jobid_14483_pid_16068'
 
@@ -297,8 +296,8 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     args.agent_opt = 'MAMLMetaLearner_default'
 
     # - ckpt name
-    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/33frd31p?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Feb19_10-13-22_jobid_2411_pid_28656'  # good! SGD converged with 0.9994 train acc
+
+    # -- 2
 
     # -- 4
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/7sfgxss7/logs?workspace=user-brando
@@ -310,10 +309,10 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/hdgn6xfd
     # args.path_2_init_sl = ''  # Adam
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/l9rdcfcr?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May03_18-05-01_jobid_26093'  # Adam
+    # args.path_2_init_sl = '~/data/logs/logs_May03_18-05-01_jobid_26093'  # Adam
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/ip20v98t/logs?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_May05_11-31-02_jobid_27495'  # Adam
+    # args.path_2_init_maml = '~/data/logs/logs_May05_11-31-02_jobid_27495'  # Adam
 
     # -- 8
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/35qt9vlj?workspace=user-brando
@@ -335,12 +334,12 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1tzdyoxp?workspace=
     # args.path_2_init_sl = '~/data/logs/logs_Apr11_14-53-51_jobid_9971_pid_25156'  # Adam
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1uyz497h?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_May02_17-05-36_jobid_25763'  # Adam
+    args.path_2_init_sl = '~/data/logs/logs_May02_17-05-36_jobid_25763'  # Adam THIS ONE
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/29hc25u2/overview?workspace=user-brando (NOT GOOD)
     # args.path_2_init_maml = '~/data/logs/logs_Feb16_11-59-55_jobid_29315_pid_102939'  # uses scheduler :'(
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/kpujevkp?workspace=user-brando
-    # args.path_2_init_maml = '~/data/logs/logs_May02_17-11-03_jobid_25764'  # Adam
+    args.path_2_init_maml = '~/data/logs/logs_May02_17-11-03_jobid_25764'  # Adam
 
     # -- 128 version todo, both need to be with adam.
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/9r7q98vz?workspace=user-brando
@@ -362,9 +361,10 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     #
     # args.path_2_init_maml = ''
 
-    # path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
+    # actually you need to run _main_dista... old code I think
+    # path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'  # THIS I think
     # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
-    # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-17-50_jobid_13_pid_177628/'
+    # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-17-50_jobid_13_pid_177628/'  # THIS I think
 
     # - device
     # args.device = torch.device('cpu')
@@ -375,8 +375,8 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_args_5cnn_mi'
     args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -509,7 +509,7 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     #  https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1yz87dry?workspace=user-brando 13363
     args.path_2_init_maml = '~/data/logs/logs_Mar02_18-13-23_jobid_13363'  # 0.966 acc, 0.639
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2ni2m08h/overview?workspace=user-brando 13860
-    # args.path_2_init_maml = '~/data/logs/logs_Mar24_21-06-59_jobid_13860/'  # 1.0 train acc, 0.56 val
+    # args.path_2_init_maml = '~/data/logs/logs_Mar24_21-06-59_jobid_13860/'  # 1.0 train acc, 0.56 val  # THIS ONE FOR RESULTS
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/tmp1d5u2/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Mar28_18-31-34_jobid_15883/'  # 0.9899 train acc
@@ -533,10 +533,6 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1qx0qqgw/overview?workspace=user-brando
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2k1hhcca/overview?workspace=user-brando
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/36vraue2/overview?workspace=user-brando
-
-    # sgd models
-    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1u7e0gx6?workspace=user-brando 12915, SL
-    # args.path_2_init_sl = '~/data/logs/logs_Feb25_14-36-24_jobid_12915'  # 0.9998 acc, na VAL (since it's SL)
 
     # adafactor models
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/21dgxvh9?workspace=user-brando
@@ -667,9 +663,9 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     args.agent_opt = 'MAMLMetaLearner_default'
 
     # - ckpt name
-    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2rhe2d04?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Feb25_13-29-11_jobid_2631_pid_129270'  # SL SGD CL! To see if SGD beats my maml adam
-    # args.path_2_init_sl = '~/data/logs/logs_Feb10_15-05-22_jobid_20550_pid_94325/'
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3dx4c9s9?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Feb10_15-05-22_jobid_20550_pid_94325/'
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3uwf7b8g/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb10_15-05-54_jobid_12449_pid_111612/'
     # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2hjq1vmu/overview?workspace=user-brando 28881
@@ -713,9 +709,9 @@ def load_args() -> Namespace:
 
     # - get manual args
     # args: Namespace = args_5cnn_cifarfs(args)
-    args: Namespace = args_5cnn_mi(args)
+    # args: Namespace = args_5cnn_mi(args)
     # args: Namespace = resnet12rfs_cifarfs(args)
-    # args: Namespace = resnet12rfs_mi(args)
+    args: Namespace = resnet12rfs_mi(args)
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)
