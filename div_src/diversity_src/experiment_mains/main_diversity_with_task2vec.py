@@ -31,8 +31,8 @@ from uutils.torch_uu.models.probe_networks import get_probe_network
 # - mi
 
 def diversity_ala_task2vec_mi_resnet18_pretrained_imagenet(args: Namespace) -> Namespace:
-    args.batch_size = 500
-    # args.batch_size = 2
+    # args.batch_size = 500
+    args.batch_size = 2
     args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.data_augmentation = 'lee2019'

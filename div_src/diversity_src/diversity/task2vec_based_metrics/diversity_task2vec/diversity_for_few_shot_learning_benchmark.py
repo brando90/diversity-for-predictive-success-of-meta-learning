@@ -269,5 +269,5 @@ def plot_distance_matrix_and_div_for_MI_test():
 
 
 if __name__ == '__main__':
-    plot_distance_matrix_and_div_for_MI_test()
+    # plot_distance_matrix_and_div_for_MI_test()
     print('Done! successful!\n')
