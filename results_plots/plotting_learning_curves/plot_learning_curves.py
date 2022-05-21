@@ -13,6 +13,8 @@ Note:
             comparison table (which are the main contributions of the paper anyway).
 """
 
+#%%
+
 from pathlib import Path
 
 from matplotlib import pyplot as plt
@@ -96,9 +98,28 @@ _get_learning_curve_maml_hack_for_old_ckpt(path, plot_name, title, log_freq=200)
 
 #%%
 # -- 5CNN cifarfs
+path: Path = Path('~/data/logs/logs_Mar30_08-17-19_jobid_17733_pid_142663/experiment_stats.json').expanduser()
+plot_name: str = 'learning_curve_loss_5cnn_usl_cifarfs'
+title: str = '5CNN Cifar-fs Learning Curve USL'
+get_learning_curve_usl(path, plot_name, title)
 
+# MAML 32
+path = Path('~/data/logs/logs_Mar24_21-06-59_jobid_13860/experiment_stats.json').expanduser()
+plot_name: str = 'learning_curve_loss_5cnn_maml_cifarfs'
+title: str = '5CNN Cifar-fs Learning Curve MAML'
+get_learning_curve_maml(path, plot_name, title)
 
 
 #%%
 # -- Resnet12 cifarfs
 
+path: Path = Path('~/data/logs/logs_Feb10_15-05-22_jobid_20550_pid_94325/experiment_stats.json').expanduser()
+plot_name: str = 'learning_curve_loss_5cnn_usl_cifarfs'
+title: str = 'Resnet12 Cifar-fs Learning Curve USL'
+get_learning_curve_usl(path, plot_name, title)
+
+# MAML 32
+path = Path('~/data/logs/logs_Feb10_15-54-14_jobid_28881_pid_101601/experiment_stats.json').expanduser()
+plot_name: str = 'learning_curve_loss_5cnn_maml_cifarfs'
+title: str = 'Resnet12 Cifar-fs Learning Curve MAML'
+get_learning_curve_maml(path, plot_name, title)

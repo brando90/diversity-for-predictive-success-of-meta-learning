@@ -507,9 +507,9 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     # - ckpt name
     # adam models
     #  https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1yz87dry?workspace=user-brando 13363
-    args.path_2_init_maml = '~/data/logs/logs_Mar02_18-13-23_jobid_13363'  # 0.966 acc, 0.639
+    # args.path_2_init_maml = '~/data/logs/logs_Mar02_18-13-23_jobid_13363'  # 0.966 acc, 0.639
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2ni2m08h/overview?workspace=user-brando 13860
-    # args.path_2_init_maml = '~/data/logs/logs_Mar24_21-06-59_jobid_13860/'  # 1.0 train acc, 0.56 val  # THIS ONE FOR RESULTS
+    args.path_2_init_maml = '~/data/logs/logs_Mar24_21-06-59_jobid_13860/'  # 1.0 train acc, 0.56 val  # THIS ONE FOR RESULTS
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/tmp1d5u2/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Mar28_18-31-34_jobid_15883/'  # 0.9899 train acc
@@ -708,9 +708,9 @@ def load_args() -> Namespace:
     args: Namespace = parse_args_meta_learning()
 
     # - get manual args
-    # args: Namespace = args_5cnn_cifarfs(args)
+    args: Namespace = args_5cnn_cifarfs(args)
     # args: Namespace = args_5cnn_mi(args)
-    # args: Namespace = resnet12rfs_cifarfs(args)
+    args: Namespace = resnet12rfs_cifarfs(args)
     args: Namespace = resnet12rfs_mi(args)
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
