@@ -22,10 +22,11 @@ def save_corrected_heatmap(path: str):
                                                       labels=list(range(len(embeddings))),
                                                       distance='cosine',
                                                       show_plot=False)
-    save_to_desktop(f'heatmap_corrected_matrix_fsl_{args.data_option}'.replace('-', '_'),
-                    save_pdf=False,
-                    save_svg=False
-                    )
+    # - note you can't have both uncommented if the saving function closes the plot
+    # save_to_desktop(f'heatmap_corrected_matrix_fsl_{args.data_option}'.replace('-', '_'),
+    #                 save_pdf=False,
+    #                 save_svg=False
+    #                 )
     args.log_root = args.log_root.replace('/home/miranda9/', '~/')
     save_to(args.log_root, plot_name=f'heatmap_corrected_matrix_fsl_{args.data_option}'.replace('-', '_'),
             save_pdf=False,
