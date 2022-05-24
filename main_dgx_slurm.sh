@@ -17,7 +17,7 @@
 # hal-dgx website: https://wiki.ncsa.illinois.edu/display/ISL20/Access+hal-dgx+and+overdrive+with+hal-login3+Node
 
 # -- Running 1 cpu core and many cpu cores:
-#srun --partition=x86 --time=48:00:00 --pty /bin/bash
+srun --partition=x86 --time=48:00:00 --pty /bin/bash
 srun --partition=x86 --time=48:00:00 --nodes=1 --ntasks-per-node=32 --sockets-per-node=1 --cores-per-socket=16 --threads-per-core=2 --mem-per-cpu=4000 --wait=0 --export=ALL --pty /bin/bash
 
 # -- Example 0
