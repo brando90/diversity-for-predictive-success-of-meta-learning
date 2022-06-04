@@ -31,8 +31,8 @@ from uutils.torch_uu.models.probe_networks import get_probe_network
 # - mi
 
 def diversity_ala_task2vec_mi_resnet18_pretrained_imagenet(args: Namespace) -> Namespace:
-    args.batch_size = 500
-    # args.batch_size = 2
+    # args.batch_size = 500
+    args.batch_size = 2
     args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.data_augmentation = 'lee2019'
@@ -46,8 +46,8 @@ def diversity_ala_task2vec_mi_resnet18_pretrained_imagenet(args: Namespace) -> N
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
     args.experiment_name = f'diversity_ala_task2vec_mi_resnet18'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option} {current_time}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     args = fix_for_backwards_compatibility(args)
     return args
@@ -259,7 +259,7 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'diversity_ala_task2vec_hdb2_resnet18_pretrained_imagenet'  # <- REMOVE to remove manual loads
+    args.manual_loads_name = 'diversity_ala_task2vec_mi_resnet18_pretrained_imagenet'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if args_hardcoded_in_script(args):

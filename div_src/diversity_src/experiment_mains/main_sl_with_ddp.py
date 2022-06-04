@@ -1684,8 +1684,10 @@ def load_args() -> Namespace:
             args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_many_epochs(args)
         elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam':
             args: Namespace = sl_mi_rfs_5cnn_adam(args)
+
         elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_32_filter_size':
             args: Namespace = sl_mi_rfs_5cnn_adam_32_filter_size(args)
+
         elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_16_filter_size':
             args: Namespace = sl_mi_rfs_5cnn_adam_16_filter_size(args)
         elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_8_filter_size':

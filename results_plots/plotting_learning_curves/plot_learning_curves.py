@@ -13,20 +13,113 @@ Note:
             comparison table (which are the main contributions of the paper anyway).
 """
 
+#%%
 
+from pathlib import Path
+
+from matplotlib import pyplot as plt
+
+from uutils import load_json
+from uutils.plot import plot, save_to_desktop
+
+def get_learning_curve_usl(path: Path, plot_name: str, title: str):
+    data: dict = load_json(path)
+
+    x = data['train']['its']
+    y = data['train']['loss']
+    assert len(x) == len(y)
+
+    plot(x, y,
+         xlabel='Epochs',
+         ylabel='USL Train Loss',
+         title=title
+         )
+    save_to_desktop(plot_name=plot_name)
+    plt.show()
+
+def get_learning_curve_maml(path: Path, plot_name: str, title: str):
+    data: dict = load_json(path)
+
+    x = data['train']['its']
+    y = data['train']['loss']
+    assert len(x) == len(y)
+
+    plot(x, y,
+         xlabel='Iterations',
+         ylabel='Meta Train Loss',
+         title=title
+         )
+    save_to_desktop(plot_name=plot_name)
+    plt.show()
+
+def _get_learning_curve_maml_hack_for_old_ckpt(path: Path, plot_name: str, title: str, log_freq: int):
+    data: dict = load_json(path)
+
+    y = data['train']['loss']
+    x = [log_freq*i for i in range(0, len(y))]
+    assert len(x) == len(y)
+
+    plot(x, y,
+         xlabel='Iterations',
+         ylabel='Meta Train Loss',
+         title=title
+         )
+    save_to_desktop(plot_name=plot_name)
+    plt.show()
 
 #%%
 # -- 5CNN MI
 
+# SL 32
+path: Path = Path('~/data/logs/logs_May02_17-05-36_jobid_25763/experiment_stats.json').expanduser()
+plot_name: str = 'learning_curve_loss_5cnn_usl_mi'
+title: str = '5CNN MI Learning Curve USL'
+get_learning_curve_usl(path, plot_name, title)
+
+# MAML 32
+path = Path('~/data/logs/logs_May02_17-11-03_jobid_25764/experiment_stats.json').expanduser()
+plot_name: str = 'learning_curve_loss_5cnn_maml_mi'
+title: str = '5CNN MI Learning Curve MAML'
+get_learning_curve_maml(path, plot_name, title)
 
 #%%
 # -- Resnet12 MI
 
+path: Path = Path('~/data/logs/logs_May02_17-05-36_jobid_25763/experiment_stats.json').expanduser()
+plot_name: str = 'learning_curve_loss_resnet12_usl_mi'
+title: str = 'Resnet12 MI Learning Curve USL'
+get_learning_curve_usl(path, plot_name, title)
+
+# MAML 32
+path = Path('~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/experiment_stats.json').expanduser()
+plot_name: str = 'learning_curve_loss_resnet12_maml_mi'
+title: str = 'Resnet12 MI Learning Curve MAML'
+_get_learning_curve_maml_hack_for_old_ckpt(path, plot_name, title, log_freq=200)
+
 #%%
 # -- 5CNN cifarfs
+path: Path = Path('~/data/logs/logs_Mar30_08-17-19_jobid_17733_pid_142663/experiment_stats.json').expanduser()
+plot_name: str = 'learning_curve_loss_5cnn_usl_cifarfs'
+title: str = '5CNN Cifar-fs Learning Curve USL'
+get_learning_curve_usl(path, plot_name, title)
 
+# MAML 32
+path = Path('~/data/logs/logs_Mar24_21-06-59_jobid_13860/experiment_stats.json').expanduser()
+plot_name: str = 'learning_curve_loss_5cnn_maml_cifarfs'
+title: str = '5CNN Cifar-fs Learning Curve MAML'
+get_learning_curve_maml(path, plot_name, title)
 
 
 #%%
 # -- Resnet12 cifarfs
 
+path: Path = Path('~/data/logs/logs_Feb10_15-05-22_jobid_20550_pid_94325/experiment_stats.json').expanduser()
+plot_name: str = 'learning_curve_loss_5cnn_usl_cifarfs'
+title: str = 'Resnet12 Cifar-fs Learning Curve USL'
+get_learning_curve_usl(path, plot_name, title)
+
+# MAML 32
+path = Path('~/data/logs/logs_Feb10_15-54-14_jobid_28881_pid_101601/experiment_stats.json').expanduser()
+plot_name: str = 'learning_curve_loss_5cnn_maml_cifarfs'
+title: str = 'Resnet12 Cifar-fs Learning Curve MAML'
+get_learning_curve_maml(path, plot_name, title)
