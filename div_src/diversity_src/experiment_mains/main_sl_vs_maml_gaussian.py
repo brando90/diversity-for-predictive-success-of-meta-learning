@@ -173,7 +173,7 @@ def args_fnn_gaussian(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_args_fnn_gaussian'
     args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
-    args.log_to_wandb = True
+    args.log_to_wandb = False
     args.wandb_entity ="brando-uiuc"
     #args.log_to_wandb = False
 

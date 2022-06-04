@@ -10,6 +10,9 @@ import torch
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 from torch import Tensor
 
+import sys
+sys.path.append('/Users/patrickyu/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/task2vec')
+
 import task2vec
 import task_similarity
 from diversity_src.diversity.task2vec_based_metrics.diversity_task2vec.diversity_for_few_shot_learning_benchmark import \
