@@ -37,16 +37,28 @@ x_axis = filter_size_per_layer
 y_axis = []
 
 # - plot it
-ylim = (0.2, 1)
-xlim= (0,0.575)
+ylim = (0, 1)
+xlim= (0.247,0.546)
 #Low diversity regime
-div = np.array([3.58E-05,0.1833,0.5686,0.86])[:3]
-maml5 = np.array([0.2019066676,0.3696800001,0.5679199995,0.8206266673])[:3]
-maml5e = np.array([0.002677290758,0.00682331957,0.009613171253,0.01028397098])[:3]
-maml10 = np.array([0.2014800006,0.3736666677,0.5706933325,0.8358133346])[:3]
-maml10e = np.array([0.002770970995,0.007154970165,0.00928642408,0.009982345466])[:3]
-usl = np.array([0.2001733333,0.3775733333,0.57124,0.8167066667])[:3]
-usle = np.array([0.0006564367522,0.006937149032,0.009459490881,0.009160933492])[:3]
+#High diversity regime
+#High diversity regime
+#Low diversity regime
+div = np.array([0.247,0.271,0.393,0.470])
+maml5 = np.array([0.2019066676,0.3696800001,0.5679199995,0.8206266673])
+maml5e = np.array([0.002677290758,0.00682331957,0.009613171253,0.01028397098])
+maml10 = np.array([0.2014800006,0.3736666677,0.5706933325,0.8358133346])
+maml10e = np.array([0.002770970995,0.007154970165,0.00928642408,0.009982345466])
+usl = np.array([0.2001733333,0.3775733333,0.57124,0.8167066667])
+usle = np.array([0.0006564367522,0.006937149032,0.009459490881,0.009160933492])
+div=np.append(div,[0.470,0.533,0.537,0.546][1:])
+maml5=np.append(maml5,[0.8206266673,0.8570666689,0.8960533372,0.9065333388][1:])
+maml5e=np.append(maml5e,[0.01028397098,0.009584906661,0.009939059547,0.01121512625][1:])
+maml10=np.append(maml10,[0.8358133346,0.8720800033,0.9051733366,0.9108933385][1:])
+maml10e=np.append(maml10e,[0.009982345466,0.009846180448,0.009682753077,0.01062369246][1:])
+usl=np.append(usl,[0.8167066667,0.8963866667,0.9253333333,0.9824533333][1:])
+usle=np.append(usle,[0.009160933492,0.008138150048,0.007559215383,0.004205302444][1:])
+
+
 # ylim = None
 title = 'Diversity Effect in Performance Difference of USL vs MAML'
 plot_with_error_bands(x=div,
@@ -54,16 +66,16 @@ plot_with_error_bands(x=div,
 
                       yerr=np.asarray(list(maml5e)),
 
-                      xlabel='Hellinger Diversity Coefficient', ylabel=f'Meta-Test Accuracy',
+                      xlabel='Task2Vec Diversity Coefficient', ylabel=f'Meta-Test Accuracy',
                       title=title, curve_label='MAML5 Acc', ylim=ylim,xlim=xlim)
 plot_with_error_bands(x=div,
                       y=np.asarray(list(usl)),
 
                       yerr=np.asarray(list(usle)),
 
-                      xlabel='Hellinger Diversity Coefficient', ylabel=f'Meta-Test Accuracy',
+                      xlabel='Task2Vec Diversity Coefficient', ylabel=f'Meta-Test Accuracy',
                       title=title, curve_label='USL Acc', ylim=ylim,xlim=xlim)
-save_to_desktop(plot_name=f'diff_maml5_usl_vs_hellinger')
+save_to_desktop(plot_name=f'diff_maml5_usl_vs_Task2Vec')
 plt.show()
 
 plot_with_error_bands(x=div,
@@ -71,7 +83,7 @@ plot_with_error_bands(x=div,
 
                       yerr=np.asarray(list(maml10e)),
 
-                      xlabel='Hellinger Diversity Coefficient', ylabel=f'Meta-Test Accuracy',
+                      xlabel='Task2Vec Diversity Coefficient', ylabel=f'Meta-Test Accuracy',
                       title=title, curve_label='MAML10 Acc', ylim=ylim,xlim=xlim)
 
 plot_with_error_bands(x=div,
@@ -79,8 +91,7 @@ plot_with_error_bands(x=div,
 
                       yerr=np.asarray(list(usle)),
 
-                      xlabel='Hellinger Diversity Coefficient', ylabel=f'Meta-Test Accuracy',
+                      xlabel='Task2Vec Diversity Coefficient', ylabel=f'Meta-Test Accuracy',
                       title=title, curve_label='USL Acc', ylim=ylim,xlim=xlim)
-save_to_desktop(plot_name=f'diff_maml10_usl_vs_hellinger')
+save_to_desktop(plot_name=f'diff_maml10_usl_vs_Task2Vec')
 plt.show()
-

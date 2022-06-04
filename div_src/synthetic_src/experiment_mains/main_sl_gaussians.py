@@ -14,7 +14,7 @@ from argparse import Namespace
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 
 from uutils import args_hardcoded_in_script, report_times
-from uutils.argparse_uu.common_negworkers import setup_args_for_experiment, setup_wandb # modified 4/7/22
+from uutils.argparse_uu.common import setup_args_for_experiment, setup_wandb # modified 4/7/22
 #from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
 from uutils.torch_uu.agents.common import Agent
@@ -74,9 +74,9 @@ def l2l_gaussian_1d_sl(args: Namespace) -> Namespace:
     # - data TODO
     args.data_option = 'n_way_gaussians_sl'#TODO
     args.mu_m_B = 0 #doesn't matter
-    args.sigma_m_B = 10
-    args.mu_s_B = 2
-    args.sigma_s_B = 1
+    args.sigma_m_B = 1.5
+    args.mu_s_B = 1
+    args.sigma_s_B = 0.01
     args.div_H = hellinger_div(args.mu_m_B, args.sigma_m_B, args.mu_s_B, args.sigma_s_B)
     #args.rho = 0.1
     args.k_shots = 10#10#10#10
@@ -88,14 +88,14 @@ def l2l_gaussian_1d_sl(args: Namespace) -> Namespace:
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
     args.num_epochs = 1_000_000
-    args.batch_size = 8#256 #TODO: How to make learning rates fair comparison with MAML?
-    args.batch_size_eval = 8# TODO: WHat is this?
+    args.batch_size = 32#256 #TODO: How to make learning rates fair comparison with MAML?
+    args.batch_size_eval = 32# TODO: WHat is this?
     args.lr = 1e-3#5e-3 #TODO: How to make learning rates fair comparison with MAML?
     args.opt_hps: dict = dict(lr=args.lr)
     args.scheduler_option = 'None'
 
     # - training mode
-    args.training_mode = 'epochs' #'iterations' #TODO: whats the difference?
+    args.training_mode = 'fit_single_batch' #'iterations' #TODO: whats the difference?
 
 
     args.debug = True
