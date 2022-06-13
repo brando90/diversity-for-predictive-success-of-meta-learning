@@ -1,6 +1,12 @@
 """
+HDB1 := MI + Omni
+
 Note:
     - train_samples != k_shots and test_samples != k_eval. Instead train_samples = test_samples = k_shots + k_eval.
+ref:
+    - https://wandb.ai/brando/entire-diversity-spectrum/reports/Copy-of-brando-s-Div-ala-task2vec-HDB1-mi-omniglot-HDB2-cifarfs-omniglot---VmlldzoyMDc3OTAz
+
+Diversity: (div, ci)﻿=﻿(﻿0.2161356031894684﻿, 0.038439472241579925﻿)
 """
 import os
 import random

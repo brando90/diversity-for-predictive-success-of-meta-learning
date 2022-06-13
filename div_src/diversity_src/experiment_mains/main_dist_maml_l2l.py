@@ -1206,7 +1206,7 @@ def l2l_5CNN_mi_adam_filter_size_4_filter_size(args: Namespace) -> Namespace:
     return args
 
 
-# - hdb1
+# - hdb1 = MI + Omni
 
 def l2l_resnet12rfs_hdb1_100k(args: Namespace) -> Namespace:
     """
@@ -1269,7 +1269,7 @@ def l2l_resnet12rfs_hdb1_100k(args: Namespace) -> Namespace:
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
-    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_resnet12rfs_mi_rfs_adam_cl_100k'
@@ -1351,7 +1351,7 @@ def l2l_resnet18task2vec_hdb1_100k(args: Namespace) -> Namespace:
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
-    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_resnet12rfs_mi_rfs_adam_cl_100k'
@@ -1428,7 +1428,7 @@ def l2l_5cnn_hdb1_100k(args: Namespace) -> Namespace:
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
-    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_resnet12rfs_mi_rfs_adam_cl_100k'
@@ -1440,6 +1440,7 @@ def l2l_5cnn_hdb1_100k(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+# hbd2 = cifar-fs + Omni
 
 # - load args
 

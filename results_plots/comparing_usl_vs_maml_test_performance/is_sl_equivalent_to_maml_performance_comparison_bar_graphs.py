@@ -25,6 +25,8 @@ groups = ['MI, 5CNN']  # the rows of a df
 adapted_models = ['MAML5', 'MAML10', 'USL', 'MAML5 ci', 'MAML10 ci', 'USL ci']  # columns of a df
 meta_test_acc = [62.4, 62.3, 60.1]
 meta_test_ci = [1.64, 1.5, 1.37]
+# meta_test_acc = [62.4, 62.3, 60.1]
+# meta_test_ci = [1.64, 1.5, 1.37]
 row1 = meta_test_acc + meta_test_ci
 data = [row1]
 

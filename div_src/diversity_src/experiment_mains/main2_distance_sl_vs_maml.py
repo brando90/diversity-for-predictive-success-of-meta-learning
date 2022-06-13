@@ -334,7 +334,7 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1tzdyoxp?workspace=
     # args.path_2_init_sl = '~/data/logs/logs_Apr11_14-53-51_jobid_9971_pid_25156'  # Adam
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1uyz497h?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May02_17-05-36_jobid_25763'  # Adam THIS ONE
+    # args.path_2_init_sl = '~/data/logs/logs_May02_17-05-36_jobid_25763'  # Adam THIS ONE
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/29hc25u2/overview?workspace=user-brando (NOT GOOD)
     # args.path_2_init_maml = '~/data/logs/logs_Feb16_11-59-55_jobid_29315_pid_102939'  # uses scheduler :'(
@@ -361,6 +361,40 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     #
     # args.path_2_init_maml = ''
 
+    # -- 32 (2nd round)
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/e86rmved?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Apr11_14-52-47_jobid_29253_pid_21780'  # Adam
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1tzdyoxp?workspace=
+    # args.path_2_init_sl = '~/data/logs/logs_Apr11_14-53-51_jobid_9971_pid_25156'  # Adam
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1uyz497h?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_May02_17-05-36_jobid_25763'  # Adam THIS ONE
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3n1ryuzu/overview?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_May24_11-45-30_jobid_35317'  # 55
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3v7fpsie/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_May24_11-47-48_jobid_35318'  # 56
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/yjcun827/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_May24_11-50-06_jobid_35319'  # 54
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/vh1ecgr3/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_May24_11-52-24_jobid_35320'  # 57
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/lhsmwapf/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-39_jobid_35321'  # 54
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/9s93yjt6/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-43_jobid_35322'  # 55
+
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1yhb8bqd/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-44_jobid_35323'  # 54
+
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2q6jn6h6/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-43_jobid_35324'  # 55
+    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/hqfxsf5r/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-44_jobid_35325'  # 56
+
+
+
+
+
+
+
     # actually you need to run _main_dista... old code I think
     # path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'  # THIS I think
     # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
@@ -375,8 +409,8 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_args_5cnn_mi'
     args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -708,10 +742,10 @@ def load_args() -> Namespace:
     args: Namespace = parse_args_meta_learning()
 
     # - get manual args
-    args: Namespace = args_5cnn_cifarfs(args)
-    # args: Namespace = args_5cnn_mi(args)
-    args: Namespace = resnet12rfs_cifarfs(args)
-    args: Namespace = resnet12rfs_mi(args)
+    # args: Namespace = args_5cnn_cifarfs(args)
+    args: Namespace = args_5cnn_mi(args)
+    # args: Namespace = resnet12rfs_cifarfs(args)
+    # args: Namespace = resnet12rfs_mi(args)
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)

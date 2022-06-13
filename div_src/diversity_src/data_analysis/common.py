@@ -327,8 +327,8 @@ def comparison_via_performance(args: Namespace):
     args_mdl_maml = copy(args)
     args_mdl_sl = copy(args)
 
-    # # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
-    #
+    # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
+
     # # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
     print('---- maml5 for maml model')
     print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
