@@ -42,14 +42,15 @@ class FNN3(ProbeNetwork):
         assert len(hidden_layers) >= 2, "Need at least 2 hidden layers"
 
         # Start of our FNN: input -> hidden_layer[0]
+
         self.f1 = nn.Flatten()
-        self.l1 = nn.Linear(1,128)
+        self.l1 = nn.Linear(2,128)
         self.bn1= nn.BatchNorm1d(128)
         self.relu1 = nn.ReLU()
         self.l2 = nn.Linear(128,128)
         self.bn2 = nn.BatchNorm1d(128)
         self.relu2 = nn.ReLU()
-        self.fc = nn.Linear(128,5)
+        self.fc = nn.Linear(128,output_size)
 
         self.layers = [
             self.f1,
@@ -63,6 +64,47 @@ class FNN3(ProbeNetwork):
         ]
 
         '''
+        self.l1 = nn.Flatten()
+        self.l2 = nn.Linear(input_size, hidden_layers[0])
+        self.l3 =nn.BatchNorm1d(hidden_layers[0])
+        self.l4 =  nn.ReLU()
+        self.layers = [
+            self.l1,
+            self.l2,
+            self.l3,
+            self.l4
+        ]
+        layer_cnt = 5
+        # Intermediate layers
+        for i in range(len(hidden_layers)-1):
+            ldict = {}
+            ldict['linlay'] = nn.Linear(hidden_layers[i], hidden_layers[i+1])
+            ldict['self'] = self
+            exec("self.l" + str(layer_cnt) + " = linlay",globals(),ldict)
+            linlayer = ldict['self.l' + str(layer_cnt)]
+            layer_cnt+=1
+
+            exec("self.l" + str(layer_cnt) + " = nn.BatchNorm1d(hidden_layers[i+1])",globals(),ldict)
+            bnlayer = ldict['self.l' + str(layer_cnt)]
+            layer_cnt+=1
+
+            exec("self.l" + str(layer_cnt) + " = nn.ReLU()",globals(),ldict)
+            relulayer = ldict['self.l' + str(layer_cnt)]
+            layer_cnt+=1
+
+            layer = [linlayer, bnlayer, relulayer]
+
+            #exec("layer = [self.l" + str(layer_cnt-3) + ", self.l" + str(layer_cnt-2) + ", self.l" + str(layer_cnt-3) + "]")
+
+            #layer = [
+            #    nn.Linear(hidden_layers[i], hidden_layers[i+1]),
+            #    nn.BatchNorm1d(hidden_layers[i+1]),
+            #    nn.ReLU()
+            #]
+            (self.layers).extend(layer)
+
+        self.fc = nn.Linear(hidden_layers[-1], output_size)
+        '''
         self.features = nn.Sequential(
             nn.Flatten(),
             nn.Linear(input_size, hidden_layers[0]),
@@ -73,7 +115,7 @@ class FNN3(ProbeNetwork):
             nn.ReLU(),
         )
         self.clsfier = nn.Linear(hidden_layers[1], output_size)
-        '''
+
     @property
     def classifier(self):
         return self.fc

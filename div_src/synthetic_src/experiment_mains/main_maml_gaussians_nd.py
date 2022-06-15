@@ -112,8 +112,16 @@ def l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+#https://cseweb.ucsd.edu/classes/sp11/cse291-d/hw1.pdf
 def Hellinger(mu1,sigma1,mu2,sigma2):
-    return torch.sqrt(2*sigma1*sigma2/(sigma1.pow(2)+sigma2.pow(2)))*torch.exp(-(mu1-mu2).pow(2)/(4*(sigma1.pow(2)+sigma2.pow(2))))
+    Sigma1 = torch.diag(torch.square(sigma1)) #square sigmas
+    Sigma2 = torch.diag(torch.square(sigma2)) #square sigmas
+    Sigmabar = (Sigma1 + Sigma2)/2
+    u = (mu1-mu2)
+    #print(Sigma1,Sigma2,Sigmabar,u)
+    #print((torch.det(Sigma1).pow(0.25)*torch.det(Sigma2).pow(0.25)/(torch.det(Sigmabar).pow(0.25))))
+    return (1 - (torch.det(Sigma1).pow(0.25)*torch.det(Sigma2).pow(0.25)/(torch.det(Sigmabar).pow(0.25)))*torch.exp(-0.125*(u.T@torch.inverse(Sigmabar)@u)))
+    #return torch.sqrt(2*sigma1*sigma2/(sigma1.pow(2)+sigma2.pow(2)))*torch.exp(-(mu1-mu2).pow(2)/(4*(sigma1.pow(2)+sigma2.pow(2))))
 
 
 def hellinger_div(mu_m_B, sigma_m_B, mu_s_B, sigma_s_B):
@@ -122,13 +130,14 @@ def hellinger_div(mu_m_B, sigma_m_B, mu_s_B, sigma_s_B):
     for i in range(N):
         # mu1,mu2 ~ N(mu1, mu2 | mu_m_B, sigma_m_B)
         # sigma1,sigma2 ~ N(sigma1,sigma2 | mu_s_B, sigma_s_B)
-        mu1 = mu_m_B + sigma_m_B * torch.randn(1)  # b_dist.sample()#torch.normal(mu_b, sigma_b)
-        mu2 = mu_m_B + sigma_m_B * torch.randn(1)  # b_dist.sample()#torch.normal(mu_b, sigma_b)
-        sigma1 = torch.abs(mu_s_B + sigma_s_B * torch.randn(1))  # torch.normal(mu_b, sigma_b)
-        sigma2 = torch.abs(mu_s_B + sigma_s_B * torch.randn(1))  # torch.normal(mu_b, sigma_b)
+        mu1 = mu_m_B + sigma_m_B * torch.randn(2)  # b_dist.sample()#torch.normal(mu_b, sigma_b)
+        sigma1 = torch.abs(mu_s_B + sigma_s_B * torch.randn(2))  # torch.normal(mu_b, sigma_b)
+        mu2 = mu_m_B + sigma_m_B * torch.randn(2)  # b_dist.sample()#torch.normal(mu_b, sigma_b)
+        sigma2 = torch.abs(mu_s_B + sigma_s_B * torch.randn(2))  # torch.normal(mu_b, sigma_b)
+        #print(mu1,sigma1,mu2, sigma2)
         dv_H += Hellinger(mu1, sigma1, mu2, sigma2)
     dv_H /= N
-    return 1 - dv_H
+    return dv_H
 
 
 def l2l_gaussian_1d(args: Namespace) -> Namespace:
@@ -139,22 +148,22 @@ def l2l_gaussian_1d(args: Namespace) -> Namespace:
     # 3 layers, takes 1 input (float) and guesses which of 5 1-hot output classes
     # the gaussian belong to.
     args.n_cls = 5
-    args.test_skip=False
-    args.hidden_layers = [128,128]#,128,128,128]#[128,128]#[2048,2048,2048,2048,2048,2048,2048,2048] #[128,128,128,128,128,128]###[128,128,128,128]#[15,15]#[128,128,128]#[128,128,128,128]#[32,32,64,128]#[15,15]#[32,32,64,128,128,128]#[32,32,64,128]#[32,32,64,128,128,128]
+    args.hidden_layers = [128,128,128,128]#[128,128]#[2048,2048,2048,2048,2048,2048,2048,2048] #[128,128,128,128,128,128]###[128,128,128,128]#[15,15]#[128,128,128]#[128,128,128,128]#[32,32,64,128]#[15,15]#[32,32,64,128,128,128]#[32,32,64,128]#[32,32,64,128,128,128]
     #args.hidden_layer1 = 15
     #args.hidden_layer2 = 15
-    args.input_size = 1
+    args.input_size = 2
+    args.dim = 2
     # TODO
     args.model_option = '3FNN_5_gaussian' # '4CNN_l2l_cifarfs'
     # args.hidden_size = 1024
     # args.model_hps = dict(ways=args.n_cls, hidden_size=args.hidden_size, embedding_size=args.hidden_size * 4)  # TODO
-    args.model_hps = dict(ways = args.n_cls, hidden_layers = args.hidden_layers, input_size=args.input_size,test_skip=args.test_skip) #TODO: Implement this!
+    args.model_hps = dict(ways = args.n_cls, hidden_layers = args.hidden_layers, input_size=args.input_size) #TODO: Implement this!
 
     # - data TODO
-    args.data_option = 'n_way_gaussians'#' cifarfs_rfs'  #CIFAR RFS dataset # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.data_option = 'n_way_gaussians_nd'#' cifarfs_rfs'  #CIFAR RFS dataset # no name assumes l2l, make sure you're calling get_l2l_tasksets
     args.mu_m_B = 0#int(sys.argv[1])  # 0  # doesn't matter
     args.sigma_m_B = 10#int(sys.argv[2])  # 10
-    args.mu_s_B =1 #int(sys.argv[3])  # 100 #CHANGE THIS
+    args.mu_s_B = 1000 #int(sys.argv[3])  # 100 #CHANGE THIS
     args.sigma_s_B = 0.01#int(sys.argv[4])  # 0.01
     args.div_H = hellinger_div(args.mu_m_B, args.sigma_m_B, args.mu_s_B, args.sigma_s_B)
     #args.rho = 0.1
@@ -178,7 +187,7 @@ def l2l_gaussian_1d(args: Namespace) -> Namespace:
     args.opt_option = 'Adam_rfs_cifarfs'
     args.lr = 1e-3  # match MAML++
 
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.scheduler_option = 'None'
 
     # -- Meta-Learner
     # - maml
@@ -191,7 +200,7 @@ def l2l_gaussian_1d(args: Namespace) -> Namespace:
 
     # - outer trainer params
     #args.batch_size = 32
-    args.batch_size = 100
+    args.batch_size = 8
 
     # - dist args
     args.world_size = 1
@@ -204,7 +213,7 @@ def l2l_gaussian_1d(args: Namespace) -> Namespace:
     # args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
 
     # -
-    args.log_freq = 5#$10000#500#10#500
+    args.log_freq = 500
 
     # -- wandb args
     args.wandb_project = 'maml_5_gaussians' #'sl_vs_ml_iclr_workshop_paper'  # TODO

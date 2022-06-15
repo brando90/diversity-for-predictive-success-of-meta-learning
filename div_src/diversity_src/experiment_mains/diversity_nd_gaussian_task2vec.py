@@ -36,7 +36,7 @@ from uutils.torch_uu.models.probe_networks import get_probe_network
 def diversity_ala_1d_gaussian(args: Namespace) -> Namespace:
     args.batch_size = 5#8
     args.model_option = '3FNN_5_gaussian'
-    args.data_option = 'n_way_gaussians'
+    args.data_option = 'n_way_gaussians_nd'
     # args.batch_size = 2
     #args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
     #args.data_path = Path('~/data/l2l_data/').expanduser()
@@ -44,8 +44,11 @@ def diversity_ala_1d_gaussian(args: Namespace) -> Namespace:
 
     args.mu_m_B = 0  # doesn't matter
     args.sigma_m_B = 10
-    args.mu_s_B = 3 #CHANGE THIS
+    args.mu_s_B = 30 #CHANGE THIS
     args.sigma_s_B = 0.01 #doesnt matter
+    args.dim = 2
+    args.input_size = args.dim
+    args.output_size = 5
 
 
     # - probe_network

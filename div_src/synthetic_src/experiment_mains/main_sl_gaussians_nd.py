@@ -37,8 +37,16 @@ from pdb import set_trace as st
 from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch, train_agent_iterations, \
     train_agent_epochs
 
+#https://cseweb.ucsd.edu/classes/sp11/cse291-d/hw1.pdf
 def Hellinger(mu1,sigma1,mu2,sigma2):
-    return torch.sqrt(2*sigma1*sigma2/(sigma1.pow(2)+sigma2.pow(2)))*torch.exp(-(mu1-mu2).pow(2)/(4*(sigma1.pow(2)+sigma2.pow(2))))
+    Sigma1 = torch.diag(torch.square(sigma1)) #square sigmas
+    Sigma2 = torch.diag(torch.square(sigma2)) #square sigmas
+    Sigmabar = (Sigma1 + Sigma2)/2
+    u = (mu1-mu2)
+    #print(Sigma1,Sigma2,Sigmabar,u)
+    #print((torch.det(Sigma1).pow(0.25)*torch.det(Sigma2).pow(0.25)/(torch.det(Sigmabar).pow(0.25))))
+    return (1 - (torch.det(Sigma1).pow(0.25)*torch.det(Sigma2).pow(0.25)/(torch.det(Sigmabar).pow(0.25)))*torch.exp(-0.125*(u.T@torch.inverse(Sigmabar)@u)))
+    #return torch.sqrt(2*sigma1*sigma2/(sigma1.pow(2)+sigma2.pow(2)))*torch.exp(-(mu1-mu2).pow(2)/(4*(sigma1.pow(2)+sigma2.pow(2))))
 
 
 def hellinger_div(mu_m_B, sigma_m_B, mu_s_B, sigma_s_B):
@@ -47,13 +55,14 @@ def hellinger_div(mu_m_B, sigma_m_B, mu_s_B, sigma_s_B):
     for i in range(N):
         # mu1,mu2 ~ N(mu1, mu2 | mu_m_B, sigma_m_B)
         # sigma1,sigma2 ~ N(sigma1,sigma2 | mu_s_B, sigma_s_B)
-        mu1 = mu_m_B + sigma_m_B * torch.randn(1)  # b_dist.sample()#torch.normal(mu_b, sigma_b)
-        mu2 = mu_m_B + sigma_m_B * torch.randn(1)  # b_dist.sample()#torch.normal(mu_b, sigma_b)
-        sigma1 = torch.abs(mu_s_B + sigma_s_B * torch.randn(1))  # torch.normal(mu_b, sigma_b)
-        sigma2 = torch.abs(mu_s_B + sigma_s_B * torch.randn(1))  # torch.normal(mu_b, sigma_b)
+        mu1 = mu_m_B + sigma_m_B * torch.randn(2)  # b_dist.sample()#torch.normal(mu_b, sigma_b)
+        sigma1 = torch.abs(mu_s_B + sigma_s_B * torch.randn(2))  # torch.normal(mu_b, sigma_b)
+        mu2 = mu_m_B + sigma_m_B * torch.randn(2)  # b_dist.sample()#torch.normal(mu_b, sigma_b)
+        sigma2 = torch.abs(mu_s_B + sigma_s_B * torch.randn(2))  # torch.normal(mu_b, sigma_b)
+        #print(mu1,sigma1,mu2, sigma2)
         dv_H += Hellinger(mu1, sigma1, mu2, sigma2)
     dv_H /= N
-    return 1 - dv_H
+    return dv_Hå
 
 
 def l2l_gaussian_1d_sl(args: Namespace) -> Namespace:
@@ -65,19 +74,21 @@ def l2l_gaussian_1d_sl(args: Namespace) -> Namespace:
     # the gaussian belong to.
     args.model_option = '3FNN_5_gaussian'  # network architecture is same, but we just do all 100 classes instead of 5-shot
     args.n_cls = 100#5
-    args.hidden_layers = [128,128]#[128,128]#[2048,2048,2048,2048,2048,2048,2048,2048] #[128,128,128,128,128,128]###[128,128,128,128]#[15,15]#[128,128,128]#[128,128,128,128]#[32,32,64,128]#[15,15]#[32,32,64,128,128,128]#[32,32,64,128]#[32,32,64,128,128,128]
+
+    args.hidden_layers = [128,128,128,128]#[128,128]#[2048,2048,2048,2048,2048,2048,2048,2048] #[128,128,128,128,128,128]###[128,128,128,128]#[15,15]#[128,128,128]#[128,128,128,128]#[32,32,64,128]#[15,15]#[32,32,64,128,128,128]#[32,32,64,128]#[32,32,64,128,128,128]
     #args.hidden_layer1 = 15
     #args.hidden_layer2 = 15
-    args.input_size = 1
+    args.input_size = 2
     args.model_hps = dict(ways = args.n_cls, hidden_layers = args.hidden_layers, input_size=args.input_size)
 
     # - data TODO
-    args.data_option = 'n_way_gaussians_sl'#TODO
+    args.data_option = 'n_way_gaussians_sl_nd'#TODO
     args.mu_m_B = 0 #doesn't matter
-    args.sigma_m_B = 1000
+    args.sigma_m_B = 1.5
     args.mu_s_B = 1
     args.sigma_s_B = 0.01
     args.div_H = hellinger_div(args.mu_m_B, args.sigma_m_B, args.mu_s_B, args.sigma_s_B)
+    args.dim = 2
     #args.rho = 0.1
     args.k_shots = 10#10#10#10
     args.k_eval = 30#30#30#30
@@ -88,14 +99,14 @@ def l2l_gaussian_1d_sl(args: Namespace) -> Namespace:
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
     args.num_epochs = 1_000_000
-    args.batch_size = 32#256 #TODO: How to make learning rates fair comparison with MAML?
-    args.batch_size_eval = 32# TODO: WHat is this?
+    args.batch_size = 1000#256 #TODO: How to make learning rates fair comparison with MAML?
+    args.batch_size_eval = 1000# TODO: WHat is this?
     args.lr = 1e-3#5e-3 #TODO: How to make learning rates fair comparison with MAML?
     args.opt_hps: dict = dict(lr=args.lr)
     args.scheduler_option = 'None'
 
     # - training mode
-    args.training_mode = 'fit_single_batch' #'iterations' #TODO: whats the difference?
+    args.training_mode = 'epochs' #'iterations' #TODO: whats the difference?
 
 
     args.debug = True
@@ -115,7 +126,7 @@ def l2l_gaussian_1d_sl(args: Namespace) -> Namespace:
     args.wandb_project = 'maml_5_gaussians_sl' #'sl_vs_ml_iclr_workshop_paper'  # TODO
     # - wandb expt args
     # args.experiment_name = f'debug'
-    args.experiment_name = 'l2l_gaussian_1d_sl' #f'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # TODO
+    args.experiment_name = 'l2l_gaussian_nd_sl' #f'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'  # TODO
     args.run_name = f'{args.div_H} {args.mu_m_B} {args.sigma_m_B} {args.mu_s_B} {args.sigma_s_B} {args.hidden_layers} {args.batch_size} {args.model_option} {args.opt_option} {args.scheduler_option} {args.input_size} {args.n_cls} {args.lr}: {args.jobid=}'  # TODO
     # args.log_to_wandb = True  # TODO when real
     args.log_to_wandb = False#True

@@ -65,12 +65,14 @@ def args_fnn_gaussian(args: Namespace) -> Namespace:
     # - model
     args.model_option = '3FNN_5_gaussian'
     args.hidden_layers = [128,128,128,128]
+    args.dim = 2
+    args.input_size = args.dim
 
     # - data
-    args.data_option = 'n_way_gaussians'  # no name assumes l2l
+    args.data_option = 'n_way_gaussians_nd'  # no name assumes l2l
     args.mu_m_B = 0  # doesn't matter
     args.sigma_m_B = 10
-    args.mu_s_B = 30
+    args.mu_s_B = 1000
     args.sigma_s_B = 0.01
     #args.data_path = Path('~/data/torchmeta_data/').expanduser()
     #args.augment_train = True
@@ -81,10 +83,10 @@ def args_fnn_gaussian(args: Namespace) -> Namespace:
     # note: 60K iterations for original maml 5CNN with adam
     args.num_its = 1
 
-    args.path_2_init_sl ='~/Documents/JunRuns/0_10_30_001_USL' #'~/Documents/logs/0.18USL'
+    args.path_2_init_sl ='~/Documents/JunNew/0_10_1000_001_USL' #'~/Documents/logs/0.18USL'
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/ip20v98t/logs?workspace=user-brando
     # args.path_2_init_maml = '~/Documents/data/logs/logs_Apr27_02-22-19_jobid_-1'  # Adam MAML 1dgaussian 1x128x128x5
-    args.path_2_init_maml ='~/Documents/JunRuns/0_10_30_001_MAML' #'~/Documents/logggy/0.19MAML'
+    args.path_2_init_maml ='~/Documents/JunNew/0_10_1000_001_MAML' #'~/Documents/logggy/0.19MAML'
 
     # - debug flag
     # args.debug = True
@@ -170,10 +172,10 @@ def args_fnn_gaussian(args: Namespace) -> Namespace:
     # args.device = get_device()
 
     # -- wandb args
-    args.wandb_project = 'maml_vs_sl_5_gaussians'
+    args.wandb_project = 'maml_vs_sl_5_gaussians_nd'
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_args_fnn_gaussian'
-    args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
+    args.run_name = f'dim={args.dim} {args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
     args.log_to_wandb = True
     args.wandb_entity ="brando-uiuc"
     #args.log_to_wandb = False
@@ -238,7 +240,7 @@ def main_data_analyis():
     # - get dataloaders and overwrites so data analysis runs as we want
 
     #args.dataloaders: dict = get_meta_learning_dataloader(args)
-    from uutils.torch_uu.dataloaders.meta_learning.gaussian_1d_tasksets import get_tasksets
+    from uutils.torch_uu.dataloaders.meta_learning.gaussian_nd_tasksets import get_tasksets
     args.dataloaders: BenchmarkTasksets = get_tasksets(
         args.data_option,
         train_samples=args.k_shots + args.k_eval,  # k shots for meta-train, k eval for meta-validaton/eval
@@ -249,6 +251,7 @@ def main_data_analyis():
         sigma_m_B=args.sigma_m_B,
         mu_s_B=args.mu_s_B,
         sigma_s_B=args.sigma_s_B,
+        dim = args.dim
         # root=args.data_path, #No need for datafile
         # data_augmentation=args.data_augmentation, #TODO: currently not implemented! Do we need to implement?
     )
