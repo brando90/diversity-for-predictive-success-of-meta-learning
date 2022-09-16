@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# used this before dgx used slurm
+
 echo -- Start my submission file
 
 export SLURM_JOBID=$(((RANDOM)))

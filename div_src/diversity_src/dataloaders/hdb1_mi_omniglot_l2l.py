@@ -112,6 +112,11 @@ def get_omniglot_datasets(
         device=None,
         **kwargs,
 ):
+    """
+    Get omniglot data set with the provided re-size function -- since when combining different data sets they have to
+    be re-sized to have the same size.
+    For example, `hdb1` uses the re-size size of MI.
+    """
     if data_transform_option == 'l2l_original_data_transform':
         data_transforms = transforms.Compose([
             transforms.Resize(28, interpolation=LANCZOS),
@@ -176,6 +181,10 @@ def get_mi_datasets(
         device=None,
         **kwargs,
 ):
+    """
+    Returns MI according to l2l -- note it seems we are favoring the resizing of MI since when unioning datasets they
+    have to have the same size.
+    """
     if data_augmentation is None:
         train_data_transforms = None
         test_data_transforms = None

@@ -93,7 +93,7 @@ def l2l_resnet12rfs_mi_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -101,7 +101,8 @@ def l2l_resnet12rfs_mi_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
 
     # -
-    args.log_freq = 500
+    # args.log_freq = 500
+    args.log_freq = 1
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
@@ -110,8 +111,8 @@ def l2l_resnet12rfs_mi_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_resnet12rfs_mi_rfs_adam_cl_100k'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -165,13 +166,13 @@ def l2l_5CNNl2l_mi_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     args.first_order = False
 
     # - outer trainer params
-    args.batch_size = 32
     args.batch_size = 8
+    args.batch_size = 2
 
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -250,7 +251,7 @@ def l2l_5CNNl2l_mi_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 4
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -328,7 +329,7 @@ def l2l_resnet12rfs_mi_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -407,7 +408,7 @@ def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -484,7 +485,7 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -638,7 +639,7 @@ def l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -793,7 +794,7 @@ def l2l_resnet12rfs_mi_adam_no_scheduler_100k(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -873,7 +874,7 @@ def l2l_5CNN_mi_adam_filter_size(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -950,7 +951,7 @@ def l2l_5CNN_mi_adam_filter_size_32_filter_size(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1027,7 +1028,7 @@ def l2l_5CNN_mi_adam_filter_size_16_filter_size(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1104,7 +1105,7 @@ def l2l_5CNN_mi_adam_filter_size_8_filter_size(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1181,7 +1182,7 @@ def l2l_5CNN_mi_adam_filter_size_4_filter_size(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
-    args.parallel = True
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1250,14 +1251,16 @@ def l2l_resnet12rfs_hdb1_100k(args: Namespace) -> Namespace:
     args.first_order = False
 
     # - outer trainer params
-    args.batch_size = 32
-    args.batch_size = 8
+    # args.batch_size = 32
+    # args.batch_size = 8
+    args.batch_size = 4
+    args.batch_size = 2
 
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
-    args.parallel = True
-    # args.parallel = False
+    # args.parallel = args.world_size > 1
+    args.parallel = False
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1338,7 +1341,7 @@ def l2l_resnet18task2vec_hdb1_100k(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
-    args.parallel = True
+    args.parallel = args.world_size > 1
     # args.parallel = False
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
@@ -1415,7 +1418,7 @@ def l2l_5cnn_hdb1_100k(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
-    args.parallel = True
+    args.parallel = args.world_size > 1
     # args.parallel = False
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
@@ -1454,7 +1457,7 @@ def load_args() -> Namespace:
     # args: Namespace = parse_args_standard_sl()
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'l2l_5CNN_mi_adam_filter_size'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'l2l_resnet12rfs_hdb1_100k'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
