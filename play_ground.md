@@ -81,3 +81,12 @@ condor_submit ~/diversity-for-predictive-success-of-meta-learning/job.sub
 ```bash
 cat ~/diversity-for-predictive-success-of-meta-learning/job.sub
 ```
+
+
+# Last try to fix main
+
+```bash
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_mi_rfs_adam_cl_100k
+
+python -m pdb -c continue ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_mi_rfs_adam_cl_100k
+```
