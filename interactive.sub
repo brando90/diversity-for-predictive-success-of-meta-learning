@@ -1,8 +1,9 @@
 Request_gpus = 2
-requirements = (CUDADeviceName != "Tesla K40m")
+# requirements = (CUDADeviceName != "Tesla K40m")
 # requirements = (CUDADeviceName == "Quadro RTX 6000")
 # requirements = (CUDADeviceName == "Titan Xp")
 # requirements = (CUDADeviceName == "NVIDIA A40") || (CUDADeviceName == "Quadro RTX 6000")
+requirements = (CUDADeviceName == "NVIDIA A40")
 
 # Request_cpus = 4
 Request_cpus = 8

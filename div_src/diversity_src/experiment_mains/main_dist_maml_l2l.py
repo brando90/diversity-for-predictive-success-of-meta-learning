@@ -1207,9 +1207,9 @@ def l2l_5CNN_mi_adam_filter_size_4_filter_size(args: Namespace) -> Namespace:
     return args
 
 
-# - hdb1 = MI + Omni
+# - hdb1 = MI + Omni = MIO
 
-def l2l_resnet12rfs_hdb1_100k(args: Namespace) -> Namespace:
+def l2l_resnet12rfs_hdb1_100k_adam_no_scheduler(args: Namespace) -> Namespace:
     """
     """
     from pathlib import Path
@@ -1230,16 +1230,16 @@ def l2l_resnet12rfs_hdb1_100k(args: Namespace) -> Namespace:
     args.num_its = 100_000
 
     # - debug flag
-    # args.debug = True
-    args.debug = False
+    args.debug = True
+    # args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
     args.lr = 1e-3  # match MAML++
     args.opt_hps: dict = dict(lr=args.lr)
 
-    # args.scheduler_option = 'None'
     args.scheduler_option = 'None'
+    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
 
     # -- Meta-Learner
     # - maml
@@ -1252,15 +1252,13 @@ def l2l_resnet12rfs_hdb1_100k(args: Namespace) -> Namespace:
 
     # - outer trainer params
     # args.batch_size = 32
-    # args.batch_size = 8
-    args.batch_size = 4
+    args.batch_size = 8
     args.batch_size = 2
 
     # - dist args
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
-    # args.parallel = args.world_size > 1
-    args.parallel = False
+    args.parallel = args.world_size > 1
     args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1277,8 +1275,81 @@ def l2l_resnet12rfs_hdb1_100k(args: Namespace) -> Namespace:
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_resnet12rfs_mi_rfs_adam_cl_100k'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+def l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler(args: Namespace) -> Namespace:
+    """
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = 'resnet12_rfs_mi'
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)
+
+    # - data
+    args.data_option = 'hdb1'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'hdb1'
+
+    # - training mode
+    args.training_mode = 'iterations'
+
+    # note: 60K iterations for original maml 5CNN with adam
+    args.num_its = 100_000
+
+    # - debug flag
+    args.debug = True
+    # args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.nb_inner_train_steps = 5
+    # args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
+    # args.first_order = True
+    args.first_order = False
+
+    # - outer trainer params
+    args.batch_size = 8
+    args.batch_size = 2
+
+    # - dist args
+    args.world_size = torch.cuda.device_count()
+    # args.world_size = 8
+    args.parallel = args.world_size > 1
+    args.seed = 42  # I think this might be important due to how tasksets works.
+    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
+    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+
+    # -
+    args.log_freq = 500
+
+    # -- wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    # args.experiment_name = f'debug'
+    args.experiment_name = f'l2l_resnet12rfs_mi_rfs_adam_cl_100k'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -1442,6 +1513,7 @@ def l2l_5cnn_hdb1_100k(args: Namespace) -> Namespace:
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
     return args
+
 
 # hbd2 = cifar-fs + Omni
 
