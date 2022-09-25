@@ -89,22 +89,14 @@ to make sure your main script is run
 
 My goal is to put the large heavy stuff (e.g. conda, data, ) at `/shared/rsaas/miranda9/`
 ```bash
-mv ~/data /shared/rsaas/miranda9/data
+mv ~/data /shared/rsaas/miranda9/
 ln -s /shared/rsaas/miranda9/data ~/data 
 
 mv ~/miniconda3 /shared/rsaas/miranda9/miniconda3
 ln -s /shared/rsaas/miranda9/miniconda3 ~/miniconda3
 
-mv ~/data_folder_fall2020_spring2021 /shared/rsaas/miranda9/data_folder_fall2020_spring2021
+mv ~/data_folder_fall2020_spring2021 /shared/rsaas/miranda9/
 ln -s /shared/rsaas/miranda9/data_folder_fall2020_spring2021 ~/data_folder_fall2020_spring2021
-```
-
-## raid example data mv
-
-``bash
-# example in raid/dgx
-mv ~/data /raid/projects/miranda9/data
-ln -s /raid/projects/miranda9/data ~/data
 ```
 
 # Data

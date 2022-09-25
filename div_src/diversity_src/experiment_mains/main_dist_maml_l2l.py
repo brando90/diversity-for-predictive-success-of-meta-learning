@@ -1230,8 +1230,8 @@ def l2l_resnet12rfs_hdb1_100k_adam_no_scheduler(args: Namespace) -> Namespace:
     args.num_its = 100_000
 
     # - debug flag
-    args.debug = True
-    # args.debug = False
+    # args.debug = True
+    args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
@@ -1239,7 +1239,6 @@ def l2l_resnet12rfs_hdb1_100k_adam_no_scheduler(args: Namespace) -> Namespace:
     args.opt_hps: dict = dict(lr=args.lr)
 
     args.scheduler_option = 'None'
-    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
 
     # -- Meta-Learner
     # - maml
@@ -1273,10 +1272,10 @@ def l2l_resnet12rfs_hdb1_100k_adam_no_scheduler(args: Namespace) -> Namespace:
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     # args.experiment_name = f'debug'
-    args.experiment_name = f'l2l_resnet12rfs_mi_rfs_adam_cl_100k'
+    args.experiment_name = f'l2l_resnet12rfs_hdb1_100k_adam_no_scheduler'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -1304,15 +1303,14 @@ def l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler(args: Namespace) -> Namespac
     args.num_its = 100_000
 
     # - debug flag
-    args.debug = True
-    # args.debug = False
+    # args.debug = True
+    args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
     args.lr = 1e-3  # match MAML++
     args.opt_hps: dict = dict(lr=args.lr)
 
-    # args.scheduler_option = 'None'
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
 
     # -- Meta-Learner
@@ -1325,8 +1323,9 @@ def l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler(args: Namespace) -> Namespac
     args.first_order = False
 
     # - outer trainer params
+    # args.batch_size = 32
     args.batch_size = 8
-    args.batch_size = 2
+    # args.batch_size = 2
 
     # - dist args
     args.world_size = torch.cuda.device_count()
@@ -1346,15 +1345,86 @@ def l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler(args: Namespace) -> Namespac
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     # args.experiment_name = f'debug'
-    args.experiment_name = f'l2l_resnet12rfs_mi_rfs_adam_cl_100k'
+    args.experiment_name = f'l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
     return args
 
+
+def l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order(args: Namespace) -> Namespace:
+    """
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = 'resnet12_rfs_mi'
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)
+
+    # - data
+    args.data_option = 'hdb1'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'hdb1'
+
+    # - training mode
+    args.training_mode = 'iterations'
+
+    # note: 60K iterations for original maml 5CNN with adam
+    args.num_its = 100_000
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.nb_inner_train_steps = 5
+    args.first_order = True
+    # args.first_order = False
+
+    # - outer trainer params
+    # args.batch_size = 32
+    args.batch_size = 8
+    # args.batch_size = 2
+
+    # - dist args
+    args.world_size = torch.cuda.device_count()
+    # args.world_size = 8
+    args.parallel = args.world_size > 1
+    args.seed = 42  # I think this might be important due to how tasksets works.
+    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
+    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+
+    # -
+    args.log_freq = 500
+
+    # -- wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    # args.experiment_name = f'debug'
+    args.experiment_name = f'l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.first_order=}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
 
 def l2l_resnet18task2vec_hdb1_100k(args: Namespace) -> Namespace:
     """
@@ -1530,9 +1600,10 @@ def load_args() -> Namespace:
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'l2l_resnet12rfs_hdb1_100k'  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'l2l_resnet12rfs_mi_rfs_adam_cl_100k'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'l2l_resnet12rfs_mi_rfs_adam_cl_100k'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
+    print(f'{args.manual_loads_name=}')
     if resume_from_checkpoint(args):
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
     elif args_hardcoded_in_script(args):
@@ -1566,15 +1637,12 @@ def load_args() -> Namespace:
             args: Namespace = l2l_5CNN_mi_adam_filter_size_8_filter_size(args)
         elif args.manual_loads_name == 'l2l_5CNN_mi_adam_filter_size_4_filter_size':
             args: Namespace = l2l_5CNN_mi_adam_filter_size_4_filter_size(args)
-
-        elif args.manual_loads_name == 'l2l_resnet12rfs_hdb1_100k':
-            args: Namespace = l2l_resnet12rfs_hdb1_100k(args)
-
-        elif args.manual_loads_name == 'l2l_resnet18task2vec_hdb1_100k':
-            args: Namespace = l2l_resnet18task2vec_hdb1_100k(args)
-
-        elif args.manual_loads_name == 'l2l_5cnn_hdb1_100k':
-            args: Namespace = l2l_5cnn_hdb1_100k(args)
+        elif args.manual_loads_name == 'l2l_resnet12rfs_hdb1_100k_adam_no_scheduler':
+            args: Namespace = l2l_resnet12rfs_hdb1_100k_adam_no_scheduler(args)
+        elif args.manual_loads_name == 'l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler':
+            args: Namespace = l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler(args)
+        elif args.manual_loads_name == 'l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order':
+            args: Namespace = l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
