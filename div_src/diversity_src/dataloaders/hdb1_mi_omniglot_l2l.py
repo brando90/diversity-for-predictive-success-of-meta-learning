@@ -5,32 +5,32 @@ Note:
     - train_samples != k_shots and test_samples != k_eval. Instead train_samples = test_samples = k_shots + k_eval.
 ref:
     - https://wandb.ai/brando/entire-diversity-spectrum/reports/Copy-of-brando-s-Div-ala-task2vec-HDB1-mi-omniglot-HDB2-cifarfs-omniglot---VmlldzoyMDc3OTAz
+    - discussion: https://github.com/learnables/learn2learn/issues/333
 
-Diversity: (div, ci)﻿=﻿(﻿0.2161356031894684﻿, 0.038439472241579925﻿)
+Diversity: (div, ci)=(0.2161356031894684, 0.038439472241579925)
 """
 import os
 import random
-from typing import Callable
 
 import learn2learn as l2l
 import numpy as np
 import torch
-import torchvision
-from learn2learn.data import MetaDataset, FilteredMetaDataset, DataDescription
+from learn2learn.data import MetaDataset, FilteredMetaDataset
 from learn2learn.data.transforms import TaskTransform
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 from torch import nn
 from torchvision.transforms import Compose, Normalize, ToPILImage, RandomCrop, ColorJitter, RandomHorizontalFlip, \
     ToTensor
 
-from diversity_src.dataloaders.common import IndexableDataSet, ToRGB, BenchmarkName
+from diversity_src.dataloaders.common import IndexableDataSet, ToRGB, DifferentTaskTransformIndexableForEachDataset
 
 from torchvision import transforms
 from PIL.Image import LANCZOS
 
 from models import get_model
 
-def get_remaining_transforms_mi(dataset: MetaDataset, ways:int, samples: int) -> list[TaskTransform]:
+
+def get_remaining_transforms_mi(dataset: MetaDataset, ways: int, samples: int) -> list[TaskTransform]:
     import learn2learn as l2l
     remaining_task_transforms = [
         l2l.data.transforms.NWays(dataset, ways),
@@ -40,6 +40,7 @@ def get_remaining_transforms_mi(dataset: MetaDataset, ways:int, samples: int) ->
         l2l.data.transforms.ConsecutiveLabels(dataset),
     ]
     return remaining_task_transforms
+
 
 def get_remaining_transforms_omniglot(dataset: MetaDataset, ways: int, shots: int) -> list[TaskTransform]:
     import learn2learn as l2l
@@ -51,59 +52,6 @@ def get_remaining_transforms_omniglot(dataset: MetaDataset, ways: int, shots: in
         l2l.vision.transforms.RandomClassRotation(dataset, [0.0, 90.0, 180.0, 270.0])
     ]
     return remaining_task_transforms
-
-class TaskTransformIndexableDataset(Callable):
-    """
-    Transform that samples a data set first (from indexable data set),
-    then creates a cls fls task (e.g. n-way, k-shot) and finally
-    gets the remaining task transforms for that data set and applies it.
-    """
-
-    def __init__(self,
-                 indexable_dataset: IndexableDataSet,
-                 dict_cons_remaining_task_transforms: dict[BenchmarkName, Callable],
-                 ):
-        """
-
-        :param cons_remaining_task_transforms: list of constructors to constructs of task transforms for each data set.
-        Given a data set you get the remaining task transforms for that data set so to create tasks properly for
-        that data set. One the right data set (and thus split) is known from the name, by indexing using the name you
-        get a constructor (function) that should be of type MetaDataset -> list[TaskTransforms]
-        i.e. given the actualy dataset (not the name) it returns the remaining transforms for it.
-        """
-        self.indexable_dataset = MetaDataset(indexable_dataset)
-        self.dict_cons_remaining_task_transforms = dict_cons_remaining_task_transforms
-
-    def __call__(self, task_description: list):
-        """
-        idea:
-        - receives the index of the dataset to use
-        - then use the normal NWays l2l function
-        """
-        # - this is what I wish could have gone in a seperate callable transform, but idk how since the transforms take apriori (not dynamically) which data set to use.
-        i = random.randint(0, len(self.indexable_dataset) - 1)
-        task_description = [DataDescription(index=i)]  # using this to follow the l2l convention
-
-        # - get the sampled data set
-        dataset_index = task_description[0].index
-        dataset = self.indexable_dataset[dataset_index]
-        dataset = MetaDataset(dataset) if not isinstance(dataset, MetaDataset) else dataset
-        dataset_name = dataset.name
-        # print(f'{dataset_name=}')
-        # self.assert_right_dataset(dataset)
-
-        # - use the sampled data set to create task
-        remaining_task_transforms: list[TaskTransform] = self.dict_cons_remaining_task_transforms[dataset_name](dataset)
-        description = None
-        for transform in remaining_task_transforms:
-            description = transform(description)
-        return description
-
-    # def assert_right_dataset(dataset):
-    #     if 'mi' in dataset.name:
-    #         assert isinstance(dataset.dataset, l2l.vision.datasets.mini_imagenet.MiniImagenet)
-    #     else:
-    #         assert isinstance(dataset.dataset.dataset, l2l.vision.datasets.full_omniglot.FullOmniglot)
 
 
 def get_omniglot_datasets(
@@ -330,9 +278,12 @@ def hd1_mi_omniglot_tasksets(
         test_dataset[1].name: test_task_transform_omni
     }
 
-    train_transforms: TaskTransform = TaskTransformIndexableDataset(train_dataset, dict_cons_remaining_task_transforms)
-    validation_transforms: TaskTransform = TaskTransformIndexableDataset(validation_dataset, dict_cons_remaining_task_transforms)
-    test_transforms: TaskTransform = TaskTransformIndexableDataset(test_dataset, dict_cons_remaining_task_transforms)
+    train_transforms: TaskTransform = DifferentTaskTransformIndexableForEachDataset(train_dataset,
+                                                                                    dict_cons_remaining_task_transforms)
+    validation_transforms: TaskTransform = DifferentTaskTransformIndexableForEachDataset(validation_dataset,
+                                                                                         dict_cons_remaining_task_transforms)
+    test_transforms: TaskTransform = DifferentTaskTransformIndexableForEachDataset(test_dataset,
+                                                                                   dict_cons_remaining_task_transforms)
 
     # Instantiate the tasksets
     train_tasks = l2l.data.TaskDataset(
@@ -352,6 +303,7 @@ def hd1_mi_omniglot_tasksets(
     )
     return BenchmarkTasksets(train_tasks, validation_tasks, test_tasks)
 
+
 # - test
 
 def loop_through_l2l_indexable_benchmark_with_model_test():
@@ -361,7 +313,6 @@ def loop_through_l2l_indexable_benchmark_with_model_test():
     np.random.seed(0)
 
     # - options for number of tasks/meta-batch size
-    # args TODO
     batch_size = 5
 
     # - get benchmark
@@ -375,7 +326,6 @@ def loop_through_l2l_indexable_benchmark_with_model_test():
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     model = get_model('resnet18', pretrained=False, num_classes=5).to(device)
     criterion = nn.CrossEntropyLoss()
-    # TODO: model = resnet12
     for i, taskset in enumerate(tasksets):
         print(f'-- {splits[i]=}')
         for task_num in range(batch_size):
@@ -392,6 +342,7 @@ def loop_through_l2l_indexable_benchmark_with_model_test():
             print()
 
     print('-- end of test --')
+
 
 # -- Run experiment
 

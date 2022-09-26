@@ -15,11 +15,10 @@ from learn2learn.vision.benchmarks import BenchmarkTasksets
 from torch import nn
 from torchvision.transforms import Compose
 
-from diversity_src.dataloaders.common import IndexableDataSet, ToRGB
-
+from diversity_src.dataloaders.common import IndexableDataSet, ToRGB, DifferentTaskTransformIndexableForEachDataset
 
 from diversity_src.dataloaders.hdb1_mi_omniglot_l2l import get_omniglot_datasets, get_remaining_transforms_mi, \
-    get_remaining_transforms_omniglot, TaskTransformIndexableDataset
+    get_remaining_transforms_omniglot
 from models import get_model
 from uutils.torch_uu.dataloaders.cifar100fs_fc100 import get_transform
 
@@ -158,10 +157,10 @@ def hd2_cifarfs_omniglot_tasksets(
         test_dataset[1].name: test_task_transform_omni
     }
 
-    train_transforms: TaskTransform = TaskTransformIndexableDataset(train_dataset, dict_cons_remaining_task_transforms)
-    validation_transforms: TaskTransform = TaskTransformIndexableDataset(validation_dataset,
-                                                                         dict_cons_remaining_task_transforms)
-    test_transforms: TaskTransform = TaskTransformIndexableDataset(test_dataset, dict_cons_remaining_task_transforms)
+    train_transforms: TaskTransform = DifferentTaskTransformIndexableForEachDataset(train_dataset, dict_cons_remaining_task_transforms)
+    validation_transforms: TaskTransform = DifferentTaskTransformIndexableForEachDataset(validation_dataset,
+                                                                                         dict_cons_remaining_task_transforms)
+    test_transforms: TaskTransform = DifferentTaskTransformIndexableForEachDataset(test_dataset, dict_cons_remaining_task_transforms)
 
     # Instantiate the tasksets
     train_tasks = l2l.data.TaskDataset(
@@ -191,7 +190,6 @@ def loop_through_l2l_indexable_benchmark_with_model_hdb2_test():
     np.random.seed(0)
 
     # - options for number of tasks/meta-batch size
-    # args TODO
     batch_size = 5
 
     # - get benchmark
