@@ -59,7 +59,7 @@ def get_omniglot_datasets(
         data_transform_option: str = 'hdb1',
         device=None,
         **kwargs,
-):
+) -> tuple[MetaDataset, MetaDataset, MetaDataset]:
     """
     Get omniglot data set with the provided re-size function -- since when combining different data sets they have to
     be re-sized to have the same size.
@@ -128,7 +128,7 @@ def get_mi_datasets(
         data_augmentation='hdb1',
         device=None,
         **kwargs,
-):
+) -> tuple[MetaDataset, MetaDataset, MetaDataset]:
     """
     Returns MI according to l2l -- note it seems we are favoring the resizing of MI since when unioning datasets they
     have to have the same size.
@@ -208,6 +208,26 @@ def get_mi_datasets(
     return _datasets
 
 
+def get_mi_and_omniglot_list_data_set_splits(
+        root: str = '~/data/l2l_data/',
+        data_augmentation: str = 'hdb1',
+        device=None,
+):
+    dataset_list_train: list[MetaDataset, MetaDataset, MetaDataset] = []
+    dataset_list_validation: list[MetaDataset, MetaDataset, MetaDataset] = []
+    dataset_list_test: list[MetaDataset, MetaDataset, MetaDataset] = []
+
+    train_dataset, validation_dataset, test_dataset = get_mi_datasets(root, data_augmentation, device)
+    dataset_list_train.append(train_dataset)
+    dataset_list_validation.append(validation_dataset)
+    dataset_list_test.append(test_dataset)
+    train_dataset, validation_dataset, test_dataset = get_omniglot_datasets(root, data_augmentation, device)
+    dataset_list_train.append(train_dataset)
+    dataset_list_validation.append(validation_dataset)
+    dataset_list_test.append(test_dataset)
+    return dataset_list_train, dataset_list_validation, dataset_list_test
+
+
 def get_indexable_list_of_datasets_mi_and_omniglot(
         root: str = '~/data/l2l_data/',
         data_augmentation='hdb1',
@@ -219,18 +239,9 @@ def get_indexable_list_of_datasets_mi_and_omniglot(
         - omniglot has no img data (i.e. x) data augmentation but mi does (random crop, color jitter, h flip).
         Omniglot's img (i.e. x) transform is only to match size of mi images.
     """
-    dataset_list_train = []
-    dataset_list_validation = []
-    dataset_list_test = []
-
-    train_dataset, validation_dataset, test_dataset = get_mi_datasets(root, data_augmentation, device)
-    dataset_list_train.append(train_dataset)
-    dataset_list_validation.append(validation_dataset)
-    dataset_list_test.append(test_dataset)
-    train_dataset, validation_dataset, test_dataset = get_omniglot_datasets(root, device=device)
-    dataset_list_train.append(train_dataset)
-    dataset_list_validation.append(validation_dataset)
-    dataset_list_test.append(test_dataset)
+    dataset_list_train, dataset_list_validation, dataset_list_test = get_mi_and_omniglot_list_data_set_splits(root,
+                                                                                                              data_augmentation,
+                                                                                                              device)
 
     train_dataset = IndexableDataSet(dataset_list_train)
     validation_dataset = IndexableDataSet(dataset_list_validation)
@@ -239,7 +250,7 @@ def get_indexable_list_of_datasets_mi_and_omniglot(
     return _datasets
 
 
-def hd1_mi_omniglot_tasksets(
+def hdb1_mi_omniglot_tasksets(
         train_ways=5,
         train_samples=10,
         test_ways=5,
@@ -248,7 +259,7 @@ def hd1_mi_omniglot_tasksets(
         root='~/data/l2l_data/',
         device=None,
         **kwargs,
-):
+) -> BenchmarkTasksets:
     root = os.path.expanduser(root)
 
     #
@@ -316,7 +327,7 @@ def loop_through_l2l_indexable_benchmark_with_model_test():
     batch_size = 5
 
     # - get benchmark
-    benchmark: BenchmarkTasksets = hd1_mi_omniglot_tasksets()
+    benchmark: BenchmarkTasksets = hdb1_mi_omniglot_tasksets()
 
     # - get train taskdata set
     splits = ['train', 'validation', 'test']

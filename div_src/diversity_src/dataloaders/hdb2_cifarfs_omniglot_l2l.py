@@ -118,7 +118,7 @@ def get_indexable_list_of_datasets_cifarfs_and_omniglot(
     return _datasets
 
 
-def hd2_cifarfs_omniglot_tasksets(
+def hdb2_cifarfs_omniglot_tasksets(
         train_ways=5,
         train_samples=10,
         test_ways=5,
@@ -193,7 +193,7 @@ def loop_through_l2l_indexable_benchmark_with_model_hdb2_test():
     batch_size = 5
 
     # - get benchmark
-    benchmark: BenchmarkTasksets = hd2_cifarfs_omniglot_tasksets()
+    benchmark: BenchmarkTasksets = hdb2_cifarfs_omniglot_tasksets()
 
     # - get train taskdata set
     splits = ['train', 'validation', 'test']
