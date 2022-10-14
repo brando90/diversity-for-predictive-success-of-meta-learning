@@ -106,7 +106,7 @@ def get_omniglot_datasets(
     # dataset: MetaDataset = l2l.data.MetaDataset(omniglot)
 
     classes = list(range(1623))
-    random.shuffle(classes)
+    # random.shuffle(classes)  # todo: wish I wouldn't have copied l2l here and removed this...idk if shuffling this does anything interesting. Doubt it.
     train_dataset: FilteredMetaDataset = l2l.data.FilteredMetaDataset(dataset, labels=classes[:1100])
     validation_dataset: FilteredMetaDataset = l2l.data.FilteredMetaDataset(dataset, labels=classes[1100:1200])
     test_dataset: FilteredMetaDataset = l2l.data.FilteredMetaDataset(dataset, labels=classes[1200:])
@@ -319,9 +319,9 @@ def hdb1_mi_omniglot_tasksets(
 
 def loop_through_l2l_indexable_benchmark_with_model_test():
     # - for determinism
-    random.seed(0)
-    torch.manual_seed(0)
-    np.random.seed(0)
+    # random.seed(0)
+    # torch.manual_seed(0)
+    # np.random.seed(0)
 
     # - options for number of tasks/meta-batch size
     batch_size = 5
@@ -355,6 +355,18 @@ def loop_through_l2l_indexable_benchmark_with_model_test():
     print('-- end of test --')
 
 
+def check_if_omniglots_labels_are_consistent():
+    _datasets = get_omniglot_datasets()
+    train, val, test = _datasets
+    print(train.labels)
+    print(val.labels)
+    print(test.labels)
+    _datasets = get_omniglot_datasets()
+    train, val, test = _datasets
+    print(train.labels)
+    print(val.labels)
+    print(test.labels)
+
 # -- Run experiment
 
 if __name__ == "__main__":
@@ -363,6 +375,7 @@ if __name__ == "__main__":
 
     start = time.time()
     # - run experiment
-    loop_through_l2l_indexable_benchmark_with_model_test()
+    # loop_through_l2l_indexable_benchmark_with_model_test()
+    check_if_omniglots_labels_are_consistent()
     # - Done
     print(f"\nSuccess Done!: {report_times(start)}\a")

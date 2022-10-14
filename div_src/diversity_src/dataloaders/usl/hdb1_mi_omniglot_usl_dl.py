@@ -12,8 +12,10 @@ from argparse import Namespace
 import numpy as np
 import torch
 from torch import nn
+from torch.utils.data import Dataset
 
 from diversity_src.dataloaders.hdb1_mi_omniglot_l2l import get_mi_and_omniglot_list_data_set_splits
+from uutils.torch_uu.dataset.concate_dataset import ConcatDatasetMutuallyExclusiveLabels
 
 
 def hdb1_mi_omniglot_usl_all_splits_dataloaders(
@@ -25,13 +27,12 @@ def hdb1_mi_omniglot_usl_all_splits_dataloaders(
     dataset_list_train, dataset_list_validation, dataset_list_test = get_mi_and_omniglot_list_data_set_splits(root,
                                                                                                               data_augmentation,
                                                                                                               device)
-    from learn2learn.data import UnionMetaDataset
-    train_dataset = UnionMetaDataset(dataset_list_train)
-    valid_dataset = UnionMetaDataset(dataset_list_validation)
-    test_dataset = UnionMetaDataset(dataset_list_test)
-    assert len(train_dataset.labels) == 64 + 1100, f'mi + omnigloat should be number of labels 1164.'
-    assert len(valid_dataset.labels) == 16 + 100, f'mi + omnigloat should be number of labels 116.'
-    assert len(test_dataset.labels) == 20 + 423, f'mi + omnigloat should be number of labels 443.'
+    train_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_train)
+    valid_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_validation)
+    test_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_test)
+    assert len(train_dataset.labels) == 64 + 1100, f'mio should be number of labels 1164 but got {len(train_dataset.labels)=}'
+    assert len(valid_dataset.labels) == 16 + 100, f'mio should be number of labels 116 but got {len(valid_dataset.labels)=}'
+    assert len(test_dataset.labels) == 20 + 423, f'mio should be number of labels 443  but got {len(test_dataset.labels)=}'
 
     # - get data loaders, see the usual data loader you use
     from uutils.torch_uu.dataloaders.common import get_serial_or_distributed_dataloaders
@@ -59,6 +60,8 @@ def hdb1_mi_omniglot_usl_all_splits_dataloaders(
     return dataloaders
 
 
+# - tests
+
 def loop_through_usl_hdb1_and_pass_data_through_mdl():
     # - for determinism
     random.seed(0)
@@ -70,6 +73,7 @@ def loop_through_usl_hdb1_and_pass_data_through_mdl():
 
     # - get data loaders
     dataloaders: dict = hdb1_mi_omniglot_usl_all_splits_dataloaders(args)
+    print('-- got the usl hdb1 data loaders --')
 
     # - loop through tasks
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
