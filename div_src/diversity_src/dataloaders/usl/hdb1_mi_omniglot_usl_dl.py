@@ -27,12 +27,34 @@ def hdb1_mi_omniglot_usl_all_splits_dataloaders(
     dataset_list_train, dataset_list_validation, dataset_list_test = get_mi_and_omniglot_list_data_set_splits(root,
                                                                                                               data_augmentation,
                                                                                                               device)
-    train_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_train)
+    """
+    
+    due to:
+        classes = list(range(1623))
+        train_dataset: FilteredMetaDataset = l2l.data.FilteredMetaDataset(dataset, labels=classes[:1100])
+        validation_dataset: FilteredMetaDataset = l2l.data.FilteredMetaDataset(dataset, labels=classes[1100:1200])
+        test_dataset: FilteredMetaDataset = l2l.data.FilteredMetaDataset(dataset, labels=classes[1200:])
+    the assert I wrote follow. 
+    train: 1100
+    val: 100
+    test: 423 ( = 1623 - 1100 - 100)
+    """
+    assert get_len_labels_list_datasets(dataset_list_train) == 64 + 1100
+    assert get_len_labels_list_datasets(dataset_list_validation) == 16 + 100
+    # print(f'{get_len_labels_list_datasets(dataset_list_validation)=}')
+    assert get_len_labels_list_datasets(dataset_list_test) == 20 + 423
+    # -
+    # train_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_train)
     valid_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_validation)
     test_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_test)
-    assert len(train_dataset.labels) == 64 + 1100, f'mio should be number of labels 1164 but got {len(train_dataset.labels)=}'
-    assert len(valid_dataset.labels) == 16 + 100, f'mio should be number of labels 116 but got {len(valid_dataset.labels)=}'
-    assert len(test_dataset.labels) == 20 + 423, f'mio should be number of labels 443  but got {len(test_dataset.labels)=}'
+    # assert len(
+    #     train_dataset.labels) == 64 + 1100, f'mio should be number of labels 1164 but got {len(train_dataset.labels)=}'
+    assert len(
+        valid_dataset.labels) == 16 + 100, f'mio should be number of labels 116 but got ' \
+                                           f'\n{len(valid_dataset.labels)=}' \
+                                           f'\n{valid_dataset.labels=}'
+    assert len(
+        test_dataset.labels) == 20 + 423, f'mio should be number of labels 443  but got {len(test_dataset.labels)=}'
 
     # - get data loaders, see the usual data loader you use
     from uutils.torch_uu.dataloaders.common import get_serial_or_distributed_dataloaders
@@ -58,6 +80,15 @@ def hdb1_mi_omniglot_usl_all_splits_dataloaders(
     dataloaders: dict = {'train': train_loader, 'val': val_loader, 'test': test_loader}
     # next(iter(dataloaders[split]))
     return dataloaders
+
+
+def get_len_labels_list_datasets(datasets: list[Dataset], verbose: bool = True) -> int:
+    if verbose:
+        print('--- get_len_labels_list_datasets')
+        print([len(dataset.labels) for dataset in datasets])
+        print([dataset.labels for dataset in datasets])
+        print('--- get_len_labels_list_datasets')
+    return sum([len(dataset.labels) for dataset in datasets])
 
 
 # - tests

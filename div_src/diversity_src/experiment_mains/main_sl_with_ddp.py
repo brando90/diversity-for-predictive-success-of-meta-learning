@@ -1695,12 +1695,12 @@ def sl_hdb1_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
     raise NotImplementedError
     from pathlib import Path
     # - model
-    args.model_option = 'resnet12_mi'
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=64)
+    args.model_option = 'resnet12_hdb1_mio'
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=64 + 1100)
 
     # - data
     # args.data_path = Path('~/data/CIFAR-FS/').expanduser()
-    args.data_option = 'hdb1_sl'
+    args.data_option = 'hdb1_mio_usl'
     args.data_path = Path('~/data/l2l_data/').expanduser()
 
     # - opt
@@ -1734,8 +1734,8 @@ def sl_hdb1_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_rfs_resnet12rfs_adam_cl_200'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
     return args
 
 
@@ -1861,7 +1861,8 @@ def train(rank, args):
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
     args.dataloaders: dict = get_sl_dataloader(args)
     assert args.model.cls.out_features > 5
-    assert args.model.cls.out_features == 64
+    # assert args.model.cls.out_features == 64  # mi (cifar-fs?)
+    assert args.model.cls.out_features == 64 + 1100  # hdb1
 
     # Agent does everything, proving, training, evaluate etc.
     args.agent: Agent = UnionClsSLAgent(args, args.model)

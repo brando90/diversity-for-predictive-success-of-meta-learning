@@ -1584,6 +1584,79 @@ def l2l_5cnn_hdb1_100k(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+# vit
+
+def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
+    """
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = 'vit_mi'
+    args.model_hps = dict(num_classes=5, image_size=84)
+
+    # - data
+    args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'lee2019'
+
+    # - training mode
+    args.training_mode = 'iterations'
+
+    # note: 60K iterations for original maml 5CNN with adam
+    args.num_its = 100_000
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 2_000
+    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    args.eta_min = 1e-5  # match MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.nb_inner_train_steps = 5
+    # args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
+    args.first_order = True
+
+    # - outer trainer params
+    args.batch_size = 8
+
+    # - dist args
+    args.world_size = torch.cuda.device_count()
+    # args.world_size = 8
+    args.parallel = args.world_size > 1
+    args.seed = 42  # I think this might be important due to how tasksets works.
+    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
+    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+
+    # -
+    # args.log_freq = 500
+    args.log_freq = 1
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'vit_mi_fo_maml_rfs_adam_cl_100k'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
 
 # hbd2 = cifar-fs + Omni
 
@@ -1643,6 +1716,8 @@ def load_args() -> Namespace:
             args: Namespace = l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler(args)
         elif args.manual_loads_name == 'l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order':
             args: Namespace = l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order(args)
+        elif args.manual_loads_name == 'vit_mi_fo_maml_rfs_adam_cl_100k':
+            args: Namespace = vit_mi_fo_maml_rfs_adam_cl_100k(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:

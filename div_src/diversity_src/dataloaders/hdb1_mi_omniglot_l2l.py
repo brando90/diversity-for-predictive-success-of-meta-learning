@@ -27,7 +27,6 @@ from diversity_src.dataloaders.common import IndexableDataSet, ToRGB, DifferentT
 from torchvision import transforms
 from PIL.Image import LANCZOS
 
-from models import get_model
 
 
 def get_remaining_transforms_mi(dataset: MetaDataset, ways: int, samples: int) -> list[TaskTransform]:
@@ -113,6 +112,10 @@ def get_omniglot_datasets(
     assert isinstance(train_dataset, MetaDataset)
     assert isinstance(validation_dataset, MetaDataset)
     assert isinstance(test_dataset, MetaDataset)
+    assert len(train_dataset.labels) == 1100
+    assert len(validation_dataset.labels) == 100
+    # print(f'{len(classes[1200:])=}')
+    assert len(test_dataset.labels) == 423, f'Error, got: {len(test_dataset.labels)=}'
 
     # - add names to be able to get the right task transform for the indexable dataset
     train_dataset.name = 'train_omniglot'
@@ -217,10 +220,12 @@ def get_mi_and_omniglot_list_data_set_splits(
     dataset_list_validation: list[MetaDataset, MetaDataset, MetaDataset] = []
     dataset_list_test: list[MetaDataset, MetaDataset, MetaDataset] = []
 
+    #
     train_dataset, validation_dataset, test_dataset = get_mi_datasets(root, data_augmentation, device)
     dataset_list_train.append(train_dataset)
     dataset_list_validation.append(validation_dataset)
     dataset_list_test.append(test_dataset)
+    #
     train_dataset, validation_dataset, test_dataset = get_omniglot_datasets(root, data_augmentation, device)
     dataset_list_train.append(train_dataset)
     dataset_list_validation.append(validation_dataset)
@@ -328,14 +333,16 @@ def loop_through_l2l_indexable_benchmark_with_model_test():
 
     # - get benchmark
     benchmark: BenchmarkTasksets = hdb1_mi_omniglot_tasksets()
-
-    # - get train taskdata set
     splits = ['train', 'validation', 'test']
     tasksets = [getattr(benchmark, split) for split in splits]
 
     # - loop through tasks
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
-    model = get_model('resnet18', pretrained=False, num_classes=5).to(device)
+    # from models import get_model
+    # model = get_model('resnet18', pretrained=False, num_classes=5).to(device)
+    model = torch.hub.load("pytorch/vision", "resnet18", weights="IMAGENET1K_V2")
+    # model = torch.hub.load("pytorch/vision", "resnet50", weights="IMAGENET1K_V2")
+    model.to(device)
     criterion = nn.CrossEntropyLoss()
     for i, taskset in enumerate(tasksets):
         print(f'-- {splits[i]=}')
@@ -366,6 +373,7 @@ def check_if_omniglots_labels_are_consistent():
     print(train.labels)
     print(val.labels)
     print(test.labels)
+
 
 # -- Run experiment
 
