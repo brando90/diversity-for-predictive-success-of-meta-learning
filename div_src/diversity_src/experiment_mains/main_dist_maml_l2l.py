@@ -1593,6 +1593,7 @@ def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
     # - model
     args.model_option = 'vit_mi'
     args.model_hps = dict(num_classes=5, image_size=84)
+    args.allow_unused = True  # transformers have lots of tokens & params, so I assume some param is not always being used in the forward pass
 
     # - data
     args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
