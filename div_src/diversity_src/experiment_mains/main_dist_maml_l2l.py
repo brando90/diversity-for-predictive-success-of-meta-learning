@@ -1652,8 +1652,8 @@ def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
     # - wandb expt args
     args.experiment_name = f'vit_mi_fo_maml_rfs_adam_cl_100k'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)

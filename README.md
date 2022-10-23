@@ -87,16 +87,37 @@ to make sure your main script is run
 
 # Data storage at UIUC vision cluster IC
 
-My goal is to put the large heavy stuff (e.g. conda, data, ) at `/shared/rsaas/miranda9/`
+My goal is to put the large heavy stuff (e.g. conda, data, ) at `/shared/rsaas/miranda9/`.
+Warning: due to the vpn if you run one of this commands and you lose connection you will have to do it again and might
+have half a transfer of files. 
+So run them in a job.sub command or re pull them from git then do a soft link.
 ```bash
-mv ~/data /shared/rsaas/miranda9/
+mv ~/data /shared/rsaas/miranda9
 ln -s /shared/rsaas/miranda9/data ~/data 
 
-mv ~/miniconda3 /shared/rsaas/miranda9/miniconda3
+mv ~/miniconda3 /shared/rsaas/miranda9
 ln -s /shared/rsaas/miranda9/miniconda3 ~/miniconda3
 
 mv ~/data_folder_fall2020_spring2021 /shared/rsaas/miranda9/
 ln -s /shared/rsaas/miranda9/data_folder_fall2020_spring2021 ~/data_folder_fall2020_spring2021
+
+
+mv ~/diversity-for-predictive-success-of-meta-learning /shared/rsaas/miranda9
+git
+ln -s /shared/rsaas/miranda9/diversity-for-predictive-success-of-meta-learning ~/diversity-for-predictive-success-of-meta-learning 
+
+mv ~/Does-MAML-Only-Work-via-Feature-Re-use-A-Data-Set-Centric-Perspective /shared/rsaas/miranda9
+ln -s /shared/rsaas/miranda9/Does-MAML-Only-Work-via-Feature-Re-use-A-Data-Set-Centric-Perspective ~/Does-MAML-Only-Work-via-Feature-Re-use-A-Data-Set-Centric-Perspective 
+
+mv ~/ultimate-anatome /shared/rsaas/miranda9
+ln -s /shared/rsaas/miranda9/ultimate-anatome ~/ultimate-anatome 
+
+mv ~/ultimate-aws-cv-task2vec /shared/rsaas/miranda9
+ln -s /shared/rsaas/miranda9/ultimate-aws-cv-task2vec ~/ultimate-aws-cv-task2vec 
+
+mv ~/ultimate-utils /shared/rsaas/miranda9
+git 
+ln -s /shared/rsaas/miranda9/ultimate-utils ~/ultimate-utils 
 ```
 
 # Data
