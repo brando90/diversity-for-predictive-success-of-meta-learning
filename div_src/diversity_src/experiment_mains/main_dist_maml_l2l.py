@@ -1654,6 +1654,7 @@ def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
+    # args.dir_wandb = Path('/shared/rsaas/miranda9/data/logs/')
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)

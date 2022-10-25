@@ -101,9 +101,12 @@ ln -s /shared/rsaas/miranda9/miniconda3 ~/miniconda3
 mv ~/data_folder_fall2020_spring2021 /shared/rsaas/miranda9/
 ln -s /shared/rsaas/miranda9/data_folder_fall2020_spring2021 ~/data_folder_fall2020_spring2021
 
+# --
 
-mv ~/diversity-for-predictive-success-of-meta-learning /shared/rsaas/miranda9
-git
+# mv ~/diversity-for-predictive-success-of-meta-learning /shared/rsaas/miranda9
+cd /shared/rsaas/miranda9/
+git clone git@github.com:brando90/diversity-for-predictive-success-of-meta-learning.git 
+# ln -s file1 link1
 ln -s /shared/rsaas/miranda9/diversity-for-predictive-success-of-meta-learning ~/diversity-for-predictive-success-of-meta-learning 
 
 mv ~/Does-MAML-Only-Work-via-Feature-Re-use-A-Data-Set-Centric-Perspective /shared/rsaas/miranda9
@@ -115,9 +118,28 @@ ln -s /shared/rsaas/miranda9/ultimate-anatome ~/ultimate-anatome
 mv ~/ultimate-aws-cv-task2vec /shared/rsaas/miranda9
 ln -s /shared/rsaas/miranda9/ultimate-aws-cv-task2vec ~/ultimate-aws-cv-task2vec 
 
-mv ~/ultimate-utils /shared/rsaas/miranda9
-git 
+# mv ~/ultimate-utils /shared/rsaas/miranda9
+cd /shared/rsaas/miranda9/
+git clone git@github.com:brando90/ultimate-utils.git
 ln -s /shared/rsaas/miranda9/ultimate-utils ~/ultimate-utils 
+
+mv ~/pycoq /shared/rsaas/miranda9
+ln -s /shared/rsaas/miranda9/pycoq ~/pycoq 
+
+mv ~/rfs /shared/rsaas/miranda9
+ln -s /shared/rsaas/miranda9/rfs ~/rfs 
+
+mv ~/automl-meta-learning /shared/rsaas/miranda9
+ln -s /shared/rsaas/miranda9/automl-meta-learning ~/automl-meta-learning 
+
+mv ~/wandb /shared/rsaas/miranda9
+ln -s /shared/rsaas/miranda9/wandb ~/wandb 
+```
+to check real path (for soft links) do e.g. `realpath /home`.
+
+After the above is done don't forget to run:
+```bash
+chmod a+x ~/diversity-for-predictive-success-of-meta-learning/main.sh
 ```
 
 # Data
