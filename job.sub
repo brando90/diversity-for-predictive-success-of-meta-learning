@@ -6,12 +6,14 @@
 # reference: https://gitlab.engr.illinois.edu/Vision/vision-gpu-servers/-/wikis/HTCondor-user-guide#submit-jobs
 #
 # chmod a+x ~/diversity-for-predictive-success-of-meta-learning/main.sh
+# chmod a+x /shared/rsaas/miranda9//diversity-for-predictive-success-of-meta-learning/main.sh
 # condor_submit -i
 # condor_submit job.sub
 #
 ####################
 
-Executable = /home/miranda9/diversity-for-predictive-success-of-meta-learning/main.sh
+# Executable = /home/miranda9/diversity-for-predictive-success-of-meta-learning/main.sh
+Executable = /shared/rsaas/miranda9/diversity-for-predictive-success-of-meta-learning/main.sh
 SUBMIT_FILE = main.sh
 
 # Output Files
