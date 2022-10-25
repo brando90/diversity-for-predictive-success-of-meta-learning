@@ -149,6 +149,26 @@ For the meta-learning experiment we used:
 - torchmeta's data: https://github.com/tristandeleu/pytorch-meta
 - TODO: hope to use learn2learn for distriuted meta-training: https://learn2learn.net/
 
+# Using tmux & interactive session to go around odd stale file handle
+
+```
+tmux
+cd /shared/rsaas/miranda9/
+cd diversity-for-predictive-success-of-meta-learning/
+
+condor_submit -i interactive.sub
+# python -u /shared/rsaas/miranda9/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name vit_mi_fo_maml_rfs_adam_cl_100k
+python /shared/rsaas/miranda9/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name vit_mi_fo_maml_rfs_adam_cl_100k
+C-b d
+
+# useful commands
+C-b [ = to scroll history
+C-b d = detach tmux session
+
+tmux ls
+tmux switch -t <session name or number>
+```
+
 # Contributions
 
 Place reusable code in src in the appropriate place (use your judgement).
