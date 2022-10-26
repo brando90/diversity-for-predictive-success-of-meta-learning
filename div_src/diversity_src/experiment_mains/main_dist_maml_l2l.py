@@ -1426,6 +1426,7 @@ def l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order(args: Namespace)
     args = fix_for_backwards_compatibility(args)
     return args
 
+
 def l2l_resnet18task2vec_hdb1_100k(args: Namespace) -> Namespace:
     """
     """
@@ -1584,6 +1585,7 @@ def l2l_5cnn_hdb1_100k(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+
 # vit
 
 def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
@@ -1652,13 +1654,14 @@ def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
     # - wandb expt args
     args.experiment_name = f'vit_mi_fo_maml_rfs_adam_cl_100k'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
     # args.dir_wandb = Path('/shared/rsaas/miranda9/data/logs/')
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
     return args
+
 
 # hbd2 = cifar-fs + Omni
 
