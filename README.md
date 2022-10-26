@@ -134,6 +134,12 @@ ln -s /shared/rsaas/miranda9/automl-meta-learning ~/automl-meta-learning
 
 mv ~/wandb /shared/rsaas/miranda9
 ln -s /shared/rsaas/miranda9/wandb ~/wandb 
+
+# ln -s file1 link1
+ln -s ~/.bashrc /shared/rsaas/miranda9 
+ln -s ~/.bash_profile /shared/rsaas/miranda9 
+ln -s ~/.bash_logout /shared/rsaas/miranda9 
+ln -s ~/.bash_history /shared/rsaas/miranda9 
 ```
 to check real path (for soft links) do e.g. `realpath /home`.
 
@@ -154,6 +160,7 @@ For the meta-learning experiment we used:
 ```
 tmux
 cd /shared/rsaas/miranda9/
+sared from there running didnt work
 cd diversity-for-predictive-success-of-meta-learning/
 
 condor_submit -i interactive.sub

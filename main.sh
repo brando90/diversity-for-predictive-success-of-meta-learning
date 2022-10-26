@@ -4,7 +4,8 @@
 # chmod a+x ~/diversity-for-predictive-success-of-meta-learning/main.sh
 
 # -- setup up for condor_submit background script in vision-cluster
-export HOME=/home/miranda9
+ export HOME=/home/miranda9
+#export HOME=/shared/rsaas/miranda9
 # to have modules work and the conda command work
 source /etc/bashrc
 source /etc/profile
@@ -34,6 +35,14 @@ echo ---- Running your python main ----
 #export OUT_FILE=$PWD/main.sh.o$SLURM_JOBID
 #echo OUT_FILE=$OUT_FILE
 
+# - test shared
+pwd .
+realpath .
+
+#export WANDB_DIR=~/tmp
+#export WANDB_DIR=/shared/rsaas/tmp
+#echo WANDB_DIR
+
 # -- Run Experiment
 # - SL
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_mi_rfs_5cnn_adam_cl_32_filter_size
@@ -59,13 +68,13 @@ echo ---- Running your python main ----
 # vit CA fo mi
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name vit_mi_fo_maml_rfs_adam_cl_100k
 #python -u /shared/rsaas/miranda9/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name vit_mi_fo_maml_rfs_adam_cl_100k
-python /shared/rsaas/miranda9/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name vit_mi_fo_maml_rfs_adam_cl_100k
+python ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name vit_mi_fo_maml_rfs_adam_cl_100k
 
 # - Data analysis
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main2_distance_sl_vs_maml.py
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/_main_distance_sl_vs_maml.py
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py
 
-pip install wandb --upgrade
+#pip install wandb --upgrade
 
 echo "Done with bash script (experiment or dispatched daemon experiments). "
