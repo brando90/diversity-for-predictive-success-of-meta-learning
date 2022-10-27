@@ -1680,6 +1680,7 @@ def sl_mi_rfs_5cnn_adam_cl_32_filter_size(args: Namespace) -> Namespace:
     # args.log_to_wandb = False
     return args
 
+
 # - hdb1 = MIO, USL
 
 def sl_hdb1_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
@@ -1860,9 +1861,10 @@ def train(rank, args):
 
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
     args.dataloaders: dict = get_sl_dataloader(args)
-    assert args.model.cls.out_features > 5
+    assert args.model.cls.out_features > 5, f'Not meta-learning training, so always more than 5 classes but got {args.model.cls.out_features=}'
     # assert args.model.cls.out_features == 64  # mi (cifar-fs?)
-    assert args.model.cls.out_features == 64 + 1100  # hdb1
+    assert args.model.cls.out_features == 64 + 1100, f'hdb1 expects more classes but got {args.model.cls.out_features=},' \
+                                                     f'\nfor model {type(args.model)=}'  # hdb1
 
     # Agent does everything, proving, training, evaluate etc.
     args.agent: Agent = UnionClsSLAgent(args, args.model)

@@ -24,9 +24,6 @@ def hdb1_mi_omniglot_usl_all_splits_dataloaders(
         data_augmentation='hdb1',
         device=None,
 ) -> dict:
-    dataset_list_train, dataset_list_validation, dataset_list_test = get_mi_and_omniglot_list_data_set_splits(root,
-                                                                                                              data_augmentation,
-                                                                                                              device)
     """
     
     due to:
@@ -39,16 +36,21 @@ def hdb1_mi_omniglot_usl_all_splits_dataloaders(
     val: 100
     test: 423 ( = 1623 - 1100 - 100)
     """
-    assert get_len_labels_list_datasets(dataset_list_train) == 64 + 1100
+    dataset_list_train, dataset_list_validation, dataset_list_test = get_mi_and_omniglot_list_data_set_splits(root,
+                                                                                                              data_augmentation,
+                                                                                                              device)
+    print()
+    # assert get_len_labels_list_datasets(dataset_list_train) == 64 + 1100
     assert get_len_labels_list_datasets(dataset_list_validation) == 16 + 100
     # print(f'{get_len_labels_list_datasets(dataset_list_validation)=}')
-    assert get_len_labels_list_datasets(dataset_list_test) == 20 + 423
+    # assert get_len_labels_list_datasets(dataset_list_test) == 20 + 423
     # -
     # train_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_train)
     valid_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_validation)
-    test_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_test)
+    # test_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_test)
     # assert len(
     #     train_dataset.labels) == 64 + 1100, f'mio should be number of labels 1164 but got {len(train_dataset.labels)=}'
+    print(f'{valid_dataset.labels=}')
     assert len(
         valid_dataset.labels) == 16 + 100, f'mio should be number of labels 116 but got ' \
                                            f'\n{len(valid_dataset.labels)=}' \

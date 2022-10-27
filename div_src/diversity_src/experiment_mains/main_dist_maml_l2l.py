@@ -101,8 +101,7 @@ def l2l_resnet12rfs_mi_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
 
     # -
-    # args.log_freq = 500
-    args.log_freq = 1
+    args.log_freq = 500
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
@@ -762,8 +761,8 @@ def l2l_resnet12rfs_mi_adam_no_scheduler_100k(args: Namespace) -> Namespace:
     args.num_its = 100_000
 
     # - debug flag
-    args.debug = True
-    # args.debug = False
+    # args.debug = True
+    args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
@@ -802,7 +801,7 @@ def l2l_resnet12rfs_mi_adam_no_scheduler_100k(args: Namespace) -> Namespace:
     args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
 
     # -
-    args.log_freq = 1000
+    args.log_freq = 500
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
@@ -1609,8 +1608,8 @@ def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
     args.num_its = 100_000
 
     # - debug flag
-    args.debug = True
-    # args.debug = False
+    # args.debug = True
+    args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
@@ -1646,8 +1645,7 @@ def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
     args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
 
     # -
-    # args.log_freq = 500
-    args.log_freq = 1
+    args.log_freq = 500
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
