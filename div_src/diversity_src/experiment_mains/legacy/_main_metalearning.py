@@ -152,7 +152,7 @@ def load_args() -> Namespace:
     # - log to wandb?
     # args.log_to_wandb = False
     args.log_to_wandb = True
-    args.path_to_checkpoint: str = '~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668'
+    args.path_to_checkpoint: str = '/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668'
     # -- set remaining args values (e.g. hardcoded, manually, checkpoint etc)
     if resume_from_checkpoint(args):
         args: Namespace = uutils.make_args_from_metalearning_checkpoint(args=args,

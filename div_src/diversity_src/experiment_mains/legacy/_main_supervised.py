@@ -135,7 +135,7 @@ def manual_load(args):
     # args.base_model_mode = '/home/miranda9/data/logs/logs_Nov13_15-11-37_jobid_473870/ckpt_file.pt'
     # args.base_model_mode = Path(args.base_model_mode).expanduser()
     # Logger stuff
-    args.log_root = Path('~/data/logs/').expanduser()
+    args.log_root = Path('/logs/').expanduser()
     # email option
     args.mail_user = 'brando.science@gmail.com'
     args.pw_path = Path('~/pw_app.config.json').expanduser()

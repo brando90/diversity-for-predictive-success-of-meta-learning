@@ -205,9 +205,9 @@ def get_args_for_experiment() -> Namespace:
     # -- checkpoints SL & MAML
     # 5CNN
     # ####ckpt_filename = 'ckpt_file_best_loss.pt'  # idk if the they have the same acc for this one, the goal is to minimize diffs so that only SL & MAML is the one causing the difference
-    path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
+    path_2_init_sl = '/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
     # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
-    path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-17-50_jobid_13_pid_177628/'
+    path_2_init_maml = '/logs/meta_learning_expts/logs_Mar09_12-17-50_jobid_13_pid_177628/'
 
     # resnet12rfs
     # path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
@@ -223,7 +223,7 @@ def get_args_for_experiment() -> Namespace:
 
     # - other sl, maml params
     # args.dataset_name = 'torchmeta_mini_imagenet'
-    args.data_path = Path('~/data/miniimagenet').expanduser()  # for some datasets this is enough
+    args.data_path = Path('/miniimagenet').expanduser()  # for some datasets this is enough
     args.device = uutils.torch_uu.get_device()
 
     # -- print path to init & path to data
