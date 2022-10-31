@@ -65,7 +65,7 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # args.data_path = Path('~/data/l2l_data/').expanduser()
     # args.data_augmentation = 'rfs2020'
     args.data_option = 'torchmeta_miniimagenet'  # no name assumes l2l
-    args.data_path = Path('~/data/torchmeta_data/').expanduser()
+    args.data_path = Path('/torchmeta_data/').expanduser()
     # args.data_option = 'rfs_meta_learning_miniimagenet'  # no name assumes l2l
     # args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
     args.augment_train = True
@@ -163,7 +163,7 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
 
     # - ckpt name
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/qlubpsfi?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Feb10_18-21-11_jobid_18097_pid_229674/'  # Adam CL (THIS ONE)
+    args.path_2_init_sl = '/logs/logs_Feb10_18-21-11_jobid_18097_pid_229674/'  # Adam CL (THIS ONE)
     # https://github.com/WangYueFt/rfs
     # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
     # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_distilled.pt'
@@ -171,7 +171,7 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # original old ckpt (likely not compatible with this code) in old format
     # #### (OLD) args.path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668'
     # usable old checkpoint 688 in new format location
-    args.path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/'  # Adam (no CL, old higher ckpt)
+    args.path_2_init_maml = '/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/'  # Adam (no CL, old higher ckpt)
 
     # new ckpt using l2l https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/jakzsyhv?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb17_15-28-58_jobid_8957_pid_206937/'  # Adam CL
@@ -214,7 +214,7 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
 
     # - data
     args.data_option = 'torchmeta_miniimagenet'  # no name assumes l2l
-    args.data_path = Path('~/data/torchmeta_data/').expanduser()
+    args.data_path = Path('/torchmeta_data/').expanduser()
     args.augment_train = True
 
     # - training mode
@@ -339,7 +339,7 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/29hc25u2/overview?workspace=user-brando (NOT GOOD)
     # args.path_2_init_maml = '~/data/logs/logs_Feb16_11-59-55_jobid_29315_pid_102939'  # uses scheduler :'(
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/kpujevkp?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_May02_17-11-03_jobid_25764'  # Adam
+    args.path_2_init_maml = '/logs/logs_May02_17-11-03_jobid_25764'  # Adam
 
     # -- 128 version todo, both need to be with adam.
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/9r7q98vz?workspace=user-brando
@@ -371,23 +371,23 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3n1ryuzu/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_May24_11-45-30_jobid_35317'  # 55
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3v7fpsie/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-47-48_jobid_35318'  # 56
+    args.path_2_init_sl = '/logs/logs_May24_11-47-48_jobid_35318'  # 56
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/yjcun827/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-50-06_jobid_35319'  # 54
+    args.path_2_init_sl = '/logs/logs_May24_11-50-06_jobid_35319'  # 54
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/vh1ecgr3/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-52-24_jobid_35320'  # 57
+    args.path_2_init_sl = '/logs/logs_May24_11-52-24_jobid_35320'  # 57
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/lhsmwapf/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-39_jobid_35321'  # 54
+    args.path_2_init_sl = '/logs/logs_May24_11-55-39_jobid_35321'  # 54
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/9s93yjt6/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-43_jobid_35322'  # 55
+    args.path_2_init_sl = '/logs/logs_May24_11-55-43_jobid_35322'  # 55
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1yhb8bqd/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-44_jobid_35323'  # 54
+    args.path_2_init_sl = '/logs/logs_May24_11-55-44_jobid_35323'  # 54
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2q6jn6h6/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-43_jobid_35324'  # 55
+    args.path_2_init_sl = '/logs/logs_May24_11-55-43_jobid_35324'  # 55
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/hqfxsf5r/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-44_jobid_35325'  # 56
+    args.path_2_init_sl = '/logs/logs_May24_11-55-44_jobid_35325'  # 56
 
 
 
@@ -425,9 +425,9 @@ def old_5ccnn():
     # -- checkpoints SL & MAML
     # 5CNN
     # ####ckpt_filename = 'ckpt_file_best_loss.pt'  # idk if the they have the same acc for this one, the goal is to minimize diffs so that only SL & MAML is the one causing the difference
-    path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
-    path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
-    path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-17-50_jobid_13_pid_177628/'
+    path_2_init_sl = '/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'
+    path_2_init_maml = '/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
+    path_2_init_maml = '/logs/meta_learning_expts/logs_Mar09_12-17-50_jobid_13_pid_177628/'
 
 
 # - cifarfs
@@ -443,7 +443,7 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
 
     # - data
     args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
-    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_path = Path('/l2l_data/').expanduser()
     args.data_augmentation = 'rfs2020'
     # args.data_option = 'torchmeta_cifarfs'  # no name assumes l2l
     # args.data_path = Path('~/data/torchmeta_data/').expanduser()
@@ -543,7 +543,7 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     #  https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1yz87dry?workspace=user-brando 13363
     # args.path_2_init_maml = '~/data/logs/logs_Mar02_18-13-23_jobid_13363'  # 0.966 acc, 0.639
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2ni2m08h/overview?workspace=user-brando 13860
-    args.path_2_init_maml = '~/data/logs/logs_Mar24_21-06-59_jobid_13860/'  # 1.0 train acc, 0.56 val  # THIS ONE FOR RESULTS
+    args.path_2_init_maml = '/logs/logs_Mar24_21-06-59_jobid_13860/'  # 1.0 train acc, 0.56 val  # THIS ONE FOR RESULTS
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/tmp1d5u2/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Mar28_18-31-34_jobid_15883/'  # 0.9899 train acc
@@ -556,7 +556,7 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/m3qbz1bl/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Mar28_18-31-35_jobid_15887'  # 0.987 train acc
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1fzto97d?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Mar30_08-17-19_jobid_17733_pid_142663'  # 0.993 train acc, #THIS ONE FOR RESULTS
+    args.path_2_init_sl = '/logs/logs_Mar30_08-17-19_jobid_17733_pid_142663'  # 0.993 train acc, #THIS ONE FOR RESULTS
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3lhh7lry/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Mar30_08-18-46_jobid_28878_pid_153020'  # 0.993 train acc
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2k9udmd3/overview?workspace=user-brando
@@ -621,7 +621,7 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     # args.data_path = Path('~/data/l2l_data/').expanduser()
     # args.data_augmentation = 'rfs2020'
     args.data_option = 'torchmeta_cifarfs'  # no name assumes l2l
-    args.data_path = Path('~/data/torchmeta_data/').expanduser()
+    args.data_path = Path('/torchmeta_data/').expanduser()
     args.augment_train = True
 
     # - training mode
@@ -698,12 +698,12 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
 
     # - ckpt name
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3dx4c9s9?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Feb10_15-05-22_jobid_20550_pid_94325/'
+    args.path_2_init_sl = '/logs/logs_Feb10_15-05-22_jobid_20550_pid_94325/'
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3uwf7b8g/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb10_15-05-54_jobid_12449_pid_111612/'
     # args.path_2_init_sl = '~/data/rfs_checkpoints/mini_simple.pt'
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2hjq1vmu/overview?workspace=user-brando 28881
-    args.path_2_init_maml = '~/data/logs/logs_Feb10_15-54-14_jobid_28881_pid_101601/'
+    args.path_2_init_maml = '/logs/logs_Feb10_15-54-14_jobid_28881_pid_101601/'
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2q39rflm?workspace=user-brando
     args.path_2_init_maml = ''
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/13d0aplr?workspace=user-brando

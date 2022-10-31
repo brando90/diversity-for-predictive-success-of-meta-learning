@@ -38,7 +38,7 @@ def manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing_fit_one_batc
 
     # - data
     args.data_option = 'torchmeta_miniimagenet'
-    args.data_path = Path('~/data/').expanduser()
+    args.data_path = Path('//').expanduser()
 
     # - training mode
     args.training_mode = 'meta_train_agent_fit_single_batch'
@@ -99,7 +99,7 @@ def manual_load_mi_resnet12rfs_maml_ho_adam_simple_cosine_annealing(args: Namesp
 
     # - data
     args.data_option = 'torchmeta_miniimagenet'
-    args.data_path = Path('~/data/').expanduser()
+    args.data_path = Path('//').expanduser()
 
     # - training mode
     args.training_mode = 'iterations'
@@ -161,7 +161,7 @@ def manual_load_mi_resnet12rfs_maml(args: Namespace) -> Namespace:
 
     # - data
     args.data_option = 'torchmeta_miniimagenet'
-    args.data_path = Path('~/data/').expanduser()
+    args.data_path = Path('//').expanduser()
 
     # - opt
     args.opt_option = 'AdafactorDefaultFair'
@@ -217,7 +217,7 @@ def manual_load_cifarfs_resnet12rfs_maml_official_correct_fo(args: Namespace) ->
 
     # - data
     args.data_option = 'torchmeta_cifarfs'
-    args.data_path = Path('~/data/').expanduser()
+    args.data_path = Path('//').expanduser()
 
     # - opt
     args.opt_option = 'AdafactorDefaultFair'
@@ -280,7 +280,7 @@ def manual_load_cifarfs_resnet12rfs_maml_unofficial_fo(args: Namespace) -> Names
 
     # - data
     args.data_option = 'torchmeta_cifarfs'
-    args.data_path = Path('~/data/').expanduser()
+    args.data_path = Path('//').expanduser()
 
     # - opt
     args.opt_option = 'AdafactorDefaultFair'
@@ -335,7 +335,7 @@ def manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing(args: N
 
     # - data
     args.data_option = 'torchmeta_cifarfs'
-    args.data_path = Path('~/data/').expanduser()
+    args.data_path = Path('//').expanduser()
 
     # - training mode
     args.training_mode = 'iterations'
@@ -396,7 +396,7 @@ def manual_load_cifarfs_resnet12rfs_maml_official_correct_fo_adam_no_scheduler(a
 
     # - data
     args.data_option = 'torchmeta_cifarfs'
-    args.data_path = Path('~/data/').expanduser()
+    args.data_path = Path('//').expanduser()
 
     # - opt
     args.opt_option = 'Adam_default'
