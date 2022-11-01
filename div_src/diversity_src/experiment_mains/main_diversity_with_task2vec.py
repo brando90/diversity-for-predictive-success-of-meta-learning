@@ -16,12 +16,12 @@ from diversity_src.diversity.task2vec_based_metrics.diversity_task2vec.diversity
     get_task_embeddings_from_few_shot_l2l_benchmark
 from models import get_model
 from task2vec import ProbeNetwork
-from uutils import report_times, args_hardcoded_in_script, print_args, setup_args_for_experiment, setup_wand, save_args
+from uutils import report_times, args_hardcoded_in_script, print_args, setup_args_for_experiment, save_args
 
 # - args for each experiment
 from uutils.argparse_uu.common import create_default_log_root
 from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
-from uutils.logging_uu.wandb_logging.common import cleanup_wandb
+from uutils.logging_uu.wandb_logging.common import cleanup_wandb, setup_wandb
 from uutils.plot import save_to
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
 from uutils.torch_uu.distributed import is_lead_worker
@@ -294,7 +294,7 @@ def load_args() -> Namespace:
 
     # -- Setup up remaining stuff for experiment
     # args: Namespace = setup_args_for_experiment(args)
-    setup_wand(args)
+    setup_wandb(args)
     create_default_log_root(args)
     return args
 
