@@ -39,25 +39,16 @@ def hdb1_mi_omniglot_usl_all_splits_dataloaders(
     dataset_list_train, dataset_list_validation, dataset_list_test = get_mi_and_omniglot_list_data_set_splits(root,
                                                                                                               data_augmentation,
                                                                                                               device)
-    print()
-    # assert get_len_labels_list_datasets(dataset_list_train) == 64 + 1100
+    assert get_len_labels_list_datasets(dataset_list_train) == 64 + 1100
     assert get_len_labels_list_datasets(dataset_list_validation) == 16 + 100
-    # print(f'{get_len_labels_list_datasets(dataset_list_validation)=}')
-    # assert get_len_labels_list_datasets(dataset_list_test) == 20 + 423
+    assert get_len_labels_list_datasets(dataset_list_test) == 20 + 423
     # -
-    # train_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_train)
+    train_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_train)
     valid_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_validation)
-    # test_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_test)
-    # assert len(
-    #     train_dataset.labels) == 64 + 1100, f'mio should be number of labels 1164 but got {len(train_dataset.labels)=}'
-    print(f'{valid_dataset.labels=}')
-    assert len(
-        valid_dataset.labels) == 16 + 100, f'mio should be number of labels 116 but got ' \
-                                           f'\n{len(valid_dataset.labels)=}' \
-                                           f'\n{valid_dataset.labels=}'
-    assert len(
-        test_dataset.labels) == 20 + 423, f'mio should be number of labels 443  but got {len(test_dataset.labels)=}'
-
+    test_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_test)
+    assert len(train_dataset.labels) == 64 + 1100, f'Err:\n{len(train_dataset.labels)=}'
+    assert len(valid_dataset.labels) == 16 + 100, f'Err:\n{len(valid_dataset.labels)=}'
+    assert len(test_dataset.labels) == 20 + 423, f'Err:\n{len(test_dataset.labels)=}'
     # - get data loaders, see the usual data loader you use
     from uutils.torch_uu.dataloaders.common import get_serial_or_distributed_dataloaders
     train_loader, val_loader = get_serial_or_distributed_dataloaders(
@@ -77,14 +68,13 @@ def hdb1_mi_omniglot_usl_all_splits_dataloaders(
         world_size=args.world_size
     )
 
-    # args.n_cls = 1164
-    next(iter(train_loader))
+    # next(iter(train_loader))
     dataloaders: dict = {'train': train_loader, 'val': val_loader, 'test': test_loader}
     # next(iter(dataloaders[split]))
     return dataloaders
 
 
-def get_len_labels_list_datasets(datasets: list[Dataset], verbose: bool = True) -> int:
+def get_len_labels_list_datasets(datasets: list[Dataset], verbose: bool = False) -> int:
     if verbose:
         print('--- get_len_labels_list_datasets')
         print([len(dataset.labels) for dataset in datasets])
@@ -115,7 +105,7 @@ def loop_through_usl_hdb1_and_pass_data_through_mdl():
     criterion = nn.CrossEntropyLoss()
     for split, dataloader in dataloaders.items():
         print(f'-- {split=}')
-        next(iter(dataloaders[split]))
+        # next(iter(dataloaders[split]))
         for it, batch in enumerate(dataloaders[split]):
             print(f'{it=}')
 
@@ -129,7 +119,6 @@ def loop_through_usl_hdb1_and_pass_data_through_mdl():
             print(f'{loss=}')
             print()
             break
-
     print('-- end of test --')
 
 

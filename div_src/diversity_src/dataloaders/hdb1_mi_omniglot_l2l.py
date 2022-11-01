@@ -8,9 +8,14 @@ ref:
     - discussion: https://github.com/learnables/learn2learn/issues/333
 
 Diversity: (div, ci)=(0.2161356031894684, 0.038439472241579925)
+
+Issues with lambda pickling data transforms:
+ref:
+    - my answer: https://stackoverflow.com/a/74282085/1601580
 """
 import os
 import random
+from typing import Callable
 
 import learn2learn as l2l
 import numpy as np
@@ -27,6 +32,88 @@ from diversity_src.dataloaders.common import IndexableDataSet, ToRGB, DifferentT
 from torchvision import transforms
 from PIL.Image import LANCZOS
 
+# !/usr/bin/env python3
+
+import os
+from torch.utils.data import Dataset, ConcatDataset
+from torchvision.datasets.omniglot import Omniglot
+
+
+class FullOmniglotUU(Dataset):
+    """
+
+    [[Source]]()
+
+    **Description**
+
+    This class provides an interface to the Omniglot dataset.
+
+    The Omniglot dataset was introduced by Lake et al., 2015.
+    Omniglot consists of 1623 character classes from 50 different alphabets, each containing 20 samples.
+    While the original dataset is separated in background and evaluation sets,
+    this class concatenates both sets and leaves to the user the choice of classes splitting
+    as was done in Ravi and Larochelle, 2017.
+    The background and evaluation splits are available in the `torchvision` package.
+
+    **References**
+
+    1. Lake et al. 2015. “Human-Level Concept Learning through Probabilistic Program Induction.” Science.
+    2. Ravi and Larochelle. 2017. “Optimization as a Model for Few-Shot Learning.” ICLR.
+
+    **Arguments**
+
+    * **root** (str) - Path to download the data.
+    * **transform** (Transform, *optional*, default=None) - Input pre-processing.
+    * **target_transform** (Transform, *optional*, default=None) - Target pre-processing.
+    * **download** (bool, *optional*, default=False) - Whether to download the dataset.
+
+    **Example**
+    ~~~python
+    omniglot = l2l.vision.datasets.FullOmniglot(root='./data',
+                                                transform=transforms.Compose([
+                                                    transforms.Resize(28, interpolation=LANCZOS),
+                                                    transforms.ToTensor(),
+                                                    lambda x: 1.0 - x,
+                                                ]),
+                                                download=True)
+    omniglot = l2l.data.MetaDataset(omniglot)
+    ~~~
+
+    """
+
+    def __init__(self, root, transform=None, target_transform=None, download=False):
+        self.root = os.path.expanduser(root)
+        self.transform = transform
+        self.target_transform = target_transform
+
+        # Set up both the background and eval dataset
+        omni_background = Omniglot(self.root, background=True, download=download)
+        self.len_omni_background_characters = len(omni_background._characters)
+        # Eval labels also start from 0.
+        # It's important to add 964 to label values in eval so they don't overwrite background dataset.
+        omni_evaluation = Omniglot(self.root,
+                                   background=False,
+                                   download=download,
+                                   target_transform=self._target_transform)
+
+        self.dataset = ConcatDataset((omni_background, omni_evaluation))
+        self._bookkeeping_path = os.path.join(self.root, 'omniglot-bookkeeping.pkl')
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, item):
+        image, character_class = self.dataset[item]
+        if self.transform:
+            image = self.transform(image)
+
+        if self.target_transform:
+            character_class = self.target_transform(character_class)
+
+        return image, character_class
+
+    def _target_transform(self, x):
+        return x + self.len_omni_background_characters
 
 
 def get_remaining_transforms_mi(dataset: MetaDataset, ways: int, samples: int) -> list[TaskTransform]:
@@ -53,6 +140,10 @@ def get_remaining_transforms_omniglot(dataset: MetaDataset, ways: int, shots: in
     return remaining_task_transforms
 
 
+def one_minus_x(x):
+    return 1.0 - x
+
+
 def get_omniglot_datasets(
         root: str = '~/data/l2l_data/',
         data_transform_option: str = 'hdb1',
@@ -68,7 +159,7 @@ def get_omniglot_datasets(
         data_transforms = transforms.Compose([
             transforms.Resize(28, interpolation=LANCZOS),
             transforms.ToTensor(),
-            lambda x: 1.0 - x,
+            one_minus_x,
         ])
     elif data_transform_option == 'hdb1':
         data_transforms = transforms.Compose([
@@ -79,7 +170,8 @@ def get_omniglot_datasets(
             transforms.Resize(84),
             # torchvision.transforms.Pad(8),
             transforms.ToTensor(),
-            lambda x: 1.0 - x,  # note: task2vec doesn't have this for mnist, wonder why...
+            # lambda x: 1.0 - x,  # note: task2vec doesn't have this for mnist, wonder why...
+            one_minus_x
         ])
     elif data_transform_option == 'hdb2':
         data_transforms = transforms.Compose([
@@ -90,16 +182,20 @@ def get_omniglot_datasets(
             transforms.Resize(32),
             # torchvision.transforms.Pad(8),
             transforms.ToTensor(),
-            lambda x: 1.0 - x,  # note: task2vec doesn't have this for mnist, wonder why...
+            one_minus_x,  # note: task2vec doesn't have this for mnist, wonder why...
         ])
     else:
         raise ValueError(f'Invalid data transform option for omniglot, got instead {data_transform_option=}')
 
-    dataset = l2l.vision.datasets.FullOmniglot(
-        root=root,
-        transform=data_transforms,
-        download=True,
-    )
+    # dataset = l2l.vision.datasets.FullOmniglot(
+    #     root=root,
+    #     transform=data_transforms,
+    #     download=True,
+    # )
+    dataset: Dataset = FullOmniglotUU(root=root,
+                                      transform=data_transforms,
+                                      download=True,
+                                      )
     if device is not None:
         dataset = l2l.data.OnDeviceDataset(dataset, device=device)  # bug in l2l
     # dataset: MetaDataset = l2l.data.MetaDataset(omniglot)
@@ -126,6 +222,10 @@ def get_omniglot_datasets(
     return _datasets
 
 
+def mi_img_int_to_img_float(x) -> float:
+    return x / 255.0
+
+
 def get_mi_datasets(
         root='~/data/l2l_data/',
         data_augmentation='hdb1',
@@ -141,7 +241,8 @@ def get_mi_datasets(
         test_data_transforms = None
     elif data_augmentation == 'normalize':
         train_data_transforms = Compose([
-            lambda x: x / 255.0,
+            # lambda x: x / 255.0,
+            mi_img_int_to_img_float,
         ])
         test_data_transforms = train_data_transforms
     elif data_augmentation == 'lee2019' or data_augmentation == 'hdb1':
@@ -255,6 +356,24 @@ def get_indexable_list_of_datasets_mi_and_omniglot(
     return _datasets
 
 
+class Task_transform_mi(Callable):
+    def __init__(self, ways, samples):
+        self.ways = ways
+        self.samples = samples
+
+    def __call__(self, dataset):
+        return get_remaining_transforms_mi(dataset, self.ways, self.samples)
+
+
+class Task_transform_omniglot(Callable):
+    def __init__(self, ways, samples):
+        self.ways = ways
+        self.samples = samples
+
+    def __call__(self, dataset):
+        return get_remaining_transforms_omniglot(dataset, self.ways, self.samples)
+
+
 def hdb1_mi_omniglot_tasksets(
         train_ways=5,
         train_samples=10,
@@ -270,20 +389,20 @@ def hdb1_mi_omniglot_tasksets(
     #
     _datasets: tuple[IndexableDataSet] = get_indexable_list_of_datasets_mi_and_omniglot(root)
     train_dataset, validation_dataset, test_dataset = _datasets
-    assert isinstance(train_dataset[0].dataset, l2l.vision.datasets.mini_imagenet.MiniImagenet)
-    assert isinstance(train_dataset[1].dataset.dataset, l2l.vision.datasets.full_omniglot.FullOmniglot)
-    assert isinstance(validation_dataset[0].dataset, l2l.vision.datasets.mini_imagenet.MiniImagenet)
-    assert isinstance(validation_dataset[1].dataset.dataset, l2l.vision.datasets.full_omniglot.FullOmniglot)
-    assert isinstance(test_dataset[0].dataset, l2l.vision.datasets.mini_imagenet.MiniImagenet)
-    assert isinstance(test_dataset[1].dataset.dataset, l2l.vision.datasets.full_omniglot.FullOmniglot)
+    # assert isinstance(train_dataset[0].dataset, l2l.vision.datasets.mini_imagenet.MiniImagenet)
+    # assert isinstance(train_dataset[1].dataset.dataset, l2l.vision.datasets.full_omniglot.FullOmniglot)
+    # assert isinstance(validation_dataset[0].dataset, l2l.vision.datasets.mini_imagenet.MiniImagenet)
+    # assert isinstance(validation_dataset[1].dataset.dataset, l2l.vision.datasets.full_omniglot.FullOmniglot)
+    # assert isinstance(test_dataset[0].dataset, l2l.vision.datasets.mini_imagenet.MiniImagenet)
+    # assert isinstance(test_dataset[1].dataset.dataset, l2l.vision.datasets.full_omniglot.FullOmniglot)
     # TODO addition assert to check its the right split by checking the name
 
     # - get task transforms
-    train_task_transform_mi = lambda dataset: get_remaining_transforms_mi(dataset, train_ways, train_samples)
-    test_task_transform_mi = lambda dataset: get_remaining_transforms_mi(dataset, test_ways, test_samples)
+    train_task_transform_mi = Task_transform_mi(train_ways, train_samples)
+    test_task_transform_mi = Task_transform_mi(test_ways, test_samples)
 
-    train_task_transform_omni = lambda dataset: get_remaining_transforms_omniglot(dataset, train_ways, train_samples)
-    test_task_transform_omni = lambda dataset: get_remaining_transforms_omniglot(dataset, test_ways, test_samples)
+    train_task_transform_omni = Task_transform_omniglot(train_ways, train_samples)
+    test_task_transform_omni = Task_transform_omniglot(test_ways, test_samples)
 
     dict_cons_remaining_task_transforms: dict = {
         train_dataset[0].name: train_task_transform_mi,
@@ -340,8 +459,10 @@ def loop_through_l2l_indexable_benchmark_with_model_test():
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     # from models import get_model
     # model = get_model('resnet18', pretrained=False, num_classes=5).to(device)
-    model = torch.hub.load("pytorch/vision", "resnet18", weights="IMAGENET1K_V2")
+    # model = torch.hub.load("pytorch/vision", "resnet18", weights="IMAGENET1K_V2")
     # model = torch.hub.load("pytorch/vision", "resnet50", weights="IMAGENET1K_V2")
+    from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import get_default_learner_and_hps_dict
+    model, _ = get_default_learner_and_hps_dict()  # 5cnn
     model.to(device)
     criterion = nn.CrossEntropyLoss()
     for i, taskset in enumerate(tasksets):
@@ -375,6 +496,27 @@ def check_if_omniglots_labels_are_consistent():
     print(test.labels)
 
 
+def next_omniglot_and_mi_normal_dataloader():
+    from diversity_src.dataloaders.hdb1_mi_omniglot_l2l import get_mi_and_omniglot_list_data_set_splits
+    from torch.utils.data import DataLoader
+    from uutils.torch_uu.dataloaders.common import get_serial_or_distributed_dataloaders
+
+    # - params
+    root: str = '~/data/l2l_data/'
+    data_augmentation: str = 'hdb1'
+
+    # - test if data sets can be created into pytorch dataloader
+    _, _, dataset_list = get_mi_and_omniglot_list_data_set_splits(root, data_augmentation)
+    mi, omni = dataset_list
+
+    loader = DataLoader(omni, num_workers=1)
+    next(iter(loader))
+    print()
+
+    loader = DataLoader(mi, num_workers=1)
+    next(iter(loader))
+    print()
+
 # -- Run experiment
 
 if __name__ == "__main__":
@@ -383,7 +525,8 @@ if __name__ == "__main__":
 
     start = time.time()
     # - run experiment
-    # loop_through_l2l_indexable_benchmark_with_model_test()
+    next_omniglot_and_mi_normal_dataloader()
+    loop_through_l2l_indexable_benchmark_with_model_test()
     check_if_omniglots_labels_are_consistent()
     # - Done
     print(f"\nSuccess Done!: {report_times(start)}\a")
