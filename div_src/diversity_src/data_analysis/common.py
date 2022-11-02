@@ -20,17 +20,19 @@ from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_cifarfs_fc100
 
 from pdb import set_trace as st
 
-#modified 5/18 patrick
-maml5train=[]
-maml5test =[]
-maml5val =[]
-maml10train=[]
-maml10test =[]
-maml10val=[]
-usltrain=[]
-usltest=[]
-uslval=[]
-#end modified 5/18 patrick
+# modified 5/18 patrick
+maml5train = []
+maml5test = []
+maml5val = []
+maml10train = []
+maml10test = []
+maml10val = []
+usltrain = []
+usltest = []
+uslval = []
+
+
+# end modified 5/18 patrick
 
 def setup_args_path_for_ckpt_data_analysis(args: Namespace,
                                            ckpt_filename: str,
@@ -171,6 +173,7 @@ def load_old_mi_resnet12rfs_ckpt(args: Namespace, path_to_checkpoint: Path) -> n
     model.load_state_dict(model_state_dict)
     args.model = model
     return args.model
+
 
 # Don't think this is correct, use the model_hps from the ckpt, so use K
 # def load_4cnn_cifarfs_fix_model_hps_sl(args, path_to_checkpoint):
@@ -355,7 +358,6 @@ def comparison_via_performance(args: Namespace):
     print()
 
 
-
 def items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci) -> tuple[float, float, float, float]:
     return meta_loss.item(), meta_loss_ci.item(), meta_acc.item(), meta_acc_ci.item()
 
@@ -365,17 +367,17 @@ def print_performance_results(args: Namespace,
                               mode='maml5'
                               ):
     # assert args.meta_learner is args.agent
-    global maml10train,maml10val,maml10test,maml5val,maml5test,maml5train,usltest,usltrain,uslval
+    global maml10train, maml10val, maml10test, maml5val, maml5test, maml5train, usltest, usltrain, uslval
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
                                                                split='train',
                                                                training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
-    if(mode=='maml5'):
+    if (mode == 'maml5'):
         maml5train += [meta_acc]
-    elif(mode=='maml10'):
-        maml10train+=[meta_acc]
+    elif (mode == 'maml10'):
+        maml10train += [meta_acc]
     else:
-        usltrain +=[meta_acc]
+        usltrain += [meta_acc]
     print(f'train: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
                                                                split='val',
@@ -401,6 +403,26 @@ def print_performance_results(args: Namespace,
     print(f'test: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
 
 
+def print_performance_results_simple(args: Namespace,
+                                     training: bool = True,
+                                     ):
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
+                                                               split='train',
+                                                               training=training)
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
+    print(f'train: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
+                                                               split='val',
+                                                               training=training)
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
+    print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
+                                                               split='test',
+                                                               training=training)
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
+    print(f'test: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
+
+
 def print_performance_4_maml(args: Namespace,
                              model: nn.Module,
                              nb_inner_steps: int,
@@ -414,7 +436,8 @@ def print_performance_4_maml(args: Namespace,
     args.meta_learner.nb_inner_train_steps = nb_inner_steps
     args.meta_learner.lr_inner = lr_inner
     assert isinstance(args.meta_learner, MAMLMetaLearner)
-    print_performance_results(args,mode='maml'+str(nb_inner_steps))
+    # print_performance_results(args, mode='maml' + str(nb_inner_steps))
+    print_performance_results_simple(args)
     assert isinstance(args.meta_learner, MAMLMetaLearner)
     args.meta_learner = original_meta_learner
     args.agent = original_meta_learner
@@ -427,7 +450,8 @@ def print_performance_4_sl(args: Namespace,
     args.meta_learner = FitFinalLayer(args, base_model=model)
     args.agent = args.meta_learner
     assert isinstance(args.meta_learner, FitFinalLayer)
-    print_performance_results(args,mode='usl')
+    # print_performance_results(args, mode='usl')
+    print_performance_results_simple(args)
     assert isinstance(args.meta_learner, FitFinalLayer)
     args.meta_learner = original_meta_learner
     args.agent = original_meta_learner
@@ -480,10 +504,10 @@ def do_diversity_data_analysis(args, meta_dataloader):
 
 
 def load_model_force_add_cls_layer_as_module(args: Namespace,
-                        path_to_checkpoint: Optional[str] = None,
+                                             path_to_checkpoint: Optional[str] = None,
 
-                        add_cls_layer: bool = True,  # FORCE HACK :(
-                        ) -> nn.Module:
+                                             add_cls_layer: bool = True,  # FORCE HACK :(
+                                             ) -> nn.Module:
     """
     Load the most important things: model for USL hack.
 
@@ -523,6 +547,7 @@ def load_model_force_add_cls_layer_as_module(args: Namespace,
     args.model.to(args.device)
     return args.model
 
+
 def get_meta_learning_dataloaders_for_data_analysis(args: Namespace):
     from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
     # - to load torchmeta
@@ -538,6 +563,7 @@ def get_meta_learning_dataloaders_for_data_analysis(args: Namespace):
         pass
     # todo: not sure if this is the ver we need args.dataloaders = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
     args.dataloaders['']
+
 
 # -
 

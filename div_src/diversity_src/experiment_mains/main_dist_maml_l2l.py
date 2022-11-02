@@ -1240,7 +1240,7 @@ def l2l_resnet12rfs_hdb1_100k_adam_no_scheduler(args: Namespace) -> Namespace:
     args.scheduler_option = 'None'
 
     # -- Meta-Learner
-    # - maml
+    # - maml l2l
     args.meta_learner_name = 'maml_fixed_inner_lr'
     args.inner_lr = 1e-1  # same as fast_lr in l2l
     args.nb_inner_train_steps = 5

@@ -380,12 +380,6 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/hqfxsf5r/overview?workspace=user-brando
     args.path_2_init_sl = '~/data/logs/logs_May24_11-55-44_jobid_35325'  # 56
 
-
-
-
-
-
-
     # actually you need to run _main_dista... old code I think
     # path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'  # THIS I think
     # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
@@ -722,6 +716,117 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     return args
 
 
+# -- hdb1 mio
+
+def resnet12rfs_hdb1_mio(args):
+    """
+        """
+    from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_cifarfs_resnet12rfs_body, \
+        get_feature_extractor_conv_layers
+    # - model
+    args.model_option = 'resnet12_hdb1_mio'
+
+    # - data
+    # args.data_option = 'torchmeta_cifarfs'  # no name assumes l2l
+    # args.data_path = Path('~/data/torchmeta_data/').expanduser()
+    # args.augment_train = True
+    args.data_option = 'hdb1_mio_usl'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+
+    # - training mode
+    # args.training_mode = 'iterations'
+
+    # note: 60K iterations for original maml 5CNN with adam
+    # args.num_its = 100_000
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.nb_inner_train_steps = 5
+    args.first_order = True
+
+    # - outer trainer params
+    # args.batch_size = 32
+    # args.batch_size = 8
+
+    # - dist args
+    # args.world_size = torch.cuda.device_count()
+    # args.world_size = 8
+    # args.parallel = True
+    # args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
+    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+
+    # -
+    # args.log_freq = 500
+
+    # -- options I am considering to have as flags in the args_parser...later
+    # - metric for comparison
+    # args.metric_comparison_type = 'None'
+    # args.metric_comparison_type = 'svcca'
+    # args.metric_comparison_type = 'pwcca'
+    # args.metric_comparison_type = 'lincka'
+    # args.metric_comparison_type = 'opd'
+    # args.metric_as_sim_or_dist = 'dist'  # since we are trying to show meta-learning is happening, the more distance btw task & change in model the more meta-leanring is the hypothesis
+
+    # - effective neuron type
+    # args.effective_neuron_type = 'filter'
+
+    # - layers, this gets the feature layers it seems... unsure why I'm doing this. I thought I was doing a comparison
+    # with all the layers up to the final layer...
+    # args.layer_names: list[str] = get_last_two_layers(layer_type='conv', include_cls=True)
+    # args.layer_names = get_head_cls()
+    # args.layer_names = get_feature_extractor_conv_layers()
+
+    # args.safety_margin = 10
+    # args.safety_margin = 20
+
+    args.batch_size = 2
+    # args.batch_size = 25
+    # args.batch_size = 100
+    args.batch_size_eval = args.batch_size
+
+    # - set k_eval (qry set batch_size) to make experiments safe/reliable
+    # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_body(safety_margin=args.safety_margin)
+    # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_head(safety_margin=args.safety_margin)
+
+    # - expt option
+    args.experiment_option = 'performance_comparison'
+
+    # - agent/meta_learner type
+    args.agent_opt = 'MAMLMetaLearner_default'
+    # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+
+    # - ckpt name
+    # https://wandb.ai/brando/entire-diversity-spectrum/runs/3psfe5hn/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Nov01_21-18-12_jobid_102959'  # train_acc 0.970, train_loss 0.119
+    #
+    args.path_2_init_maml = '~/data/logs/logs_Oct15_18-12-26_jobid_9680'  # train_acc 0.986, train_loss 0.0531, val_acc 0.621
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'{args.experiment_option}_resnet12rfs_hdb1_mio'
+    args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    # - setup paths to ckpts for data analysis
+    args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
+    # - fill in the missing things and make sure things make sense for run
+    args = uutils.setup_args_for_experiment(args)
+    return args
+
+
 # -- data analysis
 
 def load_args() -> Namespace:
@@ -733,10 +838,12 @@ def load_args() -> Namespace:
     args: Namespace = parse_args_meta_learning()
 
     # - get manual args
-    args: Namespace = args_5cnn_cifarfs(args)
+    # args: Namespace = args_5cnn_cifarfs(args)
     # args: Namespace = args_5cnn_mi(args)
     # args: Namespace = resnet12rfs_cifarfs(args)
     # args: Namespace = resnet12rfs_mi(args)
+
+    args: Namespace = resnet12rfs_hdb1_mio(args)
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)
@@ -779,9 +886,11 @@ def main_data_analyis():
     print(f'{args.layer_names=}')
 
     # - maml param
-    args.track_higher_grads = False  # set to false only during meta-testing, but code sets it automatically only for meta-test
     args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
-    args.fo = False  # True, dissallows flow of higher order grad while still letting params track gradients.
+    # args.track_higher_grads = False  # note, I don't think this matters for testing since we aren't doing a backward pass. set to false only during meta-testing, but code sets it automatically only for meta-test
+    # decided to use the setting for FO that I have for torchmeta learners, but since there is no training it should not matter.
+    args.track_higher_grads = True
+    args.fo = True
 
     # -- start analysis
     print('---------- start analysis ----------')
