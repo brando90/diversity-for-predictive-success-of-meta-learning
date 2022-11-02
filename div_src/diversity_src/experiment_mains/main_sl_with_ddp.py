@@ -58,7 +58,7 @@ def sl_mi_rfs_5cnn_adam_cl(args: Namespace) -> Namespace:
     args.opt_option = 'Adam_rfs_cifarfs'
     args.num_epochs = 2_000
     args.batch_size = 1024
-    args.lr = 1e-1
+    args.lr = 1e-3
     args.opt_hps: dict = dict(lr=args.lr)
 
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
@@ -104,7 +104,7 @@ def sl_mi_rfs_5cnn_adam_cl_200(args: Namespace) -> Namespace:
     args.opt_option = 'Adam_rfs_cifarfs'
     args.num_epochs = 200
     args.batch_size = 1024
-    args.lr = 1e-1
+    args.lr = 1e-3
     args.opt_hps: dict = dict(lr=args.lr)
 
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
@@ -159,7 +159,7 @@ def sl_mi_rfs_5cnn_adam_cl_600(args: Namespace) -> Namespace:
     args.opt_option = 'Adam_rfs_cifarfs'
     args.num_epochs = 600
     args.batch_size = 1024
-    args.lr = 1e-1
+    args.lr = 1e-3
     args.opt_hps: dict = dict(lr=args.lr)
 
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
@@ -213,7 +213,7 @@ def sl_mi_rfs_resnet_rfs_mi_adam_cl_200(args: Namespace) -> Namespace:
     args.opt_option = 'Adam_rfs_cifarfs'
     args.num_epochs = 200
     args.batch_size = 512
-    args.lr = 1e-1
+    args.lr = 1e-3
     args.opt_hps: dict = dict(lr=args.lr)
 
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
@@ -714,7 +714,7 @@ def sl_cifarfs_rfs_4cnn_adam_cl_200(args: Namespace) -> Namespace:
     args.opt_option = 'Adam_rfs_cifarfs'
     args.num_epochs = 200
     args.batch_size = 1024
-    args.lr = 1e-1
+    args.lr = 1e-3
     args.opt_hps: dict = dict(lr=args.lr)
 
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
@@ -826,7 +826,7 @@ def sl_cifarfs_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
     args.num_epochs = 200
     args.batch_size = 1024
     # args.batch_size = 2 ** 14  # 2**14
-    args.lr = 1e-1
+    args.lr = 1e-3
     args.opt_hps: dict = dict(lr=args.lr)
 
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
@@ -870,7 +870,7 @@ def sl_cifarfs_rfs_resnet12rfs_adam_cl_600(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.model_option = 'resnet12_rfs_cifarfs_fc100'
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=64)
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=64)
 
     # - data
     # args.data_path = Path('~/data/CIFAR-FS/').expanduser()
@@ -882,7 +882,7 @@ def sl_cifarfs_rfs_resnet12rfs_adam_cl_600(args: Namespace) -> Namespace:
     args.num_epochs = 600
     args.batch_size = 1024
     # args.batch_size = 2 ** 14  # 2**14
-    args.lr = 1e-1
+    args.lr = 1e-3
     args.opt_hps: dict = dict(lr=args.lr)
 
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
@@ -1683,7 +1683,7 @@ def sl_mi_rfs_5cnn_adam_cl_32_filter_size(args: Namespace) -> Namespace:
 
 # - hdb1 = MIO, USL
 
-def sl_hdb1_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
+def sl_hdb1_rfs_resnet12rfs_adam_cl(args: Namespace) -> Namespace:
     """
     goal:
         - model: resnet12-rfs
@@ -1696,7 +1696,7 @@ def sl_hdb1_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.model_option = 'resnet12_hdb1_mio'
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=64 + 1100)
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=64 + 1100)
 
     # - data
     # args.data_path = Path('~/data/CIFAR-FS/').expanduser()
@@ -1705,10 +1705,11 @@ def sl_hdb1_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
-    args.num_epochs = 200
-    args.batch_size = 1024
+    args.num_epochs = 1000
+    # args.batch_size = 1024
+    args.batch_size = 512
     # args.batch_size = 2 ** 14  # 2**14
-    args.lr = 1e-1
+    args.lr = 1e-3
     args.opt_hps: dict = dict(lr=args.lr)
 
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
@@ -1726,16 +1727,15 @@ def sl_hdb1_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
     args.debug = False
 
     # -
-    args.log_freq = 1
+    args.log_freq = 1  # for SL it is meant to be small e.g. 1 or 2
 
     # - wandb args
-    # args.wandb_project = 'playground'  # needed to log to wandb properly
-    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'sl_cifarfs_rfs_resnet12rfs_adam_cl_200'
+    args.experiment_name = f'sl_hdb1_rfs_resnet12rfs_adam_cl'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
     return args
 
 
@@ -1748,7 +1748,7 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_standard_sl()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'sl_mi_rfs_5cnn_adam'  # <- REMOVE to remove manual loads
+    args.manual_loads_name = 'sl_hdb1_rfs_resnet12rfs_adam_cl'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
@@ -1816,6 +1816,9 @@ def load_args() -> Namespace:
 
         elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_cl_32_filter_size':
             args: Namespace = sl_mi_rfs_5cnn_adam_cl_32_filter_size(args)
+
+        elif args.manual_loads_name == 'sl_hdb1_rfs_resnet12rfs_adam_cl':
+            args: Namespace = sl_hdb1_rfs_resnet12rfs_adam_cl(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:

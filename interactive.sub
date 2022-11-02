@@ -6,7 +6,8 @@ Request_gpus = 1
 requirements = (CUDADeviceName == "NVIDIA A40")
 
 # Request_cpus = 4
-Request_cpus = 8
+# Request_cpus = 8
+Request_cpus = 16
 # Request_cpus = 32
 # Request_cpus = 40
 # Request_cpus = 12

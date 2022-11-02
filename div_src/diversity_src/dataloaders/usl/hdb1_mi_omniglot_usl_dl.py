@@ -107,7 +107,9 @@ def loop_through_usl_hdb1_and_pass_data_through_mdl():
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     from models import get_model
     # model = get_model('resnet18', pretrained=False, num_classes=n_train_cls).to(device)
-    model = get_model('resnet18', pretrained=True, num_classes=n_train_cls).to(device)
+    # model = get_model('resnet18', pretrained=True, num_classes=n_train_cls).to(device)
+    from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_mi
+    model, _ = get_resnet_rfs_model_mi('resnet12_hdb1_mio', num_classes=n_train_cls)
     criterion = nn.CrossEntropyLoss()
     for split, dataloader in dataloaders.items():
         print(f'-- {split=}')
@@ -125,7 +127,6 @@ def loop_through_usl_hdb1_and_pass_data_through_mdl():
             print(f'{loss=}')
             print()
             break
-        break
     print('-- end of test --')
 
 
