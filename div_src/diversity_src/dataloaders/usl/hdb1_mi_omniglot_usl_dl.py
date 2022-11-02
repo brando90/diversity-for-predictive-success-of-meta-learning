@@ -96,12 +96,16 @@ def loop_through_usl_hdb1_and_pass_data_through_mdl():
 
     # - get data loaders
     dataloaders: dict = hdb1_mi_omniglot_usl_all_splits_dataloaders(args)
+    print(dataloaders['train'].dataset.labels)
+    print(dataloaders['val'].dataset.labels)
+    print(dataloaders['test'].dataset.labels)
+    n_train_cls: int = len(dataloaders['train'].dataset.labels)
     print('-- got the usl hdb1 data loaders --')
 
     # - loop through tasks
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     from models import get_model
-    model = get_model('resnet18', pretrained=False, num_classes=5).to(device)
+    model = get_model('resnet18', pretrained=False, num_classes=n_train_cls).to(device)
     criterion = nn.CrossEntropyLoss()
     for split, dataloader in dataloaders.items():
         print(f'-- {split=}')
