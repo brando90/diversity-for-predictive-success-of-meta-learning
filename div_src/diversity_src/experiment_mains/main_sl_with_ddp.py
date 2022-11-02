@@ -1693,7 +1693,6 @@ def sl_hdb1_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
         If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
         advantage.
     """
-    raise NotImplementedError
     from pathlib import Path
     # - model
     args.model_option = 'resnet12_hdb1_mio'

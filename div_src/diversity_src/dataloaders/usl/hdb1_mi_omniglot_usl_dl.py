@@ -86,6 +86,7 @@ def get_len_labels_list_datasets(datasets: list[Dataset], verbose: bool = False)
 # - tests
 
 def loop_through_usl_hdb1_and_pass_data_through_mdl():
+    print(f'starting {loop_through_usl_hdb1_and_pass_data_through_mdl=} test')
     # - for determinism
     random.seed(0)
     torch.manual_seed(0)
@@ -105,7 +106,8 @@ def loop_through_usl_hdb1_and_pass_data_through_mdl():
     # - loop through tasks
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     from models import get_model
-    model = get_model('resnet18', pretrained=False, num_classes=n_train_cls).to(device)
+    # model = get_model('resnet18', pretrained=False, num_classes=n_train_cls).to(device)
+    model = get_model('resnet18', pretrained=True, num_classes=n_train_cls).to(device)
     criterion = nn.CrossEntropyLoss()
     for split, dataloader in dataloaders.items():
         print(f'-- {split=}')
@@ -123,6 +125,7 @@ def loop_through_usl_hdb1_and_pass_data_through_mdl():
             print(f'{loss=}')
             print()
             break
+        break
     print('-- end of test --')
 
 
