@@ -1074,4 +1074,4 @@ def main_data_analyis_check_sl_error():
 if __name__ == '__main__':
     main_data_analyis()
     # main_data_analyis_check_sl_error()
-    print('--> Success Done!\a\n')
+    print('\n--> Success Done!\a\n')
