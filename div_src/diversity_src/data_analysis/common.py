@@ -282,7 +282,7 @@ def comparison_via_performance(args: Namespace):
     assert norm(args.mdl_sl) == norm(args.mdl2)
     assert norm(args.mdl_maml) != norm(args.mdl_sl)
     assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl)
-    print(f'{norm(args.mdl_rand)=}, {norm(args.mdl_maml)=} {norm(args.mdl_sl)=}')
+    print(f'{norm(args.mdl_rand)=}\n{norm(args.mdl_maml)=}\n{norm(args.mdl_sl)=}')
 
     # - varying lr_inner
     original_lr_inner = args.meta_learner.lr_inner
@@ -342,16 +342,22 @@ def comparison_via_performance(args: Namespace):
     args_mdl_sl = copy(args)
 
     # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
+    print('---- maml0 for rand model')
+    print_performance_4_maml(args_mdl_maml, model=args_mdl_rand.mdl_rand, nb_inner_steps=0, lr_inner=original_lr_inner)
 
-    # # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
+    # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
+    print('---- maml0 for maml model')
+    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=0, lr_inner=original_lr_inner)
+
+    # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
     print('---- maml5 for maml model')
     print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
-    #
-    # # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
+
+    # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
     print('---- maml10 for maml model')
     print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
-    #
-    # # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
+
+    # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
     print('---- FFL (LR) for sl model')
     print_performance_4_sl(args_mdl_sl, model=args.mdl_sl)
 

@@ -82,6 +82,8 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/_main_distance_sl_vs_maml.py
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py
 
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py
+
 #pip install wandb --upgrade
 
 echo "Done with bash script (experiment or dispatched daemon experiments). "

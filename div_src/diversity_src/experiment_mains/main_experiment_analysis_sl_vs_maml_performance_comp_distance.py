@@ -730,11 +730,11 @@ def resnet12rfs_hdb1_mio(args):
     # args.data_option = 'torchmeta_cifarfs'  # no name assumes l2l
     # args.data_path = Path('~/data/torchmeta_data/').expanduser()
     # args.augment_train = True
-    args.data_option = 'hdb1_mio_usl'
+    args.data_option = 'hdb1'
     args.data_path = Path('~/data/l2l_data/').expanduser()
 
     # - training mode
-    # args.training_mode = 'iterations'
+    args.training_mode = 'iterations'  # needed so setup_args doesn't error out
 
     # note: 60K iterations for original maml 5CNN with adam
     # args.num_its = 100_000
@@ -769,12 +769,12 @@ def resnet12rfs_hdb1_mio(args):
 
     # -- options I am considering to have as flags in the args_parser...later
     # - metric for comparison
-    # args.metric_comparison_type = 'None'
+    args.metric_comparison_type = 'None'
     # args.metric_comparison_type = 'svcca'
     # args.metric_comparison_type = 'pwcca'
     # args.metric_comparison_type = 'lincka'
     # args.metric_comparison_type = 'opd'
-    # args.metric_as_sim_or_dist = 'dist'  # since we are trying to show meta-learning is happening, the more distance btw task & change in model the more meta-leanring is the hypothesis
+    args.metric_as_sim_or_dist = 'dist'  # since we are trying to show meta-learning is happening, the more distance btw task & change in model the more meta-leanring is the hypothesis
 
     # - effective neuron type
     # args.effective_neuron_type = 'filter'
@@ -788,9 +788,9 @@ def resnet12rfs_hdb1_mio(args):
     # args.safety_margin = 10
     # args.safety_margin = 20
 
-    args.batch_size = 2
+    # args.batch_size = 2
     # args.batch_size = 25
-    # args.batch_size = 100
+    args.batch_size = 100
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
@@ -808,15 +808,15 @@ def resnet12rfs_hdb1_mio(args):
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/3psfe5hn/overview?workspace=user-brando
     args.path_2_init_sl = '~/data/logs/logs_Nov01_21-18-12_jobid_102959'  # train_acc 0.970, train_loss 0.119
     #
-    args.path_2_init_maml = '~/data/logs/logs_Oct15_18-12-26_jobid_9680'  # train_acc 0.986, train_loss 0.0531, val_acc 0.621
+    args.path_2_init_maml = '~/data/logs/logs_Oct15_18-08-54_jobid_96800'  # train_acc 0.986, train_loss 0.0531, val_acc 0.621
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_resnet12rfs_hdb1_mio'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -883,7 +883,8 @@ def main_data_analyis():
     # meta_dataloader = dataloaders['test']
 
     # - layers to do analysis on
-    print(f'{args.layer_names=}')
+    if hasattr(args, 'layer_names'):
+        print(f'{args.layer_names=}')
 
     # - maml param
     args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
