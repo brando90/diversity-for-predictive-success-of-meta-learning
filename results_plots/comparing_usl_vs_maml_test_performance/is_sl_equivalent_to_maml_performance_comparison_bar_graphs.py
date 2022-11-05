@@ -187,3 +187,49 @@ bar_graph_with_error_using_pandas(group_row_names=groups,
                                   )
 save_to_desktop(plot_name='all_archs_all_data_sets_maml_vs_tl_mi_cirfarfs_5cnn_resnet12rfs_perf_comp_bar')
 plt.show()
+
+
+#%%
+"""
+wandb report: https://wandb.ai/brando/entire-diversity-spectrum/reports/HDB1-MIO-Performance-Comparison-MAML-vs-USL--VmlldzoyOTA2NjM2/edit
+"""
+from uutils.plot import bar_graph_with_error_using_pandas, save_to_desktop
+from matplotlib import pyplot as plt
+
+groups = []
+adapted_models = ['MAML5', 'MAML10', 'USL',
+                  'MAML5 ci', 'MAML10 ci', 'USL ci']  # columns of a df
+data = []
+
+groups += ['MIO, ResNet12']
+adapted_models += []
+
+# - MIO prototype, batch-size=1000, https://wandb.ai/brando/entire-diversity-spectrum/runs/4un3y2yo/logs?workspace=user-brando
+# meta_test_acc = [78.9, 76.9, 67.8]
+# meta_test_ci = [1.36, 1.39, 1.39]
+# row = meta_test_acc + meta_test_ci
+# data += [row]
+# - MIO, better usl ckpt acc=0.9996, https://wandb.ai/brando/entire-diversity-spectrum/runs/37uvzvrq/logs?workspace=user-brando
+meta_test_acc = [78.9, 76.9, 81.4]
+meta_test_ci = [1.36, 1.39, 1.09]
+row = meta_test_acc + meta_test_ci
+data += [row]
+# - MIO, "bad" usl ckpt acc=0.98
+# meta_test_acc = [78.9, 76.9, 67.8]
+# meta_test_ci = [1.36, 1.39, 1.39]
+# row = meta_test_acc + meta_test_ci
+# data += [row]
+
+bar_graph_with_error_using_pandas(group_row_names=groups,
+                                  columns=adapted_models,
+                                  rows=data,
+                                  val_names=adapted_models[0:3],
+                                  error_bar_names=adapted_models[3:],
+                                  title='Performance Comparison MAML vs Transfer Learning (USL)',
+                                  xlabel='Dataset, Architecture',
+                                  ylabel='Meta-Test Accuracy',
+                                  loc='upper left'
+                                  )
+# save_to_desktop(plot_name='mio_hdb1_prototype')
+save_to_desktop(plot_name='mio_hdb1_maml_98_usl_99')
+plt.show()

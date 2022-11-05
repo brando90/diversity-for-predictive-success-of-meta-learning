@@ -1585,6 +1585,77 @@ def l2l_5cnn_hdb1_100k(args: Namespace) -> Namespace:
     return args
 
 
+def l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order_from_ckpt(args: Namespace) -> Namespace:
+    """
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = 'resnet12_rfs_mi'
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)
+    args.path_to_checkpoint = '~/data/logs/logs_Oct15_18-08-54_jobid_96800/ckpt.pt'  # train_acc 0.986, train_loss 0.0531, val_acc 0.621
+
+    # - data
+    args.data_option = 'hdb1'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'hdb1'
+
+    # - training mode
+    args.training_mode = 'iterations'
+
+    # note: 60K iterations for original maml 5CNN with adam
+    args.num_its = 100_000
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.nb_inner_train_steps = 5
+    args.first_order = True
+    # args.first_order = False
+
+    # - outer trainer params
+    args.batch_size = 30
+
+    # - dist args
+    args.world_size = torch.cuda.device_count()
+    # args.world_size = 8
+    args.parallel = args.world_size > 1
+    args.seed = 42  # I think this might be important due to how tasksets works.
+    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
+    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+
+    # -
+    args.log_freq = 200
+
+    # -- wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    # args.experiment_name = f'debug'
+    args.experiment_name = f'l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order_from_ckpt'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.first_order=}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
 # vit
 
 def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
@@ -1721,6 +1792,8 @@ def load_args() -> Namespace:
             args: Namespace = l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order(args)
         elif args.manual_loads_name == 'vit_mi_fo_maml_rfs_adam_cl_100k':
             args: Namespace = vit_mi_fo_maml_rfs_adam_cl_100k(args)
+        elif args.manual_loads_name == 'l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order_from_ckpt':
+            args: Namespace = l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order_from_ckpt(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:

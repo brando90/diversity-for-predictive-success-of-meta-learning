@@ -221,7 +221,6 @@ def loop_through_l2l_indexable_datasets_test():
     """
     Generate
 
-
     idea: use omniglot instead of letters? It already has a split etc.
 
     :return:

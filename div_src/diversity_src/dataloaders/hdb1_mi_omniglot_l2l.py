@@ -129,6 +129,10 @@ def get_remaining_transforms_mi(dataset: MetaDataset, ways: int, samples: int) -
 
 
 def get_remaining_transforms_omniglot(dataset: MetaDataset, ways: int, shots: int) -> list[TaskTransform]:
+    """
+
+    Q: todo, what does RandomClassRotation do? https://github.com/learnables/learn2learn/issues/372
+    """
     import learn2learn as l2l
     remaining_task_transforms = [
         l2l.data.transforms.FusedNWaysKShots(dataset, ways, shots),

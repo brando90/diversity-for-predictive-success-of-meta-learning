@@ -811,7 +811,10 @@ def resnet12rfs_hdb1_mio(args):
     # args.path_2_init_sl = '~/data/logs/logs_Nov01_21-18-12_jobid_102959'  # train_acc 0.970, train_loss 0.119
     args.path_2_init_sl = '~/data/logs/logs_Nov02_15-43-37_jobid_103052'  # train_acc 0.9996, train_loss 0.001050
     #
-    args.path_2_init_maml = '~/data/logs/logs_Oct15_18-08-54_jobid_96800'  # train_acc 0.986, train_loss 0.0531, val_acc 0.621
+    # args.path_2_init_maml = '~/data/logs/logs_Oct15_18-08-54_jobid_96800'  # train_acc 0.986, train_loss 0.0531, val_acc 0.621
+    # args.path_2_init_maml = '~/data/logs/logs_Oct15_18-10-01_jobid_96801'  #
+    args.path_2_init_maml = '~/data/logs/logs_Oct15_18-11-20_jobid_96802'  #
+    # args.path_2_init_maml = '~/data/logs/logs_Oct15_18-12-26_jobid_96803'  #
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'

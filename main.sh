@@ -34,7 +34,8 @@ pwd .
 realpath .
 
 #export WANDB_DIR=~/tmp
-export WANDB_DIR=/shared/rsaas/miranda9/tmp
+#export WANDB_DIR=/shared/rsaas/miranda9/tmp
+export WANDB_DIR=$TEMP
 echo 'WANDB_DIR='
 echo $WANDB_DIR
 
@@ -72,6 +73,9 @@ echo ---- Running your python main ----
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order
 #python -m torch.distributed.run --nproc_per_node=4 ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order
 
+# hdb1 from ckpt
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order_from_ckpt
+
 # vit CA fo mi
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name vit_mi_fo_maml_rfs_adam_cl_100k
 #python -u /shared/rsaas/miranda9/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name vit_mi_fo_maml_rfs_adam_cl_100k
@@ -84,6 +88,8 @@ echo ---- Running your python main ----
 
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py
 
-#pip install wandb --upgrade
+pip install wandb --upgrade
 
 echo "Done with bash script (experiment or dispatched daemon experiments). "
+
+#df -h
