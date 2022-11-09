@@ -2,10 +2,15 @@
 # to install do: ./~/automl-meta-learning/install.sh
 # note that anything else didn't seem to work in my mac for me.
 
+conda update -n base -c defaults conda
 conda update conda
 conda update --all
 pip install --upgrade pip
 pip3 install --upgrade pip
+
+#conda create -n metalearning_gpu python=3.9
+#conda activate metalearning_gpu
+## conda remove --name metalearning_gpu --all
 
 pip install -U wandb
 
@@ -35,9 +40,9 @@ pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f h
 # pip install learn2learn
 
 pip install -e ~/ultimate-utils/
-pip install -e ~/ultimate-anatome/
 pip install -e ~/diversity-for-predictive-success-of-meta-learning/
 
+pip install -e ~/ultimate-anatome/
 pip install -e ~/ultimate-aws-cv-task2vec/
 
 # -- extra notes
