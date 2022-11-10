@@ -8,8 +8,8 @@
 # wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda.sh
 #wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
 #bash ~/miniconda.sh -b -p $HOME/miniconda
+#source ~/miniconda/bin/activate
 
-source ~/miniconda/bin/activate
 # conda init zsh
 conda init
 conda install conda-build
@@ -73,15 +73,8 @@ pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f h
 python -c 'import torch'
 
 # -- extra notes
-
 # - using conda develop rather than pip because uutils installs incompatible versions with the vision cluster
 ## python -c "import sys; [print(p) for p in sys.path]"
 #conda install conda-build
 #conda develop ~/ultimate-utils/ultimate-utils-proj-div_src
 #conda develop -u ~/ultimate-utils/ultimate-utils-proj-div_src
-
-
-# -- a100 notes
-#conda create -n meta_learning_a100 python=3.9
-#conda activate meta_learning_a100
-# the above installation seems to work
