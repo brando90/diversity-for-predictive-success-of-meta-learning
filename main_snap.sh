@@ -2,9 +2,9 @@
 # pkill -9 python
 
 # -- setup up for condor_submit background script in vision-cluster
-source /etc/bashrc
-source /etc/profile
-source /etc/profile.d/modules.sh
+#source /etc/bashrc
+#source /etc/profile
+#source /etc/profile.d/modules.sh
 source ~/.bashrc
 source ~/.bash_profile
 source ~/.bashrc.user
@@ -14,7 +14,7 @@ echo HOME = $HOME
 source cuda11.1
 
 # activate conda
-#conda activate metalearning_gpu
+conda activate metalearning_gpu
 
 # some quick checks
 nvcc --version
@@ -31,6 +31,7 @@ realpath .
 echo WANDB_DIR = $WANDB_DIR
 echo TEMP = $TEMP
 
+# -- start experiment run
 echo -- Start my submission file
 
 # - set experiment id
@@ -41,8 +42,8 @@ echo OUT_FILE = $OUT_FILE
 
 # - choose GPU
 #export CUDA_VISIBLE_DEVICES=$(((RANDOM%8)))
-export CUDA_VISIBLE_DEVICES=0
-#export CUDA_VISIBLE_DEVICES=1
+#export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=1
 #export CUDA_VISIBLE_DEVICES=2
 #export CUDA_VISIBLE_DEVICES=3
 #export CUDA_VISIBLE_DEVICES=4
@@ -64,14 +65,14 @@ export CUDA_VISIBLE_DEVICES=0
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 # gpu name & number of gpus
 python -c "import torch; print(torch.cuda.get_device_name(0));"
-python -c "import uutils; gpu_name_otherwise_cpu(print_to_stdout=True);"
-echo torch.cuda.device_count is:
+python -c "import uutils; uutils.torch_uu.gpu_name_otherwise_cpu(print_to_stdout=True);"
 
 # -- Run Experiment
 echo ---- Running your python main ----
 
 # hdb1 scaling expts with 5CNN
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size  > $OUT_FILE &
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size
+#nohup python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size > $OUT_FILE &
 
 # -- echo useful info, like process id/pid
 echo pid = $!

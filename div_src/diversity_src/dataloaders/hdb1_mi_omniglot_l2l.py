@@ -240,6 +240,14 @@ def get_mi_datasets(
     Returns MI according to l2l -- note it seems we are favoring the resizing of MI since when unioning datasets they
     have to have the same size.
     """
+    # - get download l2l mi data set with my code & data url
+    # from uutils import download_and_extract
+    # download_and_extract(url='https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip',
+    #                      path_used_for_zip=root,
+    #                      path_used_for_dataset=root,
+    #                      rm_zip_file=True,
+    #                      )
+    # -
     if data_augmentation is None:
         train_data_transforms = None
         test_data_transforms = None
@@ -521,6 +529,78 @@ def next_omniglot_and_mi_normal_dataloader():
     next(iter(loader))
     print()
 
+
+def download_mini_imagenet_fix():
+    from uutils import download_and_extract
+    # download_and_extract('https://www.dropbox.com/s/ye9jeb5tyz0x01b/mini-imagenet-cache-test.pkl?dl=1',
+    #                      '~/data/tmp', '~/data/tmp')
+    download_and_extract('https://www.dropbox.com/s/ye9jeb5tyz0x01b/mini-imagenet-cache-test.pkl',
+                         '~/data/tmp', '~/data/tmp')
+    # download_and_extract('https://www.dropbox.com/s/9g8c6w345s2ek03/mini-imagenet-cache-train.pkl?dl=1',
+    #                      '~/data/l2l_data', '~/data/l2l_data')
+    # download_and_extract('https://www.dropbox.com/s/ip1b7se3gij3r1b/mini-imagenet-cache-validation.pkl?dl=1',
+    #                      '~/data/l2l_data', '~/data/l2l_data')
+
+
+def download_mini_imagenet_fix_use_gdrive():
+    from uutils import download_and_extract
+    download_and_extract(None,
+                         '~/data/tmp', '~/data/tmp',
+                         True,
+                         '1wpmY-hmiJUUlRBkO9ZDCXAcIpHEFdOhD', 'mini-imagenet-cache-test.pkl'
+                         )
+    # download_and_extract('https://www.dropbox.com/s/9g8c6w345s2ek03/mini-imagenet-cache-train.pkl?dl=1',
+    #                      '~/data/l2l_data', '~/data/l2l_data')
+    # download_and_extract('https://www.dropbox.com/s/ip1b7se3gij3r1b/mini-imagenet-cache-validation.pkl?dl=1',
+    #                      '~/data/l2l_data', '~/data/l2l_data')
+
+
+def loop_through_mi_local():
+    # checking the files I will upload to zenodo are good
+    import learn2learn as l2l
+    # train_dataset = l2l.vision.datasets.MiniImagenet(root='~/data/l2l_data', mode='train', download=True)
+    # train_dataset = l2l.vision.datasets.MiniImagenet(root='~/data/l2l_data', mode='validation', download=True)
+    # train_dataset = l2l.vision.datasets.MiniImagenet(root='~/data/l2l_data', mode='test', download=True)
+    train_dataset = l2l.vision.datasets.MiniImagenet(root='~/data/l2l_data', mode='train', download=False)
+    [data for data in train_dataset]
+    train_dataset = l2l.vision.datasets.MiniImagenet(root='~/data/l2l_data', mode='validation', download=False)
+    [data for data in train_dataset]
+    train_dataset = l2l.vision.datasets.MiniImagenet(root='~/data/l2l_data', mode='test', download=False)
+    [data for data in train_dataset]
+    for data in train_dataset:
+        # print(f'{data=}')
+        print(f'{data[0].size()=}')
+        print(f'{data[1]=}')
+    print('success loop through local data')
+
+
+def download_mini_imagenet_brandos_download_from_zenodo():
+    """
+    zeneodo link of data set: https://zenodo.org/record/7311663#.Y21EE-zMJUc
+
+python ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/dataloaders/hdb1_mi_omniglot_l2l.py
+    """
+    from uutils import download_and_extract
+    download_and_extract(url='https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip',
+                         path_used_for_zip='~/data/tmp',
+                         path_used_for_dataset='~/data/tmp/l2l_data',
+                         rm_zip_file=True,
+                         )
+    # download_and_extract('https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip?download=1',
+    #                      '~/data/tmp', '~/data/tmp')
+    train_dataset = l2l.vision.datasets.MiniImagenet(root='~/data/tmp/l2l_data', mode='train', download=False)
+    [data for data in train_dataset]
+    train_dataset = l2l.vision.datasets.MiniImagenet(root='~/data/tmp/l2l_data', mode='validation', download=False)
+    [data for data in train_dataset]
+    train_dataset = l2l.vision.datasets.MiniImagenet(root='~/data/tmp/l2l_data', mode='test', download=False)
+    [data for data in train_dataset]
+    for data in train_dataset:
+        # print(f'{data=}')
+        print(f'{data[0].size()=}')
+        print(f'{data[1]=}')
+    print('success loop through local data')
+
+
 # -- Run experiment
 
 if __name__ == "__main__":
@@ -529,8 +609,12 @@ if __name__ == "__main__":
 
     start = time.time()
     # - run experiment
-    next_omniglot_and_mi_normal_dataloader()
-    loop_through_l2l_indexable_benchmark_with_model_test()
-    check_if_omniglots_labels_are_consistent()
+    # next_omniglot_and_mi_normal_dataloader()
+    # loop_through_l2l_indexable_benchmark_with_model_test()
+    # check_if_omniglots_labels_are_consistent()
+    # download_mini_imagenet_fix()
+    # download_mini_imagenet_fix_use_gdrive()
+    # loop_through_mi_local()
+    download_mini_imagenet_brandos_download_from_zenodo()
     # - Done
     print(f"\nSuccess Done!: {report_times(start)}\a")

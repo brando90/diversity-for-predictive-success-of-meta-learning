@@ -5,7 +5,7 @@
 # chmod a+x /shared/rsaas/miranda9/diversity-for-predictive-success-of-meta-learning/main.sh
 
 # -- setup up for condor_submit background script in vision-cluster
- export HOME=/home/miranda9
+export HOME=/home/miranda9
 #export HOME=/shared/rsaas/miranda9
 # to have modules work and the conda command work
 source /etc/bashrc
@@ -33,14 +33,19 @@ echo CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES
 pwd .
 realpath .
 
+echo 'TEMP='
+echo $TEMP
+
 #export WANDB_DIR=~/tmp
 #export WANDB_DIR=/shared/rsaas/miranda9/tmp
 export WANDB_DIR=$TEMP
 echo 'WANDB_DIR='
 echo $WANDB_DIR
 
-echo 'TEMP='
-echo $TEMP
+# gpu name
+python -c "import torch; print(torch.cuda.get_device_name(0));"
+python -c "import uutils; gpu_name_otherwise_cpu(print_to_stdout=True);"
+
 
 echo ---- Running your python main ----
 # set experiment id
@@ -81,12 +86,22 @@ echo ---- Running your python main ----
 #python -u /shared/rsaas/miranda9/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name vit_mi_fo_maml_rfs_adam_cl_100k
 #python ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name vit_mi_fo_maml_rfs_adam_cl_100k
 
+# hdb1 scaling expts with 5CNN
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size
+
+# mi scaling with 5cnn 128, 512
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_mi_adam_filter_size_128_filter_size
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_mi_adam_filter_size_512_filter_size
+
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_mi_rfs_5cnn_adam_cl_128_filter_size
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_mi_rfs_5cnn_adam_cl_512_filter_size
+
 # - Data analysis
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main2_distance_sl_vs_maml.py
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/_main_distance_sl_vs_maml.py
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py
 
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py
 
 pip install wandb --upgrade
 

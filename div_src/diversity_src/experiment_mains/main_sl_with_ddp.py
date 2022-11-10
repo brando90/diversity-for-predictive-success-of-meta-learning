@@ -1681,6 +1681,130 @@ def sl_mi_rfs_5cnn_adam_cl_32_filter_size(args: Namespace) -> Namespace:
     return args
 
 
+def sl_mi_rfs_5cnn_adam_cl_128_filter_size(args: Namespace) -> Namespace:
+    """
+    goal:
+        - model: resnet12-rfs
+        - Opt: ?
+
+    Note:
+        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
+        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
+        advantage.
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.filter_size = 128
+    args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=64, filter_size=args.filter_size,
+                          levels=None,
+                          spp=False, in_channels=3)
+
+    # - data
+    args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
+    args.data_option = 'miniImageNet_rfs'
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.num_epochs = 400
+    args.batch_size = 128
+    # args.batch_size = 1024
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Cosine_scheduler_sgd_rfs'
+    args.log_scheduler_freq = 1
+    args.T_max = args.num_epochs // args.log_scheduler_freq
+    args.lr_decay_rate = 1e-1
+    # lr_decay_rate ** 3 does a smooth version of decaying 3 times, but using cosine annealing
+    # args.eta_min = args.lr * (lr_decay_rate ** 3)  # note, MAML++ uses 1e-5, if you calc it seems rfs uses 5e-5
+    args.scheduler_hps: dict = dict(T_max=args.T_max, lr=args.lr, lr_decay_rate=args.lr_decay_rate)
+
+    # - training mode
+    args.training_mode = 'epochs'
+    # args.training_mode = 'fit_single_batch'
+
+    # -
+    # args.debug = True
+    args.debug = False
+
+    # -
+    args.log_freq = 1  # SL, epochs training
+
+    # - wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'sl_mi_rfs_5cnn_adam'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
+def sl_mi_rfs_5cnn_adam_cl_512_filter_size(args: Namespace) -> Namespace:
+    """
+    goal:
+        - model: resnet12-rfs
+        - Opt: ?
+
+    Note:
+        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
+        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
+        advantage.
+    """
+    from pathlib import Path
+    # - model
+    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.filter_size = 512
+    args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=64, filter_size=args.filter_size,
+                          levels=None,
+                          spp=False, in_channels=3)
+
+    # - data
+    args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
+    args.data_option = 'miniImageNet_rfs'
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.num_epochs = 400
+    args.batch_size = 128
+    # args.batch_size = 1024
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Cosine_scheduler_sgd_rfs'
+    args.log_scheduler_freq = 1
+    args.T_max = args.num_epochs // args.log_scheduler_freq
+    args.lr_decay_rate = 1e-1
+    # lr_decay_rate ** 3 does a smooth version of decaying 3 times, but using cosine annealing
+    # args.eta_min = args.lr * (lr_decay_rate ** 3)  # note, MAML++ uses 1e-5, if you calc it seems rfs uses 5e-5
+    args.scheduler_hps: dict = dict(T_max=args.T_max, lr=args.lr, lr_decay_rate=args.lr_decay_rate)
+
+    # - training mode
+    args.training_mode = 'epochs'
+    # args.training_mode = 'fit_single_batch'
+
+    # -
+    # args.debug = True
+    args.debug = False
+
+    # -
+    args.log_freq = 1  # SL, epochs training
+
+    # - wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - wandb expt args
+    args.experiment_name = f'sl_mi_rfs_5cnn_adam'
+    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
 # - hdb1 = MIO, USL
 
 def sl_hdb1_rfs_resnet12rfs_adam_cl(args: Namespace) -> Namespace:
@@ -1748,7 +1872,7 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_standard_sl()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'sl_hdb1_rfs_resnet12rfs_adam_cl'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'sl_hdb1_rfs_resnet12rfs_adam_cl'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
@@ -1819,6 +1943,11 @@ def load_args() -> Namespace:
 
         elif args.manual_loads_name == 'sl_hdb1_rfs_resnet12rfs_adam_cl':
             args: Namespace = sl_hdb1_rfs_resnet12rfs_adam_cl(args)
+
+        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_cl_128_filter_size':
+            args: Namespace = sl_mi_rfs_5cnn_adam_cl_128_filter_size(args)
+        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_cl_512_filter_size':
+            args: Namespace = sl_mi_rfs_5cnn_adam_cl_512_filter_size(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
@@ -1865,8 +1994,8 @@ def train(rank, args):
     args.dataloaders: dict = get_sl_dataloader(args)
     assert args.model.cls.out_features > 5, f'Not meta-learning training, so always more than 5 classes but got {args.model.cls.out_features=}'
     # assert args.model.cls.out_features == 64  # mi (cifar-fs?)
-    assert args.model.cls.out_features == 64 + 1100, f'hdb1 expects more classes but got {args.model.cls.out_features=},' \
-                                                     f'\nfor model {type(args.model)=}'  # hdb1
+    # assert args.model.cls.out_features == 64 + 1100, f'hdb1 expects more classes but got {args.model.cls.out_features=},' \
+    #                                                  f'\nfor model {type(args.model)=}'  # hdb1
 
     # Agent does everything, proving, training, evaluate etc.
     args.agent: Agent = UnionClsSLAgent(args, args.model)
@@ -1874,6 +2003,8 @@ def train(rank, args):
     # -- Start Training Loop
     print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)  # here to make sure mdl has the right cls
     print_dist('====> about to start train loop', args.rank)
+    print(f'{args.filter_size=}') if hasattr(args, 'filter_size') else None
+    print(f'{args.number_of_trainable_parameters=}')
     if args.training_mode == 'fit_single_batch':
         train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     elif 'iterations' in args.training_mode:

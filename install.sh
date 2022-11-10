@@ -2,9 +2,21 @@
 # to install do: ./~/automl-meta-learning/install.sh
 # note that anything else didn't seem to work in my mac for me.
 
+#sudo apt-get update
+#sudo apt-get install wget
+
+# wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda.sh
+#wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
+#bash ~/miniconda.sh -b -p $HOME/miniconda
+
+source ~/miniconda/bin/activate
+# conda init zsh
+conda init
+conda install conda-build
 conda update -n base -c defaults conda
 conda update conda
 conda update --all
+
 pip install --upgrade pip
 pip3 install --upgrade pip
 
@@ -14,6 +26,7 @@ pip3 install --upgrade pip
 
 pip install -U wandb
 
+# MOVING THE TORCH INSTALL AFTER MY PACKAGES HAVE BEEN INSTALLED TO FORCE THE RIGHT PYTORCH VERSION & IT's CUDA TOOLKIT
 # DO NOT CHANGE THIS, this is needed for the vision cluster & the librarires we are using.
 # Only works with python 3.9
 # todo - would be nice to have an if statement if we are in the vision cluster...extra work, probably not worth it
@@ -21,9 +34,12 @@ pip install -U wandb
 # succeeded try again, if it fails it won't do anything.
 # Overall install cuda if gpu available o.w. it install the normal version.
 # any other behaviour is likely unexpected.
-pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
-pip3 install torch==1.9.1 torchvision==0.10.1 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
-pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+#pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+#pip3 install torch==1.9.1 torchvision==0.10.1 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+#pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+
+#pip3 install torch==1.13.0+cu111 torchvision torchaudio -f https://download.pytorch.org/whl/torch_stable.html
+# conda install -y -c pytorch -c conda-forge cudatoolkit=11.1 pytorch torchvision torchaudio
 
 #host_v=$(hostname)
 #if [ $host_v = vision-submit.cs.illinois.edu ]; then
@@ -44,6 +60,17 @@ pip install -e ~/diversity-for-predictive-success-of-meta-learning/
 
 pip install -e ~/ultimate-anatome/
 pip install -e ~/ultimate-aws-cv-task2vec/
+
+# - todo: test, decided to use conda only for pytorch since cudatoolkit is easier to specify & get the most recent torch version
+source cuda11.1
+# To see Cuda version in use
+nvcc -V
+# torchmeta needs pytorch < 1.10.0
+
+pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+#pip3 install torch==1.13.0+cu111 torchvision torchaudio -f https://download.pytorch.org/whl/torch_stable.html
+#conda install -y -c pytorch -c conda-forge cudatoolkit=11.1 pytorch torchvision torchaudio
+python -c 'import torch'
 
 # -- extra notes
 
