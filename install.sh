@@ -70,6 +70,8 @@ nvcc -V
 pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
 #pip3 install torch==1.13.0+cu111 torchvision torchaudio -f https://download.pytorch.org/whl/torch_stable.html
 #conda install -y -c pytorch -c conda-forge cudatoolkit=11.1 pytorch torchvision torchaudio
+#pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
+#pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113 --upgrade
 python -c 'import torch'
 
 # -- extra notes
