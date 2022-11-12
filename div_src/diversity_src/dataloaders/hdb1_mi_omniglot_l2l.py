@@ -625,23 +625,36 @@ def should_we_redownload_mi_data_set(root: Union[str, Path]) -> bool:
     # filenames: list[str] = [f'mini-imagenet-bookkeeping-{split}.pkl', f'mini-imagenet-cache-{split}.pkl']
     # for filename in filenames:
     for split in splits:
+        # -
         filename1: str = f'mini-imagenet-bookkeeping-{split}.pkl'
-        filename2: str = f'mini-imagenet-cache-{split}.pkl'
-        path2file1: Path = root / filename1
-        path2file2: Path = root / filename2
-        if not path2file1.exists() or not path2file2.exists():
+        path2file: Path = root / filename1
+        if not path2file.exists():
+            print(f'This file does NOT exist :{path2file=}, so we are redownloading MI')
             return True
-        # or torch fails to open it
-        try:
-            data1 = torch.load(path2file1)
-            data2 = torch.load(path2file2)
-            assert data1 is not None and data2 is not None, f'Err: {data1=} or {data2=}'
-        except Exception as e:
-            import logging
-            print(f'{e=}')
-            logging.warning(e)
+        if not succeeded_opening_pkl_data_mi(path2file):
+            return True
+        # -
+        filename2: str = f'mini-imagenet-cache-{split}.pkl'
+        path2file: Path = root / filename2
+        if not path2file.exists():
+            print(f'This file does NOT exist :{path2file=}, so we are redownloading MI')
+            return True
+        if not succeeded_opening_pkl_data_mi(path2file):
             return True
     return False
+
+
+def succeeded_opening_pkl_data_mi(path2file: Union[str, Path]) -> bool:
+    path2file: Path = expanduser(path2file)
+    try:
+        data = torch.load(path2file)
+        assert data is not None, f'Err: {data=}'
+    except Exception as e:
+        import logging
+        print(f'Was not able to open the l2l data with torch.load, got error: {e=}')
+        logging.warning(e)
+        return False
+    return True
 
 
 # -- Run experiment

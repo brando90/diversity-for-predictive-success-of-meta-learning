@@ -3,6 +3,7 @@ Main script to set up supervised learning experiments
 """
 # import os
 # os.environ["NCCL_DEBUG"] = "INFO"
+from socket import gethostname
 
 import os
 
@@ -1957,19 +1958,16 @@ def l2l_5CNN_hdb1_adam_cs_filter_size(args: Namespace) -> Namespace:
     args.log_freq = 500
 
     # -- wandb args
-    # args.wandb_project = 'playground'  # needed to log to wandb properly
-    args.wandb_project = 'entire'
+    args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    # args.experiment_name = f'debug'
-    args.experiment_name = f'entire-diversity-spectrum'
+    args.experiment_name = f'l2l_5CNN_hdb1_adam_cs_filter_size_{gethostname()}'
     args.run_name = f'{args.filter_size} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} : {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
     return args
-
 
 # - load args
 

@@ -38,8 +38,8 @@ echo -- Start my submission file
 # - choose GPU
 #export CUDA_VISIBLE_DEVICES=$(((RANDOM%8)))
 #export CUDA_VISIBLE_DEVICES=0
-export CUDA_VISIBLE_DEVICES=1
-#export CUDA_VISIBLE_DEVICES=2
+#export CUDA_VISIBLE_DEVICES=1
+export CUDA_VISIBLE_DEVICES=2
 #export CUDA_VISIBLE_DEVICES=3
 #export CUDA_VISIBLE_DEVICES=4
 #export CUDA_VISIBLE_DEVICES=5
@@ -58,7 +58,7 @@ export CUDA_VISIBLE_DEVICES=1
 #export CUDA_VISIBLE_DEVICES=0,6,7
 
 # - set experiment id
-python -c "import random;print(random.randint(0, 1_000_000))"
+#python -c "import random;print(random.randint(0, 1_000_000))"
 #export SLURM_JOBID=$(((RANDOM)))
 export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
 echo SLURM_JOBID = $SLURM_JOBID
@@ -80,8 +80,9 @@ python -c "import uutils; uutils.torch_uu.gpu_name_otherwise_cpu(print_to_stdout
 echo ---- Running your python main.py file ----
 
 # hdb1 scaling expts with 5CNN
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size
 #nohup python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size > $OUT_FILE 2> $ERR_FILE
+nohup python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size > $OUT_FILE 2> $ERR_FILE &
 
 # -- echo useful info, like process id/pid
 echo pid = $!
