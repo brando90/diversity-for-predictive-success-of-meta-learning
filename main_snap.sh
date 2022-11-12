@@ -14,6 +14,7 @@ echo HOME = $HOME
 source cuda11.1
 
 # activate conda
+conda bash
 conda activate metalearning_gpu
 
 # some quick checks
@@ -71,8 +72,8 @@ python -c "import uutils; uutils.torch_uu.gpu_name_otherwise_cpu(print_to_stdout
 echo ---- Running your python main ----
 
 # hdb1 scaling expts with 5CNN
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size
-#nohup python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size > $OUT_FILE &
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size
+nohup python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size > $OUT_FILE &
 
 # -- echo useful info, like process id/pid
 echo pid = $!

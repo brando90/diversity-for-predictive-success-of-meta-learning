@@ -241,12 +241,12 @@ def get_mi_datasets(
     have to have the same size.
     """
     # - get download l2l mi data set with my code & data url
-    # from uutils import download_and_extract
-    # download_and_extract(url='https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip',
-    #                      path_used_for_zip=root,
-    #                      path_used_for_dataset=root,
-    #                      rm_zip_file=True,
-    #                      )
+    from uutils import download_and_extract
+    download_and_extract(url='https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip',
+                         path_used_for_zip=root,
+                         path_used_for_dataset=root,
+                         rm_zip_file=True,
+                         )
     # -
     if data_augmentation is None:
         train_data_transforms = None

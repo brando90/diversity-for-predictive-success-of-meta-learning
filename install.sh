@@ -74,6 +74,8 @@ pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f h
 #pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113 --upgrade
 python -c 'import torch'
 
+echo Done "Done Install!"
+
 # -- extra notes
 # - using conda develop rather than pip because uutils installs incompatible versions with the vision cluster
 ## python -c "import sys; [print(p) for p in sys.path]"
