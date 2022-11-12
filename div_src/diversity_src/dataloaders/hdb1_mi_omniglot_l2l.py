@@ -245,7 +245,9 @@ def get_mi_datasets(
     download_and_extract(url='https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip',
                          path_used_for_zip=root,
                          path_used_for_dataset=root,
-                         rm_zip_file=True,
+                         rm_zip_file_after_extraction=False,
+                         force_rewrite_data_from_url_to_file=True,
+                         clean_old_file=True,
                          )
     # -
     if data_augmentation is None:
@@ -582,9 +584,10 @@ python ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src
     """
     from uutils import download_and_extract
     download_and_extract(url='https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip',
-                         path_used_for_zip='~/data/tmp',
-                         path_used_for_dataset='~/data/tmp/l2l_data',
-                         rm_zip_file=True,
+                         # path_used_for_zip='~/data/tmp',
+                         path_used_for_zip='~/data/l2l_data',
+                         path_used_for_dataset='~/data/l2l_data',
+                         rm_zip_file_after_extraction=True,
                          )
     # download_and_extract('https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip?download=1',
     #                      '~/data/tmp', '~/data/tmp')

@@ -14,7 +14,7 @@ echo HOME = $HOME
 source cuda11.1
 
 # activate conda
-conda bash
+conda init bash
 conda activate metalearning_gpu
 
 # some quick checks
@@ -34,12 +34,6 @@ echo TEMP = $TEMP
 
 # -- start experiment run
 echo -- Start my submission file
-
-# - set experiment id
-export SLURM_JOBID=$(((RANDOM)))
-echo SLURM_JOBID = $SLURM_JOBID
-export OUT_FILE=$PWD/main.sh.o$SLURM_JOBID
-echo OUT_FILE = $OUT_FILE
 
 # - choose GPU
 #export CUDA_VISIBLE_DEVICES=$(((RANDOM%8)))
@@ -63,17 +57,31 @@ export CUDA_VISIBLE_DEVICES=1
 #export CUDA_VISIBLE_DEVICES=2,3,4,5,6,7
 #export CUDA_VISIBLE_DEVICES=0,6,7
 
+# - set experiment id
+python -c "import random;print(random.randint(0, 1_000_000))"
+#export SLURM_JOBID=$(((RANDOM)))
+export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
+echo SLURM_JOBID = $SLURM_JOBID
+
+#export OUT_FILE="$($PWD)/main.sh.o$($SLURM_JOBID)_gpu$($CUDA_VISIBLE_DEVICES)_$(hostname)"
+export OUT_FILE=$PWD/main.sh.o$SLURM_JOBID
+echo OUT_FILE = $OUT_FILE
+
+#export OUT_FILE="$($PWD)/main.sh.err$($SLURM_JOBID)_gpu$($CUDA_VISIBLE_DEVICES)_$(hostname)"
+export ERR_FILE=$PWD/main.sh.err$SLURM_JOBID
+echo ERR_FILE = $ERR_FILE
+
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 # gpu name & number of gpus
 python -c "import torch; print(torch.cuda.get_device_name(0));"
 python -c "import uutils; uutils.torch_uu.gpu_name_otherwise_cpu(print_to_stdout=True);"
 
 # -- Run Experiment
-echo ---- Running your python main ----
+echo ---- Running your python main.py file ----
 
 # hdb1 scaling expts with 5CNN
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size
-nohup python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size > $OUT_FILE &
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size
+#nohup python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name l2l_5CNN_hdb1_adam_cs_filter_size > $OUT_FILE 2> $ERR_FILE
 
 # -- echo useful info, like process id/pid
 echo pid = $!
