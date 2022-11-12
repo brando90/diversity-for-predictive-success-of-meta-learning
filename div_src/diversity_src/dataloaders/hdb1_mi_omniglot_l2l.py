@@ -13,9 +13,11 @@ Issues with lambda pickling data transforms:
 ref:
     - my answer: https://stackoverflow.com/a/74282085/1601580
 """
+from pathlib import Path
+
 import os
 import random
-from typing import Callable
+from typing import Callable, Union
 
 import learn2learn as l2l
 import numpy as np
@@ -37,6 +39,8 @@ from PIL.Image import LANCZOS
 import os
 from torch.utils.data import Dataset, ConcatDataset
 from torchvision.datasets.omniglot import Omniglot
+
+from uutils import expanduser, report_times, download_and_extract
 
 
 class FullOmniglotUU(Dataset):
@@ -241,14 +245,16 @@ def get_mi_datasets(
     have to have the same size.
     """
     # - get download l2l mi data set with my code & data url
-    from uutils import download_and_extract
-    download_and_extract(url='https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip',
-                         path_used_for_zip=root,
-                         path_used_for_dataset=root,
-                         rm_zip_file_after_extraction=False,
-                         force_rewrite_data_from_url_to_file=True,
-                         clean_old_file=True,
-                         )
+    if should_we_redownload_mi_data_set(root):
+        url: str = 'https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip'
+        print(f'Redownloading MI data from {url=} since this returned True: {should_we_redownload_mi_data_set(root)=} ')
+        download_and_extract(url=url,
+                             path_used_for_zip=root,
+                             path_used_for_dataset=root,
+                             rm_zip_file_after_extraction=False,
+                             force_rewrite_data_from_url_to_file=True,
+                             clean_old_zip_file=True,
+                             )
     # -
     if data_augmentation is None:
         train_data_transforms = None
@@ -582,12 +588,14 @@ def download_mini_imagenet_brandos_download_from_zenodo():
 
 python ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/dataloaders/hdb1_mi_omniglot_l2l.py
     """
-    from uutils import download_and_extract
-    download_and_extract(url='https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip',
-                         # path_used_for_zip='~/data/tmp',
-                         path_used_for_zip='~/data/l2l_data',
-                         path_used_for_dataset='~/data/l2l_data',
-                         rm_zip_file_after_extraction=True,
+    root = '~/data/l2l_data/'
+    url: str = 'https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip'
+    download_and_extract(url=url,
+                         path_used_for_zip=root,
+                         path_used_for_dataset=root,
+                         rm_zip_file_after_extraction=False,
+                         force_rewrite_data_from_url_to_file=True,
+                         clean_old_zip_file=True,
                          )
     # download_and_extract('https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip?download=1',
     #                      '~/data/tmp', '~/data/tmp')
@@ -604,11 +612,42 @@ python ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src
     print('success loop through local data')
 
 
+def should_we_redownload_mi_data_set(root: Union[str, Path]) -> bool:
+    """
+    If any of the pickle files is missing or loading the pickle data returned an error,
+    return True i.e. yes you need to redownload the data a file is missing or there is a corrupted file.
+
+    mini-imagenet-bookkeeping-{split}.pkl
+    mini-imagenet-cache-{split}.pkl
+    """
+    root: Path = expanduser(root)
+    splits: list[str] = ['train', 'validation', 'test']
+    # filenames: list[str] = [f'mini-imagenet-bookkeeping-{split}.pkl', f'mini-imagenet-cache-{split}.pkl']
+    # for filename in filenames:
+    for split in splits:
+        filename1: str = f'mini-imagenet-bookkeeping-{split}.pkl'
+        filename2: str = f'mini-imagenet-cache-{split}.pkl'
+        path2file1: Path = root / filename1
+        path2file2: Path = root / filename2
+        if not path2file1.exists() or not path2file2.exists():
+            return True
+        # or torch fails to open it
+        try:
+            data1 = torch.load(path2file1)
+            data2 = torch.load(path2file2)
+            assert data1 is not None and data2 is not None, f'Err: {data1=} or {data2=}'
+        except Exception as e:
+            import logging
+            print(f'{e=}')
+            logging.warning(e)
+            return True
+    return False
+
+
 # -- Run experiment
 
 if __name__ == "__main__":
     import time
-    from uutils import report_times
 
     start = time.time()
     # - run experiment
