@@ -1,4 +1,11 @@
-def download_mi_l2l_now():
+"""
+I suspect it's better to download it seperately once since if I delete it each time
+to re-download it -- then another script might try to get the data but it doesn't
+exist. Idk what the solution is or why it ALWAYS wants to redownload it.
+"""
+
+
+def get_download_mi_l2l_now():
     root = '~/data/l2l_data/',
     url: str = 'https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip'
     from uutils import download_and_extract
@@ -12,4 +19,4 @@ def download_mi_l2l_now():
 
 
 if __name__ == '__main__':
-    download_mi_l2l_now()
+    get_download_mi_l2l_now()

@@ -1894,14 +1894,15 @@ def l2l_5CNN_hdb1_adam_cs_filter_size(args: Namespace) -> Namespace:
     """
     from pathlib import Path
     # - model
-    args.n_cls = 5
-    args.filter_size = 4
+    assert args.filter_size != -1, f'Err: {args.filter_size=}'
+    # args.filter_size = 4
     # args.filter_size = 8
     # args.filter_size = 16
     # args.filter_size = 32
     # args.filter_size = 128
     # args.filter_size = 512
-    print(f'{args.filter_size=}')
+    print(f'---> cd {args.filter_size=}')
+    args.n_cls = 5
     args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
                           filter_size=args.filter_size,
@@ -1916,12 +1917,11 @@ def l2l_5CNN_hdb1_adam_cs_filter_size(args: Namespace) -> Namespace:
     args.training_mode = 'iterations'
 
     # note: 60K iterations for original maml 5CNN with adam
-    # args.num_its = 100_000
-    args.num_its = 2
+    args.num_its = 100_000
 
     # - debug flag
-    args.debug = True
-    # args.debug = False
+    # args.debug = True
+    args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
@@ -1942,9 +1942,9 @@ def l2l_5CNN_hdb1_adam_cs_filter_size(args: Namespace) -> Namespace:
     # args.batch_size = 32
     args.batch_size = 8
 
-    args.k_eval = 5
+    # args.k_eval = 5
     # args.k_eval = 10
-    # args.k_eval = 15
+    args.k_eval = 15
 
     # - dist args
     args.world_size = torch.cuda.device_count()
@@ -1963,7 +1963,7 @@ def l2l_5CNN_hdb1_adam_cs_filter_size(args: Namespace) -> Namespace:
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'l2l_5CNN_hdb1_adam_cs_filter_size'
-    args.run_name = f'{args.filter_size} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} : {args.jobid=} hostname: {gethostname()}'
+    args.run_name = f'{args.filter_size=} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} : {args.jobid=} hostname: {gethostname()}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
 

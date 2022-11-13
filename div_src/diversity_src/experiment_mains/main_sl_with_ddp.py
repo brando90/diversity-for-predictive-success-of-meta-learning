@@ -29,6 +29,8 @@ from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch, train_agent_iterations, \
     train_agent_epochs
 
+from socket import gethostname
+
 from pdb import set_trace as st
 
 
@@ -1863,6 +1865,54 @@ def sl_hdb1_rfs_resnet12rfs_adam_cl(args: Namespace) -> Namespace:
     return args
 
 
+def sl_hdb1_5cnn_adam_cl_filter_size(args: Namespace):
+    from pathlib import Path
+    # - model
+    assert args.filter_size != -1, f'Err: {args.filter_size=}'
+    args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=64 + 1100,
+                          filter_size=args.filter_size,
+                          levels=None,
+                          spp=False, in_channels=3)
+
+    # - data
+    args.data_option = 'hdb1_mio_usl'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.num_epochs = 1000
+    # args.batch_size = 1024
+    args.batch_size = 512
+    # args.batch_size = 2 ** 14  # 2**14
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 1
+    args.T_max = args.num_epochs // args.log_scheduler_freq
+    args.eta_min = 1e-5  # coincidentally, matches MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+
+    # - training mode
+    args.training_mode = 'epochs'
+
+    # -
+    # args.debug = True
+    args.debug = False
+
+    # -
+    args.log_freq = 1  # for SL it is meant to be small e.g. 1 or 2
+
+    # - wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'sl_hdb1_5cnn_adam_cl_filter_size'
+    args.run_name = f'{args.filter_size=} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {gethostname()}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
 def load_args() -> Namespace:
     """
     1. parse args from user's terminal
@@ -1872,7 +1922,7 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_standard_sl()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'sl_hdb1_rfs_resnet12rfs_adam_cl'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'sl_hdb1_5cnn_adam_cl_filter_size'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
@@ -1948,6 +1998,12 @@ def load_args() -> Namespace:
             args: Namespace = sl_mi_rfs_5cnn_adam_cl_128_filter_size(args)
         elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_cl_512_filter_size':
             args: Namespace = sl_mi_rfs_5cnn_adam_cl_512_filter_size(args)
+
+        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_cl_512_filter_size':
+            args: Namespace = sl_mi_rfs_5cnn_adam_cl_512_filter_size(args)
+
+        elif args.manual_loads_name == 'sl_hdb1_5cnn_adam_cl_filter_size':
+            args: Namespace = sl_hdb1_5cnn_adam_cl_filter_size(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
