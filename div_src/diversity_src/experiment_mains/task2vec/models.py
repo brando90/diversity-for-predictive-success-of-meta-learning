@@ -44,7 +44,7 @@ class FNN3(ProbeNetwork):
         # Start of our FNN: input -> hidden_layer[0]
 
         self.f1 = nn.Flatten()
-        self.l1 = nn.Linear(2,128)
+        self.l1 = nn.Linear(1,128)
         self.bn1= nn.BatchNorm1d(128)
         self.relu1 = nn.ReLU()
         self.l2 = nn.Linear(128,128)
@@ -83,29 +83,23 @@ class FNN3(ProbeNetwork):
             exec("self.l" + str(layer_cnt) + " = linlay",globals(),ldict)
             linlayer = ldict['self.l' + str(layer_cnt)]
             layer_cnt+=1
-
             exec("self.l" + str(layer_cnt) + " = nn.BatchNorm1d(hidden_layers[i+1])",globals(),ldict)
             bnlayer = ldict['self.l' + str(layer_cnt)]
             layer_cnt+=1
-
             exec("self.l" + str(layer_cnt) + " = nn.ReLU()",globals(),ldict)
             relulayer = ldict['self.l' + str(layer_cnt)]
             layer_cnt+=1
-
             layer = [linlayer, bnlayer, relulayer]
-
             #exec("layer = [self.l" + str(layer_cnt-3) + ", self.l" + str(layer_cnt-2) + ", self.l" + str(layer_cnt-3) + "]")
-
             #layer = [
             #    nn.Linear(hidden_layers[i], hidden_layers[i+1]),
             #    nn.BatchNorm1d(hidden_layers[i+1]),
             #    nn.ReLU()
             #]
             (self.layers).extend(layer)
-
         self.fc = nn.Linear(hidden_layers[-1], output_size)
         '''
-        self.features = nn.Sequential(
+        '''self.features = nn.Sequential(
             nn.Flatten(),
             nn.Linear(input_size, hidden_layers[0]),
             nn.BatchNorm1d(hidden_layers[0]),
@@ -115,7 +109,7 @@ class FNN3(ProbeNetwork):
             nn.ReLU(),
         )
         self.clsfier = nn.Linear(hidden_layers[1], output_size)
-
+        '''
     @property
     def classifier(self):
         return self.fc
@@ -170,9 +164,31 @@ def resnet18(pretrained=False, num_classes=1000):
     return model
 
 @_add_model
-def gaussian_net(num_classes=5):
-    model: ProbeNetwork = FNN3(input_size=1,output_size=num_classes, hidden_layers=[15,15])
+def gaussian_net(num_classes=5,pretrained=False,path_to_ckpt=None):
+    model: ProbeNetwork = FNN3(input_size=1,output_size=num_classes, hidden_layers=[128,128,128,128,128,128,128,128])
+    if pretrained:
+        print("Loading pretrained!!", path_to_ckpt)
+        ckpt = torch.load(path_to_ckpt)#, map_location=args.device)
+        #print(ckpt['model_state_dict'].keys())
+        cmsd = ckpt['model_state_dict']
+        #need to remap keys
+        modded_dict = {'l1.weight':cmsd['features.1.weight'],
+                       'l1.bias':cmsd['features.1.bias'],
+                       'bn1.weight':cmsd['features.2.weight'],
+                       "bn1.bias":cmsd['features.2.bias'],
+                       "bn1.running_mean":cmsd['features.2.running_mean'],
+                       "bn1.running_var":cmsd['features.2.running_var'],
+                       "l2.weight":cmsd['features.4.weight'],
+                       "l2.bias":cmsd['features.4.bias'],
+                       "bn2.weight":cmsd['features.5.weight'],
+                       "bn2.bias":cmsd['features.5.bias'],
+                       "bn2.running_mean":cmsd['features.5.running_mean'],
+                       "bn2.running_var":cmsd['features.5.running_var'],
+                       "fc.weight":cmsd['classifier.weight'],
+                       "fc.bias":cmsd["classifier.bias"]}
+        model.load_state_dict(modded_dict)
     return model
+    #return model
 
 
 @_add_model
