@@ -61,9 +61,11 @@ import pytorch_meta_dataset_old.pytorch_meta_dataset.config as config_lib
 import pytorch_meta_dataset_old.pytorch_meta_dataset.dataset_spec as dataset_spec_lib
 from torch.utils.data import DataLoader
 import os
+from uutils.plot import save_to
 import argparse
 import torch.backends.cudnn as cudnn
 import random
+from datetime import datetime
 #import numpy as np
 import pytorch_meta_dataset_old.pytorch_meta_dataset.pipeline as pipeline
 from pytorch_meta_dataset_old.pytorch_meta_dataset.utils import worker_init_fn_
@@ -73,6 +75,7 @@ from functools import partial
 from argparse import Namespace
 from copy import deepcopy
 from pathlib import Path
+from uutils.logging_uu.wandb_logging.common import setup_wandb
 
 import learn2learn
 import numpy as np
@@ -88,7 +91,8 @@ import task_similarity
 from dataset import TaskDataset
 from models import get_model
 from task2vec import Embedding, Task2Vec, ProbeNetwork
-
+from uutils.argparse_uu.common import create_default_log_root
+import torch
 
 def get_mds_args() -> Namespace:
     import argparse
@@ -236,7 +240,7 @@ def get_mds_args() -> Namespace:
                                                                            '~100 iterations.')
 
     # - data set args
-    parser.add_argument('--batch_size', type=int, default=4)
+    parser.add_argument('--batch_size', type=int, default=2)
     parser.add_argument('--batch_size_eval', type=int, default=2)
     parser.add_argument('--split', type=str, default='train', help="possible values: "
                                                                    "'train', val', test'")
@@ -286,11 +290,11 @@ def get_mds_args() -> Namespace:
 
     # - wandb
     parser.add_argument('--log_to_wandb', action='store_true', help='store to weights and biases')
-    parser.add_argument('--wandb_project', type=str, default='meta-learning-playground')
-    parser.add_argument('--wandb_entity', type=str, default='brando')
+    parser.add_argument('--wandb_project', type=str, default='Meta-Dataset')
+    parser.add_argument('--wandb_entity', type=str, default='brando-uiuc')
     # parser.add_argument('--wandb_project', type=str, default='test-project')
     # parser.add_argument('--wandb_entity', type=str, default='brando-uiuc')
-    parser.add_argument('--wandb_group', type=str, default='experiment_debug', help='helps grouping experiment runs')
+    parser.add_argument('--wandb_group', type=str, default='Task2Vec diversity', help='helps grouping experiment runs')
     # parser.add_argument('--wandb_log_freq', type=int, default=10)
     # parser.add_argument('--wandb_ckpt_freq', type=int, default=100)
     # parser.add_argument('--wanbd_mdl_watch_log_freq', type=int, default=-1)
@@ -310,7 +314,8 @@ def get_mds_args() -> Namespace:
     args.criterion = args.loss
     assert args.criterion is args.loss
     # - load cluster ids so that wandb can use it later for naming runs, experiments, etc.
-    load_cluster_jobids_to(args) #UNCOMMENT LATER!
+    load_cluster_jobids_to(args) #UNCOMMENT LATER
+    create_default_log_root(args)
     return args
 
 def get_mds_loader(args):
@@ -528,11 +533,22 @@ def plot_distance_matrix_and_div_for_MI_test():
     # - get args for test
     args: Namespace = get_mds_args()
 
-    args.batch_size = 2
+    #args.batch_size = 5
     args.rank = -1 # SERIALLY
+
+    args.wandb_entity = 'brando-uiuc'
+    args.wandb_project = 'meta-dataset task2vec'
+    # - wandb expt args
+    current_time = datetime.now().strftime('%b%d_%H-%M-%S')
+    args.experiment_name = f'task2vec logging test'
+    args.probe_net = 'resnet18' #CHANGE WHEN YOU USE A NEW PROBE
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.probe_net} {current_time}'
+
+    args.log_to_wandb=True
     #args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
     #args.data_path = Path('~/data/l2l_data/').expanduser()
     #args.data_augmentation = 'lee2019'
+    setup_wandb(args)
     set_devices(args)
     dataloader = get_mds_loader(args)
 
@@ -569,6 +585,34 @@ def plot_distance_matrix_and_div_for_MI_test():
 
     div, ci = task_similarity.stats_of_distance_matrix(distance_matrix)
     print(f'Diversity: {(div, ci)=}')
+
+    #----new stuff----#
+    # - save results
+    torch.save(embeddings, args.log_root / 'embeddings.pt')  # saving obj version just in case
+    results: dict = {'embeddings': [(embed.hessian, embed.scale, embed.meta) for embed in embeddings],
+                     'distance_matrix': distance_matrix,
+                     'div': div, 'ci': ci,
+                     }
+    torch.save(results, args.log_root / 'results.pt')
+
+    # - show plot, this code is similar to above but put computes the distance matrix internally & then displays it
+    # hierchical clustering
+    task_similarity.plot_distance_matrix(embeddings, labels=list(range(len(embeddings))), distance='cosine',
+                                         show_plot=False)
+    save_to(args.log_root, plot_name=f'clustered_distance_matrix_fsl_{args.data_option}'.replace('-', '_'))
+    import matplotlib.pyplot as plt
+    # plt.show()
+    # heatmap
+    task_similarity.plot_distance_matrix_heatmap_only(embeddings, labels=list(range(len(embeddings))),
+                                                      distance='cosine',
+                                                      show_plot=False)
+    save_to(args.log_root, plot_name=f'heatmap_only_distance_matrix_fsl_{args.data_option}'.replace('-', '_'))
+    import matplotlib.pyplot as plt
+    # plt.show()
+
+    # todo: log plot to wandb https://docs.wandb.ai/guides/track/log/plots, https://stackoverflow.com/questions/72134168/how-does-one-save-a-plot-in-wandb-with-wandb-log?noredirect=1&lq=1
+    # import wandb
+    # wandb.log({"chart": plt})
 
 
 if __name__ == '__main__':
