@@ -1915,11 +1915,12 @@ def l2l_5CNN_hdb1_adam_cs_filter_size(args: Namespace) -> Namespace:
     args.training_mode = 'iterations'
 
     # note: 60K iterations for original maml 5CNN with adam
-    args.num_its = 100_000
+    # args.num_its = 100_000
+    args.num_its = 2
 
     # - debug flag
-    # args.debug = True
-    args.debug = False
+    args.debug = True
+    # args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
@@ -1960,8 +1961,8 @@ def l2l_5CNN_hdb1_adam_cs_filter_size(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'l2l_5CNN_hdb1_adam_cs_filter_size_{gethostname()}'
-    args.run_name = f'{args.filter_size} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} : {args.jobid=}'
+    args.experiment_name = f'l2l_5CNN_hdb1_adam_cs_filter_size'
+    args.run_name = f'{args.filter_size} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} : {args.jobid=} hostname: {gethostname()}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
 

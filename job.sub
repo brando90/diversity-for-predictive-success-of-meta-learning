@@ -16,19 +16,26 @@ Executable = /home/miranda9/diversity-for-predictive-success-of-meta-learning/ma
 # Executable = /shared/rsaas/miranda9/diversity-for-predictive-success-of-meta-learning/main.sh
 SUBMIT_FILE = main.sh
 
-# Output Files
+# Output Files, https://stackoverflow.com/questions/74424065/how-to-log-the-errors-both-stdout-and-sterr-files-in-the-htcondor-hpc-manager
 Log          = $(SUBMIT_FILE).log$(CLUSTER)
 Output       = $(SUBMIT_FILE).o$(CLUSTER)
-Error       = $(SUBMIT_FILE).o$(CLUSTER)
-# Error        = $(SUBMIT_FILE).e$(CLUSTER)
+# Error       = $(SUBMIT_FILE).o$(CLUSTER)
+Error        = $(SUBMIT_FILE).e$(CLUSTER)
 
-# Use this to make sure x gpu is available. The key words are case insensitive.
+# Use this to make sure x gpu is available. The key words are case insensitive. https://gitlab.engr.illinois.edu/Vision/vision-gpu-servers/-/wikis/Current-Machines-and-Usage-Weighting
+# see gpus see gpu names: condor_status --compact -af:h Machine TotalCpus TotalGpus  CUDADeviceName
 REquest_gpus = 1
 requirements = (CUDADeviceName != "Tesla K40m")
-# requirements = (CUDADeviceName != "Tesla K40m") && (CUDADeviceName != "NVIDIA A40")
 # requirements = (CUDADeviceName == "Titan Xp")
+
+# requirements = (CUDADeviceName == "NVIDIA GeForce GTX TITAN X")
+# requirements = (CUDADeviceName == "NVIDIA TITAN X (Pascal)")
+# requirements = (CUDADeviceName == "NVIDIA TITAN Xp")
 # requirements = (CUDADeviceName == "Quadro RTX 6000")
 # requirements = (CUDADeviceName == "NVIDIA A40")
+
+# requirements = (CUDADeviceName != "Tesla K40m") && (CUDADeviceName != "NVIDIA A40")
+# requirements = (CUDADeviceName == "NVIDIA TITAN X (Pascal)") || (CUDADeviceName == "NVIDIA TITAN Xp") || (CUDADeviceName == "Quadro RTX 6000") || (CUDADeviceName == "NVIDIA A40")
 requirements = (CUDADeviceName == "Quadro RTX 6000") || (CUDADeviceName == "NVIDIA A40")
 
 # Request_cpus = 4
