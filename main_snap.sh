@@ -10,6 +10,9 @@ source ~/.bash_profile
 source ~/.bashrc.user
 echo HOME = $HOME
 
+/afs/cs/software/bin/reauth
+# type password here
+
 #module load gcc/9.2.0
 source cuda11.1
 
@@ -92,5 +95,5 @@ echo SLURM_JOBID = $SLURM_JOBID
 # - Done
 echo "Done with bash script (experiment or dispatched daemon experiments). "
 
-pip install wandb --upgrade
+#pip install wandb --upgrade
 #df -h
