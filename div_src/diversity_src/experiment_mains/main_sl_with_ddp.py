@@ -1869,6 +1869,7 @@ def sl_hdb1_5cnn_adam_cl_filter_size(args: Namespace):
     from pathlib import Path
     # - model
     assert args.filter_size != -1, f'Err: {args.filter_size=}'
+    print(f'--->{args.filter_size=}')
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=64 + 1100,
                           filter_size=args.filter_size,
                           levels=None,

@@ -1895,13 +1895,7 @@ def l2l_5CNN_hdb1_adam_cs_filter_size(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     assert args.filter_size != -1, f'Err: {args.filter_size=}'
-    # args.filter_size = 4
-    # args.filter_size = 8
-    # args.filter_size = 16
-    # args.filter_size = 32
-    # args.filter_size = 128
-    # args.filter_size = 512
-    print(f'---> cd {args.filter_size=}')
+    print(f'--->{args.filter_size=}')
     args.n_cls = 5
     args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
