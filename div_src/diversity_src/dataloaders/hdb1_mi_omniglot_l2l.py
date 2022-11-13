@@ -245,16 +245,16 @@ def get_mi_datasets(
     have to have the same size.
     """
     # - get download l2l mi data set with my code & data url
-    if should_we_redownload_mi_data_set(root):
-        url: str = 'https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip'
-        print(f'Redownloading MI data from {url=} since this returned True: {should_we_redownload_mi_data_set(root)=} ')
-        download_and_extract(url=url,
-                             path_used_for_zip=root,
-                             path_used_for_dataset=root,
-                             rm_zip_file_after_extraction=False,
-                             force_rewrite_data_from_url_to_file=True,
-                             clean_old_zip_file=True,
-                             )
+    # if should_we_redownload_mi_data_set(root):
+    #     url: str = 'https://zenodo.org/record/7311663/files/brandoslearn2learnminiimagenet.zip'
+    #     print(f'Redownloading MI data from {url=} since this returned True: {should_we_redownload_mi_data_set(root)=} ')
+    #     download_and_extract(url=url,
+    #                          path_used_for_zip=root,
+    #                          path_used_for_dataset=root,
+    #                          rm_zip_file_after_extraction=False,
+    #                          force_rewrite_data_from_url_to_file=True,
+    #                          clean_old_zip_file=True,
+    #                          )
     # -
     if data_augmentation is None:
         train_data_transforms = None

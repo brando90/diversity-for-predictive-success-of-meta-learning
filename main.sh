@@ -1,8 +1,6 @@
 #!/bin/bash
 # pkill -9 python
 # pkill -U miranda9
-# chmod a+x ~/diversity-for-predictive-success-of-meta-learning/main.sh
-# chmod a+x /shared/rsaas/miranda9/diversity-for-predictive-success-of-meta-learning/main.sh
 
 # -- setup up for condor_submit background script in vision-cluster
 export HOME=/home/miranda9
@@ -13,6 +11,12 @@ source /etc/profile
 source /etc/profile.d/modules.sh
 source ~/.bashrc
 source ~/.bash_profile
+
+# only run this if no other jobs is still running, othewise there might an issue since the wandb dir will dissapear and for some reason wandb needs it
+#echo $WANDB_DIR
+#rm -rf $WANDB_DIR
+#rm -rf ./wandb
+#rm -rf $PWD/wandb
 
 pwd .
 realpath .
@@ -41,6 +45,7 @@ python -c "import torch; print(torch.cuda.get_device_name(0));"
 python -c "import uutils; gpu_name_otherwise_cpu(print_to_stdout=True);"
 
 echo ---- Running your python main ----
+echo PWD = $PWD
 # -- Run Experiment
 # - SL
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_mi_rfs_5cnn_adam_cl_32_filter_size
@@ -90,7 +95,5 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py
 
-#rm -rf $HOME/wandb_dir
-
 #pip install wandb --upgrade
-echo "Done with bash script (experiment or dispatched daemon experiments). "
+echo "---> Done with bash script (experiment or dispatched daemon experiments). "

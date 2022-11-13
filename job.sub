@@ -5,8 +5,6 @@
 #
 # reference: https://gitlab.engr.illinois.edu/Vision/vision-gpu-servers/-/wikis/HTCondor-user-guide#submit-jobs
 #
-# chmod a+x ~/diversity-for-predictive-success-of-meta-learning/main.sh
-# chmod a+x /shared/rsaas/miranda9//diversity-for-predictive-success-of-meta-learning/main.sh
 # condor_submit -i
 # condor_submit job.sub
 #
@@ -35,8 +33,8 @@ requirements = (CUDADeviceName != "Tesla K40m")
 # requirements = (CUDADeviceName == "NVIDIA A40")
 
 # requirements = (CUDADeviceName != "Tesla K40m") && (CUDADeviceName != "NVIDIA A40")
-# requirements = (CUDADeviceName == "NVIDIA TITAN X (Pascal)") || (CUDADeviceName == "NVIDIA TITAN Xp") || (CUDADeviceName == "Quadro RTX 6000") || (CUDADeviceName == "NVIDIA A40")
-requirements = (CUDADeviceName == "Quadro RTX 6000") || (CUDADeviceName == "NVIDIA A40")
+requirements = (CUDADeviceName == "NVIDIA TITAN X (Pascal)") || (CUDADeviceName == "NVIDIA TITAN Xp") || (CUDADeviceName == "Quadro RTX 6000") || (CUDADeviceName == "NVIDIA A40")
+# requirements = (CUDADeviceName == "Quadro RTX 6000") || (CUDADeviceName == "NVIDIA A40")
 
 # Request_cpus = 4
 # Request_cpus = 8

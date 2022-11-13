@@ -21,6 +21,7 @@ from uutils import args_hardcoded_in_script, report_times
 from uutils.argparse_uu.common import setup_args_for_experiment, setup_wandb
 from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
+from uutils.logging_uu.wandb_logging.common import cleanup_wandb
 from uutils.torch_uu import count_number_of_parameters
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
@@ -2122,6 +2123,8 @@ def train(args):
     print(f'\n----> about to cleanup worker with rank {rank}')
     cleanup(rank)
     print(f'clean up done successfully! {rank}')
+    # cleanup_wandb(args, delete_wandb_dir=True)
+    cleanup_wandb(args, delete_wandb_dir=False)
 
 
 # -- Run experiment
