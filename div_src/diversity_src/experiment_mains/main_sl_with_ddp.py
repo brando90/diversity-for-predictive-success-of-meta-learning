@@ -14,6 +14,7 @@ from uutils.argparse_uu.common import setup_args_for_experiment
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
 # from uutils.torch_uu.agents.common import Agent
 # from uutils.torch_uu.agents.supervised_learning import ClassificationSLAgent
+from uutils.torch_uu import count_number_of_parameters
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.agents.supervised_learning import ClassificationSLAgent, UnionClsSLAgent
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
@@ -2046,6 +2047,7 @@ def train(rank, args):
 
     # create the (ddp) model, opt & scheduler
     get_and_create_model_opt_scheduler_for_run(args)
+    args.number_of_trainable_parameters = count_number_of_parameters(args.model)
 
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
     args.dataloaders: dict = get_sl_dataloader(args)

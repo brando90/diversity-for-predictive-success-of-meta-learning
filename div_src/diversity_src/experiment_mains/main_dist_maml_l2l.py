@@ -127,7 +127,7 @@ def l2l_5CNNl2l_mi_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.n_cls = 5
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
                           levels=None, spp=False, in_channels=3)
 
@@ -205,7 +205,7 @@ def l2l_5CNNl2l_mi_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.n_cls = 5
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
                           levels=None, spp=False, in_channels=3)
 
@@ -831,7 +831,7 @@ def l2l_5CNN_mi_adam_filter_size(args: Namespace) -> Namespace:
     args.n_cls = 5
     # args.filter_size = 32
     args.filter_size = 1024
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
                           filter_size=args.filter_size,
                           levels=None, spp=False, in_channels=3)
@@ -908,7 +908,7 @@ def l2l_5CNN_mi_adam_filter_size_32_filter_size(args: Namespace) -> Namespace:
     # - model
     args.n_cls = 5
     args.filter_size = 32
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
                           filter_size=args.filter_size,
                           levels=None, spp=False, in_channels=3)
@@ -985,7 +985,7 @@ def l2l_5CNN_mi_adam_filter_size_16_filter_size(args: Namespace) -> Namespace:
     # - model
     args.n_cls = 5
     args.filter_size = 16
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
                           filter_size=args.filter_size,
                           levels=None, spp=False, in_channels=3)
@@ -1062,7 +1062,7 @@ def l2l_5CNN_mi_adam_filter_size_8_filter_size(args: Namespace) -> Namespace:
     # - model
     args.n_cls = 5
     args.filter_size = 8
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
                           filter_size=args.filter_size,
                           levels=None, spp=False, in_channels=3)
@@ -1139,7 +1139,7 @@ def l2l_5CNN_mi_adam_filter_size_4_filter_size(args: Namespace) -> Namespace:
     # - model
     args.n_cls = 5
     args.filter_size = 4
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
                           filter_size=args.filter_size,
                           levels=None, spp=False, in_channels=3)
@@ -1216,7 +1216,7 @@ def l2l_5CNN_mi_adam_filter_size_128_filter_size(args: Namespace) -> Namespace:
     # - model
     args.n_cls = 5
     args.filter_size = 128
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
                           filter_size=args.filter_size,
                           levels=None, spp=False, in_channels=3)
@@ -1292,7 +1292,7 @@ def l2l_5CNN_mi_adam_filter_size_512_filter_size(args: Namespace) -> Namespace:
     # - model
     args.n_cls = 5
     args.filter_size = 512
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
                           filter_size=args.filter_size,
                           levels=None, spp=False, in_channels=3)
@@ -1593,7 +1593,7 @@ def l2l_resnet18task2vec_hdb1_100k(args: Namespace) -> Namespace:
     #                       num_classes=args.n_cls)
     # args.n_cls = 5
     # args.filter_size = 64
-    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot'
     # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
     #                       filter_size=args.filter_size,
     #                       levels=None, spp=False, in_channels=3)
@@ -1670,7 +1670,7 @@ def l2l_5cnn_hdb1_100k(args: Namespace) -> Namespace:
     # - model
     args.n_cls = 5
     args.filter_size = 64
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
                           filter_size=args.filter_size,
                           levels=None, spp=False, in_channels=3)
@@ -1897,7 +1897,7 @@ def l2l_5CNN_hdb1_adam_cs_filter_size(args: Namespace) -> Namespace:
     assert args.filter_size != -1, f'Err: {args.filter_size=}'
     print(f'--->{args.filter_size=}')
     args.n_cls = 5
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
     args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
                           filter_size=args.filter_size,
                           levels=None, spp=False, in_channels=3)
