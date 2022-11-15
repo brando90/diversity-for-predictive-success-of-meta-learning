@@ -310,7 +310,7 @@ def main():
     cleanup_wandb(args)
 
 
-def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace):
+def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace, show_plots: bool = True):
     """
     - sample one batch of tasks and use a random cross product of different tasks to compute diversity.
     """
@@ -349,23 +349,24 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace):
     torch.save(results, args.log_root / 'results.pt')
 
     # - show plot, this code is similar to above but put computes the distance matrix internally & then displays it
-    # hierchical clustering
-    task_similarity.plot_distance_matrix(embeddings, labels=list(range(len(embeddings))), distance='cosine',
-                                         show_plot=False)
-    save_to(args.log_root, plot_name=f'clustered_distance_matrix_fsl_{args.data_option}'.replace('-', '_'))
-    import matplotlib.pyplot as plt
-    # plt.show()
-    # heatmap
-    task_similarity.plot_distance_matrix_heatmap_only(embeddings, labels=list(range(len(embeddings))),
-                                                      distance='cosine',
-                                                      show_plot=False)
-    save_to(args.log_root, plot_name=f'heatmap_only_distance_matrix_fsl_{args.data_option}'.replace('-', '_'))
-    import matplotlib.pyplot as plt
-    # plt.show()
+    if show_plots:
+        # hierchical clustering
+        task_similarity.plot_distance_matrix(embeddings, labels=list(range(len(embeddings))), distance='cosine',
+                                             show_plot=False)
+        save_to(args.log_root, plot_name=f'clustered_distance_matrix_fsl_{args.data_option}'.replace('-', '_'))
+        import matplotlib.pyplot as plt
+        # plt.show()
+        # heatmap
+        task_similarity.plot_distance_matrix_heatmap_only(embeddings, labels=list(range(len(embeddings))),
+                                                          distance='cosine',
+                                                          show_plot=False)
+        save_to(args.log_root, plot_name=f'heatmap_only_distance_matrix_fsl_{args.data_option}'.replace('-', '_'))
+        import matplotlib.pyplot as plt
+        # plt.show()
 
-    # todo: log plot to wandb https://docs.wandb.ai/guides/track/log/plots, https://stackoverflow.com/questions/72134168/how-does-one-save-a-plot-in-wandb-with-wandb-log?noredirect=1&lq=1
-    # import wandb
-    # wandb.log({"chart": plt})
+        # todo: log plot to wandb https://docs.wandb.ai/guides/track/log/plots, https://stackoverflow.com/questions/72134168/how-does-one-save-a-plot-in-wandb-with-wandb-log?noredirect=1&lq=1
+        # import wandb
+        # wandb.log({"chart": plt})
 
 
 if __name__ == '__main__':
