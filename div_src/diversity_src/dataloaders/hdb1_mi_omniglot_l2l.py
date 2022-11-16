@@ -399,7 +399,7 @@ def hdb1_mi_omniglot_tasksets(
         train_samples=10,
         test_ways=5,
         test_samples=10,
-        num_tasks=-1,
+        num_tasks=-1,  # let it be -1 for continual tasks https://github.com/learnables/learn2learn/issues/315
         root='~/data/l2l_data/',
         device=None,
         **kwargs,
