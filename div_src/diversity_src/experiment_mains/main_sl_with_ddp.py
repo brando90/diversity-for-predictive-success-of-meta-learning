@@ -1884,7 +1884,10 @@ def sl_hdb1_5cnn_adam_cl_filter_size(args: Namespace):
     args.opt_option = 'Adam_rfs_cifarfs'
     args.num_epochs = 1000
     # args.batch_size = 1024
-    args.batch_size = 512
+    if args.filter_size >= 512:
+        args.batch_size = 128
+    else:
+        args.batch_size = 512
     # args.batch_size = 2 ** 14  # 2**14
     args.lr = 1e-3
     args.opt_hps: dict = dict(lr=args.lr)
