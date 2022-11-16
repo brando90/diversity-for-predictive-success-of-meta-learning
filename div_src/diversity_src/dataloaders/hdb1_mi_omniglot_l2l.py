@@ -665,11 +665,11 @@ if __name__ == "__main__":
     start = time.time()
     # - run experiment
     # next_omniglot_and_mi_normal_dataloader()
-    # loop_through_l2l_indexable_benchmark_with_model_test()
+    loop_through_l2l_indexable_benchmark_with_model_test()
     # check_if_omniglots_labels_are_consistent()
     # download_mini_imagenet_fix()
     # download_mini_imagenet_fix_use_gdrive()
     # loop_through_mi_local()
-    download_mini_imagenet_brandos_download_from_zenodo()
+    # download_mini_imagenet_brandos_download_from_zenodo()
     # - Done
     print(f"\nSuccess Done!: {report_times(start)}\a")

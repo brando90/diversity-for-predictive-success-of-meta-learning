@@ -1,5 +1,10 @@
 # https://unix.stackexchange.com/questions/724902/how-does-one-send-new-commands-to-run-to-an-already-running-nohup-process-e-g-r
 # sh ~/diversity-for-predictive-success-of-meta-learning/main_nohup_snap.sh
+
+# - CAREFUL, if a job is already running it could do damage to it, rm reauth process, qian doesn't do it so skip it
+# top -u brando9
+# pkill -9 reauth -u brando9
+
 # - set up this main sh script
 export RUN_PWD=$(pwd)
 source ~/.bashrc
