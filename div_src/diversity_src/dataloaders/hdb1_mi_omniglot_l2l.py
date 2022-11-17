@@ -27,7 +27,7 @@ from learn2learn.data.transforms import TaskTransform
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 from torch import nn
 from torchvision.transforms import Compose, Normalize, ToPILImage, RandomCrop, ColorJitter, RandomHorizontalFlip, \
-    ToTensor
+    ToTensor, RandomResizedCrop
 
 from diversity_src.dataloaders.common import IndexableDataSet, ToRGB, DifferentTaskTransformIndexableForEachDataset
 
@@ -166,6 +166,11 @@ def get_omniglot_datasets(
     Get omniglot data set with the provided re-size function -- since when combining different data sets they have to
     be re-sized to have the same size.
     For example, `hdb1` uses the re-size size of MI.
+
+
+    Comment on data transform:
+        - yes it seems the data transform is this simple (in fact l2l reshapes to 28 by 28). No jitter etc done, see: https://github.com/learnables/learn2learn/blob/0b9d3a3d540646307ca5debf8ad9c79ffe975e1c/learn2learn/vision/benchmarks/omniglot_benchmark.py#L10
+        they don't have an if statement based on data gumentation so the code bellow is a correct representation of what l2l does.
     """
     if data_transform_option == 'l2l_original_data_transform':
         data_transforms = transforms.Compose([
@@ -176,26 +181,32 @@ def get_omniglot_datasets(
     elif data_transform_option == 'hdb1':
         data_transforms = transforms.Compose([
             ToRGB(),
-            # lambda x: x.convert("RGB")
-            # transforms.Resize(84, interpolation=LANCZOS),
-            # mimicking RandomCrop(84, padding=8) in mi
             transforms.Resize(84),
-            # torchvision.transforms.Pad(8),
             transforms.ToTensor(),
-            # lambda x: 1.0 - x,  # note: task2vec doesn't have this for mnist, wonder why...
             one_minus_x
         ])
     elif data_transform_option == 'hdb2':
         data_transforms = transforms.Compose([
             ToRGB(),
-            # lambda x: x.convert("RGB")
-            # transforms.Resize(84, interpolation=LANCZOS),
-            # mimicking RandomCrop(84, padding=8) in mi
             transforms.Resize(32),
-            # torchvision.transforms.Pad(8),
             transforms.ToTensor(),
-            one_minus_x,  # note: task2vec doesn't have this for mnist, wonder why...
+            one_minus_x,  # note: task2vec doesn't have this for mnist, wonder why...just flip background from black to white
         ])
+    elif data_transform_option == 'use_random_resized_crop':
+        train_data_transforms = transforms.Compose([
+            ToRGB(),
+            RandomResizedCrop((84, 84), scale=(0.18, 1.0), padding=8),
+            transforms.ToTensor(),
+            one_minus_x
+        ])
+        val_data_transforms = transforms.Compose([
+            ToRGB(),
+            transforms.Resize(84),
+            transforms.ToTensor(),
+            one_minus_x
+        ])
+        test_data_transforms = val_data_transforms
+        raise NotImplementedError
     else:
         raise ValueError(f'Invalid data transform option for omniglot, got instead {data_transform_option=}')
 
