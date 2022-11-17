@@ -28,6 +28,9 @@ from uutils.torch_uu.distributed import is_lead_worker
 from uutils.torch_uu.models.probe_networks import get_probe_network
 
 
+# import matplotlib.pyplot as plt
+
+
 # - mi
 
 def diversity_ala_task2vec_mi_resnet18_pretrained_imagenet(args: Namespace) -> Namespace:
@@ -310,7 +313,15 @@ def main():
     cleanup_wandb(args)
 
 
-def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace, show_plots: bool = True):
+def compute_div_and_plot_distance_matrix_for_fsl_benchmark_for_all_splits(args: Namespace, show_plots: bool = True):
+    splits: list[str] = ['train', 'validation', 'test']
+    for split in splits:
+        print(f'div computations for {split=}.')
+        compute_div_and_plot_distance_matrix_for_fsl_benchmark(args, split, show_plots)
+
+
+def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace, split: str = 'validation',
+                                                           show_plots: bool = True):
     """
     - sample one batch of tasks and use a random cross product of different tasks to compute diversity.
     """
@@ -329,6 +340,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace, show
     print(f'number of tasks to consider: {args.batch_size=}')
     embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_l2l_benchmark(args.tasksets,
                                                                                            args.probe_network,
+                                                                                           split=split,
                                                                                            num_tasks_to_consider=args.batch_size)
     print(f'\n {len(embeddings)=}')
 
@@ -345,28 +357,31 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace, show
     results: dict = {'embeddings': [(embed.hessian, embed.scale, embed.meta) for embed in embeddings],
                      'distance_matrix': distance_matrix,
                      'div': div, 'ci': ci,
+                     'split': split,
                      }
-    torch.save(results, args.log_root / 'results.pt')
+    torch.save(results, args.log_root / f'results_{split}.pt')
 
     # - show plot, this code is similar to above but put computes the distance matrix internally & then displays it
+    # hierchical clustering
+    task_similarity.plot_distance_matrix(embeddings, labels=list(range(len(embeddings))), distance='cosine',
+                                         show_plot=False)
+    save_to(args.log_root, plot_name=f'clustered_distance_matrix_fsl_{args.data_option}_{split}'.replace('-', '_'))
+    import matplotlib.pyplot as plt
     if show_plots:
-        # hierchical clustering
-        task_similarity.plot_distance_matrix(embeddings, labels=list(range(len(embeddings))), distance='cosine',
-                                             show_plot=False)
-        save_to(args.log_root, plot_name=f'clustered_distance_matrix_fsl_{args.data_option}'.replace('-', '_'))
-        import matplotlib.pyplot as plt
         # plt.show()
-        # heatmap
-        task_similarity.plot_distance_matrix_heatmap_only(embeddings, labels=list(range(len(embeddings))),
-                                                          distance='cosine',
-                                                          show_plot=False)
-        save_to(args.log_root, plot_name=f'heatmap_only_distance_matrix_fsl_{args.data_option}'.replace('-', '_'))
-        import matplotlib.pyplot as plt
+        pass
+    # heatmap
+    task_similarity.plot_distance_matrix_heatmap_only(embeddings, labels=list(range(len(embeddings))),
+                                                      distance='cosine',
+                                                      show_plot=False)
+    save_to(args.log_root, plot_name=f'heatmap_only_distance_matrix_fsl_{args.data_option}_{split}'.replace('-', '_'))
+    if show_plots:
         # plt.show()
+        pass
 
-        # todo: log plot to wandb https://docs.wandb.ai/guides/track/log/plots, https://stackoverflow.com/questions/72134168/how-does-one-save-a-plot-in-wandb-with-wandb-log?noredirect=1&lq=1
-        # import wandb
-        # wandb.log({"chart": plt})
+    # todo: log plot to wandb https://docs.wandb.ai/guides/track/log/plots, https://stackoverflow.com/questions/72134168/how-does-one-save-a-plot-in-wandb-with-wandb-log?noredirect=1&lq=1
+    # import wandb
+    # wandb.log({"chart": plt})
 
 
 if __name__ == '__main__':
