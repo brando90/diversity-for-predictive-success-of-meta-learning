@@ -149,6 +149,10 @@ def get_remaining_transforms_omniglot(dataset: MetaDataset, ways: int, shots: in
 
 
 def one_minus_x(x):
+    """
+    This transform only affects omniglot. Switches to a white black background.
+    """
+    # print('one minus x')
     return 1.0 - x
 
 
