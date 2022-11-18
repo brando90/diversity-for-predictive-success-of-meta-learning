@@ -27,7 +27,7 @@ from learn2learn.data.transforms import TaskTransform
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 from torch import nn
 from torchvision.transforms import Compose, Normalize, ToPILImage, RandomCrop, ColorJitter, RandomHorizontalFlip, \
-    ToTensor, RandomResizedCrop
+    ToTensor, RandomResizedCrop, Resize
 
 from diversity_src.dataloaders.common import IndexableDataSet, ToRGB, DifferentTaskTransformIndexableForEachDataset
 
@@ -281,6 +281,7 @@ def get_mi_datasets(
         ])
         test_data_transforms = train_data_transforms
     elif data_augmentation == 'lee2019' or data_augmentation == 'hdb1':
+        # print(f'{data_augmentation=}')
         normalize = Normalize(
             mean=[120.39586422 / 255.0, 115.59361427 / 255.0, 104.54012653 / 255.0],
             std=[70.68188272 / 255.0, 68.27635443 / 255.0, 72.54505529 / 255.0],
@@ -293,8 +294,35 @@ def get_mi_datasets(
             ToTensor(),
             normalize,
         ])
+        # test_data_transforms = Compose([
+        #     normalize,
+        # ])
         test_data_transforms = Compose([
+            ToPILImage(),
+            # Resize((84, 84)),
+            ToTensor(),
             normalize,
+        ])
+    elif data_augmentation == 'original_rfs':
+        # ref: https://github.com/WangYueFt/rfs/blob/master/dataset/mini_imagenet.py#L22
+        from PIL.Image import Image
+        normalize = Normalize(
+            mean=[120.39586422 / 255.0, 115.59361427 / 255.0, 104.54012653 / 255.0],
+            std=[70.68188272 / 255.0, 68.27635443 / 255.0, 72.54505529 / 255.0],
+        )
+        train_data_transforms = transforms.Compose([
+            lambda x: Image.fromarray(x),
+            transforms.RandomCrop(84, padding=8),
+            transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4),
+            transforms.RandomHorizontalFlip(),
+            lambda x: np.asarray(x),
+            transforms.ToTensor(),
+            normalize
+        ])
+        test_data_transforms = transforms.Compose([
+            lambda x: Image.fromarray(x),
+            transforms.ToTensor(),
+            normalize
         ])
     else:
         raise ('Invalid data_augmentation argument.')
