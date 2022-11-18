@@ -47,6 +47,7 @@ nohup sh -c 'echo $SU_PASSWORD | /afs/cs/software/bin/reauth; python -u ~/divers
 # other option is to run `echo $SU_PASSWORD | /afs/cs/software/bin/reauth` inside of python, right?
 export JOB_PID=$!
 echo $OUT_FILE
+echo $ERR_FILE
 echo JOB_PID = $JOB_PID
 echo SLURM_JOBID = $SLURM_JOBID
 
