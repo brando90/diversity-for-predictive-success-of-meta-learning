@@ -251,6 +251,31 @@ def diversity_ala_task2vec_hdb2_resnet18_pretrained_imagenet(args: Namespace) ->
     return args
 
 
+# - delauny
+
+
+def diversity_ala_task2vec_delauny(args: Namespace) -> Namespace:
+    args.batch_size = 5
+    args.data_option = 'delauny_uu_l2l_bm_split'
+    args.data_path = Path('~/data/delauny_l2l_bm_splitss').expanduser()
+
+    # - probe_network
+    args.model_option = 'resnet18_pretrained_imagenet'
+    # todo: put model_option as a flag & an assert
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
 # - main
 
 def load_args() -> Namespace:
@@ -262,7 +287,7 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'diversity_ala_task2vec_mi_resnet18_pretrained_imagenet'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'diversity_ala_task2vec_mi_resnet18_pretrained_imagenet'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if args_hardcoded_in_script(args):
@@ -289,6 +314,9 @@ def load_args() -> Namespace:
 
         elif args.manual_loads_name == 'diversity_ala_task2vec_hdb2_resnet18_pretrained_imagenet':
             args: Namespace = diversity_ala_task2vec_hdb2_resnet18_pretrained_imagenet(args)
+
+        elif args.manual_loads_name == 'diversity_ala_task2vec_delauny':
+            args: Namespace = diversity_ala_task2vec_delauny(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
@@ -308,6 +336,7 @@ def main():
 
     # - real experiment
     compute_div_and_plot_distance_matrix_for_fsl_benchmark(args)
+    # compute_div_and_plot_distance_matrix_for_fsl_benchmark_for_all_splits(args)
 
     # - wandb
     cleanup_wandb(args)
