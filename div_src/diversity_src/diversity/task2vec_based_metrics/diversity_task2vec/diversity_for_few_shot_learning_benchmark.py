@@ -189,7 +189,7 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
     # - compute embeddings for tasks
     embeddings: list[task2vec.Embedding] = []
     for task_num in range(num_tasks_to_consider):
-        print(f'\n--> {task_num=}\n')
+        # print(f'\n--> {task_num=}\n')
         # - Samples all data data for spt & qry sets for current task: thus size [n*(k+k_eval), C, H, W] (or [n(k+k_eval), D])
         task_data: list = task_dataset.sample()  # data, labels
         if split_task:

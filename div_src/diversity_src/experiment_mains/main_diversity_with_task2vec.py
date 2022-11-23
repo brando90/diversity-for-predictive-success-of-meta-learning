@@ -14,7 +14,7 @@ import task2vec
 import task_similarity
 from diversity_src.diversity.task2vec_based_metrics.diversity_task2vec.diversity_for_few_shot_learning_benchmark import \
     get_task_embeddings_from_few_shot_l2l_benchmark
-from models import get_model
+# from models import get_model
 from task2vec import ProbeNetwork
 from uutils import report_times, args_hardcoded_in_script, print_args, setup_args_for_experiment, save_args
 
@@ -255,9 +255,11 @@ def diversity_ala_task2vec_hdb2_resnet18_pretrained_imagenet(args: Namespace) ->
 
 
 def diversity_ala_task2vec_delauny(args: Namespace) -> Namespace:
+    # - data set options
     args.batch_size = 5
     args.data_option = 'delauny_uu_l2l_bm_split'
     args.data_path = Path('~/data/delauny_l2l_bm_splitss').expanduser()
+    args.data_augmentation = 'delauny_pad_random_resized_crop'
 
     # - probe_network
     args.model_option = 'resnet18_pretrained_imagenet'
@@ -267,7 +269,7 @@ def diversity_ala_task2vec_delauny(args: Namespace) -> Namespace:
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
-    args.run_name = f'{args.experiment_name} {args.batch_size=}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
 
@@ -287,7 +289,7 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    # args.manual_loads_name = 'diversity_ala_task2vec_mi_resnet18_pretrained_imagenet'  # <- REMOVE to remove manual loads
+    args.manual_loads_name = 'diversity_ala_task2vec_mi_resnet18_pretrained_imagenet'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if args_hardcoded_in_script(args):
@@ -335,8 +337,8 @@ def main():
     args: Namespace = load_args()
 
     # - real experiment
-    compute_div_and_plot_distance_matrix_for_fsl_benchmark(args)
-    # compute_div_and_plot_distance_matrix_for_fsl_benchmark_for_all_splits(args)
+    # compute_div_and_plot_distance_matrix_for_fsl_benchmark(args)
+    compute_div_and_plot_distance_matrix_for_fsl_benchmark_for_all_splits(args)
 
     # - wandb
     cleanup_wandb(args)
@@ -344,23 +346,40 @@ def main():
 
 def compute_div_and_plot_distance_matrix_for_fsl_benchmark_for_all_splits(args: Namespace, show_plots: bool = True):
     splits: list[str] = ['train', 'validation', 'test']
+    print_args(args)
+
+    splits_results = {}
     for split in splits:
-        print(f'div computations for {split=}.')
-        compute_div_and_plot_distance_matrix_for_fsl_benchmark(args, split, show_plots)
+        print(f'----> div computations for {split=}')
+        results = compute_div_and_plot_distance_matrix_for_fsl_benchmark(args, split, show_plots)
+        splits_results[split] = results
+
+    # - print summary
+    print('---- Summary of results for all splits')
+    for split in splits:
+        results: dict = splits_results[split]
+        div, ci, distance_matrix, split = results['div'], results['ci'], results['distance_matrix'], results['split']
+        print(f'\n-> {split=}')
+        print(f'Diversity: {(div, ci)=}')
+        print(f'{distance_matrix=}')
 
 
-def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace, split: str = 'validation',
-                                                           show_plots: bool = True):
+def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
+                                                           split: str = 'validation',
+                                                           show_plots: bool = True,
+                                                           ):
     """
     - sample one batch of tasks and use a random cross product of different tasks to compute diversity.
     """
+    start = time.time()
+    print(f'---- start task2vec analysis: {split=} ')
+
     # - print args for experiment
-    print_args(args)
     save_args(args)
 
     # - create probe_network
     args.probe_network: ProbeNetwork = get_probe_network(args)
-    print(f'{args.probe_network}')
+    print(f'{type(args.probe_network)=}')
 
     # create loader
     args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
@@ -411,6 +430,9 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace, spli
     # todo: log plot to wandb https://docs.wandb.ai/guides/track/log/plots, https://stackoverflow.com/questions/72134168/how-does-one-save-a-plot-in-wandb-with-wandb-log?noredirect=1&lq=1
     # import wandb
     # wandb.log({"chart": plt})
+    # -
+    # print(f"\n---- {report_times(start)}\n")
+    return results
 
 
 if __name__ == '__main__':
