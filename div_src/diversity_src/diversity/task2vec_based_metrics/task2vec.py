@@ -284,6 +284,7 @@ class Task2Vec:
     def _fit_classifier(self, optimizer='adam', learning_rate=0.0004, weight_decay=0.0001,
                         epochs=10):
         """Fits the last layer of the network using the cached features."""
+        print(f'{epochs=}')
         logging.info("Fitting final classifier...")
         if not hasattr(self.model.classifier, 'input_features'):
             raise ValueError("You need to run `cache_features` on model before running `fit_classifier`")
@@ -300,6 +301,7 @@ class Task2Vec:
         else:
             raise ValueError(f'Unsupported optimizer {optimizer}')
 
+        loss = None
         loss_fn = nn.CrossEntropyLoss()
         for epoch in tqdm(range(epochs), desc="Fitting classifier", leave=False):
             metrics = AverageMeter()

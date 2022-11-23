@@ -42,7 +42,23 @@ python -c "import torch; print(torch.cuda.get_device_name(0));"
 #nohup sh -c 'echo $SU_PASSWORD | /afs/cs/software/bin/reauth; python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_hdb1_5cnn_adam_cl_filter_size --filter_size 4 > $OUT_FILE 2> $ERR_FILE' > $PWD/nohup.out$SLURM_JOBID &
 
 # - delauny div
-nohup sh -c 'echo $SU_PASSWORD | /afs/cs/software/bin/reauth; python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_delauny > $OUT_FILE 2> $ERR_FILE' > $PWD/nohup.out$SLURM_JOBID &
+export RUN_CMD='${!HOME}/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_delauny > $OUT_FILE 2> $ERR_FILE'
+echo $RUN_CMD
+
+export RUN_CMD=$(echo '$HOME/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_delauny > $OUT_FILE 2> $ERR_FILE')
+echo $RUN_CMD
+
+export RUN_CMD=$(echo '${!HOME}/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_delauny > $OUT_FILE 2> $ERR_FILE')
+echo $RUN_CMD
+
+export RUN_CMD=(eval '$HOME/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_delauny > $OUT_FILE 2> $ERR_FILE')
+echo $RUN_CMD
+
+
+#export RUN_CMD=(eval echo '$HOME/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_delauny > $OUT_FILE 2> $ERR_FILE')
+
+
+nohup sh -c 'echo $SU_PASSWORD | /afs/cs/software/bin/reauth; python -u $RUN_CMD' > $PWD/nohup.out$SLURM_JOBID &
 
 # other option is to run `echo $SU_PASSWORD | /afs/cs/software/bin/reauth` inside of python, right?
 export JOB_PID=$!

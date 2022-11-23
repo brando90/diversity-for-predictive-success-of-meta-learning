@@ -54,6 +54,8 @@ l2l comments:
     e.g. the train split is its own set of "tasks_dataset.train = {task_i}_i"
 
 """
+from typing import Optional
+
 from argparse import Namespace
 from copy import deepcopy
 from pathlib import Path
@@ -72,6 +74,7 @@ from dataset import TaskDataset
 # from task2vec import Embedding, Task2Vec, ProbeNetwork
 from diversity_src.diversity.task2vec_based_metrics.models import get_model
 from diversity_src.diversity.task2vec_based_metrics.task2vec import Embedding, Task2Vec, ProbeNetwork
+
 
 # - probe network code
 
@@ -171,7 +174,8 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
                                                     num_tasks_to_consider: int,
 
                                                     split: str = 'validation',
-                                                    split_task: bool = False
+                                                    split_task: bool = False,
+                                                    classifier_opts: Optional = None,
                                                     ) -> list[task2vec.Embedding]:
     """
 
@@ -190,7 +194,7 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
     # - compute embeddings for tasks
     embeddings: list[task2vec.Embedding] = []
     for task_num in range(num_tasks_to_consider):
-        # print(f'\n--> {task_num=}\n')
+        print(f'\n--> {task_num=}\n')
         # - Samples all data data for spt & qry sets for current task: thus size [n*(k+k_eval), C, H, W] (or [n(k+k_eval), D])
         task_data: list = task_dataset.sample()  # data, labels
         if split_task:
@@ -202,9 +206,8 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
             data, labels = task_data
             fsl_task_dataset: Dataset = FSLTaskDataSet(spt_x=None, spt_y=None, qry_x=data, qry_y=labels)
             print(f'{len(fsl_task_dataset)=}')
-            # probe_network: ProbeNetwork = get_model('resnet18', pretrained=True, num_classes=5)
-            # embedding: task2vec.Embedding = Task2Vec(probe_network).embed(fsl_task_dataset)
-            embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network)).embed(fsl_task_dataset)
+            # embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network)).embed(fsl_task_dataset)
+            embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network), classifier_opts=classifier_opts).embed(fsl_task_dataset)
             print(f'{embedding.hessian.shape=}')
         embeddings.append(embedding)
     return embeddings

@@ -256,12 +256,14 @@ def diversity_ala_task2vec_delauny(args: Namespace) -> Namespace:
     # - data set options
     args.batch_size = 5
     args.data_option = 'delauny_uu_l2l_bm_split'
-    args.data_path = Path('~/data/delauny_l2l_bm_splitss').expanduser()
+    args.data_path = Path('~/data/delauny_l2l_bm_splits').expanduser()
     args.data_augmentation = 'delauny_pad_random_resized_crop'
 
     # - probe_network
     args.model_option = 'resnet18_pretrained_imagenet'
     # todo: put model_option as a flag & an assert
+    # args.classifier_opts = dict(epochs=0)
+    # args.classifier_opts = dict(epochs=10)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
@@ -287,7 +289,7 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'diversity_ala_task2vec_mi_resnet18_pretrained_imagenet'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'diversity_ala_task2vec_delauny'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if args_hardcoded_in_script(args):
@@ -324,7 +326,7 @@ def load_args() -> Namespace:
         pass
 
     # -- Setup up remaining stuff for experiment
-    # args: Namespace = setup_args_for_experiment(args)
+    # args: Namespace = setup_args_for_experiment(args)  # todo, why is this uncomented? :/
     setup_wandb(args)
     create_default_log_root(args)
     return args
@@ -387,7 +389,9 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_l2l_benchmark(args.tasksets,
                                                                                            args.probe_network,
                                                                                            split=split,
-                                                                                           num_tasks_to_consider=args.batch_size)
+                                                                                           num_tasks_to_consider=args.batch_size,
+                                                                                           classifier_opts=args.classifier_opts,
+                                                                                           )
     print(f'\n {len(embeddings)=}')
 
     # - compute distance matrix & task2vec based diversity
@@ -435,5 +439,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
 
 if __name__ == '__main__':
     start = time.time()
+    # - run experiment
     main()
-    print(f"\nSuccess Done!: {report_times(start)}\a\n")
+    # - Done
+    print(f"\nSuccess Done!: {report_times(start)}\a")
