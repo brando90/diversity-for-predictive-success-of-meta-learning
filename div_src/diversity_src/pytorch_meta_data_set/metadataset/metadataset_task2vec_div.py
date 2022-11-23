@@ -616,5 +616,8 @@ def plot_distance_matrix_and_div_for_MI_test():
 
 
 if __name__ == '__main__':
+    """
+python ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/metadataset/metadataset_task2vec_div.py --data_path /shared/rsaas/pzy2/records
+    """
     plot_distance_matrix_and_div_for_MI_test()
     print('Done! successful!\n')

@@ -207,7 +207,8 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
             fsl_task_dataset: Dataset = FSLTaskDataSet(spt_x=None, spt_y=None, qry_x=data, qry_y=labels)
             print(f'{len(fsl_task_dataset)=}')
             # embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network)).embed(fsl_task_dataset)
-            embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network), classifier_opts=classifier_opts).embed(fsl_task_dataset)
+            embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network), classifier_opts=classifier_opts).embed(
+                fsl_task_dataset)
             print(f'{embedding.hessian.shape=}')
         embeddings.append(embedding)
     return embeddings
@@ -234,6 +235,7 @@ def get_task_embeddings_from_few_shot_dataloader(args: Namespace,
     # -
     from uutils.torch_uu import process_meta_batch
     batch = next(iter(loader))
+    # batch [B, n*k, C, H, W] or B*[n_b*k_b, C, H, W]
     spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
 
     # - compute embeddings for tasks

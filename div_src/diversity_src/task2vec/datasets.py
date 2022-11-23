@@ -128,7 +128,7 @@ def set_metadata(trainset, testset, config, dataset_name):
 
 @_add_dataset
 def inat2018(root, config):
-    from dataset.inat import iNat2018Dataset
+    from diversity_src.task2vec.dataset.inat import iNat2018Dataset
     transform_train, transform_test = _get_transforms()
     trainset = iNat2018Dataset(root, split='train', transform=transform_train, task_id=config.task_id)
     testset = iNat2018Dataset(root, split='val', transform=transform_test, task_id=config.task_id)
@@ -165,7 +165,7 @@ def cub_inat2018(root, config):
     transform_train, transform_test = _get_transforms()
     if 0 <= config.task_id < NUM_CUB:
         # CUB
-        from dataset.cub import CUBTasks, CUBDataset
+        from diversity_src.task2vec.dataset.cub import CUBTasks, CUBDataset
         tasks_map_file = os.path.join(root, 'cub/CUB_200_2011', 'final_tasks_map.json')
         tasks_map = load_tasks_map(tasks_map_file)
         task_id = tasks_map[config.task_id]
@@ -196,7 +196,7 @@ def cub_inat2018(root, config):
                                           transform=transform_test)
     else:
         # iNat2018
-        from dataset.inat import iNat2018Dataset
+        from diversity_src.task2vec.dataset.inat import iNat2018Dataset
         tasks_map_file = os.path.join(root, 'inat2018', 'final_tasks_map.json')
         tasks_map = load_tasks_map(tasks_map_file)
         task_id = tasks_map[config.task_id - NUM_CUB]
@@ -211,7 +211,7 @@ def cub_inat2018(root, config):
 def imat2018fashion(root, config):
     NUM_IMAT = 228
     assert 0 <= config.task_id < NUM_IMAT
-    from dataset.imat import iMat2018FashionDataset, iMat2018FashionTasks
+    from diversity_src.task2vec.dataset.imat import iMat2018FashionDataset, iMat2018FashionTasks
     transform_train, transform_test = _get_transforms()
     train_tasks = iMat2018FashionTasks(iMat2018FashionDataset(root, split='train'))
     trainset = train_tasks.generate(task_id=config.task_id,
@@ -226,7 +226,7 @@ def imat2018fashion(root, config):
 @_add_dataset
 def split_mnist(root, config):
     assert isinstance(config.task_id, tuple)
-    from dataset.mnist import MNISTDataset, SplitMNISTTask
+    from diversity_src.task2vec.dataset.mnist import MNISTDataset, SplitMNISTTask
     transform_train, transform_test = _get_mnist_transforms()
     train_tasks = SplitMNISTTask(MNISTDataset(root, train=True))
     trainset = train_tasks.generate(classes=config.task_id, transform=transform_train)
@@ -239,7 +239,7 @@ def split_mnist(root, config):
 @_add_dataset
 def split_cifar(root, config):
     assert 0 <= config.task_id < 11
-    from dataset.cifar import CIFAR10Dataset, CIFAR100Dataset, SplitCIFARTask
+    from diversity_src.task2vec.dataset.cifar import CIFAR10Dataset, CIFAR100Dataset, SplitCIFARTask
     transform_train, transform_test = _get_cifar_transforms()
     train_tasks = SplitCIFARTask(CIFAR10Dataset(root, train=True), CIFAR100Dataset(root, train=True))
     trainset = train_tasks.generate(task_id=config.task_id, transform=transform_train)
@@ -251,9 +251,9 @@ def split_cifar(root, config):
 
 @_add_dataset
 def cifar10_mnist(root, config):
-    from dataset.cifar import CIFAR10Dataset
-    from dataset.mnist import MNISTDataset
-    from dataset.expansion import UnionClassificationTaskExpander
+    from diversity_src.task2vec.dataset.cifar import CIFAR10Dataset
+    from diversity_src.task2vec.dataset.mnist import MNISTDataset
+    from diversity_src.task2vec.dataset.expansion import UnionClassificationTaskExpander
     transform_train, transform_test = _get_cifar_transforms()
     trainset = UnionClassificationTaskExpander(merge_duplicate_images=False)(
         [CIFAR10Dataset(root, train=True), MNISTDataset(root, train=True, expand=True)], transform=transform_train)

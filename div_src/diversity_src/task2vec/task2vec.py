@@ -21,10 +21,10 @@ import torch.nn.functional as F
 import numpy as np
 from tqdm.auto import tqdm
 import logging
-import variational
+from diversity_src.task2vec import variational
 from torch.utils.data import DataLoader, Dataset
 from torch.optim.optimizer import Optimizer
-from utils import AverageMeter, get_error, get_device
+from diversity_src.task2vec.utils import AverageMeter, get_error, get_device
 
 
 class Embedding:

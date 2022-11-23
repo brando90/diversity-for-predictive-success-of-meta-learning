@@ -18,10 +18,10 @@ import pickle
 import hydra
 import logging
 
-from datasets import get_dataset
-from models import get_model
+from diversity_src.task2vec.datasets import get_dataset
+from diversity_src.task2vec.models import get_model
 
-from task2vec import Task2Vec
+from diversity_src.task2vec.task2vec import Task2Vec
 from omegaconf import DictConfig, OmegaConf
 
 

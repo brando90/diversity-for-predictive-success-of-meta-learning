@@ -15,14 +15,12 @@
 
 import os
 import json
-import sys
-from io import BytesIO
 import argparse
 import numpy as np
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.cluster import hierarchy
-from scipy.spatial.distance import squareform, pdist
-import task_similarity
+from scipy.spatial.distance import squareform
+from diversity_src.task2vec import task_similarity
 import glob
 import matplotlib as mpl
 mpl.use('Agg')

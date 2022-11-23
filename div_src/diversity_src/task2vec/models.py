@@ -17,7 +17,7 @@ import torch.utils.model_zoo as model_zoo
 import torchvision.models.resnet as resnet
 import torch
 from torch import nn
-from task2vec import ProbeNetwork
+from diversity_src.task2vec.task2vec import ProbeNetwork
 
 _MODELS = {}
 
