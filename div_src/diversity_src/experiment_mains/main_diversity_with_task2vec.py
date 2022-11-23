@@ -8,14 +8,12 @@ from pathlib import Path
 import numpy as np
 import torch
 from learn2learn.vision.benchmarks import BenchmarkTasksets
-from torch import Tensor
 
-import task2vec
-import task_similarity
 from diversity_src.diversity.task2vec_based_metrics.diversity_task2vec.diversity_for_few_shot_learning_benchmark import \
     get_task_embeddings_from_few_shot_l2l_benchmark
-# from models import get_model
-from task2vec import ProbeNetwork
+from diversity_src.diversity.task2vec_based_metrics.task2vec import ProbeNetwork
+import diversity_src.diversity.task2vec_based_metrics.task2vec as task2vec
+import diversity_src.diversity.task2vec_based_metrics.task_similarity as task_similarity
 from uutils import report_times, args_hardcoded_in_script, print_args, setup_args_for_experiment, save_args
 
 # - args for each experiment

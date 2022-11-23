@@ -65,12 +65,13 @@ from learn2learn.vision.benchmarks import BenchmarkTasksets
 from torch import nn, Tensor
 from torch.utils.data import Dataset
 
-import task2vec
-import task_similarity
+import diversity_src.diversity.task2vec_based_metrics.task2vec as task2vec
+import diversity_src.diversity.task2vec_based_metrics.task_similarity as task_similarity
 from dataset import TaskDataset
-from models import get_model
-from task2vec import Embedding, Task2Vec, ProbeNetwork
-
+# from models import get_model
+# from task2vec import Embedding, Task2Vec, ProbeNetwork
+from diversity_src.diversity.task2vec_based_metrics.models import get_model
+from diversity_src.diversity.task2vec_based_metrics.task2vec import Embedding, Task2Vec, ProbeNetwork
 
 # - probe network code
 

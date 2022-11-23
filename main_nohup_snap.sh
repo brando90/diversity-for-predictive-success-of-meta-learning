@@ -30,7 +30,7 @@ export WANDB_DIR=$HOME/wandb_dir
 echo $OUT_FILE
 echo $ERR_FILE
 
-export CUDA_VISIBLE_DEVICES=6
+export CUDA_VISIBLE_DEVICES=3
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 python -c "import torch; print(torch.cuda.get_device_name(0));"
 
