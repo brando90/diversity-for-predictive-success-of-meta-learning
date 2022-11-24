@@ -134,6 +134,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
 
     # create loader
     args.dataloaders: dict = get_mds_loader(args)
+    set_trace()
 
     # - compute task embeddings according to task2vec
     print(f'number of tasks to consider: {args.batch_size=}')

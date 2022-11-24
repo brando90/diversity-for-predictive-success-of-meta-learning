@@ -276,7 +276,6 @@ def get_task_embeddings_from_few_shot_dataloader_mds_variable_size(args: Namespa
     embeddings: list[task2vec.Embedding] = []
     for task_num in range(num_tasks_to_consider):
         print(f'\n--> {task_num=}\n')
-        t = task_num
         batch: Tensor = next(iter(loader))
         spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
         assert len(batch.size()) == 5
