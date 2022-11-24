@@ -256,6 +256,45 @@ def get_task_embeddings_from_few_shot_dataloader(args: Namespace,
     return embeddings
 
 
+def get_task_embeddings_from_few_shot_dataloader_mds_variable_size(args: Namespace,
+                                                                   dataloaders: dict,
+                                                                   probe_network: ProbeNetwork,
+                                                                   num_tasks_to_consider: int,
+                                                                   split: str = 'validation',
+                                                                   ) -> list[task2vec.Embedding]:
+    """
+    Returns list of task2vec embeddings using the normal pytorch dataloader interface.
+    Should work for torchmeta data sets & meta-data set (MDS).
+    This one just enforces that your meta-batch size is equal 1 but it computes a div value based on num_tasks_to_consider.
+    """
+    from uutils.torch_uu import process_meta_batch
+
+    # - get the data set of (n-way, k-shot) tasks
+    loader = dataloaders[split]
+
+    # - compute embeddings for tasks
+    embeddings: list[task2vec.Embedding] = []
+    for task_num in range(num_tasks_to_consider):
+        print(f'\n--> {task_num=}\n')
+        t = task_num
+        batch: Tensor = next(iter(loader))
+        spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
+        assert len(batch.size()) == 5
+        assert batch.size(0) == 1
+
+        spt_x_t, spt_y_t, qry_x_t, qry_y_t = spt_x[0], spt_y[0], qry_x[0], qry_y[0]
+        if spt_x_t.size(0) > qry_x_t.size(0):
+            data, labels = qry_x_t, qry_y_t
+        else:
+            data, labels = spt_x_t, spt_y_t
+        fsl_task_dataset: Dataset = FSLTaskDataSet(spt_x=None, spt_y=None, qry_x=data, qry_y=labels)
+        print(f'{len(fsl_task_dataset)=}')
+        embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network)).embed(fsl_task_dataset)
+        print(f'{embedding.hessian.shape=}')
+        embeddings.append(embedding)
+    return embeddings
+
+
 def compute_diversity(distance_matrix: np.array,
                       remove_diagonal: bool = True,
                       variance_type: str = 'ci_0.95',
