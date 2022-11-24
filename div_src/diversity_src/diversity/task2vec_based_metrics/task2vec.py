@@ -316,6 +316,7 @@ class Task2Vec:
             logging.info(f"[epoch {epoch}]: " + "\t".join(f"{k}: {v}" for k, v in metrics.avg.items()))
         print(f'\nfinal loss after fitting final layer {loss=}')
 
+
     def extract_embedding(self, model: ProbeNetwork):
         """
         Reads the values stored by `compute_fisher` and returns them in a common format that describes the diagonal of the

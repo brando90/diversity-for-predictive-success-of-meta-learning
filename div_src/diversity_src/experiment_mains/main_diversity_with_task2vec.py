@@ -21,8 +21,9 @@ from uutils.argparse_uu.common import create_default_log_root
 from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
 from uutils.logging_uu.wandb_logging.common import cleanup_wandb, setup_wandb
 from uutils.plot import save_to
+from uutils.torch_uu import get_device_from_model, get_device
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
-from uutils.torch_uu.distributed import is_lead_worker
+from uutils.torch_uu.distributed import is_lead_worker, set_devices
 from uutils.torch_uu.models.probe_networks import get_probe_network
 
 
@@ -216,12 +217,40 @@ def diversity_ala_task2vec_hdb1_resnet18_pretrained_imagenet(args: Namespace) ->
     args.model_option = 'resnet18_pretrained_imagenet'
 
     # -- wandb args
-    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
-    args.run_name = f'{args.experiment_name} {args.batch_size=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+def diversity_ala_task2vec_hdb1_mio(args: Namespace) -> Namespace:
+    args.batch_size = 500
+    args.data_option = 'hdb1'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+
+    # - probe_network
+    # args.model_option = 'resnet18_random'
+    # args.model_option = 'resnet18_pretrained_imagenet'
+    args.model_option = 'resnet34_random'
+    # args.model_option = 'resnet34_pretrained_imagenet'
+    #
+    # args.model_option = 'resnet18_random'
+    # args.classifier_opts = dict(epochs=0)
+    # args.model_option = 'resnet18_pretrained_imagenet'
+    # args.classifier_opts = dict(epochs=0)
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     args = fix_for_backwards_compatibility(args)
     return args
@@ -254,24 +283,30 @@ def diversity_ala_task2vec_hdb2_resnet18_pretrained_imagenet(args: Namespace) ->
 
 def diversity_ala_task2vec_delauny(args: Namespace) -> Namespace:
     # - data set options
-    args.batch_size = 5
+    args.batch_size = 500
     args.data_option = 'delauny_uu_l2l_bm_split'
     args.data_path = Path('~/data/delauny_l2l_bm_splits').expanduser()
     args.data_augmentation = 'delauny_pad_random_resized_crop'
 
     # - probe_network
-    args.model_option = 'resnet18_pretrained_imagenet'
-    # todo: put model_option as a flag & an assert
+    # args.model_option = 'resnet18_random'
+    # args.model_option = 'resnet18_pretrained_imagenet'
+    # args.model_option = 'resnet34_random'
+    # args.model_option = 'resnet34_pretrained_imagenet'
+    #
+    # args.model_option = 'resnet18_random'
     # args.classifier_opts = dict(epochs=0)
-    # args.classifier_opts = dict(epochs=10)
+    #
+    # args.model_option = 'resnet18_pretrained_imagenet'
+    # args.classifier_opts = dict(epochs=0)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
     args = fix_for_backwards_compatibility(args)
@@ -319,6 +354,8 @@ def load_args() -> Namespace:
 
         elif args.manual_loads_name == 'diversity_ala_task2vec_delauny':
             args: Namespace = diversity_ala_task2vec_delauny(args)
+        elif args.manual_loads_name == 'diversity_ala_task2vec_hdb1_mio':
+            args: Namespace = diversity_ala_task2vec_hdb1_mio(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
@@ -329,6 +366,7 @@ def load_args() -> Namespace:
     # args: Namespace = setup_args_for_experiment(args)  # todo, why is this uncomented? :/
     setup_wandb(args)
     create_default_log_root(args)
+    set_devices(args, verbose=True)
     return args
 
 
@@ -380,6 +418,9 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     # - create probe_network
     args.probe_network: ProbeNetwork = get_probe_network(args)
     print(f'{type(args.probe_network)=}')
+    print(f'{get_device_from_model(args.probe_network)=}')
+    print(f'{get_device()=}')
+    print(f'{args.device=}')
 
     # create loader
     args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
