@@ -65,7 +65,7 @@ import numpy as np
 import torch.utils.data
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 from torch import nn, Tensor
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 
 import diversity_src.diversity.task2vec_based_metrics.task2vec as task2vec
 import diversity_src.diversity.task2vec_based_metrics.task_similarity as task_similarity
@@ -74,6 +74,23 @@ from dataset import TaskDataset
 # from task2vec import Embedding, Task2Vec, ProbeNetwork
 from diversity_src.diversity.task2vec_based_metrics.models import get_model
 from diversity_src.diversity.task2vec_based_metrics.task2vec import Embedding, Task2Vec, ProbeNetwork
+
+
+def mds_loader_to_list_tensor_loader(episodic_mds_loader: DataLoader, num_tasks_to_consider: int) -> list[Tensor]:
+    """
+    This needs to receive an mds data loader & the number of tasks to consider for it's meta-batch (i.e. it's batch
+    of tasks).
+
+    Instead of [B, n_b*k_b, C, H, W] -> B*[n_b*k_n, C, H, W] and skip the issue of concatenating tensors of veriable sizes (by some padding?).
+    """
+    meta_batch: list[Tensor] = []
+    for i in num_tasks_to_consider:
+        batch: Tensor = next(iter(episodic_mds_loader))
+        assert len(batch.size()) == 5
+        # spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
+        spt_x, spt_y, qry_x, qry_y = batch
+        meta_batch.append((spt_x, spt_y, qry_x, qry_y))
+    yield meta_batch
 
 
 # - probe network code
@@ -234,59 +251,21 @@ def get_task_embeddings_from_few_shot_dataloader(args: Namespace,
 
     # -
     from uutils.torch_uu import process_meta_batch
-    batch = next(iter(loader))
-    # batch [B, n*k, C, H, W] or B*[n_b*k_b, C, H, W]
+    batch = next(iter(loader))  # batch [B, n*k, C, H, W] or B*[n_b*k_b, C, H, W]
     spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
 
     # - compute embeddings for tasks
     embeddings: list[task2vec.Embedding] = []
-    for task_num in range(num_tasks_to_consider):
-        print(f'\n--> {task_num=}\n')
-        # - Samples all data data for spt & qry sets for current task: thus size [n*(k+k_eval), C, H, W] (or [n(k+k_eval), D])
-        # task_data: list = task_dataset.sample()  # data, labels
-        t = task_num
+    for t in range(num_tasks_to_consider):
+        print(f'\n--> task_num={t}\n')
         spt_x_t, spt_y_t, qry_x_t, qry_y_t = spt_x[t], spt_y[t], qry_x[t], qry_y[t]
-        # data, labels = merge_x(spt_x_t, qry_x_t), merge_y(spt_y_t, qry_y_t)
-        data, labels = qry_x_t, qry_y_t
-        fsl_task_dataset: Dataset = FSLTaskDataSet(spt_x=None, spt_y=None, qry_x=data, qry_y=labels)
-        print(f'{len(fsl_task_dataset)=}')
-        embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network)).embed(fsl_task_dataset)
-        print(f'{embedding.hessian.shape=}')
-        embeddings.append(embedding)
-    return embeddings
-
-
-def get_task_embeddings_from_few_shot_dataloader_mds_variable_size(args: Namespace,
-                                                                   dataloaders: dict,
-                                                                   probe_network: ProbeNetwork,
-                                                                   num_tasks_to_consider: int,
-                                                                   split: str = 'validation',
-                                                                   ) -> list[task2vec.Embedding]:
-    """
-    Returns list of task2vec embeddings using the normal pytorch dataloader interface.
-    Should work for torchmeta data sets & meta-data set (MDS).
-    This one just enforces that your meta-batch size is equal 1 but it computes a div value based on num_tasks_to_consider.
-    """
-    from uutils.torch_uu import process_meta_batch
-
-    # - get the data set of (n-way, k-shot) tasks
-    loader = dataloaders[split]
-
-    # - compute embeddings for tasks
-    embeddings: list[task2vec.Embedding] = []
-    for task_num in range(num_tasks_to_consider):
-        print(f'\n--> {task_num=}\n')
-        batch: Tensor = next(iter(loader))
-        spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
-        assert len(batch.size()) == 5
-        assert batch.size(0) == 1
-
-        spt_x_t, spt_y_t, qry_x_t, qry_y_t = spt_x[0], spt_y[0], qry_x[0], qry_y[0]
         if spt_x_t.size(0) > qry_x_t.size(0):
             data, labels = qry_x_t, qry_y_t
         else:
             data, labels = spt_x_t, spt_y_t
+        # data, labels = qry_x_t, qry_y_t
         fsl_task_dataset: Dataset = FSLTaskDataSet(spt_x=None, spt_y=None, qry_x=data, qry_y=labels)
+
         print(f'{len(fsl_task_dataset)=}')
         embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network)).embed(fsl_task_dataset)
         print(f'{embedding.hessian.shape=}')
@@ -351,6 +330,10 @@ def plot_distance_matrix_and_div_for_MI_test():
 
     div, ci = task_similarity.stats_of_distance_matrix(distance_matrix)
     print(f'Diversity: {(div, ci)=}')
+
+
+def mds_loop():
+    pass
 
 
 if __name__ == '__main__':
