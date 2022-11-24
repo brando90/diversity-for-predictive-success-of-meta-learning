@@ -84,7 +84,7 @@ def mds_loader_to_list_tensor_loader(episodic_mds_loader: DataLoader, num_tasks_
     Instead of [B, n_b*k_b, C, H, W] -> B*[n_b*k_n, C, H, W] and skip the issue of concatenating tensors of veriable sizes (by some padding?).
     """
     meta_batch: list[Tensor] = []
-    for i in num_tasks_to_consider:
+    for _ in range(num_tasks_to_consider):
         batch: Tensor = next(iter(episodic_mds_loader))
         assert len(batch.size()) == 5
         # spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
