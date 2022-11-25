@@ -1,4 +1,0 @@
-task2vec:
-  method: montecarlo
-  method_opts:
-    epochs: 1

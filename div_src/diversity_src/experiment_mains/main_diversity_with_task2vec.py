@@ -14,7 +14,8 @@ from diversity_src.diversity.task2vec_based_metrics.diversity_task2vec.diversity
 from diversity_src.diversity.task2vec_based_metrics.task2vec import ProbeNetwork
 import diversity_src.diversity.task2vec_based_metrics.task2vec as task2vec
 import diversity_src.diversity.task2vec_based_metrics.task_similarity as task_similarity
-from uutils import report_times, args_hardcoded_in_script, print_args, setup_args_for_experiment, save_args
+from uutils import report_times, args_hardcoded_in_script, print_args, setup_args_for_experiment, save_args, \
+    save_to_json_pretty
 
 # - args for each experiment
 from uutils.argparse_uu.common import create_default_log_root
@@ -26,6 +27,7 @@ from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_ta
 from uutils.torch_uu.distributed import is_lead_worker, set_devices
 from uutils.torch_uu.models.probe_networks import get_probe_network
 
+from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interval
 
 # import matplotlib.pyplot as plt
 
@@ -232,23 +234,24 @@ def diversity_ala_task2vec_hdb1_mio(args: Namespace) -> Namespace:
     args.batch_size = 500
     args.data_option = 'hdb1'
     args.data_path = Path('~/data/l2l_data/').expanduser()
+    # args.classifier_opts = None
 
     # - probe_network
     # args.model_option = 'resnet18_random'
     # args.model_option = 'resnet18_pretrained_imagenet'
-    args.model_option = 'resnet34_random'
+    # args.model_option = 'resnet34_random'
     # args.model_option = 'resnet34_pretrained_imagenet'
     #
     # args.model_option = 'resnet18_random'
     # args.classifier_opts = dict(epochs=0)
-    # args.model_option = 'resnet18_pretrained_imagenet'
-    # args.classifier_opts = dict(epochs=0)
+    args.model_option = 'resnet18_pretrained_imagenet'
+    args.classifier_opts = dict(epochs=0)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
-    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
 
@@ -283,13 +286,13 @@ def diversity_ala_task2vec_hdb2_resnet18_pretrained_imagenet(args: Namespace) ->
 
 def diversity_ala_task2vec_delauny(args: Namespace) -> Namespace:
     # - data set options
-    args.batch_size = 500
+    args.batch_size = 5
     args.data_option = 'delauny_uu_l2l_bm_split'
     args.data_path = Path('~/data/delauny_l2l_bm_splits').expanduser()
     args.data_augmentation = 'delauny_pad_random_resized_crop'
 
     # - probe_network
-    # args.model_option = 'resnet18_random'
+    args.model_option = 'resnet18_random'
     # args.model_option = 'resnet18_pretrained_imagenet'
     # args.model_option = 'resnet34_random'
     # args.model_option = 'resnet34_pretrained_imagenet'
@@ -304,7 +307,7 @@ def diversity_ala_task2vec_delauny(args: Namespace) -> Namespace:
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
-    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
 
@@ -451,6 +454,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
                      'split': split,
                      }
     torch.save(results, args.log_root / f'results_{split}.pt')
+    save_to_json_pretty(results, args.log_root / f'results_{split}.json')
 
     # - show plot, this code is similar to above but put computes the distance matrix internally & then displays it
     # hierchical clustering
