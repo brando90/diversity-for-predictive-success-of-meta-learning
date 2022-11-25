@@ -5,8 +5,8 @@
 # - CAREFUL, if a job is already running it could do damage to it, rm reauth process, qian doesn't do it so skip it
 # top -u brando9
 # pkill -9 reauth -u brando9;
-# pkill -9 reauth -u brando9; pkill -9 python -u brando9; pkill -9 wandb-service*
-# pkill -9 tmux -u brando9
+# pkill -9 reauth -u brando9; pkill -9 python -u brando9; pkill -9 wandb-service* -u brando9
+# pkill -9 tmux -u brando9; pkill -9 krbtmux -u brando9; pkill -9 reauth -u brando9; pkill -9 python -u brando9; pkill -9 wandb-service* -u brando9;
 
 # - set up this main sh script
 export RUN_PWD=$(pwd)
