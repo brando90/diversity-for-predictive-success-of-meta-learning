@@ -342,6 +342,7 @@ def get_mi_datasets(
         mode='test',
         download=True,
     )
+    assert isinstance(train_dataset, Dataset)
     if device is None:
         train_dataset.transform = train_data_transforms
         valid_dataset.transform = test_data_transforms
@@ -365,6 +366,7 @@ def get_mi_datasets(
     train_dataset = l2l.data.MetaDataset(train_dataset)
     valid_dataset = l2l.data.MetaDataset(valid_dataset)
     test_dataset = l2l.data.MetaDataset(test_dataset)
+    assert isinstance(train_dataset, Dataset)
 
     # - add names to be able to get the right task transform for the indexable dataset
     train_dataset.name = 'train_mi'
@@ -386,11 +388,13 @@ def get_mi_and_omniglot_list_data_set_splits(
 
     #
     train_dataset, validation_dataset, test_dataset = get_mi_datasets(root, data_augmentation, device)
+    assert isinstance(train_dataset, Dataset)
     dataset_list_train.append(train_dataset)
     dataset_list_validation.append(validation_dataset)
     dataset_list_test.append(test_dataset)
     #
     train_dataset, validation_dataset, test_dataset = get_omniglot_datasets(root, data_augmentation, device)
+    assert isinstance(train_dataset, Dataset)
     dataset_list_train.append(train_dataset)
     dataset_list_validation.append(validation_dataset)
     dataset_list_test.append(test_dataset)
