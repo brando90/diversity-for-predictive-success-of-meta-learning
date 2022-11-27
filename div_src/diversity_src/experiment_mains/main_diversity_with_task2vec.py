@@ -452,6 +452,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     print(f'Diversity: {(div, ci)=}')
 
     # - compute central moments
+    compute_central_moments()
 
     # - save results
     torch.save(embeddings, args.log_root / 'embeddings.pt')  # saving obj version just in case
