@@ -214,6 +214,7 @@ def plot_distance_matrix(embeddings, labels=None, distance='cosine', show_plot=T
     if show_plot:
         plt.show()
 
+
 def plot_distance_matrix_heatmap_only(embeddings, labels=None, distance='cosine', show_plot=True):
     import seaborn as sns
     import pandas as pd
@@ -224,6 +225,7 @@ def plot_distance_matrix_heatmap_only(embeddings, labels=None, distance='cosine'
     sns.heatmap(distance_matrix, cmap='viridis_r')
     if show_plot:
         plt.show()
+
 
 def plot_distance_matrix_from_distance_matrix(distance_matrix: np.ndarray, labels=None, show_plot=True):
     import seaborn as sns
@@ -240,35 +242,32 @@ def plot_distance_matrix_from_distance_matrix(distance_matrix: np.ndarray, label
     if show_plot:
         plt.show()
 
+
 def stats_of_distance_matrix(distance_matrix: np.ndarray,
                              remove_diagonal: bool = True,
                              variance_type: str = 'ci_0.95',
                              ) -> tuple[float, float]:
     if remove_diagonal:
-        # - remove diagonal: ref https://stackoverflow.com/questions/46736258/deleting-diagonal-elements-of-a-numpy-array
-        triu: np.ndarray = np.triu(distance_matrix)
-        tril: np.ndarray = np.tril(distance_matrix)
-        # distance_matrix = distance_matrix[~np.eye(distance_matrix.shape[0], dtype=bool)].reshape(distance_matrix.shape[0], -1)
-        # remove diagonal and dummy zeros where the other triangular matrix was artificially placed.
-        distance_matrix = triu[triu != 0.0]
-
-    # - flatten
-    distance_matrix: np.ndarray = distance_matrix.flatten()
+        from uutils.numpy_uu.common import get_diagonal
+        flatten, triu, tril = get_diagonal(distance_matrix)
+    else:
+        flatten: np.ndarray = distance_matrix.flatten()
 
     # - compute stats of distance matrix
     if variance_type == 'std':
-        mu, var = distance_matrix.mean(), distance_matrix.std()
+        mu, var = flatten.mean(), flatten.std()
     elif variance_type == 'ci_0.95':
         from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interval
-        mu, var = mean_confidence_interval(distance_matrix, confidence=0.95)
+        mu, var = mean_confidence_interval(flatten, confidence=0.95)
     else:
         raise ValueError(f'Invalid variance type, got: {variance_type=}')
 
     # - double checks the mean was computed corrects. Since it's symmetric the mean after removing diagonal should be equal to just one side of the diagonals
     if remove_diagonal:
         from uutils.torch_uu import approx_equal
-        assert approx_equal(triu.sum(), tril.sum(), tolerance=1e-4), f'Distance matrix is not symmetric, are you sure this is correct?'
-        assert approx_equal(distance_matrix.mean(), triu[triu != 0.0].mean(), tolerance=1e-4), f'Mean should be equal to triangular matrix'
+        assert approx_equal(triu.sum(), tril.sum(),
+                            tolerance=1e-4), f'Distance matrix is not symmetric, are you sure this is correct?'
+        assert approx_equal(flatten.mean(), triu[triu != 0.0].mean(),
+                            tolerance=1e-4), f'Mean should be equal to triangular matrix'
         assert approx_equal(mu, triu[triu != 0.0].mean(), tolerance=1e-4)
     return mu, var
-
