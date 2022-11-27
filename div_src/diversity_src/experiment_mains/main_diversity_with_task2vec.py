@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import time
 from argparse import Namespace
 
@@ -21,7 +23,7 @@ from uutils import report_times, args_hardcoded_in_script, print_args, setup_arg
 from uutils.argparse_uu.common import create_default_log_root
 from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
 from uutils.logging_uu.wandb_logging.common import cleanup_wandb, setup_wandb
-from uutils.numpy_uu.common import get_diagonal
+from uutils.numpy_uu.common import get_diagonal, compute_moments
 from uutils.plot import save_to
 from uutils.plot.histograms_uu import get_histogram
 from uutils.torch_uu import get_device_from_model, get_device
@@ -29,7 +31,8 @@ from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_ta
 from uutils.torch_uu.distributed import is_lead_worker, set_devices
 from uutils.torch_uu.models.probe_networks import get_probe_network
 
-from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interval
+from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interval, nth_central_moment_and_its_confidence_interval
+
 
 # import matplotlib.pyplot as plt
 
@@ -445,14 +448,24 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     distance_matrix: np.ndarray = task_similarity.pdist(embeddings, distance='cosine')
     print(f'{distance_matrix=}')
     distances_as_flat_array, _, _ = get_diagonal(distance_matrix, check_if_symmetric=True)
-    print(f'{len(distances_as_flat_array)=}')
 
     # - compute div
     div, ci = task_similarity.stats_of_distance_matrix(distance_matrix)
     print(f'Diversity: {(div, ci)=}')
+    div_var, ci = nth_central_moment_and_its_confidence_interval(distances_as_flat_array, moment_idx=2)
+    print(f'Diversity: {(div_var, ci)=}')
+    div_std, ci = div_var**0.5, ci**0.5
+    print(f'Diversity: {(div_std, ci)=}')
 
     # - compute central moments
-    compute_central_moments()
+    print(f'{len(distances_as_flat_array)=}')
+    moment_idxs = [1, 2, 3, 4, 5, 6]
+    print('-- central moments of the task2vec pair-wise distances')
+    central_moments: dict = compute_moments(distances_as_flat_array, moment_idxs=moment_idxs)
+    pprint(central_moments)
+    print('-- moments of the task2vec pair-wise distances')
+    moments: dict = compute_moments(distances_as_flat_array, moment_idxs=moment_idxs)
+    pprint(moments)
 
     # - save results
     torch.save(embeddings, args.log_root / 'embeddings.pt')  # saving obj version just in case
@@ -469,11 +482,12 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     xlabel: str = 'Cosine Distance between Task Pairs'
     ylabel = 'Frequency Density (pmf)'
     get_histogram(distances_as_flat_array, xlabel, ylabel, title, stat='probability', linestyle=None, color='b')
-    save_to(args.log_root, plot_name=f'hist_density_task2vec_cosine_distances_{args.data_option}_{split}'.replace('-', '_'))
+    save_to(args.log_root,
+            plot_name=f'hist_density_task2vec_cosine_distances_{args.data_option}_{split}'.replace('-', '_'))
     ylabel = 'Frequency'
     get_histogram(distances_as_flat_array, xlabel, ylabel, title, linestyle=None, color='b')
-    save_to(args.log_root, plot_name=f'hist_freq_task2vec_cosine_distances_{args.data_option}_{split}'.replace('-', '_'))
-
+    save_to(args.log_root,
+            plot_name=f'hist_freq_task2vec_cosine_distances_{args.data_option}_{split}'.replace('-', '_'))
 
     # - show plot, this code is similar to above but put computes the distance matrix internally & then displays it, hierchical clustering
     task_similarity.plot_distance_matrix(embeddings, labels=list(range(len(embeddings))), distance='cosine',
@@ -502,6 +516,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
 
 if __name__ == '__main__':
     import time
+
     start = time.time()
     # - run experiment
     main()
