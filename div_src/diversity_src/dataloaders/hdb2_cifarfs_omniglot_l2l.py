@@ -19,7 +19,6 @@ from diversity_src.dataloaders.common import IndexableDataSet, ToRGB, DifferentT
 
 from diversity_src.dataloaders.hdb1_mi_omniglot_l2l import get_omniglot_datasets, get_remaining_transforms_mi, \
     get_remaining_transforms_omniglot
-from models import get_model
 from uutils.torch_uu.dataloaders.cifar100fs_fc100 import get_transform
 
 
@@ -184,6 +183,7 @@ def hdb2_cifarfs_omniglot_tasksets(
 # - test
 
 def loop_through_l2l_indexable_benchmark_with_model_hdb2_test():
+    from diversity_src.diversity.task2vec_based_metrics.models import get_model
     # - for determinism
     random.seed(0)
     torch.manual_seed(0)
@@ -201,7 +201,7 @@ def loop_through_l2l_indexable_benchmark_with_model_hdb2_test():
 
     # - loop through tasks
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
-    model = get_model('resnet18', pretrained=False, num_classes=5).to(device)
+    model = get_model('resnet18', pretrained=True, num_classes=5).to(device)
     criterion = nn.CrossEntropyLoss()
     for i, taskset in enumerate(tasksets):
         print(f'-- {splits[i]=}')

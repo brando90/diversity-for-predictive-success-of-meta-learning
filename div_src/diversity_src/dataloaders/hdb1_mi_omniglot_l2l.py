@@ -190,7 +190,8 @@ def get_omniglot_datasets(
             ToRGB(),
             transforms.Resize(32),
             transforms.ToTensor(),
-            one_minus_x,  # note: task2vec doesn't have this for mnist, wonder why...just flip background from black to white
+            one_minus_x,
+            # note: task2vec doesn't have this for mnist, wonder why...just flip background from black to white
         ])
     elif data_transform_option == 'use_random_resized_crop':
         train_data_transforms = transforms.Compose([
@@ -448,13 +449,14 @@ def hdb1_mi_omniglot_tasksets(
         test_samples=10,
         num_tasks=-1,  # let it be -1 for continual tasks https://github.com/learnables/learn2learn/issues/315
         root='~/data/l2l_data/',
-        device=None,
+        data_augmentation='hdb1',
+        # device=None,
         **kwargs,
 ) -> BenchmarkTasksets:
     root = os.path.expanduser(root)
 
     #
-    _datasets: tuple[IndexableDataSet] = get_indexable_list_of_datasets_mi_and_omniglot(root)
+    _datasets: tuple[IndexableDataSet] = get_indexable_list_of_datasets_mi_and_omniglot(root, data_augmentation)
     train_dataset, validation_dataset, test_dataset = _datasets
     # assert isinstance(train_dataset[0].dataset, l2l.vision.datasets.mini_imagenet.MiniImagenet)
     # assert isinstance(train_dataset[1].dataset.dataset, l2l.vision.datasets.full_omniglot.FullOmniglot)

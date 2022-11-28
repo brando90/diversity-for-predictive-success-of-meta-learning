@@ -4,10 +4,17 @@
 
 # - CAREFUL, if a job is already running it could do damage to it, rm reauth process, qian doesn't do it so skip it
 # top -u brando9
+#
 # pkill -9 tmux -u brando9; pkill -9 krbtmux -u brando9; pkill -9 reauth -u brando9; pkill -9 python -u brando9; pkill -9 wandb-service* -u brando9;
+#
+# pkill -9 python -u brando9; pkill -9 wandb-service* -u brando9;
+#
 # krbtmux
 # reauth
+# nvidia-smi
 # sh main_krbtmux.sh
+#
+# tmux attach -t 0
 
 # - set up this main sh script
 export RUN_PWD=$(pwd)
@@ -44,10 +51,11 @@ echo WANDB_DIR = $WANDB_DIR
 echo OUT_FILE = $OUT_FILE
 echo ERR_FILE = $ERR_FILE
 
-export CUDA_VISIBLE_DEVICES=1
+export CUDA_VISIBLE_DEVICES=4
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 python -c "import torch; print(torch.cuda.get_device_name(0));"
 
+# sh main_krbtmux.sh
 # - 5CNN 4 filters
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_hdb1_5cnn_adam_cl_filter_size --filter_size 4 > $OUT_FILE 2> $ERR_FILE &
 
@@ -58,10 +66,13 @@ python -c "import torch; print(torch.cuda.get_device_name(0));"
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_delauny > $OUT_FILE 2> $ERR_FILE &
 
 # - hdb1 div
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb1_mio > $OUT_FILE 2> $ERR_FILE &
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb1_mio > $OUT_FILE 2> $ERR_FILE &
+
+# - hdb2 div
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb2_cifo > $OUT_FILE 2> $ERR_FILE &
 
 # - mi vs omni
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/diversity/task2vec_based_metrics/diversity_task2vec/mi_vs_omniglot_div.py
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/diversity/task2vec_based_metrics/diversity_task2vec/mi_vs_omniglot_div.py
 
 # -- other option is to run `echo $SU_PASSWORD | /afs/cs/software/bin/reauth` inside of python, right?
 export JOB_PID=$!

@@ -220,6 +220,7 @@ def diversity_ala_task2vec_hdb1_resnet18_pretrained_imagenet(args: Namespace) ->
     args.batch_size = 5
     args.data_option = 'hdb1'
     args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'hdb1'
 
     # - probe_network
     args.model_option = 'resnet18_pretrained_imagenet'
@@ -238,7 +239,7 @@ def diversity_ala_task2vec_hdb1_resnet18_pretrained_imagenet(args: Namespace) ->
 
 def diversity_ala_task2vec_hdb1_mio(args: Namespace) -> Namespace:
     # args.batch_size = 5
-    # args.batch_size = 500
+    args.batch_size = 500
     args.data_option = 'hdb1'
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.classifier_opts = None
@@ -246,9 +247,9 @@ def diversity_ala_task2vec_hdb1_mio(args: Namespace) -> Namespace:
 
     # - probe_network
     # args.model_option = 'resnet18_random'
-    args.model_option = 'resnet18_pretrained_imagenet'
+    # args.model_option = 'resnet18_pretrained_imagenet'
     # args.model_option = 'resnet34_random'
-    # args.model_option = 'resnet34_pretrained_imagenet'
+    args.model_option = 'resnet34_pretrained_imagenet'
     #
     # args.model_option = 'resnet18_random'
     # args.classifier_opts = dict(epochs=0)
@@ -269,10 +270,42 @@ def diversity_ala_task2vec_hdb1_mio(args: Namespace) -> Namespace:
 
 # - hdb2
 
-def diversity_ala_task2vec_hdb2_resnet18_pretrained_imagenet(args: Namespace) -> Namespace:
-    args.batch_size = 5
+def diversity_ala_task2vec_hdb2_cifo(args: Namespace) -> Namespace:
+    args.batch_size = 500
     args.data_option = 'hdb2'
     args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.classifier_opts = None
+    args.data_augmentation = 'hdb2'
+
+    # - probe_network
+    args.model_option = 'resnet18_random'
+    # args.model_option = 'resnet18_pretrained_imagenet'
+    # args.model_option = 'resnet34_random'
+    # args.model_option = 'resnet34_pretrained_imagenet'
+    #
+    # args.model_option = 'resnet18_random'
+    # args.classifier_opts = dict(epochs=0)
+    # args.model_option = 'resnet18_pretrained_imagenet'
+    # args.classifier_opts = dict(epochs=0)
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+def diversity_ala_task2vec_hdb2_resnet18_pretrained_imagenet(args: Namespace) -> Namespace:
+    args.batch_size = 5
+    # args.batch_size = 500
+    args.data_option = 'hdb2'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'hdb2'
 
     # - probe_network
     args.model_option = 'resnet18_pretrained_imagenet'
@@ -368,6 +401,8 @@ def load_args() -> Namespace:
             args: Namespace = diversity_ala_task2vec_delauny(args)
         elif args.manual_loads_name == 'diversity_ala_task2vec_hdb1_mio':
             args: Namespace = diversity_ala_task2vec_hdb1_mio(args)
+        elif args.manual_loads_name == 'diversity_ala_task2vec_hdb2_cifo':
+            args: Namespace = diversity_ala_task2vec_hdb2_cifo(args)
         else:
             raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
     else:
@@ -437,9 +472,11 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     # create loader
     if args.data_option == 'mds':
         raise NotImplementedError  # implement returning dicts of torchmeta like dl's for mds
+        print(f'{args.data_loaders=}')
     else:
         args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
-    print(f'{args.tasksets=}')
+        print(f'{args.tasksets=}')
+    print(f'{args.data_augmentation=}')
 
     # - compute task embeddings according to task2vec
     print(f'number of tasks to consider: {args.batch_size=}')
