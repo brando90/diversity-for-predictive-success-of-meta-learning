@@ -239,10 +239,10 @@ def diversity_ala_task2vec_hdb1_resnet18_pretrained_imagenet(args: Namespace) ->
 def diversity_ala_task2vec_hdb1_mio(args: Namespace) -> Namespace:
     # args.batch_size = 5
     # args.batch_size = 500
-    args.batch_size = 5000
     args.data_option = 'hdb1'
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.classifier_opts = None
+    args.data_augmentation = 'hdb1'
 
     # - probe_network
     # args.model_option = 'resnet18_random'
@@ -435,22 +435,15 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     print(f'{args.device=}')
 
     # create loader
-    if args.data_option != 'mds':
-        args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
-    else:
+    if args.data_option == 'mds':
         raise NotImplementedError  # implement returning dicts of torchmeta like dl's for mds
+    else:
+        args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
     print(f'{args.tasksets=}')
 
     # - compute task embeddings according to task2vec
     print(f'number of tasks to consider: {args.batch_size=}')
-    if args.data_option != 'mds':
-        embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_l2l_benchmark(args.tasksets,
-                                                                                               args.probe_network,
-                                                                                               split=split,
-                                                                                               num_tasks_to_consider=args.batch_size,
-                                                                                               classifier_opts=args.classifier_opts,
-                                                                                               )
-    else:
+    if args.data_option == 'mds':
         embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_dataloader(args,
                                                                                             args.dataloaders,
                                                                                             args.probe_network,
@@ -458,6 +451,13 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
                                                                                             split=split,
                                                                                             classifier_opts=args.classifier_opts,
                                                                                             )
+    else:
+        embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_l2l_benchmark(args.tasksets,
+                                                                                               args.probe_network,
+                                                                                               split=split,
+                                                                                               num_tasks_to_consider=args.batch_size,
+                                                                                               classifier_opts=args.classifier_opts,
+                                                                                               )
 
     print(f'\n {len(embeddings)=}')
 
