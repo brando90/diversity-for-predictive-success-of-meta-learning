@@ -1,16 +1,16 @@
 #----START mds imports-----#
 #import torch
-from pytorch_mds_lib.pytorch_meta_dataset.utils import Split
-import pytorch_mds_lib.pytorch_meta_dataset.config as config_lib
-import pytorch_mds_lib.pytorch_meta_dataset.dataset_spec as dataset_spec_lib
+from diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.utils import Split
+import diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.config as config_lib
+import diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.dataset_spec as dataset_spec_lib
 from torch.utils.data import DataLoader
 import os
 import argparse
 import torch.backends.cudnn as cudnn
 import random
 import numpy as np
-import pytorch_mds_lib.pytorch_meta_dataset.pipeline as pipeline
-from pytorch_mds_lib.pytorch_meta_dataset.utils import worker_init_fn_
+import diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.pipeline as pipeline
+from diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.utils import worker_init_fn_
 from functools import partial
 #----END mds imports-----#
 import torch

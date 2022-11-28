@@ -471,8 +471,9 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
 
     # create loader
     if args.data_option == 'mds':
-        raise NotImplementedError  # implement returning dicts of torchmeta like dl's for mds
-        print(f'{args.data_loaders=}')
+        from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_loader
+        args.dataloaders = get_mds_loader(args)# implement returning dicts of torchmeta like dl's for mds
+        print(f'{args.dataloaders=}')
     else:
         args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
         print(f'{args.tasksets=}')
