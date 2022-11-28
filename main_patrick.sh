@@ -15,7 +15,7 @@ module load cuda-toolkit/11.1
 nvcc --version
 
 # some quick checks
-conda activate metalearning_gpu
+conda activate metalearning3.9 #metalearning_gpu
 python -c "import uutils; print(uutils); uutils.hello()"
 echo CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES
 
@@ -26,16 +26,16 @@ echo WANDB_DIR = $WANDB_DIR
 # gpu name
 python -c "import torch; print(torch.cuda.get_device_name(0));"
 
-echo ---- Running your python main ----
+#echo ---- Running your python main ----
 echo PWD = $PWD
 
-# -- Run Experiment
+# -- Run Experiment (TODO? delete files from experiment_mains that arent related)
 # - Div of MDS
-python -u ~/example.py --data_path /shared/rsaas/pzy2/records
-
+#python -u ~/example.py --data_path /shared/rsaas/pzy2/records
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/pytorch_meta_dataset/metadataset_task2vec_div.py
 # - USL
-
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/pytorch_meta_dataset/metadataset_usl.py
 # - MAML
-
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/pytorch_meta_dataset/maml_metadataset.py
 
 echo "---> Done with bash script (experiment or dispatched daemon experiments). "
