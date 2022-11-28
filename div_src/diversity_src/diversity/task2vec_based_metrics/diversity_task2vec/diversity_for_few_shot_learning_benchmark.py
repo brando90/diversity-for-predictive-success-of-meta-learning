@@ -237,6 +237,7 @@ def get_task_embeddings_from_few_shot_dataloader(args: Namespace,
                                                  probe_network: ProbeNetwork,
                                                  num_tasks_to_consider: int,
                                                  split: str = 'validation',
+                                                 classifier_opts: Optional = None,
                                                  ) -> list[task2vec.Embedding]:
     """
     Returns list of task2vec embeddings using the normal pytorch dataloader interface.
@@ -268,7 +269,8 @@ def get_task_embeddings_from_few_shot_dataloader(args: Namespace,
         fsl_task_dataset: Dataset = FSLTaskDataSet(spt_x=None, spt_y=None, qry_x=data, qry_y=labels)
 
         print(f'{len(fsl_task_dataset)=}')
-        embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network)).embed(fsl_task_dataset)
+        embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network), classifier_opts=classifier_opts).embed(
+            fsl_task_dataset)
         print(f'{embedding.hessian.shape=}')
         embeddings.append(embedding)
     return embeddings

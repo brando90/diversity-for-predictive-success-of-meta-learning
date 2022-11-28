@@ -1,3 +1,11 @@
+"""
+Todo
+- seperate the data augmentations from getting data
+- assert the type & put return type in the function return
+- get the data witht the right hdb1 data aug & next iter dl with a normal dl
+- then try to use task2vec dl
+
+"""
 # dataset_list = [datasets.__dict__[name](root=Path('~/data').expanduser())[0] for name in dataset_names]
 from datasets import Dataset
 from pathlib import Path

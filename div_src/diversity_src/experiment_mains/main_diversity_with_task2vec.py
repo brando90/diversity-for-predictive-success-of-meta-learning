@@ -12,7 +12,7 @@ import torch
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 
 from diversity_src.diversity.task2vec_based_metrics.diversity_task2vec.diversity_for_few_shot_learning_benchmark import \
-    get_task_embeddings_from_few_shot_l2l_benchmark
+    get_task_embeddings_from_few_shot_l2l_benchmark, get_task_embeddings_from_few_shot_dataloader
 from diversity_src.diversity.task2vec_based_metrics.task2vec import ProbeNetwork
 import diversity_src.diversity.task2vec_based_metrics.task2vec as task2vec
 import diversity_src.diversity.task2vec_based_metrics.task_similarity as task_similarity
@@ -31,7 +31,8 @@ from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_ta
 from uutils.torch_uu.distributed import is_lead_worker, set_devices
 from uutils.torch_uu.models.probe_networks import get_probe_network
 
-from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interval, nth_central_moment_and_its_confidence_interval
+from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interval, \
+    nth_central_moment_and_its_confidence_interval
 
 
 # import matplotlib.pyplot as plt
@@ -434,17 +435,30 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     print(f'{args.device=}')
 
     # create loader
-    args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
+    if args.data_option != 'mds':
+        args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
+    else:
+        raise NotImplementedError  # implement returning dicts of torchmeta like dl's for mds
     print(f'{args.tasksets=}')
 
     # - compute task embeddings according to task2vec
     print(f'number of tasks to consider: {args.batch_size=}')
-    embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_l2l_benchmark(args.tasksets,
-                                                                                           args.probe_network,
-                                                                                           split=split,
-                                                                                           num_tasks_to_consider=args.batch_size,
-                                                                                           classifier_opts=args.classifier_opts,
-                                                                                           )
+    if args.data_option != 'mds':
+        embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_l2l_benchmark(args.tasksets,
+                                                                                               args.probe_network,
+                                                                                               split=split,
+                                                                                               num_tasks_to_consider=args.batch_size,
+                                                                                               classifier_opts=args.classifier_opts,
+                                                                                               )
+    else:
+        embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_dataloader(args,
+                                                                                            args.dataloaders,
+                                                                                            args.probe_network,
+                                                                                            num_tasks_to_consider=args.batch_size,
+                                                                                            split=split,
+                                                                                            classifier_opts=args.classifier_opts,
+                                                                                            )
+
     print(f'\n {len(embeddings)=}')
 
     # - compute distance matrix & task2vec based diversity, to demo` task2vec, this code computes pair-wise distance between task embeddings
@@ -459,7 +473,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     print(f'Diversity: {(div, ci)=}')
     div_var, ci = nth_central_moment_and_its_confidence_interval(distances_as_flat_array, moment_idx=2)
     print(f'Diversity: {(div_var, ci)=}')
-    div_std, ci = div_var**0.5, ci**0.5
+    div_std, ci = div_var ** 0.5, ci ** 0.5
     print(f'Diversity: {(div_std, ci)=}')
 
     # - compute central moments

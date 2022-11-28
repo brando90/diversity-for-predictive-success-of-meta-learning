@@ -54,8 +54,8 @@ l2l comments:
     e.g. the train split is its own set of "tasks_dataset.train = {task_i}_i"
 
 """
-#----START mds imports-----#
-#import torch
+# ----START mds imports-----#
+# import torch
 from pytorch_meta_dataset_old.pytorch_meta_dataset.utils import Split
 import pytorch_meta_dataset_old.pytorch_meta_dataset.config as config_lib
 import pytorch_meta_dataset_old.pytorch_meta_dataset.dataset_spec as dataset_spec_lib
@@ -66,11 +66,11 @@ import argparse
 import torch.backends.cudnn as cudnn
 import random
 from datetime import datetime
-#import numpy as np
+# import numpy as np
 import pytorch_meta_dataset_old.pytorch_meta_dataset.pipeline as pipeline
 from pytorch_meta_dataset_old.pytorch_meta_dataset.utils import worker_init_fn_
 from functools import partial
-#----END mds imports-----#
+# ----END mds imports-----#
 
 from argparse import Namespace
 from copy import deepcopy
@@ -93,6 +93,7 @@ from models import get_model
 from task2vec import Embedding, Task2Vec, ProbeNetwork
 from uutils.argparse_uu.common import create_default_log_root
 import torch
+
 
 def get_mds_args() -> Namespace:
     import argparse
@@ -119,14 +120,14 @@ def get_mds_args() -> Namespace:
     parser.add_argument('--test_transforms', nargs="+", default=['resize', 'center_crop'],
                         help='Transforms applied to test data', )
 
-    #parser.add_argument('--batch_size', type=int, default=16)
+    # parser.add_argument('--batch_size', type=int, default=16)
 
-    #parser.add_argument('--num_workers', type=int, default=4)
+    # parser.add_argument('--num_workers', type=int, default=4)
 
     parser.add_argument('--shuffle', type=bool, default=True,
                         help='Whether or not to shuffle data')
 
-    #parser.add_argument('--seed', type=int, default=2020,
+    # parser.add_argument('--seed', type=int, default=2020,
     #                    help='Seed for reproducibility')
 
     # Episode configuration
@@ -151,7 +152,7 @@ def get_mds_args() -> Namespace:
     parser.add_argument('--max_support_set_size', type=int, default=500,
                         help='Maximum # of support samples')
 
-    parser.add_argument('--min_examples_in_class', type=int, default=20, #TODO - changed
+    parser.add_argument('--min_examples_in_class', type=int, default=20,  # TODO - changed
                         help='Classes that have less samples will be skipped')
 
     parser.add_argument('--max_support_size_contrib_per_class', type=int, default=100,
@@ -236,8 +237,8 @@ def get_mds_args() -> Namespace:
     parser.add_argument('--num_warmup_steps', type=int, default=-1)
     parser.add_argument('--scheduler_option', type=str, default='AdafactorSchedule', help='Its strongly recommended')
     parser.add_argument('--log_scheduler_freq', type=int, default=1, help='default is to put the epochs or iterations '
-                                                                           'default either log every epoch or log ever '
-                                                                           '~100 iterations.')
+                                                                          'default either log every epoch or log ever '
+                                                                          '~100 iterations.')
 
     # - data set args
     parser.add_argument('--batch_size', type=int, default=2)
@@ -246,7 +247,7 @@ def get_mds_args() -> Namespace:
                                                                    "'train', val', test'")
     # warning: sl name is path_to_data_set here its data_path
     parser.add_argument('--data_option', type=str, default='None')
-    #parser.add_argument('--data_path', type=str, default=None)
+    # parser.add_argument('--data_path', type=str, default=None)
     # parser.add_argument('--data_path', type=str, default='torchmeta_miniimagenet',
     #                     help='path to data set splits. The code will assume everything is saved in'
     #                          'the uutils standard place in ~/data/, ~/data/logs, etc. see the setup args'
@@ -270,7 +271,7 @@ def get_mds_args() -> Namespace:
 
     # - miscellaneous arguments
     parser.add_argument('--log_freq', type=int, default=1, help='default is to put the epochs or iterations default'
-                                                                 'either log every epoch or log ever ~100 iterations')
+                                                                'either log every epoch or log ever ~100 iterations')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--always_use_deterministic_algorithms', action='store_true',
                         help='tries to make pytorch fully deterministic')
@@ -314,9 +315,10 @@ def get_mds_args() -> Namespace:
     args.criterion = args.loss
     assert args.criterion is args.loss
     # - load cluster ids so that wandb can use it later for naming runs, experiments, etc.
-    load_cluster_jobids_to(args) #UNCOMMENT LATER
+    load_cluster_jobids_to(args)  # UNCOMMENT LATER
     create_default_log_root(args)
     return args
+
 
 def get_mds_loader(args):
     data_config = config_lib.DataConfig(args)
@@ -345,7 +347,7 @@ def get_mds_loader(args):
                                                     data_config=data_config,
                                                     episode_descr_config=episod_config)
 
-    #print("NUM workers: ", data_config.num_workers)
+    # print("NUM workers: ", data_config.num_workers)
     train_loader = DataLoader(dataset=train_pipeline,
                               batch_size=args.batch_size,  # TODO change to meta batch size
                               num_workers=data_config.num_workers,
@@ -372,247 +374,6 @@ def get_mds_loader(args):
 
     dls: dict = {'train': train_loader, 'val': val_loader, 'test': test_loader}
     return dls
-
-# - probe network code
-
-def get_5CNN_random_probe_network() -> ProbeNetwork:
-    from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import get_default_learner
-    probe_network: nn.Module = get_default_learner()
-    # just going to force to give it the fields and see if it works
-    probe_network.classifier = probe_network.cls
-    return probe_network
-
-
-def get_probe_network_from_ckpt():
-    # TODO
-    pass
-
-
-# - diversity code
-
-def split_task_spt_qrt_points(task_data, device, shots, ways):
-    # [n*(k+k_eval), C, H, W] (or [n(k+k_eval), D])
-    data, labels = task_data
-    data, labels = data.to(device), labels.to(device)
-
-    # Separate data into adaptation/evalutation sets
-    # [n*(k+k_eval), C, H, W] -> [n*k, C, H, W] and [n*k_eval, C, H, W]
-    (support_data, support_labels), (query_data, query_labels) = learn2learn.data.partition_task(
-        data=data,
-        labels=labels,
-        shots=shots,  # shots to separate to two data sets of size shots and k_eval
-    )
-    # checks coordinate 0 of size() [n*(k + k_eval), C, H, W]
-    assert support_data.size(0) == shots * ways, f' Expected {shots * ways} but got {support_data.size(0)}'
-    # checks [n*k] since these are the labels
-    assert support_labels.size() == torch.Size([shots * ways])
-
-    return (support_data, support_labels), (query_data, query_labels)
-
-
-class FSLTaskDataSet(Dataset):
-
-    def __init__(self,
-                 spt_x: Tensor,
-                 spt_y: Tensor,
-                 qry_x: Tensor,
-                 qry_y: Tensor,
-
-                 few_shot_split: str = 'qry',
-                 ):
-        """
-        Note:
-            - size of tensors are [M, C, H, W] but remember it comes from a batch of
-            tasks of size [B, M, C, H, W]
-        """
-        self.spt_x, self.spt_y, self.qry_x, self.qry_y = spt_x, spt_y, qry_x, qry_y
-        self.few_shot_split = few_shot_split
-        # - weird hack, since task2vec code get_loader does labels = list(trainset.tensors[1].cpu().numpy())
-        if self.few_shot_split == 'spt':
-            self.tensors = (spt_x, spt_y)
-        elif self.few_shot_split == 'qry':
-            self.tensors = (qry_x, qry_y)
-        else:
-            raise ValueError(f'Error needs to be spt or qrt but got {self.few_shot_split}')
-
-    def __len__(self):
-        # TODO
-        if self.few_shot_split == 'spt':
-            return self.spt_x.size(0)  # not 1 since we gave it a single task
-        elif self.few_shot_split == 'qry':
-            return self.qry_x.size(0)  # not 1 since we gave it a single task
-        else:
-            raise ValueError(f'Error needs to be spt or qrt but got {self.few_shot_split}')
-
-    def __getitem__(self, idx: int):
-        """
-        typical implementation:
-
-        img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
-        image = read_image(img_path)
-        label = self.img_labels.iloc[idx, 1]
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            label = self.target_transform(label)
-        return image, label
-        """
-        # TODO
-        if self.few_shot_split == 'spt':
-            return self.spt_x[idx], self.spt_y[idx]
-        elif self.few_shot_split == 'qry':
-            return self.qry_x[idx], self.qry_y[idx]
-        else:
-            raise ValueError(f'Error needs to be spt or qrt but got {self.few_shot_split}')
-
-
-def get_task_embeddings_from_few_shot_dataloader(args: Namespace,
-                                                 dataloaders: dict,
-                                                 probe_network: ProbeNetwork,
-                                                 num_tasks_to_consider: int,
-                                                 split: str = 'val',
-                                                 ) -> list[task2vec.Embedding]:
-    """
-    Returns list of task2vec embeddings using the normal pytorch dataloader interface.
-    Should work for torchmeta data sets & meta-data set (MDS).
-
-    Algorithm:
-    - sample the 4 tuples of T tasks
-    - loop through each task & use it as data to produce the task2vec
-    """
-    # - get the data set of (n-way, k-shot) tasks
-    # loader = args.dataloader[split]
-    loader = dataloaders[split]
-
-    # -
-    from uutils.torch_uu import process_meta_batch
-    batch = next(iter(loader))
-    spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
-
-    # - compute embeddings for tasks
-    embeddings: list[task2vec.Embedding] = []
-    for task_num in range(num_tasks_to_consider):
-        print(f'\n--> {task_num=}\n')
-        # - Samples all data data for spt & qry sets for current task: thus size [n*(k+k_eval), C, H, W] (or [n(k+k_eval), D])
-        # task_data: list = task_dataset.sample()  # data, labels
-        t = task_num
-        spt_x_t, spt_y_t, qry_x_t, qry_y_t = spt_x[t], spt_y[t], qry_x[t], qry_y[t]
-        # data, labels = merge_x(spt_x_t, qry_x_t), merge_y(spt_y_t, qry_y_t)
-        data, labels = qry_x_t, qry_y_t
-        fsl_task_dataset: Dataset = FSLTaskDataSet(spt_x=None, spt_y=None, qry_x=data, qry_y=labels)
-        print(f'{len(fsl_task_dataset)=}')
-        embedding: task2vec.Embedding = Task2Vec(deepcopy(probe_network)).embed(fsl_task_dataset)
-        print(f'{embedding.hessian.shape=}')
-        embeddings.append(embedding)
-    return embeddings
-
-
-def compute_diversity(distance_matrix: np.array,
-                      remove_diagonal: bool = True,
-                      variance_type: str = 'ci_0.95',
-                      ) -> tuple[float, float]:
-    """
-    Computes diversity using task2vec embeddings from a distance matrix as:
-        div(B, f) = E_{t1, t2 ~ p(t|B)} E_{X1 ~ p(X|t1) X1 ~ p(X|t2)}[dist(emb(X1, f), emb(X2, f)]
-    """
-    div, ci = task_similarity.stats_of_distance_matrix(distance_matrix, remove_diagonal, variance_type)
-    return div, ci
-
-
-# - tests
-
-def plot_distance_matrix_and_div_for_MI_test():
-    """
-    - sample one batch of tasks and use a random cross product of different tasks to compute diversity.
-    """
-    import uutils
-    from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
-    from uutils.argparse_uu.meta_learning import parse_args_meta_learning
-    from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
-
-    # - get args for test
-    args: Namespace = get_mds_args()
-
-    #args.batch_size = 5
-    args.rank = -1 # SERIALLY
-
-    args.wandb_entity = 'brando-uiuc'
-    args.wandb_project = 'meta-dataset task2vec'
-    # - wandb expt args
-    current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-    args.experiment_name = f'task2vec logging test'
-    args.probe_net = 'resnet18' #CHANGE WHEN YOU USE A NEW PROBE
-    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.probe_net} {current_time}'
-
-    args.log_to_wandb=True
-    #args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
-    #args.data_path = Path('~/data/l2l_data/').expanduser()
-    #args.data_augmentation = 'lee2019'
-    setup_wandb(args)
-    set_devices(args)
-    dataloader = get_mds_loader(args)
-
-    args = fix_for_backwards_compatibility(args)  # TODO fix me
-    uutils.print_args(args)
-
-    #args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
-
-    # - create probe_network
-    # probe_network: nn.Module = get_default_learner()
-    # probe_network: ProbeNetwork = get_5CNN_random_probe_network()
-    # probe_network: ProbeNetwork = get_model('resnet34', pretrained=True, num_classes=5)
-    probe_network: ProbeNetwork = get_model('resnet18', pretrained=True, num_classes=5)
-
-    # - compute task embeddings according to task2vec
-    print(f'number of tasks to consider: {args.batch_size=}')
-
-    '''embeddings: list[Tensor] = get_task_embeddings_from_few_shot_l2l_benchmark(args.tasksets,
-                                                                               probe_network,
-                                                                            num_tasks_to_consider=args.batch_size)'''
-    embeddings: list[Tensor] = get_task_embeddings_from_few_shot_dataloader(args,
-                                                                            dataloader,
-                                                                            probe_network,
-                                                                            args.batch_size)
-    print(f'\n {len(embeddings)=}')
-
-    # - compute distance matrix & task2vec based diversity
-    # to demo task2vec, this code computes pair-wise distance between task embeddings
-    distance_matrix: np.ndarray = task_similarity.pdist(embeddings, distance='cosine')
-    print(f'{distance_matrix=}')
-
-    # this code is similar to above but put computes the distance matrix internally & then displays it
-    task_similarity.plot_distance_matrix(embeddings, labels=list(range(len(embeddings))), distance='cosine')
-
-    div, ci = task_similarity.stats_of_distance_matrix(distance_matrix)
-    print(f'Diversity: {(div, ci)=}')
-
-    #----new stuff----#
-    # - save results
-    torch.save(embeddings, args.log_root / 'embeddings.pt')  # saving obj version just in case
-    results: dict = {'embeddings': [(embed.hessian, embed.scale, embed.meta) for embed in embeddings],
-                     'distance_matrix': distance_matrix,
-                     'div': div, 'ci': ci,
-                     }
-    torch.save(results, args.log_root / 'results.pt')
-
-    # - show plot, this code is similar to above but put computes the distance matrix internally & then displays it
-    # hierchical clustering
-    task_similarity.plot_distance_matrix(embeddings, labels=list(range(len(embeddings))), distance='cosine',
-                                         show_plot=False)
-    save_to(args.log_root, plot_name=f'clustered_distance_matrix_fsl_{args.data_option}'.replace('-', '_'))
-    import matplotlib.pyplot as plt
-    # plt.show()
-    # heatmap
-    task_similarity.plot_distance_matrix_heatmap_only(embeddings, labels=list(range(len(embeddings))),
-                                                      distance='cosine',
-                                                      show_plot=False)
-    save_to(args.log_root, plot_name=f'heatmap_only_distance_matrix_fsl_{args.data_option}'.replace('-', '_'))
-    import matplotlib.pyplot as plt
-    # plt.show()
-
-    # todo: log plot to wandb https://docs.wandb.ai/guides/track/log/plots, https://stackoverflow.com/questions/72134168/how-does-one-save-a-plot-in-wandb-with-wandb-log?noredirect=1&lq=1
-    # import wandb
-    # wandb.log({"chart": plt})
 
 
 if __name__ == '__main__':
