@@ -65,25 +65,25 @@ def get_mds_args() -> Namespace:
     parser.add_argument('--num_support', type=int, default=5,
                         help='Set it if you want a fixed # of support samples per class')
 
-    parser.add_argument('--num_query', type=int, default=15,
+    parser.add_argument('--num_query', type=int, default=10,
                         help='Set it if you want a fixed # of query samples per class')
 
-    parser.add_argument('--min_ways', type=int, default=2,
+    parser.add_argument('--min_ways', type=int, default=5,
                         help='Minimum # of ways per task')
 
-    parser.add_argument('--max_ways_upper_bound', type=int, default=10,
+    parser.add_argument('--max_ways_upper_bound', type=int, default=1000000000,
                         help='Maximum # of ways per task')
 
-    parser.add_argument('--max_num_query', type=int, default=20,
+    parser.add_argument('--max_num_query', type=int, default=1000000000,
                         help='Maximum # of query samples')
 
-    parser.add_argument('--max_support_set_size', type=int, default=500,
+    parser.add_argument('--max_support_set_size', type=int, default=1000000000,
                         help='Maximum # of support samples')
 
-    parser.add_argument('--min_examples_in_class', type=int, default=20,  # TODO - changed
+    parser.add_argument('--min_examples_in_class', type=int, default=15,  # TODO - changed
                         help='Classes that have less samples will be skipped')
 
-    parser.add_argument('--max_support_size_contrib_per_class', type=int, default=100,
+    parser.add_argument('--max_support_size_contrib_per_class', type=int, default=1000000000,
                         help='Maximum # of support samples per class')
 
     parser.add_argument('--min_log_weight', type=float, default=-0.69314718055994529,
@@ -93,15 +93,15 @@ def get_mds_args() -> Namespace:
                         help='Do not touch, used to randomly sample support set')
 
     # Hierarchy options
-    parser.add_argument('--ignore_bilevel_ontology', type=bool, default=False,
+    parser.add_argument('--ignore_bilevel_ontology', type=bool, default=True,
                         help='Whether or not to use superclass for BiLevel datasets (e.g Omniglot)')
 
-    parser.add_argument('--ignore_dag_ontology', type=bool, default=False,
+    parser.add_argument('--ignore_dag_ontology', type=bool, default=True,
                         help='Whether to ignore ImageNet DAG ontology when sampling \
                                       classes from it. This has no effect if ImageNet is not  \
                                       part of the benchmark.')
 
-    parser.add_argument('--ignore_hierarchy_probability', type=float, default=0.,
+    parser.add_argument('--ignore_hierarchy_probability', type=float, default=1.,
                         help='if using a hierarchy, this flag makes the sampler \
                                       ignore the hierarchy for this proportion of episodes \
                                       and instead sample categories uniformly.')
