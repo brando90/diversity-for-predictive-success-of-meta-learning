@@ -452,7 +452,11 @@ class EpisodeDescriptionSampler(object):
           A sequence of `(class_id, num_support, num_query)` tuples, where
             relative `class_id` is an integer in [0, self.num_classes).
         """
-        class_ids = self.sample_class_ids(random_gen)
+        #modified by patrick - keep sampling classids until we dont have a 2 in it! (Temp fix)
+        while True:
+            class_ids = self.sample_class_ids(random_gen)
+            if(2 not in class_ids):
+                break
         images_per_class = np.array([
             self.dataset_spec.get_total_images_per_class(
                 self.class_set[cid]) for cid in class_ids

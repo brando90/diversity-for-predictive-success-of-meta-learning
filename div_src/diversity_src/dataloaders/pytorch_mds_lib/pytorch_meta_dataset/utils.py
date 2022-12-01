@@ -22,6 +22,7 @@ def cycle_(iterable):
         try:
             yield next(iterator)
         except StopIteration:
+            #print("here cycle_ stop iter") #CULPRIT!
             iterator = iter(iterable)
 
 
