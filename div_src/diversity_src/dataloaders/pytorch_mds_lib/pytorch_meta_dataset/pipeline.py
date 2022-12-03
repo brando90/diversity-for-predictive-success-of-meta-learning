@@ -144,9 +144,9 @@ class EpisodicDataset(torch.utils.data.IterableDataset):
         try:
             sample_dic = next(self.class_datasets[class_id])
         except (StopIteration, KeyError, TypeError) as e:
-            print("start classid",class_id) #start 2, end 2, start 2, end 2 - whats going on?
+            #print("start classid",class_id) #start 2, end 2, start 2, end 2 - whats going on?
             self.class_datasets[class_id] = cycle_(self.class_datasets[class_id])
-            print("end classid",class_id)
+            #print("end classid",class_id)
             sample_dic = next(self.class_datasets[class_id])
         return sample_dic
 
@@ -175,11 +175,11 @@ class BatchDataset(torch.utils.data.IterableDataset):
 
     def __iter__(self):
         while True:
-            #while True:
-            #    rand_class = self.random_gen.randint(len(self.class_datasets))
-            #    if (rand_class != 2): #not sure whats going on with class 2
-            #        break
-            rand_class = self.random_gen.randint(len(self.class_datasets))
+            while True:
+                rand_class = self.random_gen.randint(len(self.class_datasets))
+                if (rand_class != 2): #not sure whats going on with class 2
+                    break
+            #rand_class = self.random_gen.randint(len(self.class_datasets))
             sample_dic = self.get_next(rand_class)
             transformed_image = self.transforms(sample_dic['image'])
             target = sample_dic['label'][0]
@@ -189,8 +189,10 @@ class BatchDataset(torch.utils.data.IterableDataset):
         try:
             sample_dic = next(self.class_datasets[class_id])
         except (StopIteration, KeyError, TypeError) as e:
+            #print("start classid_b", class_id)
             self.class_datasets[class_id] = cycle_(self.class_datasets[class_id])
             sample_dic = next(self.class_datasets[class_id])
+            #print("end classid_b", class_id)
         return sample_dic
 
 
@@ -221,7 +223,7 @@ class ZipDataset(torch.utils.data.IterableDataset): #OLD:torch.utils.data.Datase
         return sample'''
 
     def get_next(self, source_id):
-        print("sourceid", source_id) #if sourceid 6, block class 2
+        #print("sourceid", source_id) #if sourceid 6, block class 2
         try:
             dataset = next(self.dataset_list[source_id])
         except (StopIteration, KeyError, TypeError) as e:

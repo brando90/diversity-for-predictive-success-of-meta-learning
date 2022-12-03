@@ -21,7 +21,7 @@ from pathlib import Path
 from argparse import Namespace
 import uutils
 from uutils import load_cluster_jobids_to, merge_args
-from uutils.logging_uu.wandb_logging.common import setup_wandb
+#from uutils.logging_uu.wandb_logging.common import setup_wandb
 from uutils.torch_uu.distributed import set_devices
 def get_mds_args() -> Namespace:
     import argparse
@@ -244,7 +244,7 @@ def get_mds_args() -> Namespace:
     assert args.criterion is args.loss
     # - load cluster ids so that wandb can use it later for naming runs, experiments, etc.
     load_cluster_jobids_to(args) #UNCOMMENT LATER!
-    setup_wandb(args)
+    #setup_wandb(args)
     return args
 
 def get_mds_loader(args):
