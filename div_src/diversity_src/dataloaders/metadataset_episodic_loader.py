@@ -21,7 +21,7 @@ from pathlib import Path
 from argparse import Namespace
 import uutils
 from uutils import load_cluster_jobids_to, merge_args
-from uutils.logging_uu.wandb_logging.common import setup_wandb
+#from uutils.logging_uu.wandb_logging.common import setup_wandb
 from uutils.torch_uu.distributed import set_devices
 def get_mds_args() -> Namespace:
     import argparse
@@ -68,22 +68,22 @@ def get_mds_args() -> Namespace:
     parser.add_argument('--num_query', type=int, default=10,
                         help='Set it if you want a fixed # of query samples per class')
 
-    parser.add_argument('--min_ways', type=int, default=5,
+    parser.add_argument('--min_ways', type=int, default=2,
                         help='Minimum # of ways per task')
 
-    parser.add_argument('--max_ways_upper_bound', type=int, default=1000000000,
+    parser.add_argument('--max_ways_upper_bound', type=int, default=1000000000000,
                         help='Maximum # of ways per task')
 
-    parser.add_argument('--max_num_query', type=int, default=1000000000,
+    parser.add_argument('--max_num_query', type=int, default=1000000000000,
                         help='Maximum # of query samples')
 
-    parser.add_argument('--max_support_set_size', type=int, default=1000000000,
+    parser.add_argument('--max_support_set_size', type=int, default=1000000000000,
                         help='Maximum # of support samples')
 
     parser.add_argument('--min_examples_in_class', type=int, default=15,  # TODO - changed
                         help='Classes that have less samples will be skipped')
 
-    parser.add_argument('--max_support_size_contrib_per_class', type=int, default=1000000000,
+    parser.add_argument('--max_support_size_contrib_per_class', type=int, default=1000000000000,
                         help='Maximum # of support samples per class')
 
     parser.add_argument('--min_log_weight', type=float, default=-0.69314718055994529,
@@ -93,15 +93,15 @@ def get_mds_args() -> Namespace:
                         help='Do not touch, used to randomly sample support set')
 
     # Hierarchy options
-    parser.add_argument('--ignore_bilevel_ontology', type=bool, default=True,
+    parser.add_argument('--ignore_bilevel_ontology', type=bool, default=False,
                         help='Whether or not to use superclass for BiLevel datasets (e.g Omniglot)')
 
-    parser.add_argument('--ignore_dag_ontology', type=bool, default=True,
+    parser.add_argument('--ignore_dag_ontology', type=bool, default=False,
                         help='Whether to ignore ImageNet DAG ontology when sampling \
                                       classes from it. This has no effect if ImageNet is not  \
                                       part of the benchmark.')
 
-    parser.add_argument('--ignore_hierarchy_probability', type=float, default=1.,
+    parser.add_argument('--ignore_hierarchy_probability', type=float, default=0.,
                         help='if using a hierarchy, this flag makes the sampler \
                                       ignore the hierarchy for this proportion of episodes \
                                       and instead sample categories uniformly.')
@@ -200,7 +200,7 @@ def get_mds_args() -> Namespace:
     # - miscellaneous arguments
     parser.add_argument('--log_freq', type=int, default=1, help='default is to put the epochs or iterations default'
                                                                  'either log every epoch or log ever ~100 iterations')
-    parser.add_argument('--seed', type=int, default=0)
+    parser.add_argument('--seed', type=int, default=2020)
     parser.add_argument('--always_use_deterministic_algorithms', action='store_true',
                         help='tries to make pytorch fully deterministic')
     parser.add_argument('--num_workers', type=int, default=-1,
@@ -244,7 +244,7 @@ def get_mds_args() -> Namespace:
     assert args.criterion is args.loss
     # - load cluster ids so that wandb can use it later for naming runs, experiments, etc.
     load_cluster_jobids_to(args) #UNCOMMENT LATER!
-    setup_wandb(args)
+    #setup_wandb(args)
     return args
 
 def get_mds_loader(args):

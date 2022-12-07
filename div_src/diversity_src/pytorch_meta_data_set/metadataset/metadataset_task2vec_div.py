@@ -9,17 +9,20 @@ import uutils
 from uutils.logging_uu.wandb_logging.common import cleanup_wandb, setup_wandb
 from uutils.argparse_uu.common import create_default_log_root
 
+#TODO change number of bins??
+#report mean, variance
+
 def plot_histogram_and_div_for_MDS():
     args = get_mds_args()
-    args.batch_size = 100
-    args.batch_size_eval = 100
+    args.batch_size = 500
+    args.batch_size_eval = 500
     args.data_option = 'mds'
     args.model_option = 'resnet18_pretrained_imagenet'
     args.classifier_opts = None
-    args.log_to_wandb = True
+    args.log_to_wandb = False
     args.wandb_project = 'Meta-Dataset'
     args.experiment_name = 'Task2Vec w/ Histograms'
-    args.run_name = 'Batch size 100 MDS Resnet18 Pretrained'
+    args.run_name = f'Batch size {args.batch_size_eval} {args.data_option} {args.model_option}'
     args.rank = -1
     args.device = uutils.torch_uu.get_device()
     setup_wandb(args)

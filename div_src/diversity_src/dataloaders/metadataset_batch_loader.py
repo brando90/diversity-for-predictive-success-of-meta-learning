@@ -268,7 +268,7 @@ def get_mds_loader(args):
                                                  )
 
     train_loader = DataLoader(dataset=train_pipeline,
-                              batch_size=data_config.batch_size,
+                              batch_size=args.batch_size,
                               num_workers=0,
                               worker_init_fn=seeded_worker_fn)
 
@@ -278,7 +278,7 @@ def get_mds_loader(args):
                                                   )
 
     test_loader = DataLoader(dataset=test_pipeline,
-                              batch_size=data_config.batch_size_eval,
+                              batch_size=args.batch_size_eval,
                               num_workers=0,
                               worker_init_fn=seeded_worker_fn)
 
@@ -288,7 +288,7 @@ def get_mds_loader(args):
                                                   )
 
     val_loader = DataLoader(dataset=val_pipeline,
-                              batch_size=data_config.batch_size_eval,
+                              batch_size=args.batch_size_eval,
                               num_workers=0,
                               worker_init_fn=seeded_worker_fn)
 
@@ -307,10 +307,11 @@ def loop_test(args):
     print(f'{len(dataloader)}')
     for batch_idx, batch in enumerate(dataloader['val']):
         X,y = batch
+        #print("finish batch",batch_idx)
         print(X.shape)
         print(y.shape)
-        print(X, y)
-        if batch_idx == 10:
+        #print(X, y)
+        if batch_idx == 1000:
             break
 
 

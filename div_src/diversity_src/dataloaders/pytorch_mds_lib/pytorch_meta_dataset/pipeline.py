@@ -113,18 +113,18 @@ class EpisodicDataset(torch.utils.data.IterableDataset):
             query_images = []
             query_labels = []
             episode_classes = list({class_ for class_, _, _ in episode_description})
-            for class_id, nb_support, nb_query in episode_description:
+            for class_id, nb_support, nb_query in episode_description: #avoid sampling source 6, class 2
                 used_ids = []
                 sup_added = 0
                 query_added = 0
                 while sup_added < nb_support:
-                    sample_dic = self.get_next(class_id)
+                    sample_dic = self.get_next(class_id) #CULPRIT
                     if sample_dic['id'] not in used_ids:
                         used_ids.append(sample_dic['id'])
                         support_images.append(self.transforms(sample_dic['image']).unsqueeze(0))
                         sup_added += 1
                 while query_added < nb_query:
-                    sample_dic = self.get_next(class_id)
+                    sample_dic = self.get_next(class_id) #CULPRIT
                     if sample_dic['id'] not in used_ids:
                         used_ids.append(sample_dic['id'])
                         query_images.append(self.transforms(sample_dic['image']).unsqueeze(0))
@@ -143,8 +143,10 @@ class EpisodicDataset(torch.utils.data.IterableDataset):
     def get_next(self, class_id):
         try:
             sample_dic = next(self.class_datasets[class_id])
-        except:
+        except (StopIteration, KeyError, TypeError) as e:
+            #print("start classid",class_id) #start 2, end 2, start 2, end 2 - whats going on?
             self.class_datasets[class_id] = cycle_(self.class_datasets[class_id])
+            #print("end classid",class_id)
             sample_dic = next(self.class_datasets[class_id])
         return sample_dic
 
@@ -173,7 +175,11 @@ class BatchDataset(torch.utils.data.IterableDataset):
 
     def __iter__(self):
         while True:
-            rand_class = self.random_gen.randint(len(self.class_datasets))
+            while True:
+                rand_class = self.random_gen.randint(len(self.class_datasets))
+                if (rand_class != 2): #not sure whats going on with class 2
+                    break
+            #rand_class = self.random_gen.randint(len(self.class_datasets))
             sample_dic = self.get_next(rand_class)
             transformed_image = self.transforms(sample_dic['image'])
             target = sample_dic['label'][0]
@@ -182,9 +188,11 @@ class BatchDataset(torch.utils.data.IterableDataset):
     def get_next(self, class_id):
         try:
             sample_dic = next(self.class_datasets[class_id])
-        except:
+        except (StopIteration, KeyError, TypeError) as e:
+            #print("start classid_b", class_id)
             self.class_datasets[class_id] = cycle_(self.class_datasets[class_id])
             sample_dic = next(self.class_datasets[class_id])
+            #print("end classid_b", class_id)
         return sample_dic
 
 
@@ -197,7 +205,7 @@ class ZipDataset(torch.utils.data.IterableDataset): #OLD:torch.utils.data.Datase
 
     def __iter__(self):
         while True:
-            rand_source = self.random_gen.randint(len(self.dataset_list))
+            rand_source = self.random_gen.randint(len(self.dataset_list)) #if rand source is 6, skip 2.
             next_e = self.get_next(rand_source)
             yield next_e
 
@@ -215,9 +223,10 @@ class ZipDataset(torch.utils.data.IterableDataset): #OLD:torch.utils.data.Datase
         return sample'''
 
     def get_next(self, source_id):
+        #print("sourceid", source_id) #if sourceid 6, block class 2
         try:
             dataset = next(self.dataset_list[source_id])
-        except:
+        except (StopIteration, KeyError, TypeError) as e:
             self.dataset_list[source_id] = iter(self.dataset_list[source_id])
             dataset = next(self.dataset_list[source_id])
         return dataset
