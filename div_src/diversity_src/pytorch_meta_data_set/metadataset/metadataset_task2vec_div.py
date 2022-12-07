@@ -8,20 +8,25 @@ from diversity_src.experiment_mains.main_diversity_with_task2vec import compute_
 import uutils
 from uutils.logging_uu.wandb_logging.common import cleanup_wandb, setup_wandb
 from uutils.argparse_uu.common import create_default_log_root
-
+from itertools import combinations
 #TODO change number of bins??
 #report mean, variance
 
-def plot_histogram_and_div_for_MDS():
+def plot_histogram_and_div_for_MDS(sources):
     args = get_mds_args()
-    args.batch_size = 500
-    args.batch_size_eval = 500
+    args.batch_size = 20
+    args.batch_size_eval = 20
+
+    #args.k_eval = 20
+    #args.k_
     args.data_option = 'mds'
     args.model_option = 'resnet18_pretrained_imagenet'
     args.classifier_opts = None
     args.log_to_wandb = False
     args.wandb_project = 'Meta-Dataset'
     args.experiment_name = 'Task2Vec w/ Histograms'
+    args.sources = sources
+    #args.sources = ['omniglot']
     args.run_name = f'Batch size {args.batch_size_eval} {args.data_option} {args.model_option}'
     args.rank = -1
     args.device = uutils.torch_uu.get_device()
@@ -35,5 +40,11 @@ if __name__ == '__main__':
     """
 python ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/metadataset/metadataset_task2vec_div.py --data_path /shared/rsaas/pzy2/records
     """
-    plot_histogram_and_div_for_MDS()
+    #'ilsvrc_2012', 'fungi','quickdraw',
+    #for source1 in ['aircraft', 'cu_birds', 'dtd',  'omniglot',  'vgg_flower']:
+    for source in list(map(list, combinations(['aircraft', 'cu_birds', 'dtd',  'omniglot',  'vgg_flower'],2))):
+        print(source)
+        print("===========STARTED SOURCE", source, "===========")
+        plot_histogram_and_div_for_MDS(source)
+        print("===========FINISHED SOURCE", source, "===========")
     print('Done! successful!\n')

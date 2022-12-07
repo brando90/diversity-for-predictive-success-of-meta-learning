@@ -160,8 +160,8 @@ def get_mds_batch_args() -> Namespace:
                         help='Images will be resized to this value')
     # TODO: Make sure that images are sampled randomly from different sources!!!
     parser.add_argument('--sources', nargs="+",
-                        default=['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot',
-                                 'quickdraw', 'vgg_flower'],  # Mscoco, traffic_sign are VAL only
+                        default=['aircraft'],#['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot',
+                                 #'quickdraw', 'vgg_flower'],  # Mscoco, traffic_sign are VAL only
                         help='List of datasets to use')
 
     parser.add_argument('--train_transforms', nargs="+", default=['random_resized_crop', 'random_flip'],
@@ -305,11 +305,12 @@ def loop_test(args):
     dataloader = get_mds_loader(args)
 
     print(f'{len(dataloader)}')
-    for batch_idx, batch in enumerate(dataloader['val']):
+    for batch_idx, batch in enumerate(dataloader['train']):
         X,y = batch
         #print("finish batch",batch_idx)
         print(X.shape)
         print(y.shape)
+        print(y, "max label:", max(y))
         #print(X, y)
         if batch_idx == 1000:
             break
