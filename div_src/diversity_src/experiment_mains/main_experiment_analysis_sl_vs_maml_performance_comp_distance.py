@@ -13,8 +13,8 @@ from pathlib import Path
 
 from torch import Tensor
 
-from anatome.helper import compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks, pprint_results, \
-    compute_stats_from_distance_per_batch_of_data_sets_per_layer, LayerIdentifier, dist_batch_data_sets_for_all_layer
+# # from anatome.helper import compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks, pprint_results, \
+#     compute_stats_from_distance_per_batch_of_data_sets_per_layer, LayerIdentifier, dist_batch_data_sets_for_all_layer
 
 import uutils
 
@@ -24,6 +24,7 @@ from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_lea
     comparison_via_performance, setup_args_path_for_ckpt_data_analysis, do_diversity_data_analysis, \
     performance_comparison_with_l2l_end_to_end, get_recommended_batch_size_miniimagenet_5CNN
 from diversity_src.diversity.diversity import diversity
+
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
 
@@ -732,6 +733,7 @@ def resnet12rfs_hdb1_mio(args):
     # args.augment_train = True
     args.data_option = 'hdb1'
     args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'hdb1'
 
     # - training mode
     args.training_mode = 'iterations'  # needed so setup_args doesn't error out
@@ -792,7 +794,10 @@ def resnet12rfs_hdb1_mio(args):
     # args.batch_size = 25
     # args.batch_size = 100
     # args.batch_size = 500
-    args.batch_size = 1000
+    # args.batch_size = 1000
+    # args.batch_size = 2000
+    args.batch_size = 5000
+    # args.batch_size = 10_000
     args.batch_size_eval = args.batch_size
 
     # - set k_eval (qry set batch_size) to make experiments safe/reliable
@@ -811,9 +816,9 @@ def resnet12rfs_hdb1_mio(args):
     # args.path_2_init_sl = '~/data/logs/logs_Nov01_21-18-12_jobid_102959'  # train_acc 0.970, train_loss 0.119
     args.path_2_init_sl = '~/data/logs/logs_Nov02_15-43-37_jobid_103052'  # train_acc 0.9996, train_loss 0.001050
     #
-    # args.path_2_init_maml = '~/data/logs/logs_Oct15_18-08-54_jobid_96800'  # train_acc 0.986, train_loss 0.0531, val_acc 0.621
+    args.path_2_init_maml = '~/data/logs/logs_Oct15_18-08-54_jobid_96800'  # train_acc 0.986, train_loss 0.0531, val_acc 0.621
     # args.path_2_init_maml = '~/data/logs/logs_Oct15_18-10-01_jobid_96801'  #
-    args.path_2_init_maml = '~/data/logs/logs_Oct15_18-11-20_jobid_96802'  #
+    # args.path_2_init_maml = '~/data/logs/logs_Oct15_18-11-20_jobid_96802'  #
     # args.path_2_init_maml = '~/data/logs/logs_Oct15_18-12-26_jobid_96803'  #
 
     # -- wandb args

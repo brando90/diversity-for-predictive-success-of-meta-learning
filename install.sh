@@ -55,11 +55,17 @@ pip install -U wandb
 # pip install pyyml
 # pip install learn2learn
 
+git clone git@github.com:brando90/ultimate-utils.git
+git clone git@github.com:brando90/diversity-for-predictive-success-of-meta-learning.git
+git clone git@github.com:brando90/ultimate-anatome.git
+#git clone git@github.com:brando90/ultimate-aws-cv-task2vec.git
+#git clone git@github.com:brando90/pycoq.git
+#git clone git@github.com:FormalML/iit-term-synthesis.git
+
 pip install -e ~/ultimate-utils/
 pip install -e ~/diversity-for-predictive-success-of-meta-learning/
-
 pip install -e ~/ultimate-anatome/
-pip install -e ~/ultimate-aws-cv-task2vec/
+#pip install -e ~/ultimate-aws-cv-task2vec/
 
 # - todo: test, decided to use conda only for pytorch since cudatoolkit is easier to specify & get the most recent torch version
 source cuda11.1

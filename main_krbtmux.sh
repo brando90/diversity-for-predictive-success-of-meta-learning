@@ -16,22 +16,28 @@
 #
 # tmux attach -t 0
 
+# ssh brando9@hyperturing1.stanford.edu
+# ssh brando9@hyperturing2.stanford.edu
+# ssh brando9@turing1.stanford.edu
+# ssh brando9@ampere1.stanford.edu
+
 # - set up this main sh script
 export RUN_PWD=$(pwd)
 
 # stty -echo or stty echo
-source /etc/bashrc
-source /etc/profile
-source /etc/profile.d/modules.sh
-source ~/.bashrc
-source ~/.bash_profile
-source ~/.bashrc.user
+sh /etc/bashrc
+sh /etc/profile
+sh /etc/profile.d/modules.sh
+sh ~/.bashrc
+sh ~/.bash_profile
+sh ~/.bashrc.user
 echo HOME = $HOME
 # since snap .bash.user cd's me into HOME at dfs
 cd $RUN_PWD
 echo RUN_PWD = $RUN_PWD
 realpath .
 
+sh cuda11.1
 source cuda11.1
 
 conda init bash
@@ -51,7 +57,7 @@ echo WANDB_DIR = $WANDB_DIR
 echo OUT_FILE = $OUT_FILE
 echo ERR_FILE = $ERR_FILE
 
-export CUDA_VISIBLE_DEVICES=4
+export CUDA_VISIBLE_DEVICES=3
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 python -c "import torch; print(torch.cuda.get_device_name(0));"
 
@@ -69,10 +75,13 @@ python -c "import torch; print(torch.cuda.get_device_name(0));"
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb1_mio > $OUT_FILE 2> $ERR_FILE &
 
 # - hdb2 div
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb2_cifo > $OUT_FILE 2> $ERR_FILE &
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb2_cifo > $OUT_FILE 2> $ERR_FILE &
 
 # - mi vs omni
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/diversity/task2vec_based_metrics/diversity_task2vec/mi_vs_omniglot_div.py
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/diversity/task2vec_based_metrics/diversity_task2vec/mi_vs_omniglot_div.py > $OUT_FILE 2> $ERR_FILE &
+
+# - performance comp usl vs maml on hdb1
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py > $OUT_FILE 2> $ERR_FILE &
 
 # -- other option is to run `echo $SU_PASSWORD | /afs/cs/software/bin/reauth` inside of python, right?
 export JOB_PID=$!

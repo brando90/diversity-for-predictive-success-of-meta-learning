@@ -47,8 +47,8 @@ from typing import Optional
 
 from torch import Tensor, nn
 
-from anatome.helper import LayerIdentifier, dist_data_set_per_layer, _dists_per_task_per_layer_to_list, \
-    compute_stats_from_distance_per_batch_of_data_sets_per_layer
+# from anatome.helper import LayerIdentifier, dist_data_set_per_layer, _dists_per_task_per_layer_to_list, compute_stats_from_distance_per_batch_of_data_sets_per_layer
+
 from uutils.torch_uu import tensorify, process_meta_batch
 from uutils.torch_uu.dataloaders.meta_learning.torchmeta_ml_dataloaders import get_miniimagenet_dataloaders_torchmeta, \
     get_minimum_args_for_torchmeta_mini_imagenet_dataloader
@@ -140,7 +140,8 @@ def get_all_required_distances_for_pairs_of_tasks(f1: nn.Module, f2: nn.Module,
 
                                                   num_tasks_to_consider: int = 25,
                                                   consider_diagonal: bool = False
-                                                  ) -> list[OrderedDict[LayerIdentifier, float]]:
+                                                  ) -> list[OrderedDict[str, float]]:
+    # ) -> list[OrderedDict[LayerIdentifier, float]]:
     """
     [L] x [B, n*k, C,H,W]^2 -> [L] x [B', n*k, C,H,W] -> [B', L]
 
@@ -169,6 +170,7 @@ def get_all_required_distances_for_pairs_of_tasks(f1: nn.Module, f2: nn.Module,
     same tasks to each other and that has a distance = 0.0
     :return:
     """
+    from anatome.helper import LayerIdentifier, dist_data_set_per_layer, _dists_per_task_per_layer_to_list, compute_stats_from_distance_per_batch_of_data_sets_per_layer
     assert metric_as_sim_or_dist == 'dist'
     L = len(layer_names1)
     B1, B2 = X1.size(0), X2.size(0)
@@ -235,7 +237,8 @@ def diversity(f1: nn.Module, f2: nn.Module,
 
               num_tasks_to_consider: int = 25,
               consider_diagonal: bool = False
-              ) -> tuple[OrderedDict, OrderedDict, list[OrderedDict[LayerIdentifier, float]]]:
+              ) -> tuple[OrderedDict, OrderedDict, list[OrderedDict[str, float]]]:
+    # ) -> tuple[OrderedDict, OrderedDict, list[OrderedDict[LayerIdentifier, float]]]:
     """
     Div computes as follows:
         - takes in a set of layers [L]
@@ -251,6 +254,8 @@ def diversity(f1: nn.Module, f2: nn.Module,
 
     :return: [L]^2, [B', L]
     """
+    from anatome.helper import LayerIdentifier, dist_data_set_per_layer, _dists_per_task_per_layer_to_list, \
+        compute_stats_from_distance_per_batch_of_data_sets_per_layer
     assert metric_as_sim_or_dist == 'dist'
     # assert args.args.metric_as_sim_or_dist == 'dist'
     assert len(layer_names1) >= 2, f'For now the final and one before final layer are the way to compute diversity'
