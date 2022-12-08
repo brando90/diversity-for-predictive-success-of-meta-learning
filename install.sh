@@ -24,6 +24,16 @@
 #bash ~/miniconda.sh -b -p $HOME/miniconda
 #source ~/miniconda/bin/activate
 
+# - installing full anaconda
+echo $HOME
+wget https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh -O ~/anaconda.sh
+#wget https://repo.continuum.io/conda/Anaconda3-latest-Linux-x86_64.sh -O ~/anaconda.sh
+#bash ~/anaconda.sh -b -p $HOME/anaconda
+nohup bash ~/anaconda.sh -b -p $HOME/anaconda > anaconda_install.out &
+tail -f anaconda_install.out
+ls -lah ~
+source ~/anaconda/bin/activate
+
 # conda init zsh
 conda init
 conda install conda-build
