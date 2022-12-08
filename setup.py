@@ -53,7 +53,7 @@ setup(
 
     # for pytorch see doc string at the top of file
     install_requires=[
-        'torchmeta==1.8.0',
+        'torchmeta==1.8.0',  # 'torch>=1.4.0,<1.10.0', 'torchvision>=0.5.0,<0.11.0'
         'higher',
 
         'wandb',

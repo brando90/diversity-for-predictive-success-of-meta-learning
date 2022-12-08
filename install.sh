@@ -1,9 +1,23 @@
 ## Installation script
-# to install do: ./~/automl-meta-learning/install.sh
-# note that anything else didn't seem to work in my mac for me.
 
-#sudo apt-get update
-#sudo apt-get install wget
+# - CAREFUL, if a job is already running it could do damage to it, rm reauth process, qian doesn't do it so skip it
+# top -u brando9
+#
+# pkill -9 tmux -u brando9; pkill -9 krbtmux -u brando9; pkill -9 reauth -u brando9; pkill -9 python -u brando9; pkill -9 wandb-service* -u brando9;
+#
+# pkill -9 python -u brando9; pkill -9 wandb-service* -u brando9;
+#
+# krbtmux
+# reauth
+# nvidia-smi
+# sh main_krbtmux.sh
+#
+# tmux attach -t 0
+
+# ssh brando9@hyperturing1.stanford.edu
+# ssh brando9@hyperturing2.stanford.edu
+# ssh brando9@turing1.stanford.edu
+# ssh brando9@ampere1.stanford.edu
 
 # wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda.sh
 #wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
@@ -57,14 +71,14 @@ pip install -U wandb
 
 git clone git@github.com:brando90/ultimate-utils.git
 git clone git@github.com:brando90/diversity-for-predictive-success-of-meta-learning.git
-git clone git@github.com:brando90/ultimate-anatome.git
+#git clone git@github.com:brando90/ultimate-anatome.git
 #git clone git@github.com:brando90/ultimate-aws-cv-task2vec.git
 #git clone git@github.com:brando90/pycoq.git
 #git clone git@github.com:FormalML/iit-term-synthesis.git
 
 pip install -e ~/ultimate-utils/
 pip install -e ~/diversity-for-predictive-success-of-meta-learning/
-pip install -e ~/ultimate-anatome/
+#pip install -e ~/ultimate-anatome/
 #pip install -e ~/ultimate-aws-cv-task2vec/
 
 # - todo: test, decided to use conda only for pytorch since cudatoolkit is easier to specify & get the most recent torch version
@@ -73,12 +87,18 @@ source cuda11.1
 nvcc -V
 # torchmeta needs pytorch < 1.10.0
 
-pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+# - pytorch install
+#conda uninstall pytorch
+#pip uninstall torch
+# official: https://pytorch.org/get-started/previous-versions/
+#pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+#pip install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
 #pip3 install torch==1.13.0+cu111 torchvision torchaudio -f https://download.pytorch.org/whl/torch_stable.html
 #conda install -y -c pytorch -c conda-forge cudatoolkit=11.1 pytorch torchvision torchaudio
 #pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
 #pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113 --upgrade
-python -c 'import torch'
+python -c "import torch; print(torch.__version__)"
+python -c "import uutils; uutils.torch_uu.gpu_test()"
 
 echo Done "Done Install!"
 
