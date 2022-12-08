@@ -32,6 +32,8 @@ echo CUDA_VISIBLE_DEVICES
 echo $CUDA_VISIBLE_DEVICES
 echo torch.cuda.device_count is:
 python -c "import torch; print(torch.cuda.device_count())"
+python -c "import uutils; uutils.torch_uu.gpu_test()"
+
 echo ---- Running your python main ----
 
 pip install wandb --upgrade

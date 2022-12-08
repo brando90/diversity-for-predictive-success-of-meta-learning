@@ -37,8 +37,15 @@ cd $RUN_PWD
 echo RUN_PWD = $RUN_PWD
 realpath .
 
-sh cuda11.1
-source cuda11.1
+# - https://ilwiki.stanford.edu/doku.php?id=hints:gpu
+#sh cuda11.1
+#source cuda11.1
+#source cuda11.6
+export PATH=/usr/local/cuda-11.1/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-11.1/lib64:$LD_LIBRARY_PATH
+#export PATH=/usr/local/cuda-11.7/bin:$PATH
+#export LD_LIBRARY_PATH=/usr/local/cuda-11.7/lib64:$LD_LIBRARY_PATH
+nvcc -V
 
 conda init bash
 conda activate metalearning_gpu
