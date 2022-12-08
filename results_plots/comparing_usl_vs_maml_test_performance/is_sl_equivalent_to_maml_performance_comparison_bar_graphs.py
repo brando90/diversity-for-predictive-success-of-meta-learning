@@ -195,6 +195,7 @@ wandb report: https://wandb.ai/brando/entire-diversity-spectrum/reports/HDB1-MIO
 """
 from uutils.plot import bar_graph_with_error_using_pandas, save_to_desktop
 from matplotlib import pyplot as plt
+from uutils.torch_uu.metrics.confidence_intervals import confidence_intervals_intersect
 
 groups = []
 adapted_models = ['MAML5', 'MAML10', 'USL',
@@ -209,16 +210,49 @@ adapted_models += []
 # meta_test_ci = [1.36, 1.39, 1.39]
 # row = meta_test_acc + meta_test_ci
 # data += [row]
+
 # - MIO, better usl ckpt acc=0.9996, https://wandb.ai/brando/entire-diversity-spectrum/runs/37uvzvrq/logs?workspace=user-brando
 meta_test_acc = [78.9, 76.9, 81.4]
 meta_test_ci = [1.36, 1.39, 1.09]
 row = meta_test_acc + meta_test_ci
 data += [row]
-# - MIO, "bad" usl ckpt acc=0.98
-# meta_test_acc = [78.9, 76.9, 67.8]
-# meta_test_ci = [1.36, 1.39, 1.39]
+pairs = list(zip(meta_test_acc, meta_test_ci))
+print(f'{pairs=}')
+maml5_vs_usl = confidence_intervals_intersect(pairs[0], pairs[2])
+maml10_vs_usl = confidence_intervals_intersect(pairs[1], pairs[2])
+print(f'maml5 vs usl do NOT intersect (yes seperation of maml5 vs usl?): {not maml5_vs_usl}')
+print(f'maml10 vs usl do NOT intersect (yes seperation of maml5 vs usl?): {not maml10_vs_usl}')
+print(f'both don\'t intersect (usl vs maml separation?): {not maml5_vs_usl and not maml10_vs_usl}')
+
+# - MIO, higher 2k num tasks: https://wandb.ai/brando/entire-diversity-spectrum/runs/614hwt54/logs?workspace=user-brando
+# meta_test_acc = [82.75, 84.42, 85.25]
+# meta_test_ci = [0.7423, 0.7263, 0.6408]
 # row = meta_test_acc + meta_test_ci
 # data += [row]
+# pairs = list(zip(meta_test_acc, meta_test_ci))
+# print(f'{pairs=}')
+# maml5_vs_usl = confidence_intervals_intersect(pairs[0], pairs[2])
+# maml10_vs_usl = confidence_intervals_intersect(pairs[1], pairs[2])
+# print(f'maml5 vs usl do NOT intersect (yes seperation of maml5 vs usl?): {not maml5_vs_usl}')
+# print(f'maml10 vs usl do NOT intersect (yes seperation of maml5 vs usl?): {not maml10_vs_usl}')
+# print(f'both don\'t intersect (usl vs maml separation?): {not maml5_vs_usl and not maml10_vs_usl}')
+# USL vs maml not seperated because maml10 & usl intersect
+
+# - MIO, higher 5k num tasks: https://wandb.ai/brando/entire-diversity-spectrum/runs/33bvr8eb/logs?workspace=user-brando ampere1
+# meta_test_acc = [83.05, 83.04, 84.59]
+# meta_test_ci = [0.4827, 0.4849, 0.41238]
+# row = meta_test_acc + meta_test_ci
+# data += [row]
+# pairs = list(zip(meta_test_acc, meta_test_ci))
+# print(f'{pairs=}')
+# maml5_vs_usl = confidence_intervals_intersect(pairs[0], pairs[2])
+# maml10_vs_usl = confidence_intervals_intersect(pairs[1], pairs[2])
+# print(f'maml5 vs usl do NOT intersect (yes seperation of maml5 vs usl?): {not maml5_vs_usl}')
+# print(f'maml10 vs usl do NOT intersect (yes seperation of maml5 vs usl?): {not maml10_vs_usl}')
+# print(f'both don\'t intersect (usl vs maml separation?): {not maml5_vs_usl and not maml10_vs_usl}')
+# just barely don't intersect
+
+# -
 
 bar_graph_with_error_using_pandas(group_row_names=groups,
                                   columns=adapted_models,
@@ -232,4 +266,5 @@ bar_graph_with_error_using_pandas(group_row_names=groups,
                                   )
 # save_to_desktop(plot_name='mio_hdb1_prototype')
 save_to_desktop(plot_name='mio_hdb1_maml_98_usl_99')
+# save_to_desktop(plot_name='mio_hdb1_5k')
 plt.show()
