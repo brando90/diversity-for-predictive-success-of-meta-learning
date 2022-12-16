@@ -19,6 +19,9 @@
 # ssh brando9@turing1.stanford.edu
 # ssh brando9@ampere1.stanford.edu
 
+
+cd ~/diversity-for-predictive-success-of-meta-learning/
+
 # wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda.sh
 #wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
 #bash ~/miniconda.sh -b -p $HOME/miniconda
@@ -79,6 +82,8 @@ pip install -U wandb
 # pip install pyyml
 # pip install learn2learn
 
+
+cd ~
 git clone git@github.com:brando90/ultimate-utils.git
 git clone git@github.com:brando90/diversity-for-predictive-success-of-meta-learning.git
 #git clone git@github.com:brando90/ultimate-anatome.git
@@ -90,6 +95,20 @@ pip install -e ~/ultimate-utils/
 pip install -e ~/diversity-for-predictive-success-of-meta-learning/
 #pip install -e ~/ultimate-anatome/
 #pip install -e ~/ultimate-aws-cv-task2vec/
+
+# - gitsubmodules
+cd ~/diversity-for-predictive-success-of-meta-learning/
+git submodule add -f -b hdb --name pytorch-meta-dataset git@github.com:brando90/pytorch-meta-dataset.git pytorch-meta-dataset/
+# git submodule update to fetch all the data from that project and check out the appropriate commit listed in your superproject
+git submodule update
+# initialize your local configuration file
+git submodule init
+#
+#git clone git@github.com:brando90/pytorch-meta-dataset.git $HOME/pytorch-meta-dataset
+#cd $HOME/pytorch-meta-dataset
+#git branch hdb c6d6922003380342ab2e3509425d96307aa925c5
+#git checkout hdb
+#git push -u origin hdb
 
 # - todo: test, decided to use conda only for pytorch since cudatoolkit is easier to specify & get the most recent torch version
 source cuda11.1
