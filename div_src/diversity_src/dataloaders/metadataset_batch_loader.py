@@ -1,16 +1,16 @@
 #----START mds imports-----#
 #import torch
-from pytorch_mds_lib.pytorch_meta_dataset.utils import Split
-import pytorch_mds_lib.pytorch_meta_dataset.config as config_lib
-import pytorch_mds_lib.pytorch_meta_dataset.dataset_spec as dataset_spec_lib
+from diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.utils import Split
+import diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.config as config_lib
+import diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.dataset_spec as dataset_spec_lib
 from torch.utils.data import DataLoader
 import os
 import argparse
 import torch.backends.cudnn as cudnn
 import random
 import numpy as np
-import pytorch_mds_lib.pytorch_meta_dataset.pipeline as pipeline
-from pytorch_mds_lib.pytorch_meta_dataset.utils import worker_init_fn_
+import diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.pipeline as pipeline
+from diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.utils import worker_init_fn_
 from functools import partial
 #----END mds imports-----#
 import torch
@@ -158,11 +158,15 @@ def get_mds_batch_args() -> Namespace:
 
     parser.add_argument('--image_size', type=int, default=84,
                         help='Images will be resized to this value')
-    # TODO: Make sure that images are sampled randomly from different sources!!!
+    # WARNING WARNING if you change the classes below you must resize the number of USL output classes (--n_classes) accordingly
+    #example if you choose ['omniglot','aircraft'] you go to https://github.com/google-research/meta-dataset
+    #scroll down to "omniglot"=1623 classes, "aircraft"=100 classes
+    # add them up = 1723 classes, so set --n_classes=1723
     parser.add_argument('--sources', nargs="+",
-                        default=['aircraft'],#['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot',
-                                 #'quickdraw', 'vgg_flower'],  # Mscoco, traffic_sign are VAL only
+                        default=['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot',
+                                 'quickdraw', 'vgg_flower'],  # Mscoco, traffic_sign are VAL only
                         help='List of datasets to use')
+    parser.add_argument('--n_classes', type=int, default=3144) #
 
     parser.add_argument('--train_transforms', nargs="+", default=['random_resized_crop', 'random_flip'],
                         help='Transforms applied to training data', )

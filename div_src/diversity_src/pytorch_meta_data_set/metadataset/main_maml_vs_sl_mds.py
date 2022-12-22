@@ -1,6 +1,10 @@
 # %%
 """
 main script for computing performances of mdls and dist(f, A(f)) vs the model trained.
+
+IMPORTANT  What you just need to do is to make sure that the mediterrane errors of us cell and mammal are sort of similar when doing before making the test script the test comparison in the plots is it clear?
+
+IMPORTANT Also it has to be q bar graph
 """
 from argparse import Namespace
 from collections import OrderedDict
@@ -72,7 +76,7 @@ def resnet12rfs_mds(args):
     args.metric_comparison_type = 'None'
     args.metric_as_sim_or_dist = 'dist'  # since we are trying to show meta-learning is happening, the more distance btw task & change in model the more meta-leanring is the hypothesis
 
-    args.batch_size = 1#1000
+    args.batch_size = 100#1000
     args.batch_size_eval = args.batch_size
 
     # - expt option
@@ -83,16 +87,40 @@ def resnet12rfs_mds(args):
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
     # - ckpt name
-    args.sources  =['vgg_flower']
-    args.path_2_init_sl = '~/data/logs/logs_Dec05_17-53-05_jobid_-1'  # train_acc 0.9996, train_loss 0.001050
-    args.path_2_init_maml = '~/data/logs/logs_Dec05_15-11-12_jobid_-1'  #
+    #args.sources = ['vgg_flower']
+    #args.path_2_init_sl = '~/data/logs/logs_Dec05_17-53-05_jobid_-1'  # train_acc 0.9996, train_loss 0.001050
+    #args.path_2_init_maml = '~/data/logs/logs_Dec05_15-11-12_jobid_-1'  #
+
+    #args.sources = ['dtd']
+    #args.path_2_init_sl = '/home/pzy2/data/logs/logs_Dec07_14-33-43_jobid_-1'
+    #args.path_2_init_maml ="/home/pzy2/data/logs/logs_Dec06_22-12-41_jobid_-1"
+
+    #args.sources = ['aircraft']
+    #args.path_2_init_sl = "/home/pzy2/data/logs/logs_Dec05_17-52-23_jobid_-1"
+    #args.path_2_init_maml = "/home/pzy2/data/logs/logs_Dec05_15-08-51_jobid_-1"
+
+    #args.sources = ['vgg_flower','dtd']
+    #args.path_2_init_sl ="/home/pzy2/data/logs/logs_Dec06_22-10-32_jobid_-1"
+    #args.path_2_init_maml = "/home/pzy2/data/logs/logs_Dec06_22-11-09_jobid_-1"
+
+    #args.sources = ['vgg_flower', 'aircraft']
+    #args.path_2_init_sl = "/home/pzy2/data/logs/logs_Dec06_00-06-23_jobid_-1"
+    #args.path_2_init_maml ="/home/pzy2/data/logs/logs_Dec06_00-20-03_jobid_-1"
+
+    #args.sources = ['vgg_flower', 'omniglot']
+    #args.path_2_init_sl = "/home/pzy2/data/logs/logs_Dec05_17-54-26_jobid_-1"
+    #args.path_2_init_maml ="/home/pzy2/data/logs/logs_Dec06_00-20-03_jobid_-1"
+
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower']
+    args.path_2_init_sl = "/home/pzy2/data/logs/logs_Dec03_00-44-02_jobid_-1"
+    args.path_2_init_maml = "/home/pzy2/data/logs/logs_Dec01_01-50-15_jobid_-1"
 
     # -- wandb args
-    args.wandb_project = 'entire-diversity-spectrum'
+    args.wandb_project = 'SL vs MAML MDS Subsets'
     # - wandb expt args
-    args.experiment_name = f'{args.experiment_option}_resnet12rfs_hdb1_mio'
-    args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    args.log_to_wandb = False
+    args.experiment_name = f'{args.experiment_option}_resnet12rfs'
+    args.run_name = f'{args.sources} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
+    args.log_to_wandb = True
     # args.log_to_wandb = False
 
     # - fix for backwards compatibility

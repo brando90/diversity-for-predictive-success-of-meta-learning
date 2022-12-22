@@ -326,7 +326,7 @@ def comparison_via_performance(args: Namespace):
     print('---- maml10 for sl model')
     print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=10, lr_inner=original_lr_inner)
 
-    # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
+    # -- Adaptation=FFL (LR) (for all models, rand, maml, sl) (adapting head only)
     print('\n---- FFL (LR) for rand model')
     print_performance_4_sl(args_mdl_rand, model=args.mdl_rand)
     print('---- FFL (LR) for maml model')
@@ -335,6 +335,7 @@ def comparison_via_performance(args: Namespace):
     print_performance_4_sl(args_mdl_sl, model=args.mdl_sl)
 
     # - quick
+
     print('---- quick ----')
     assert isinstance(args.meta_learner, MAMLMetaLearner)
     args_mdl_rand = copy(args)
@@ -366,6 +367,7 @@ def comparison_via_performance(args: Namespace):
     print_performance_4_sl(args_mdl_maml, model=args.mdl_maml)
 
     print()
+    
 
 
 def items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci) -> tuple[float, float, float, float]:
@@ -416,7 +418,7 @@ def print_performance_results(args: Namespace,
 def print_performance_results_simple(args: Namespace,
                                      training: bool = True,
                                      ):
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
+    '''meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
                                                                split='train',
                                                                training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
@@ -425,7 +427,7 @@ def print_performance_results_simple(args: Namespace,
                                                                split='val',
                                                                training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
-    print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
+    print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')'''
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
                                                                split='test',
                                                                training=training)

@@ -30,12 +30,20 @@ python -c "import torch; print(torch.cuda.get_device_name(0));"
 echo PWD = $PWD
 
 # -- Run Experiment (TODO? delete files from experiment_mains that arent related)
-# - Div of MDS
-#python -u ~/example.py --data_path /shared/rsaas/pzy2/records
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/pytorch_meta_dataset/metadataset_task2vec_div.py
-# - USL
+#@Brando: add the datapath of your mds installation to the arg --data_path
+#example: python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/pytorch_meta_data_set/metadataset/metadataset_maml.py --data_path
+
+# Run one of the following below:
+# - Task2Vec Div of MDS (and its subsets)
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/pytorch_meta_data_set/metadataset/metadataset_task2vec_div.py
+# - USL training ResNet12
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/pytorch_meta_dataset/metadataset_usl.py
-# - MAML
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/pytorch_meta_dataset/maml_metadataset.py
+# - MAML traininng Resnet12
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/pytorch_meta_data_set/metadataset/metadataset_maml.py
+# - USL vs MAML comparison
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/pytorch_meta_data_set/metadataset/main_maml_vs_sl_mds.py
+
+#Ignore below
+#python -u ~/example.py --data_path /shared/rsaas/pzy2/records
 
 echo "---> Done with bash script (experiment or dispatched daemon experiments). "

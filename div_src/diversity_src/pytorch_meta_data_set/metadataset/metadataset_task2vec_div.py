@@ -14,15 +14,15 @@ from itertools import combinations
 
 def plot_histogram_and_div_for_MDS(sources):
     args = get_mds_args()
-    args.batch_size = 20
-    args.batch_size_eval = 20
+    args.batch_size = 500
+    args.batch_size_eval = 500
 
     #args.k_eval = 20
     #args.k_
     args.data_option = 'mds'
     args.model_option = 'resnet18_pretrained_imagenet'
     args.classifier_opts = None
-    args.log_to_wandb = False
+    args.log_to_wandb = True
     args.wandb_project = 'Meta-Dataset'
     args.experiment_name = 'Task2Vec w/ Histograms'
     args.sources = sources
@@ -42,9 +42,13 @@ python ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src
     """
     #'ilsvrc_2012', 'fungi','quickdraw',
     #for source1 in ['aircraft', 'cu_birds', 'dtd',  'omniglot',  'vgg_flower']:
+
+    plot_histogram_and_div_for_MDS(['omniglot'])
+    '''
     for source in list(map(list, combinations(['aircraft', 'cu_birds', 'dtd',  'omniglot',  'vgg_flower'],2))):
         print(source)
         print("===========STARTED SOURCE", source, "===========")
         plot_histogram_and_div_for_MDS(source)
         print("===========FINISHED SOURCE", source, "===========")
+    '''
     print('Done! successful!\n')
