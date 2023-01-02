@@ -64,5 +64,7 @@ setup(
         'seaborn',
 
         # 'fairseq',
+
+        # 'gsutil',
     ]  # see readme, we'll fill this when we release
 )
