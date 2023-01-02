@@ -36,6 +36,7 @@ echo PWD = $PWD
 # Run one of the following below:
 # - Task2Vec Div of MDS (and its subsets)
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/pytorch_meta_data_set/metadataset/metadataset_task2vec_div.py
+# python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/pytorch_meta_data_set/metadataset/metadataset_task2vec_div.py --data_path=<where your MDS datapath is> 
 # - USL training ResNet12
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/pytorch_meta_dataset/metadataset_usl.py
 # - MAML traininng Resnet12
