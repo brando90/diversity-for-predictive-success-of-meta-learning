@@ -56,6 +56,7 @@ def load_args() -> Namespace:
 
     args.opt_option = 'Adam_rfs_cifarfs'
     args.num_epochs = 1000
+    args.num_its = 1_000_000_000
     args.batch_size = 32
     args.batch_size_eval = 32
 
@@ -70,7 +71,7 @@ def load_args() -> Namespace:
     args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
 
     # - training mode
-    args.training_mode = 'epochs'
+    args.training_mode = 'iterations'
     # args.training_mode = 'fit_single_batc
 
     args.debug=True
@@ -81,7 +82,7 @@ def load_args() -> Namespace:
     # args.run_name = f'debug: {args.jobid=}'
     args.run_name = f'all datasets {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     # args.log_to_wandb = True
-    args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     '''f

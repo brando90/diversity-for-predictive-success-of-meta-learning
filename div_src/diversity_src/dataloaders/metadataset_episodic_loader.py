@@ -1,3 +1,5 @@
+#TODO - add ability to config list of datasets to use for both train, test, and val splits SEPERATELY
+#----START mds imports-----#
 #----START mds imports-----#
 #import torch
 from diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.utils import Split

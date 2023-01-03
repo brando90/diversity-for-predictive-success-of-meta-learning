@@ -22,7 +22,7 @@ def plot_histogram_and_div_for_MDS(sources):
     args.data_option = 'mds'
     args.model_option = 'resnet18_pretrained_imagenet'
     args.classifier_opts = None
-    args.log_to_wandb = True
+    args.log_to_wandb = False
     args.wandb_project = 'Meta-Dataset'
     args.experiment_name = 'Task2Vec w/ Histograms'
     args.sources = sources
@@ -43,12 +43,13 @@ python ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src
     #'ilsvrc_2012', 'fungi','quickdraw',
     #for source1 in ['aircraft', 'cu_birds', 'dtd',  'omniglot',  'vgg_flower']:
 
-    plot_histogram_and_div_for_MDS(['omniglot'])
-    '''
-    for source in list(map(list, combinations(['aircraft', 'cu_birds', 'dtd',  'omniglot',  'vgg_flower'],2))):
-        print(source)
-        print("===========STARTED SOURCE", source, "===========")
-        plot_histogram_and_div_for_MDS(source)
-        print("===========FINISHED SOURCE", source, "===========")
-    '''
+    #plot_histogram_and_div_for_MDS(['omniglot'])
+    #for source in list(map(list, combinations(['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot',
+    #                                           'quickdraw', 'vgg_flower'],2))):
+    source = ['aircraft','vgg_flower']
+    print(source)
+    print("===========STARTED SOURCE", source, "===========")
+    plot_histogram_and_div_for_MDS(source)
+    print("===========FINISHED SOURCE", source, "===========")
+
     print('Done! successful!\n')
