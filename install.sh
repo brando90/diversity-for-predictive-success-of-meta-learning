@@ -82,27 +82,51 @@ pip install -U wandb
 # pip install pyyml
 # pip install learn2learn
 
-
-cd ~
-git clone git@github.com:brando90/ultimate-utils.git
+# - git requirements
+cd $HOME
 git clone git@github.com:brando90/diversity-for-predictive-success-of-meta-learning.git
-#git clone git@github.com:brando90/ultimate-anatome.git
-#git clone git@github.com:brando90/ultimate-aws-cv-task2vec.git
-#git clone git@github.com:brando90/pycoq.git
-#git clone git@github.com:FormalML/iit-term-synthesis.git
-
-pip install -e ~/ultimate-utils/
 pip install -e ~/diversity-for-predictive-success-of-meta-learning/
+
+git clone git@github.com:brando90/ultimate-utils.git
+pip install -e ~/ultimate-utils/
+
+cd $HOME/diversity-for-predictive-success-of-meta-learning
+
+#git clone git@github.com:brando90/meta-dataset.git
+git submodule add -f -b hdb --name meta-dataset git@github.com:brando90/meta-dataset.git meta-dataset/
+git submodule update --init --recursive --remote pytorch-meta-dataset
+pip install -r $HOME/meta-dataset/requirements.txt
+
+#git clone -b hdb git@github.com:brando90/pytorch-meta-dataset.git
+git submodule add -f -b hdb --name pytorch-meta-dataset git@github.com:brando90/pytorch-meta-dataset.git pytorch-meta-dataset/
+git submodule update --init --recursive --remote pytorch-meta-dataset
+pip install -r $HOME/pytorch-meta-dataset/requirements.txt
+
+#git clone git@github.com:brando90/ultimate-anatome.git
 #pip install -e ~/ultimate-anatome/
+#git clone git@github.com:brando90/ultimate-aws-cv-task2vec.git
 #pip install -e ~/ultimate-aws-cv-task2vec/
 
-# - gitsubmodules
-cd ~/diversity-for-predictive-success-of-meta-learning/
-git submodule add -f -b hdb --name pytorch-meta-dataset git@github.com:brando90/pytorch-meta-dataset.git pytorch-meta-dataset/
-# git submodule update to fetch all the data from that project and check out the appropriate commit listed in your superproject
-git submodule update
-# initialize your local configuration file
-git submodule init
+cd $HOME/diversity-for-predictive-success-of-meta-learning
+
+## -- gitsubmodules
+## - set up pytorch-meta-dataset git submodule
+#cd ~/diversity-for-predictive-success-of-meta-learning/
+## adds the submodule to the .gitmodules file & pull the project
+#git submodule update --init --recursive --remote pytorch-meta-dataset
+#
+## - set up meta-dataset git submodule
+## adds the submodule to the .gitmodules file & pull the project
+#git submodule add -f -b master --name meta-dataset git@github.com:brando90/meta-dataset.git meta-dataset/
+## - git submodule update to fetch all the data from that project
+#git submodule update --init --recursive --remote meta-dataset
+#
+## - initialize your local configuration file
+#git submodule init
+## - check the submodules
+#git submodule status
+
+
 #
 #git clone git@github.com:brando90/pytorch-meta-dataset.git $HOME/pytorch-meta-dataset
 #cd $HOME/pytorch-meta-dataset
