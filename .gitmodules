@@ -1,0 +1,8 @@
+[submodule "meta-dataset"]
+	path = meta-dataset
+	url = git@github.com:brando90/meta-dataset.git
+	branch = hdb
+[submodule "pytorch-meta-dataset"]
+	path = pytorch-meta-dataset
+	url = git@github.com:brando90/pytorch-meta-dataset.git
+	branch = hdb

@@ -85,10 +85,10 @@ pip install -U wandb
 # - git requirements
 cd $HOME
 git clone git@github.com:brando90/diversity-for-predictive-success-of-meta-learning.git
-pip install -e ~/diversity-for-predictive-success-of-meta-learning/
+pip install -e $HOME/diversity-for-predictive-success-of-meta-learning/
 
 git clone git@github.com:brando90/ultimate-utils.git
-pip install -e ~/ultimate-utils/
+pip install -e $HOME/ultimate-utils/
 
 #git clone -b hdb git@github.com:brando90/meta-dataset.git
 #pip install -e -r $HOME/meta-dataset/requirements.txt
@@ -108,15 +108,15 @@ git submodule init
 # - The --remote option tells Git to update the submodule to the commit specified in the upstream repository, rather than the commit specified in the main repository. ref: https://stackoverflow.com/questions/74988223/why-do-i-need-to-add-the-remote-to-gits-submodule-when-i-specify-the-branch?noredirect=1&lq=1
 git submodule update --init --recursive --remote
 
+# - check it's in specified branch. ref: https://stackoverflow.com/questions/74998463/why-does-git-submodule-status-not-match-the-output-of-git-branch-of-my-submodule
+git submodule status
+cd meta-dataset
+git branch
+cd ..
+
 # - pip install
 pip install -e -r meta-dataset/requirements.txt
 pip install -e -r pytorch-meta-dataset/requirements.txt
-
-# - check it's in specified branch
-git submodule status
-cd pytorch-meta-dataset
-git branch
-cd ..
 
 cd $HOME/diversity-for-predictive-success-of-meta-learning
 
