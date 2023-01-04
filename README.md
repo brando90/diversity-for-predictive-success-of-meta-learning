@@ -176,6 +176,10 @@ tmux ls
 tmux switch -t <session name or number>
 ```
 
+# Info labs/SNAP Stanford
+
+Tutorial for using it: https://docs.google.com/document/d/1PSTLJdtG3AymDGKPO-bHtzSnDyPmJPpJWXLmnJKzdfU/edit?usp=sharing
+
 # Contributions
 
 Place reusable code in src in the appropriate place (use your judgement).
