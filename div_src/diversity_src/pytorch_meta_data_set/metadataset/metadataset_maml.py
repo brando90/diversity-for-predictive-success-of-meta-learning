@@ -38,10 +38,10 @@ def manual_load_mds_resnet12_maml_adam_no_scheduler(args: Namespace) -> Namespac
     # - model
     #args.model_option = 'resnet12_rfs_mi' #or use the one in the MDS fo-protoMAML paper
     #args.model_option = '5CNN_opt_as_model_for_few_shot_sl' #only sanity checks
-    args.model_option = 'resnet12_rfs_mi'
+    args.model_option = 'resnet50_rfs'#'resnet12_rfs_mi'
     args.n_cls = 5
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
-                          num_classes=args.n_cls)
+    #args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+    #                      num_classes=args.n_cls)
     #args.model_option = 'resnet18_random'
 
     #args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
@@ -49,6 +49,7 @@ def manual_load_mds_resnet12_maml_adam_no_scheduler(args: Namespace) -> Namespac
 
     # - data
     args.data_option = 'MDS'
+    args.sources = ['vgg_flower','aircraft']
     #args.data_path = Path('//').expanduser()
 
     # - training mode
@@ -63,7 +64,7 @@ def manual_load_mds_resnet12_maml_adam_no_scheduler(args: Namespace) -> Namespac
     args.debug = True
 
 
-    args.scheduler_option ='Adam_cosine_scheduler_rfs_cifarfs'
+    args.scheduler_option = 'None'#'Adam_cosine_scheduler_rfs_cifarfs'
     # -- Meta-Learner
     # - maml
     args.meta_learner_name = 'maml_fixed_inner_lr'
@@ -79,15 +80,15 @@ def manual_load_mds_resnet12_maml_adam_no_scheduler(args: Namespace) -> Namespac
     args.lr = 1e-3  # match MAML++
     args.opt_hps: dict = dict(lr=args.lr)
 
-    args.batch_size = 32
-    args.batch_size_eval = 8
+    args.batch_size = 512
+    args.batch_size_eval = 512
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
     #args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     # args.experiment_name = f'debug'
-    args.experiment_name = f'MDS {args.model_option} official fo maml {args.opt_option}, no scheduler'
+    args.experiment_name = f'aircraft vgg {args.model_option} official fo maml {args.opt_option}, no scheduler'
     # args.run_name = f'debug: {args.jobid=}'
     args.run_name = f'mds alldatasets {args.model_option} {args.opt_option} {args.scheduler_option} {args.inner_lr} {args.lr}: {args.jobid=}'
     # args.log_to_wandb = True

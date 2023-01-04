@@ -47,24 +47,28 @@ def load_args() -> Namespace:
     """
     # -- parse args from terminal
     args: Namespace = get_mds_batch_args()
+    args.sources = ['vgg_flower','aircraft']
+    args.n_classes = 141 #see https://github.com/google-research/meta-dataset 70 aircraft 71 vgg_flower
+    args.model_hps = dict(num_classes=args.n_classes)
     args.data_option = 'MDS'
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'resnet12_rfs_cifarfs'  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_train_until_convergence'  # <- REMOVE to remove manual loads
-    args.model_option = 'resnet12_rfs'
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_classes)
+    args.model_option = 'resnet50_rfs'#'resnet12_rfs'
+    #args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_classes)
 
     args.opt_option = 'Adam_rfs_cifarfs'
     args.num_epochs = 1000
     args.num_its = 1_000_000_000
-    args.batch_size = 32
-    args.batch_size_eval = 32
+    args.batch_size = 512
+    args.batch_size_eval = 512
 
     args.lr = 1e-3
     args.opt_hps: dict = dict(lr=args.lr)
     #args.model_hps = {'num_classes': 3144}
 
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    #no need scheduler
+    args.scheduler_option = 'None'#'Adam_cosine_scheduler_rfs_cifarfs'
     args.log_scheduler_freq = 1
     args.T_max = args.num_epochs // args.log_scheduler_freq
     args.eta_min = 1e-5  # coincidentally, matches MAML++
@@ -80,9 +84,9 @@ def load_args() -> Namespace:
 
     args.experiment_name = f'MDS USL'
     # args.run_name = f'debug: {args.jobid=}'
-    args.run_name = f'all datasets {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'vggflower + aircraft {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     '''f

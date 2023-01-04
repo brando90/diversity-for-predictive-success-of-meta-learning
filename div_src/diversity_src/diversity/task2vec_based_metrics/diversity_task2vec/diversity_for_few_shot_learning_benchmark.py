@@ -261,11 +261,12 @@ def get_task_embeddings_from_few_shot_dataloader(args: Namespace,
     for t in range(num_tasks_to_consider):
         print(f'\n--> task_num={t}\n')
         spt_x_t, spt_y_t, qry_x_t, qry_y_t = spt_x[t], spt_y[t], qry_x[t], qry_y[t]
-        if spt_x_t.size(0) > qry_x_t.size(0):
-            data, labels = qry_x_t, qry_y_t
-        else:
-            data, labels = spt_x_t, spt_y_t
-        # data, labels = qry_x_t, qry_y_t
+
+        # concatenate the support and query sets to get the full task's data and labels
+        data = torch.cat((spt_x_t, qry_x_t),0)
+        labels = torch.cat((spt_y_t, qry_y_t),0)
+
+        #print(data.shape, labels.shape)
         fsl_task_dataset: Dataset = FSLTaskDataSet(spt_x=None, spt_y=None, qry_x=data, qry_y=labels)
 
         print(f'{len(fsl_task_dataset)=}')

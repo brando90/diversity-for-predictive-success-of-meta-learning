@@ -1,5 +1,3 @@
-#TODO - add ability to config list of datasets to use for both train, test, and val splits SEPERATELY
-#----START mds imports-----#
 #----START mds imports-----#
 #import torch
 from diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.utils import Split
@@ -67,7 +65,7 @@ def get_mds_args() -> Namespace:
     parser.add_argument('--num_support', type=int, default=5,
                         help='Set it if you want a fixed # of support samples per class')
 
-    parser.add_argument('--num_query', type=int, default=10,
+    parser.add_argument('--num_query', type=int, default=15,
                         help='Set it if you want a fixed # of query samples per class')
 
     parser.add_argument('--min_ways', type=int, default=2,
@@ -235,7 +233,7 @@ def get_mds_args() -> Namespace:
 
     # - meta-learner specific
     parser.add_argument('--k_shots', type=int, default=5, help="")
-    parser.add_argument('--k_eval', type=int, default=10, help="")
+    parser.add_argument('--k_eval', type=int, default=15, help="")
     parser.add_argument('--n_cls', type=int, default=5, help="")  # n_ways
     parser.add_argument('--n_aug_support_samples', type=int, default=1,
                         help="The puzzling rfs increase in support examples")
