@@ -46,8 +46,8 @@ conda update --all
 pip install --upgrade pip
 pip3 install --upgrade pip
 
-#conda create -n metalearning_gpu python=3.9
-#conda activate metalearning_gpu
+conda create -n metalearning_gpu python=3.9
+conda activate metalearning_gpu
 ## conda remove --name metalearning_gpu --all
 
 pip install -U wandb
@@ -98,9 +98,13 @@ cd ..
 
 # - pip install. ref: https://stackoverflow.com/questions/75010219/how-do-i-pip-install-something-in-editable-mode-using-a-requirements-txt-file/75010220#75010220
 pip install --upgrade pip
-pip install -r meta-dataset/requirements.txt -e meta-dataset
+#pip install -r meta-dataset/requirements.txt -e meta-dataset
 #pip install -r pytorch-meta-dataset/requirements.txt -e pytorch-meta-dataset
+# don't think the requirements.txt file is needed, the setup.py has the same stuff
+pip install -e meta-dataset
 pip install -e pytorch-meta-dataset
+
+pip install 'tensorflow-gpu==1.0.0' 'absl-py==0.11.0'
 
 cd $HOME/diversity-for-predictive-success-of-meta-learning
 
