@@ -90,42 +90,35 @@ pip install -e ~/diversity-for-predictive-success-of-meta-learning/
 git clone git@github.com:brando90/ultimate-utils.git
 pip install -e ~/ultimate-utils/
 
-cd $HOME/diversity-for-predictive-success-of-meta-learning
-
-#git clone git@github.com:brando90/meta-dataset.git
-git submodule add -f -b hdb --name meta-dataset git@github.com:brando90/meta-dataset.git meta-dataset/
-git submodule update --init --recursive --remote pytorch-meta-dataset
-pip install -r $HOME/meta-dataset/requirements.txt
+#git clone -b hdb git@github.com:brando90/meta-dataset.git
+#pip install -e -r $HOME/meta-dataset/requirements.txt
 
 #git clone -b hdb git@github.com:brando90/pytorch-meta-dataset.git
-git submodule add -f -b hdb --name pytorch-meta-dataset git@github.com:brando90/pytorch-meta-dataset.git pytorch-meta-dataset/
-git submodule update --init --recursive --remote pytorch-meta-dataset
-pip install -r $HOME/pytorch-meta-dataset/requirements.txt
+#pip install -e -r $HOME/pytorch-meta-dataset/requirements.txt
 
-#git clone git@github.com:brando90/ultimate-anatome.git
-#pip install -e ~/ultimate-anatome/
-#git clone git@github.com:brando90/ultimate-aws-cv-task2vec.git
-#pip install -e ~/ultimate-aws-cv-task2vec/
-
+# - git submodule install
 cd $HOME/diversity-for-predictive-success-of-meta-learning
 
-## -- gitsubmodules
-## - set up pytorch-meta-dataset git submodule
-#cd ~/diversity-for-predictive-success-of-meta-learning/
-## adds the submodule to the .gitmodules file & pull the project
-#git submodule update --init --recursive --remote pytorch-meta-dataset
-#
-## - set up meta-dataset git submodule
-## adds the submodule to the .gitmodules file & pull the project
-#git submodule add -f -b master --name meta-dataset git@github.com:brando90/meta-dataset.git meta-dataset/
-## - git submodule update to fetch all the data from that project
-#git submodule update --init --recursive --remote meta-dataset
-#
-## - initialize your local configuration file
-#git submodule init
-## - check the submodules
-#git submodule status
+# - adds the repo to the .gitmodule & clones the repo
+git submodule add -f -b hdb --name meta-dataset git@github.com:brando90/meta-dataset.git meta-dataset/
+git submodule add -f -b hdb --name pytorch-meta-dataset git@github.com:brando90/pytorch-meta-dataset.git pytorch-meta-dataset/
 
+# - git submodule init initializes your local configuration file to track the submodules your repository uses, it just sets up the configuration so that you can use the git submodule update command to clone and update the submodules.
+git submodule init
+# - The --remote option tells Git to update the submodule to the commit specified in the upstream repository, rather than the commit specified in the main repository. ref: https://stackoverflow.com/questions/74988223/why-do-i-need-to-add-the-remote-to-gits-submodule-when-i-specify-the-branch?noredirect=1&lq=1
+git submodule update --init --recursive --remote
+
+# - pip install
+pip install -e -r meta-dataset/requirements.txt
+pip install -e -r pytorch-meta-dataset/requirements.txt
+
+# - check it's in specified branch
+git submodule status
+cd pytorch-meta-dataset
+git branch
+cd ..
+
+cd $HOME/diversity-for-predictive-success-of-meta-learning
 
 #
 #git clone git@github.com:brando90/pytorch-meta-dataset.git $HOME/pytorch-meta-dataset
