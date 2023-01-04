@@ -6,20 +6,22 @@
 # see "Installing from the Python package index (PyPi)"
 pip install gsutil
 
-# -- prereqs: download pytorch-mds to $HOME if not done already
+# -- prereqs: download pytorch-mds to $HOME
 cd $HOME
-git clone -b hdb git@github.com:brando90/pytorch-meta-dataset.git
-#pip install -r pytorch-meta-dataset/requirements.txt
-pip install -r $HOME/pytorch-meta-dataset/requirements.txt
+git clone https://github.com/brando90/pytorch-meta-dataset # done already?
+#check that the pytorch-mds directory is there
+ls pytorch-meta-dataset/
 
 # -- prereqs: download original mds to $HOME
 git clone https://github.com/google-research/meta-dataset
-#pip install -r meta-dataset/requirements.txt
-pip install -r $HOME/meta-dataset/requirements.txt
+#check that the original mds directory is there
+ls meta-dataset/
 
+# -- prereqs: install original mds python requirements
+pip install -r meta-dataset/requirements.txt
 
-
-
+# -- prereqs: install pytorch mds python requirements
+pip install -r pytorch-meta-dataset/requirements.txt
 
 #create records and splits folders for mds
 mkdir -p $HOME/data/mds #changed from $HOME/mds to $HOME/data/mds?
