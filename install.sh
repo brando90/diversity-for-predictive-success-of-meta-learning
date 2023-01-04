@@ -99,6 +99,9 @@ pip install -e $HOME/ultimate-utils/
 # - git submodule install
 cd $HOME/diversity-for-predictive-success-of-meta-learning
 
+# - in case it's needed if the submodules bellow have branches your local project doesn't know about from the submodules upstream
+git fetch
+
 # - adds the repo to the .gitmodule & clones the repo
 git submodule add -f -b hdb --name meta-dataset git@github.com:brando90/meta-dataset.git meta-dataset/
 git submodule add -f -b hdb --name pytorch-meta-dataset git@github.com:brando90/pytorch-meta-dataset.git pytorch-meta-dataset/
@@ -108,14 +111,19 @@ git submodule init
 # - The --remote option tells Git to update the submodule to the commit specified in the upstream repository, rather than the commit specified in the main repository. ref: https://stackoverflow.com/questions/74988223/why-do-i-need-to-add-the-remote-to-gits-submodule-when-i-specify-the-branch?noredirect=1&lq=1
 git submodule update --init --recursive --remote
 
+# - for each submodule pull from the right branch according to .gitmodule file. ref: https://stackoverflow.com/questions/74988223/why-do-i-need-to-add-the-remote-to-gits-submodule-when-i-specify-the-branch?noredirect=1&lq=1
+#git submodule foreach -q --recursive 'git switch $(git config -f $toplevel/.gitmodules submodule.$name.branch || echo master || echo main )'
+
 # - check it's in specified branch. ref: https://stackoverflow.com/questions/74998463/why-does-git-submodule-status-not-match-the-output-of-git-branch-of-my-submodule
 git submodule status
 cd meta-dataset
 git branch
 cd ..
 
-# - pip install
-pip install -e -r meta-dataset/requirements.txt
+# - pip install. ref: https://stackoverflow.com/questions/75010219/how-do-i-pip-install-something-in-editable-mode-using-a-requirements-txt-file/75010220#75010220
+pip install --upgrade pip
+pip install -r meta-dataset/requirements.txt -e meta-dataset
+
 pip install -e -r pytorch-meta-dataset/requirements.txt
 
 cd $HOME/diversity-for-predictive-success-of-meta-learning
