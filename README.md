@@ -179,6 +179,7 @@ tmux switch -t <session name or number>
 # Info labs/SNAP Stanford
 
 Tutorial for using it: https://docs.google.com/document/d/1PSTLJdtG3AymDGKPO-bHtzSnDyPmJPpJWXLmnJKzdfU/edit?usp=sharing
+To join their slack: https://join.slack.com/t/snap-group/shared_invite/zt-1lokufgys-g6NOiK3gQi84NjIK_2dUMQ
 
 # Contributions
 

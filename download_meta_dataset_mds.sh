@@ -1,11 +1,29 @@
 # based on: https://github.com/google-research/meta-dataset/blob/main/doc/dataset_conversion.md
 # make index is needed, it's at the last step at the end of this doc (after installing all the tfrecords from MDS)
+# Q: what is
+#   --splits_root=$SPLITS \
+#   --records_root=$RECORD
+# SPLITS is what does the hierarchical splitting of classes when sampling tasks (you should have a few json files),
+# RECORDS is where the tfrecords are recorded. plus a json file dataspec to map classes to json files.
+
+# - if your doing this in snap you might need to do
+ssh brando9@ampere4.stanford.edu
+conda activate metalearning_gpu
+
+krbtmux
+reauth
+source .bashrc.lfs
+conda activate metalearning_gpu
+
+# perhaps attach to an running session
+tmux attach -t <session number>
 
 # -- prereqs: install gsutil
 # if that doesnt work here's googles OS-specific instructions to install gsutil: https://download.huihoo.com/google/gdgdevkit/DVD1/developers.google.com/storage/docs/gsutil_install.html
 # see "Installing from the Python package index (PyPi)"
-pip install gsutil
+pip install gsutil  # should already be in the setup.py files for both meta-dataset & pytorch-meta-dataset pkgs
 
+# -- Option1: git clone in $HOME and pip install -e (if not already done)
 # -- prereqs: download pytorch-mds to $HOME
 cd $HOME
 git clone https://github.com/brando90/pytorch-meta-dataset # done already?
@@ -19,23 +37,40 @@ ls meta-dataset/
 
 # -- prereqs: install original mds python requirements
 pip install -r meta-dataset/requirements.txt
+#pip install -r meta-dataset/requirements.txt -e .
 
 # -- prereqs: install pytorch mds python requirements
 pip install -r pytorch-meta-dataset/requirements.txt
+#pip install -r pytorch-meta-dataset/requirements.txt -e .
 
-#create records and splits folders for mds
-mkdir -p $HOME/data/mds #changed from $HOME/mds to $HOME/data/mds?
+# -- Option2: using gitsubmodules.
+# To avoid repeating code and thus potential bugs & copy pasting, see install.sh script for this.
+
+# - create records and splits folders for mds
+echo $HOME
+mkdir -p $HOME/data/mds
 export MDS_DATA_PATH=$HOME/data/mds
+echo $MDS_DATA_PATH
 
-mkdir $MDS_DATA_PATH/records # If you haven't already?
-mkdir $MDS_DATA_PATH/splits # If you haven't already?
+mkdir -p $MDS_DATA_PATH/records
+mkdir -p $MDS_DATA_PATH/splits
 export RECORDS=$MDS_DATA_PATH/records
 export SPLITS=$MDS_DATA_PATH/splits
+echo $RECORDS
+echo $SPLITS
 
 # in order to run python scripts we need to cd into the original mds dir
 cd $HOME/meta-dataset/
+# or
+cd $HOME/diversity-for-predictive-success-of-meta-learning/meta-dataset/
 
 # -- ilsvrc_2012: https://github.com/google-research/meta-dataset/blob/main/doc/dataset_conversion.md#ilsvrc_2012
+ssh brando9@ampere4.stanford.edu
+tmux new -s ilsvrc_2012
+reauth
+source .bashrc.lfs
+conda activate metalearning_gpu
+
 # - 1. Download ilsvrc2012_img_train.tar, from the ILSVRC2012 website
 # todo: https://gist.github.com/bonlime/4e0d236cf98cd5b15d977dfa03a63643
 # todo: https://github.com/google-research/meta-dataset/blob/main/doc/dataset_conversion.md#ilsvrc_2012
@@ -82,54 +117,87 @@ python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
 ls $RECORDS/ilsvrc_2012/
 
 
-
-
 # -- omniglot: https://github.com/google-research/meta-dataset/blob/main/doc/dataset_conversion.md#omniglot
-# 1. download omniglot
-mkdir $MDS_DATA_PATH/omniglot/
+# if your on snap you might want to create a new tmux session
+ssh brando9@ampere4.stanford.edu
+tmux new -s omniglot
+reauth
+source .bashrc.lfs
+conda activate metalearning_gpu
+
+# tmux attach -t omniglot
+
+# 1. Download images_background.zip and images_evaluation.zip
+mkdir -p $MDS_DATA_PATH/omniglot/
 wget https://github.com/brendenlake/omniglot/raw/master/python/images_background.zip -O $MDS_DATA_PATH/omniglot/images_background.zip
 wget https://github.com/brendenlake/omniglot/raw/master/python/images_evaluation.zip -O $MDS_DATA_PATH/omniglot/images_evaluation.zip
+
+# 2. Extract them into the same omniglot/ directory
 unzip $MDS_DATA_PATH/omniglot/images_background.zip -d $MDS_DATA_PATH/omniglot
 unzip $MDS_DATA_PATH/omniglot/images_evaluation.zip -d $MDS_DATA_PATH/omniglot
-# what is
-#   --splits_root=$SPLITS \
-#   --records_root=$RECORD
-# SPLITS is what does the hierarchical splitting of classes when sampling tasks (you should have a few json files),
-# RECORDS is where the tfrecords are recorded. plus a json file dataspec to map classes to json files.
 
+ls $MDS_DATA_PATH/omniglot
+
+# 3. Launch the conversion script:
 python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
   --dataset=omniglot \
   --omniglot_data_root=$MDS_DATA_PATH/omniglot \
   --splits_root=$SPLITS \
   --records_root=$RECORDS
 
+# 3. Expect the conversion to take a few seconds.
 
+# 4. Find the following outputs in $RECORDS/omniglot/:
+#1623 tfrecords files named [0-1622].tfrecords
+ls $RECORDS/omniglot/ | grep -c .tfrecords
+#find $RECORDS/omniglot/ -name "*.tfrecords" | wc -l
+#dataset_spec.json (see note 1)
+cat $RECORDS/omniglot/dataset_spec.json
 
 # -- aircraft: https://github.com/google-research/meta-dataset/blob/main/doc/dataset_conversion.md#aircraft
+ssh brando9@ampere4.stanford.edu
+tmux new -s aircraft
+reauth
+source .bashrc.lfs
+conda activate metalearning_gpu
+
+#tmux attach -t aircraft
+
 # 1. download and extract
 wget http://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/archives/fgvc-aircraft-2013b.tar.gz -O $MDS_DATA_PATH/fgvc-aircraft-2013b.tar.gz
-tar xf $MDS_DATA_PATH/fgvc-aircraft-2013b.tar.gz -C $MDS_DATA_PATH/
 
-# 2. conversion script
+# 2. Extract it into fgvc-aircraft-2013b
+tar xf $MDS_DATA_PATH/fgvc-aircraft-2013b.tar.gz -C $MDS_DATA_PATH/
+ls $MDS_DATA_PATH/fgvc-aircraft-2013b
+
+# 3. conversion script
 python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
   --dataset=aircraft \
   --aircraft_data_root=$MDS_DATA_PATH/fgvc-aircraft-2013b \
   --splits_root=$SPLITS \
   --records_root=$RECORDS
 
-#3. Find the following outputs in $RECORDS/aircraft/:
+# 4. Expect the conversion to take 5 to 10 minutes.
 
+# 5. Find the following outputs in $RECORDS/aircraft/:
 #100 tfrecords files named [0-99].tfrecords
+ls $RECORDS/aircraft/ | grep -c .tfrecords
 #dataset_spec.json (see note 1)
-ls $RECORDS/aircraft/
-
+cat $RECORDS/omniglot/dataset_spec.json
 
 # -- cu_birds
-#1. download+extract
+ssh brando9@ampere4.stanford.edu
+tmux new -s cu_birds
+reauth
+source .bashrc.lfs
+conda activate metalearning_gpu
+
+#1. download
 wget https://data.caltech.edu/records/65de6-vp158/files/CUB_200_2011.tgz?download=1 -O $MDS_DATA_PATH/CUB_200_2011.tgz
+#2. extract
 tar -xzf $MDS_DATA_PATH/CUB_200_2011.tgz -C $MDS_DATA_PATH/
 
-# 2. conversion
+#3. conversion
 python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
   --dataset=cu_birds \
   --cu_birds_data_root=$MDS_DATA_PATH/CUB_200_2011 \
@@ -145,6 +213,12 @@ ls $RECORDS/cu_birds/
 
 
 #-- dtd
+ssh brando9@ampere4.stanford.edu
+tmux new -s dtd
+reauth
+source .bashrc.lfs
+conda activate metalearning_gpu
+
 #1. download+extract
 wget https://www.robots.ox.ac.uk/~vgg/data/dtd/download/dtd-r1.0.1.tar.gz -O $MDS_DATA_PATH/dtd-r1.0.1.tar.gz
 tar xf $MDS_DATA_PATH/dtd-r1.0.1.tar.gz -C $MDS_DATA_PATH/
