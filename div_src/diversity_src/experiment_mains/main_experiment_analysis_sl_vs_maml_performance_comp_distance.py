@@ -815,11 +815,18 @@ def resnet12rfs_hdb1_mio(args):
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/3psfe5hn/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Nov01_21-18-12_jobid_102959'  # train_acc 0.970, train_loss 0.119
     args.path_2_init_sl = '~/data/logs/logs_Nov02_15-43-37_jobid_103052'  # train_acc 0.9996, train_loss 0.001050
-    #
-    args.path_2_init_maml = '~/data/logs/logs_Oct15_18-08-54_jobid_96800'  # train_acc 0.986, train_loss 0.0531, val_acc 0.621
-    # args.path_2_init_maml = '~/data/logs/logs_Oct15_18-10-01_jobid_96801'  #
+    # can't find wandb run for bellow
+    # args.path_2_init_maml = '~/data/logs/logs_Oct15_18-08-54_jobid_96800'  # train_acc 0.986, train_loss 0.0531, val_acc 0.621
+    # training above ckpt for a little longer: https://wandb.ai/brando/entire-diversity-spectrum/runs/1jqbw2cb?workspace=user-brando
+    # args.path_2_init_maml = 'need to download ckpt 103320 from vision cluster'
+    # https://wandb.ai/brando/entire-diversity-spectrum/runs/1etjuijm/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Oct15_18-10-01_jobid_96801'  #
+    # doesn't seem the run for the ckpt one bellow is easy to find in wandb runs
     # args.path_2_init_maml = '~/data/logs/logs_Oct15_18-11-20_jobid_96802'  #
+    # doesn't seem the run for the ckpt one bellow is easy to find in wandb runs
     # args.path_2_init_maml = '~/data/logs/logs_Oct15_18-12-26_jobid_96803'  #
+    # old vision ckpts
+    # https://wandb.ai/brando/entire-diversity-spectrum/runs/203j6c16?workspace=user-brando
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
