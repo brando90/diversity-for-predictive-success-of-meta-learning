@@ -251,6 +251,7 @@ source .bashrc.lfs
 conda activate metalearning_gpu
 
 # --1. run gsutil to get the files
+mkdir -p $MDS_DATA_PATH/quickdraw
 gsutil -m cp gs://quickdraw_dataset/full/numpy_bitmap/*.npy $MDS_DATA_PATH/quickdraw
 
 # --2. launch conversion script
