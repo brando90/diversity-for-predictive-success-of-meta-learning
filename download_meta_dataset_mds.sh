@@ -226,7 +226,7 @@ tar xf $MDS_DATA_PATH/dtd-r1.0.1.tar.gz -C $MDS_DATA_PATH/
 # 2. conversion
 python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
   --dataset=dtd \
-  --cu_birds_data_root=$MDS_DATA_PATH/dtd \
+  --dtd_data_root=$MDS_DATA_PATH/dtd \
   --splits_root=$SPLITS \
   --records_root=$RECORDS
 
