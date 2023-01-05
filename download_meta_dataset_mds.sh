@@ -6,6 +6,9 @@
 # SPLITS is what does the hierarchical splitting of classes when sampling tasks (you should have a few json files),
 # RECORDS is where the tfrecords are recorded. plus a json file dataspec to map classes to json files.
 
+# - you might need to kill your reauths if your starting from scratch
+# pkill -9 reauth -u brando9;
+
 # - if your doing this in snap you might need to do
 ssh brando9@ampere4.stanford.edu
 conda activate metalearning_gpu
@@ -21,7 +24,7 @@ tmux attach -t <session number>
 # -- prereqs: install gsutil
 # if that doesnt work here's googles OS-specific instructions to install gsutil: https://download.huihoo.com/google/gdgdevkit/DVD1/developers.google.com/storage/docs/gsutil_install.html
 # see "Installing from the Python package index (PyPi)"
-pip install gsutil  # should already be in the setup.py files for both meta-dataset & pytorch-meta-dataset pkgs
+pip install gsutil
 
 # -- Option1: git clone in $HOME and pip install -e (if not already done)
 # -- prereqs: download pytorch-mds to $HOME
@@ -36,12 +39,14 @@ git clone https://github.com/google-research/meta-dataset
 ls meta-dataset/
 
 # -- prereqs: install original mds python requirements
-pip install -r meta-dataset/requirements.txt
+#pip install -r meta-dataset/requirements.txt
 #pip install -r meta-dataset/requirements.txt -e .
 
 # -- prereqs: install pytorch mds python requirements
-pip install -r pytorch-meta-dataset/requirements.txt
+#pip install -r pytorch-meta-dataset/requirements.txt
 #pip install -r pytorch-meta-dataset/requirements.txt -e .
+pip install -r $HOME/diversity-for-predictive-success-of-meta-learning/req_mds_essentials.txt
+
 
 # -- Option2: using gitsubmodules.
 # To avoid repeating code and thus potential bugs & copy pasting, see install.sh script for this.
