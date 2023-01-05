@@ -239,6 +239,11 @@ ls $RECORDS/dtd/
 
 
 # -- quickdraw
+ssh brando9@ampere4.stanford.edu
+tmux new -s quickdraw
+reauth
+source .bashrc.lfs
+conda activate metalearning_gpu
 
 # --1. run gsutil to get the files
 gsutil -m cp gs://quickdraw_dataset/full/numpy_bitmap/*.npy $MDS_DATA_PATH/quickdraw

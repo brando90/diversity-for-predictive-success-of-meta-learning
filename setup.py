@@ -53,6 +53,10 @@ setup(
 
     # for pytorch see doc string at the top of file
     install_requires=[
+        # 'torch==1.9.1+cu111',
+        # 'torchvision==0.10.1+cu111',
+        # 'torchaudio==0.9.1',
+
         'torchmeta==1.8.0',  # 'torch>=1.4.0,<1.10.0', 'torchvision>=0.5.0,<0.11.0'
         'higher',
 

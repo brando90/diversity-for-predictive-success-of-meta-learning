@@ -22,7 +22,7 @@ conda create -n mds_env_gpu python=3.9
 conda activate mds_env_gpu
 
 #prevents tmp directory from complaining of overflow
-mkdir ~/new_tmp
+mkdir -p ~/new_tmp
 export TMPDIR=~/new_tmp
 
 # install newer list of requirements (verified that this list works w/ py3.9)
