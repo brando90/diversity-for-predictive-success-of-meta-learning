@@ -14,10 +14,6 @@ echo $SPLITS
 # install gsutil if not done already
 pip install gsutil 
 
-# cd into orig mds directory
-cd $HOME/meta-dataset/
-# or
-cd $HOME/diversity-for-predictive-success-of-meta-learning/meta-dataset/
 
 # Create new conda environment for our 
 conda update -n base -c defaults conda
@@ -32,7 +28,11 @@ export TMPDIR=~/new_tmp
 # install newer list of requirements (verified that this list works w/ py3.9)
 pip install -r $HOME/diversity-for-predictive-success-of-meta-learning/req_mds_essentials.txt
 
-cd $HOME/diversity-for-predictive-success-of-meta-learning
+# cd into orig mds directory
+cd $HOME/meta-dataset/
+# or
+cd $HOME/diversity-for-predictive-success-of-meta-learning/meta-dataset/
+
 
 # -- aircraft installation (verified it works, note that we NEED pillow==9.0 to not have error)
 wget http://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/archives/fgvc-aircraft-2013b.tar.gz -O $MDS_DATA_PATH/fgvc-aircraft-2013b.tar.gz
@@ -48,7 +48,7 @@ python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
   --splits_root=$SPLITS \
   --records_root=$RECORDS
 
-# -- CUB installation (verified working)
+# -- CUB installation (verified to be working)
 #1. download
 wget https://data.caltech.edu/records/65de6-vp158/files/CUB_200_2011.tgz?download=1 -O $MDS_DATA_PATH/CUB_200_2011.tgz
 #2. extract
@@ -67,7 +67,27 @@ python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
 #dataset_spec.json (see note 1)
 ls $RECORDS/cu_birds/
 
-# -- TODO other datasets, haven't verified they worked
+# -- DTD installation (verified to be working)
+#1. download+extract
+wget https://www.robots.ox.ac.uk/~vgg/data/dtd/download/dtd-r1.0.1.tar.gz -O $MDS_DATA_PATH/dtd-r1.0.1.tar.gz
+tar xf $MDS_DATA_PATH/dtd-r1.0.1.tar.gz -C $MDS_DATA_PATH/
+
+# 2. conversion
+python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
+  --dataset=dtd \
+  --dtd_data_root=$MDS_DATA_PATH/dtd \
+  --splits_root=$SPLITS \
+  --records_root=$RECORDS
+
+#Find the following outputs in $RECORDS/dtd/:
+
+#47 tfrecords files named [0-46].tfrecords
+#dataset_spec.json (see note 1)
+
+ls $RECORDS/dtd/
+
+
+# -- TODO other datasets (fungi quickdraw ilsvrc mscoco vggflower trafficsign omniglot), haven't verified they worked yet in my setup
 
 
 # final step - run make_index_files.sh
