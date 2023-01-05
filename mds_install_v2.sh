@@ -86,8 +86,49 @@ python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
 
 ls $RECORDS/dtd/
 
+# -- VGG flower (verified to work)
+#1. download+extract
+mkdir $MDS_DATA_PATH/vgg_flower
+wget http://www.robots.ox.ac.uk/~vgg/data/flowers/102/102flowers.tgz -O $MDS_DATA_PATH/vgg_flower/102flowers.tgz
+wget http://www.robots.ox.ac.uk/~vgg/data/flowers/102/imagelabels.mat -O $MDS_DATA_PATH/vgg_flower/imagelabels.mat
+tar -xzf $MDS_DATA_PATH/vgg_flower/102flowers.tgz -C $MDS_DATA_PATH/vgg_flower
 
-# -- TODO other datasets (fungi quickdraw ilsvrc mscoco vggflower trafficsign omniglot), haven't verified they worked yet in my setup
+
+#2. conversion
+python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
+  --dataset=vgg_flower \
+  --vgg_flower_data_root=$MDS_DATA_PATH/vgg_flower \
+  --splits_root=$SPLITS \
+  --records_root=$RECORDS
+
+#Find the following outputs in $RECORDS/vgg_flower/:
+
+#102 tfrecords files named [0-101].tfrecords
+#dataset_spec.json (see note 1)
+ls $RECORDS/vgg_flower/
+
+# -- Traffic Sign (verified to work)
+#1. download and extract
+wget https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/GTSRB_Final_Training_Images.zip -O $MDS_DATA_PATH/GTSRB_Final_Training_Images.zip
+unzip $MDS_DATA_PATH/GTSRB_Final_Training_Images.zip -d $MDS_DATA_PATH/
+
+#2. conversion
+python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
+  --dataset=traffic_sign \
+  --traffic_sign_data_root=$MDS_DATA_PATH/GTSRB \
+  --splits_root=$SPLITS \
+  --records_root=$RECORDS
+
+#3. Find the following outputs in $RECORDS/traffic_sign/:
+
+#43 tfrecords files named [0-42].tfrecords
+#dataset_spec.json (see note 1)
+ls $RECORDS/traffic_sign/
+
+
+# -- TODO other datasets (fungi quickdraw ilsvrc mscoco omniglot), haven't verified they worked yet in my setup
+# try running the old commands from https://github.com/brando90/diversity-for-predictive-success-of-meta-learning/blob/main/download_meta_dataset_mds.sh 
+# and let me know which one doesnt work via gitissue
 
 
 # final step - run make_index_files.sh
