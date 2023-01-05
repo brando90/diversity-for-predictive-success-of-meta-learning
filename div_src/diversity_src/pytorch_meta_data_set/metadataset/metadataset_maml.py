@@ -80,8 +80,8 @@ def manual_load_mds_resnet12_maml_adam_no_scheduler(args: Namespace) -> Namespac
     args.lr = 1e-3  # match MAML++
     args.opt_hps: dict = dict(lr=args.lr)
 
-    args.batch_size = 512
-    args.batch_size_eval = 512
+    args.batch_size = 8
+    args.batch_size_eval = 8
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly

@@ -14,8 +14,8 @@ from itertools import combinations
 
 def plot_histogram_and_div_for_MDS(sources):
     args = get_mds_args()
-    args.batch_size = 10
-    args.batch_size_eval = 10
+    args.batch_size = 500
+    args.batch_size_eval = 500
 
     #args.k_eval = 20
     #args.k_
