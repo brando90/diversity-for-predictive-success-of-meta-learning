@@ -98,19 +98,29 @@ reauth
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 
+tmux attach -t ilsvrc_2012
+
 # - 1. Download ilsvrc2012_img_train.tar, from the ILSVRC2012 website
 # todo: https://gist.github.com/bonlime/4e0d236cf98cd5b15d977dfa03a63643
 # todo: https://github.com/google-research/meta-dataset/blob/main/doc/dataset_conversion.md#ilsvrc_2012
 # wget TODO -O $MDS_DATA_PATH/ilsvrc_2012
 # for imagenet url: https://image-net.org/download-images.php
 wget https://image-net.org/data/winter21_whole.tar.gz -O ~/data/winter21_whole.tar.gz
+# there should be .gz file
+ls ~/data/
 
 # - 2. Extract it into ILSVRC2012_img_train/, which should contain 1000 files, named n????????.tar (expected time: ~30 minutes) ref: https://superuser.com/questions/348205/how-do-i-unzip-a-tar-gz-archive-to-a-specific-destination
 mkdir -p ~/data/winter21_whole
-tar xf ~/data/winter21_whole.tar.gz -C ~/data/winter21_whole
-# TODO: imgenet ckpt
+tar xf ~/data/winter21_whole.tar.gz -C ~/data/
+# (expected time: ~30 minutes)
+ls ~/data/winter21_whole
 # move the train part: mv src dest
-mv ~/data/winter21_whole/ILSVRC2012_img_train $MDS_DATA_PATH/ILSVRC2012_img_train
+mkdir -p $MDS_DATA_PATH/ILSVRC2012_img_train/
+mv ~/data/winter21_whole/* $MDS_DATA_PATH/ILSVRC2012_img_train/
+
+# check files are there
+ls $MDS_DATA_PATH/ILSVRC2012_img_train/
+ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c .tar
 
 # - 3. Extract each of ILSVRC2012_img_train/n????????.tar in its own directory (expected time: ~30 minutes), for instance:
 for FILE in $MDS_DATA_PATH/ILSVRC2012_img_train/*.tar;
@@ -121,6 +131,7 @@ do
   tar xvf ../$FILE;
   cd ..;
 done
+# (expected time: ~30 minutes)
 
 # - 4. Download the following two files into ILSVRC2012_img_train/
 wget http://www.image-net.org/data/wordnet.is_a.txt -O $MDS_DATA_PATH/ILSVRC2012_img_train/wordnet.is_a.txt
@@ -443,12 +454,11 @@ conda activate mds_env_gpu
 mkdir -p $MDS_DATA_PATH/mscoco
 wget http://images.cocodataset.org/zips/train2017.zip -O $MDS_DATA_PATH/mscoco/train2017.zip
 wget http://images.cocodataset.org/annotations/annotations_trainval2017.zip -O $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip
-# todo bellow
 
-# both zips should be there
+# both zips should be there, note: downloading zip takes some time
 ls $MDS_DATA_PATH/mscoco/
 
-# extract
+# extract, takes some time, but good progress display
 unzip $MDS_DATA_PATH/mscoco/train2017.zip -d $MDS_DATA_PATH/mscoco
 unzip $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip -d $MDS_DATA_PATH/mscoco
 
