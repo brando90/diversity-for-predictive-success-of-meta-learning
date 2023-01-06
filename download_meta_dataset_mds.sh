@@ -145,14 +145,14 @@ python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
   --records_root=$RECORDS
 
 # -6. Expect the conversion to take 4 to 12 hours, depending on the filesystem's latency and bandwidth.
-#nop
 
 # - 7.Find the following outputs in $RECORDS/ilsvrc_2012/:
-      #
-      #1000 tfrecords files named [0-999].tfrecords
-      #dataset_spec.json (see note 1)
-      #num_leaf_images.json
-ls $RECORDS/ilsvrc_2012/
+#1000 tfrecords files named [0-999].tfrecords
+#dataset_spec.json (see note 1)
+#num_leaf_images.json
+ls $RECORDS/ilsvrc_2012/ | grep -c .tfrecords
+ls $RECORDS/ilsvrc_2012/dataset_spec.json
+ls $RECORDS/ilsvrc_2012/num_leaf_images.json
 
 
 
