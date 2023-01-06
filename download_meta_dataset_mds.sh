@@ -105,22 +105,32 @@ tmux attach -t ilsvrc_2012
 # todo: https://github.com/google-research/meta-dataset/blob/main/doc/dataset_conversion.md#ilsvrc_2012
 # wget TODO -O $MDS_DATA_PATH/ilsvrc_2012
 # for imagenet url: https://image-net.org/download-images.php
-wget https://image-net.org/data/winter21_whole.tar.gz -O ~/data/winter21_whole.tar.gz
-# there should be .gz file
-ls ~/data/
+wget https://image-net.org/data/winter21_whole.tar.gz -O $HOME/data/winter21_whole.tar.gz
+# there should be winter21_whole.tar.gz file
+ls $HOME/data/
 
 # - 2. Extract it into ILSVRC2012_img_train/, which should contain 1000 files, named n????????.tar (expected time: ~30 minutes) ref: https://superuser.com/questions/348205/how-do-i-unzip-a-tar-gz-archive-to-a-specific-destination
-mkdir -p ~/data/winter21_whole
-tar xf ~/data/winter21_whole.tar.gz -C ~/data/
-# (expected time: ~30 minutes)
-ls ~/data/winter21_whole
-# move the train part (mv src dest)
+mkdir -p $HOME/data/winter21_whole
+tar xf $HOME/data/winter21_whole.tar.gz -C $HOME/data/
+# expected time: ~30 minutes & should contain 1000 files, named n????????.tar
+ls $HOME/data/winter21_whole
+ls $HOME/data/winter21_whole | grep -c .tar
+# count the number of .tar files in current dir (doesn't not work recursively, for that use find)
+if [ $(ls $HOME/data/winter21_whole | grep -c "\.tar$") -ne 1000 ]; then
+  echo "Error: expected 1000 .tar files, found $(ls | grep -c "\.tar$")"
+  exit 1
+fi
+# to finish extracting into ILSVRC2012_img_train/ you need to move the files
 mkdir -p $MDS_DATA_PATH/ILSVRC2012_img_train/
-mv ~/data/winter21_whole/* $MDS_DATA_PATH/ILSVRC2012_img_train/
-
+mv $HOME/data/winter21_whole/* $MDS_DATA_PATH/ILSVRC2012_img_train/
 # check files are there
 ls $MDS_DATA_PATH/ILSVRC2012_img_train/
 ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c .tar
+## should still be 1000
+#if [ $(ls $MDS_DATA_PATH/ILSVRC2012_img_train | grep -c "\.tar$") -ne 1000 ]; then
+#  echo "Error: expected 1000 .tar files, found $(ls | grep -c "\.tar$")"
+#  exit 1
+#fi
 
 # - 3. Extract each of ILSVRC2012_img_train/n????????.tar in its own directory (expected time: ~30 minutes), for instance:
 for FILE in $MDS_DATA_PATH/ILSVRC2012_img_train/*.tar;
@@ -132,10 +142,19 @@ do
   cd ..;
 done
 # (expected time: ~30 minutes)
+ls $MDS_DATA_PATH/ILSVRC2012_img_train/
+ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c .tar
+# 5620
+ls $MDS_DATA_PATH/ILSVRC2012_img_train/ -1 | grep -v "\.tar$" | wc -l
+# 5622
 
 # - 4. Download the following two files into ILSVRC2012_img_train/
 wget http://www.image-net.org/data/wordnet.is_a.txt -O $MDS_DATA_PATH/ILSVRC2012_img_train/wordnet.is_a.txt
 wget http://www.image-net.org/data/words.txt -O $MDS_DATA_PATH/ILSVRC2012_img_train/words.txt
+#
+cat $MDS_DATA_PATH/ILSVRC2012_img_train/wordnet.is_a.txt
+cat $MDS_DATA_PATH/ILSVRC2012_img_train/words.txt
+ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c "*"
 
 # - 5. Launch the conversion script (Use --dataset=ilsvrc_2012_v2 for the training only MetaDataset-v2 version):
 python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
@@ -146,12 +165,12 @@ python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
 
 # -6. Expect the conversion to take 4 to 12 hours, depending on the filesystem's latency and bandwidth.
 
-# - 7.Find the following outputs in $RECORDS/ilsvrc_2012/:
+# -7.Find the following outputs in $RECORDS/ilsvrc_2012/:
 #1000 tfrecords files named [0-999].tfrecords
-#dataset_spec.json (see note 1)
-#num_leaf_images.json
 ls $RECORDS/ilsvrc_2012/ | grep -c .tfrecords
+#dataset_spec.json (see note 1)
 ls $RECORDS/ilsvrc_2012/dataset_spec.json
+#num_leaf_images.json
 ls $RECORDS/ilsvrc_2012/num_leaf_images.json
 
 
@@ -326,7 +345,7 @@ python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
 #345 tfrecords files named [0-344].tfrecords
 ls $RECORDS/quickdraw/ | grep -c .tfrecords
 #dataset_spec.json (see note 1)
-ls $RECORDS/quickdraw/
+cat $RECORDS/quickdraw/dataset_spec.json
 
 
 # -- fungi
@@ -445,25 +464,47 @@ conda activate mds_env_gpu
 
 # 1. Download the 2017 train images and annotations from http://cocodataset.org/:
 #You can use gsutil to download them to mscoco/:
-#cd $DATASRC/mscoco/ mkdir -p train2017
-#gsutil -m rsync gs://images.cocodataset.org/train2017 train2017
-#gsutil -m cp gs://images.cocodataset.org/annotations/annotations_trainval2017.zip
-#unzip annotations_trainval2017.zip
-
-# Otherwise, you can download train2017.zip and annotations_trainval2017.zip and extract them into mscoco/.
-mkdir -p $MDS_DATA_PATH/mscoco
-wget http://images.cocodataset.org/zips/train2017.zip -O $MDS_DATA_PATH/mscoco/train2017.zip
-wget http://images.cocodataset.org/annotations/annotations_trainval2017.zip -O $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip
-
-# both zips should be there, note: downloading zip takes some time
-ls $MDS_DATA_PATH/mscoco/
-
-# extract, takes some time, but good progress display
-unzip $MDS_DATA_PATH/mscoco/train2017.zip -d $MDS_DATA_PATH/mscoco
+mkdir -p $MDS_DATA_PATH/mscoco/
+cd $MDS_DATA_PATH/mscoco/
+mkdir -p train2017
+# seems to directly download all files, no zip file needed
+gsutil -m rsync gs://images.cocodataset.org/train2017 train2017
+# todo should have 118287? number of .jpg files (note no unziping needed)
+ls $MDS_DATA_PATH/mscoco/train2017 | grep -c .jpg
+# download & extract annotations_trainval2017.zip
+gsutil -m cp gs://images.cocodataset.org/annotations/annotations_trainval2017.zip
 unzip $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip -d $MDS_DATA_PATH/mscoco
+# todo says: 6?
+ls $MDS_DATA_PATH/mscoco/annotations | grep -c .json
 
-# two folders should be there, annotation and train stuff
-ls $MDS_DATA_PATH/mscoco/
+## Download Otherwise, you can download train2017.zip and annotations_trainval2017.zip and extract them into mscoco/. eta ~36m.
+#mkdir -p $MDS_DATA_PATH/mscoco
+#wget http://images.cocodataset.org/zips/train2017.zip -O $MDS_DATA_PATH/mscoco/train2017.zip
+#wget http://images.cocodataset.org/annotations/annotations_trainval2017.zip -O $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip
+## both zips should be there, note: downloading zip takes some time
+#ls $MDS_DATA_PATH/mscoco/
+## Extract them into mscoco/ (interpreting that as extracting both there, also due to how th gsutil command above looks like is doing)
+## takes some time, but good progress display
+#unzip $MDS_DATA_PATH/mscoco/train2017.zip -d $MDS_DATA_PATH/mscoco
+#unzip $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip -d $MDS_DATA_PATH/mscoco
+## two folders should be there, annotations and train2017 stuff
+#ls $MDS_DATA_PATH/mscoco/
+## check jpg imgs are there
+#ls $MDS_DATA_PATH/mscoco/train2017
+#ls $MDS_DATA_PATH/mscoco/train2017 | grep -c .jpg
+## says: 118287 for a 2nd time
+#ls $MDS_DATA_PATH/mscoco/annotations
+#ls $MDS_DATA_PATH/mscoco/annotations | grep -c .json
+## says: 6 for a 2nd time
+## move them since it says so in the google NL instructions ref: for moving large num files https://stackoverflow.com/a/75034830/1601580 thanks chatgpt!
+#ls $MDS_DATA_PATH/mscoco/train2017 | grep -c .jpg
+#find $MDS_DATA_PATH/mscoco/train2017 -type f -print0 | xargs -0 mv -t $MDS_DATA_PATH/mscoco
+#ls $MDS_DATA_PATH/mscoco | grep -c .jpg
+## says: 118287 for both
+#ls $MDS_DATA_PATH/mscoco/annotations/ | grep -c .json
+#mv $MDS_DATA_PATH/mscoco/annotations/* $MDS_DATA_PATH/mscoco/
+#ls $MDS_DATA_PATH/mscoco/ | grep -c .json
+## says: 6 for both
 
 # 2. Launch the conversion script:
 python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
