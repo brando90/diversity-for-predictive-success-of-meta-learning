@@ -15,8 +15,8 @@ conda activate metalearning_gpu
 
 krbtmux
 reauth
-source .bashrc.lfs
-conda activate metalearning_gpu
+source $AFS/.bashrc.lfs
+conda activate mds_env_gpu
 
 # perhaps attach to an running session
 tmux attach -t <session number>
@@ -113,8 +113,8 @@ ls $HOME/data/
 mkdir -p $HOME/data/winter21_whole
 tar xf $HOME/data/winter21_whole.tar.gz -C $HOME/data/
 # expected time: ~30 minutes & should contain 1000 files, named n????????.tar
-ls $HOME/data/winter21_whole
 ls $HOME/data/winter21_whole | grep -c .tar
+# 19167
 # count the number of .tar files in current dir (doesn't not work recursively, for that use find)
 if [ $(ls $HOME/data/winter21_whole | grep -c "\.tar$") -ne 1000 ]; then
   echo "Error: expected 1000 .tar files, found $(ls | grep -c "\.tar$")"
@@ -133,9 +133,12 @@ ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c .tar
 #fi
 
 # - 3. Extract each of ILSVRC2012_img_train/n????????.tar in its own directory (expected time: ~30 minutes), for instance:
+ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c .tar
+
 for FILE in $MDS_DATA_PATH/ILSVRC2012_img_train/*.tar;
 do
-  #echo $FILE
+  echo ---
+  echo $FILE
   mkdir ${FILE/.tar/};
   cd ${FILE/.tar/};
   tar xvf ../$FILE;
@@ -525,3 +528,33 @@ ls $RECORDS/mscoco/dataset_spec.json
 cd $HOME/pytorch-meta-dataset/
 chmod +x make_index_files.sh
 ./make_index_files.sh
+
+
+
+# --- last attempt if above didn't work: https://github.com/google-research/meta-dataset/blob/main/meta_dataset/data/tfds/README.md
+ssh brando9@ampere4.stanford.edu
+conda activate metalearning_gpu
+
+krbtmux
+reauth
+source .bashrc.lfs
+conda activate metalearning_gpu
+# - The only manual intervention required is to download the ILSVRC 2012 training data (ILSVRC2012_img_train.tar) into TFDS's manual download directory (e.g. ~/tensorflow_datasets/downloads/manual/).
+# - (ILSVRC2012_img_train.tar) into TFDS's manual download directory (e.g. ~/tensorflow_datasets/downloads/manual/).
+# reading my attempt above $HOME/data/winter21_whole.tar.gz seems to be the ILSVRC2012_img_train.tar? not sure
+mkdir -p $HOME/tensorflow_datasets/downloads/manual/
+#mv $HOME/data/winter21_whole.tar.gz $HOME/tensorflow_datasets/downloads/manual/ILSVRC2012_img_train.tar
+#cp $HOME/data/winter21_whole.tar.gz $HOME/tensorflow_datasets/downloads/manual/ILSVRC2012_img_train.tar
+wget https://image-net.org/data/winter21_whole.tar.gz -O $HOME/tensorflow_datasets/downloads/manual/ILSVRC2012_img_train.tar
+
+# - First, make sure that meta_dataset and its dependencies are installed. This can be done with ... one of the approaches at the top of this file. Not copy pasting to avoid maintaining two different set of codes
+# pip install & reqs.txt...
+
+# - Generating the tfrecord files associated with all data sources and storing them in ~/tensorflow_datasets/meta_dataset is done
+# with a single command run from the <PATH_TO_META_DATASET_REPO>/meta_dataset/data/tfds directory
+# where <MANUAL_DIR> is the directory where the ILSVRC2012_img_train.tar file was downloaded.
+cd $HOME/diversity-for-predictive-success-of-meta-learning/meta-dataset/meta_dataset/data/tfds
+tfds build md_tfds --manual_dir=$HOME/tensorflow_datasets/downloads/manual
+#
+ls $HOME/tensorflow_datasets/downloads/manual
+# todo check all tfrecords coutn for each data set
