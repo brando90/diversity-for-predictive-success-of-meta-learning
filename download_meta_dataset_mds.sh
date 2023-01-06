@@ -290,22 +290,28 @@ reauth
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 
-#1. run gsutil to get the files
+#1. Download all 345 .npy files hosted on Google Cloud. You can use gsutil to download them to quickdraw/:
 mkdir -p $MDS_DATA_PATH/quickdraw
 gsutil -m cp gs://quickdraw_dataset/full/numpy_bitmap/*.npy $MDS_DATA_PATH/quickdraw
-
+# note, the download of these *.npy files takes some time, it's 36.8 GB, about 5 minutes see: ETA 00:04:23
+# should show 345 *.npy files
 ls $MDS_DATA_PATH/quickdraw
+ls $MDS_DATA_PATH/quickdraw/ | grep -c .npy
 
 #2. launch conversion script
 #pip install numpy==1.23.1  # everything before this used 1.24.1 but quick draw needed 1.23.1, hopefully everything still works with 1.23.1, if not returning to 24 later, ref: https://stackoverflow.com/questions/74893742/how-to-solve-attributeerror-module-numpy-has-no-attribute-bool
+pip list | grep numpy
 python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
   --dataset=quickdraw \
   --quickdraw_data_root=$MDS_DATA_PATH/quickdraw \
   --splits_root=$SPLITS \
   --records_root=$RECORDS
 #pip install numpy==1.24.1  # return to 1.24.1
+#pip list | grep numpy
 
-#3. Find the following outputs in $RECORDS/quickdraw/:
+# 3. Expect the conversion to take 3 to 4 hours. It also doesn't display well how much it's progressing
+
+#4. Find the following outputs in $RECORDS/quickdraw/:
 #345 tfrecords files named [0-344].tfrecords
 ls $RECORDS/quickdraw/ | grep -c .tfrecords
 #dataset_spec.json (see note 1)
