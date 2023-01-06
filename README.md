@@ -1,4 +1,37 @@
-#diversity-for-predictive-success-of-meta-learning
+# diversity-for-predictive-success-of-meta-learning
+
+# Tutorial to run experiments
+
+## Running USL
+To run a USL training experiment do:
+```
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_hdb1_5cnn_adam_cl_filter_size
+```
+to change the the specific hyperparameters write the args in the `main_sl_with_ddp.py` and then make sure the script uses it when running the experiment. 
+
+## Running MAML
+### Using Torchmeta
+```
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name manual_load_mds_5cnn_maml_adam_no_scheduler
+```
+To change the model extend the code under:
+https://github.com/brando90/diversity-for-predictive-success-of-meta-learning/blob/8e80e6c9d3b0240ffc66436d80d7c99905743070/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py#L140
+
+To change the data set extend the code under:
+https://github.com/brando90/diversity-for-predictive-success-of-meta-learning/blob/8e80e6c9d3b0240ffc66436d80d7c99905743070/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py#L144
+
+### Using L2L
+To run a MAML training experiment do:
+```
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name vit_mi_fo_maml_rfs_adam_cl_100k
+```
+to change the the specific hyperparameters write the args in the `main_dist_maml_l2l.py` and then make sure the script uses it when running the experiment.
+
+To change the model extend the code under:
+https://github.com/brando90/diversity-for-predictive-success-of-meta-learning/blob/8e80e6c9d3b0240ffc66436d80d7c99905743070/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py#L2086
+
+To change the data set extend the code under:
+https://github.com/brando90/diversity-for-predictive-success-of-meta-learning/blob/main/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py#L2091
 
 # Installing
 
