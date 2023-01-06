@@ -114,7 +114,7 @@ mkdir -p ~/data/winter21_whole
 tar xf ~/data/winter21_whole.tar.gz -C ~/data/
 # (expected time: ~30 minutes)
 ls ~/data/winter21_whole
-# move the train part: mv src dest
+# move the train part (mv src dest)
 mkdir -p $MDS_DATA_PATH/ILSVRC2012_img_train/
 mv ~/data/winter21_whole/* $MDS_DATA_PATH/ILSVRC2012_img_train/
 
