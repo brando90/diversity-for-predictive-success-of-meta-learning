@@ -477,34 +477,34 @@ unzip $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip -d $MDS_DATA_PATH/mscoc
 # todo says: 6?
 ls $MDS_DATA_PATH/mscoco/annotations | grep -c .json
 
-## Download Otherwise, you can download train2017.zip and annotations_trainval2017.zip and extract them into mscoco/. eta ~36m.
-#mkdir -p $MDS_DATA_PATH/mscoco
-#wget http://images.cocodataset.org/zips/train2017.zip -O $MDS_DATA_PATH/mscoco/train2017.zip
-#wget http://images.cocodataset.org/annotations/annotations_trainval2017.zip -O $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip
-## both zips should be there, note: downloading zip takes some time
-#ls $MDS_DATA_PATH/mscoco/
-## Extract them into mscoco/ (interpreting that as extracting both there, also due to how th gsutil command above looks like is doing)
-## takes some time, but good progress display
-#unzip $MDS_DATA_PATH/mscoco/train2017.zip -d $MDS_DATA_PATH/mscoco
-#unzip $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip -d $MDS_DATA_PATH/mscoco
-## two folders should be there, annotations and train2017 stuff
-#ls $MDS_DATA_PATH/mscoco/
-## check jpg imgs are there
-#ls $MDS_DATA_PATH/mscoco/train2017
-#ls $MDS_DATA_PATH/mscoco/train2017 | grep -c .jpg
-## says: 118287 for a 2nd time
-#ls $MDS_DATA_PATH/mscoco/annotations
-#ls $MDS_DATA_PATH/mscoco/annotations | grep -c .json
-## says: 6 for a 2nd time
-## move them since it says so in the google NL instructions ref: for moving large num files https://stackoverflow.com/a/75034830/1601580 thanks chatgpt!
-#ls $MDS_DATA_PATH/mscoco/train2017 | grep -c .jpg
-#find $MDS_DATA_PATH/mscoco/train2017 -type f -print0 | xargs -0 mv -t $MDS_DATA_PATH/mscoco
-#ls $MDS_DATA_PATH/mscoco | grep -c .jpg
-## says: 118287 for both
-#ls $MDS_DATA_PATH/mscoco/annotations/ | grep -c .json
-#mv $MDS_DATA_PATH/mscoco/annotations/* $MDS_DATA_PATH/mscoco/
-#ls $MDS_DATA_PATH/mscoco/ | grep -c .json
-## says: 6 for both
+# Download Otherwise, you can download train2017.zip and annotations_trainval2017.zip and extract them into mscoco/. eta ~36m.
+mkdir -p $MDS_DATA_PATH/mscoco
+wget http://images.cocodataset.org/zips/train2017.zip -O $MDS_DATA_PATH/mscoco/train2017.zip
+wget http://images.cocodataset.org/annotations/annotations_trainval2017.zip -O $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip
+# both zips should be there, note: downloading zip takes some time
+ls $MDS_DATA_PATH/mscoco/
+# Extract them into mscoco/ (interpreting that as extracting both there, also due to how th gsutil command above looks like is doing)
+# takes some time, but good progress display
+unzip $MDS_DATA_PATH/mscoco/train2017.zip -d $MDS_DATA_PATH/mscoco
+unzip $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip -d $MDS_DATA_PATH/mscoco
+# two folders should be there, annotations and train2017 stuff
+ls $MDS_DATA_PATH/mscoco/
+# check jpg imgs are there
+ls $MDS_DATA_PATH/mscoco/train2017
+ls $MDS_DATA_PATH/mscoco/train2017 | grep -c .jpg
+# says: 118287 for a 2nd time
+ls $MDS_DATA_PATH/mscoco/annotations
+ls $MDS_DATA_PATH/mscoco/annotations | grep -c .json
+# says: 6 for a 2nd time
+# move them since it says so in the google NL instructions ref: for moving large num files https://stackoverflow.com/a/75034830/1601580 thanks chatgpt!
+ls $MDS_DATA_PATH/mscoco/train2017 | grep -c .jpg
+find $MDS_DATA_PATH/mscoco/train2017 -type f -print0 | xargs -0 mv -t $MDS_DATA_PATH/mscoco
+ls $MDS_DATA_PATH/mscoco | grep -c .jpg
+# says: 118287 for both
+ls $MDS_DATA_PATH/mscoco/annotations/ | grep -c .json
+mv $MDS_DATA_PATH/mscoco/annotations/* $MDS_DATA_PATH/mscoco/
+ls $MDS_DATA_PATH/mscoco/ | grep -c .json
+# says: 6 for both
 
 # 2. Launch the conversion script:
 python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
