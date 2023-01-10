@@ -125,6 +125,20 @@ python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
 #dataset_spec.json (see note 1)
 ls $RECORDS/traffic_sign/
 
+# -- shortcut for mscoco 
+cd $RECORDS/
+
+wget https://zenodo.org/record/7517539/files/mscoco.tar.gz?download=1 -o $RECORDS/mscoco.tar.gz
+tar -xf $RECORDS/mscoco.tar.gz -C $RECORDS/ 
+
+wget https://zenodo.org/record/7517539/files/mscoco_splits.json?download=1 -o $SPLITS/mscoco_splits.json
+
+# Find the following outputs in $RECORDS/mscoco/:
+#80 tfrecords files named [0-79].tfrecords
+ls $RECORDS/mscoco/ | grep -c .tfrecords
+#dataset_spec.json (see note 1)
+ls $RECORDS/mscoco/dataset_spec.json
+du -sh $RECORDS/mscoco/ #this should be 5.3G if everything goes to plan.
 
 # -- TODO other datasets (fungi quickdraw ilsvrc mscoco omniglot), haven't verified they worked yet in my setup
 # try running the old commands from https://github.com/brando90/diversity-for-predictive-success-of-meta-learning/blob/main/download_meta_dataset_mds.sh 
