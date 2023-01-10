@@ -130,6 +130,7 @@ cd $RECORDS/
 
 wget https://zenodo.org/record/7517539/files/mscoco.tar.gz?download=1 -o $RECORDS/mscoco.tar.gz
 tar -xf $RECORDS/mscoco.tar.gz -C $RECORDS/ 
+mv $RECORDS/home/pzy2/data/mds/records/mscoco $RECORDS/mscoco
 
 wget https://zenodo.org/record/7517539/files/mscoco_splits.json?download=1 -o $SPLITS/mscoco_splits.json
 
