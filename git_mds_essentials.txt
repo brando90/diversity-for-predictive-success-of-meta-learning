@@ -1,0 +1,19 @@
+absl-py==0.11.0
+tfrecord==1.11
+torchvision==0.10.1
+tqdm==4.54.1
+
+absl-py >= 0.7
+etils >= 0.4.0
+gin-config>=0.1.2
+numpy>=1.13.3
+scipy>=1.0.0
+six >= 1.10
+tensorflow-gpu
+scikit-learn
+tensorflow_probability <= 0.7
+tf-models-official
+tensorflow-datasets
+
+#https://github.com/jsvine/pdfplumber/discussions/637
+pillow==9.0

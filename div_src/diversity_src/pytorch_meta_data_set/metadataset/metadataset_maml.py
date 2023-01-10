@@ -38,7 +38,7 @@ def manual_load_mds_resnet12_maml_adam_no_scheduler(args: Namespace) -> Namespac
     # - model
     #args.model_option = 'resnet12_rfs_mi' #or use the one in the MDS fo-protoMAML paper
     #args.model_option = '5CNN_opt_as_model_for_few_shot_sl' #only sanity checks
-    args.model_option = 'resnet50_rfs'#'resnet12_rfs_mi'
+    args.model_option = 'resnet12_rfs'#'resnet12_rfs_mi'
     args.n_cls = 5
     #args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
     #                      num_classes=args.n_cls)
@@ -81,7 +81,7 @@ def manual_load_mds_resnet12_maml_adam_no_scheduler(args: Namespace) -> Namespac
     args.opt_hps: dict = dict(lr=args.lr)
 
     args.batch_size = 8
-    args.batch_size_eval = 8
+    args.batch_size_eval = 2
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
@@ -90,7 +90,7 @@ def manual_load_mds_resnet12_maml_adam_no_scheduler(args: Namespace) -> Namespac
     # args.experiment_name = f'debug'
     args.experiment_name = f'aircraft vgg {args.model_option} official fo maml {args.opt_option}, no scheduler'
     # args.run_name = f'debug: {args.jobid=}'
-    args.run_name = f'mds alldatasets {args.model_option} {args.opt_option} {args.scheduler_option} {args.inner_lr} {args.lr}: {args.jobid=}'
+    args.run_name = f'mds aircraft+vgg {args.model_option} {args.opt_option} {args.scheduler_option} {args.inner_lr} {args.lr}: {args.jobid=}'
     # args.log_to_wandb = True
     args.log_to_wandb = True
 

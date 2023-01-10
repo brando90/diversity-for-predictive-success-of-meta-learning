@@ -51,7 +51,7 @@ python ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src
     #plot_histogram_and_div_for_MDS(['omniglot'])
     #for source in list(map(list, combinations(['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot',
     #                                           'quickdraw', 'vgg_flower'],2))):
-    source = ['aircraft','vgg_flower']
+    source = ['mscoco']
     print(source)
     print("===========STARTED SOURCE", source, "===========")
     plot_histogram_and_div_for_MDS(source)

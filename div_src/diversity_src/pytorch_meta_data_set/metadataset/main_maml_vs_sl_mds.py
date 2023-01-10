@@ -76,7 +76,7 @@ def resnet12rfs_mds(args):
     args.metric_comparison_type = 'None'
     args.metric_as_sim_or_dist = 'dist'  # since we are trying to show meta-learning is happening, the more distance btw task & change in model the more meta-leanring is the hypothesis
 
-    args.batch_size = 100#1000
+    args.batch_size = 10#1000
     args.batch_size_eval = args.batch_size
 
     # - expt option
@@ -111,17 +111,21 @@ def resnet12rfs_mds(args):
     #args.path_2_init_sl = "/home/pzy2/data/logs/logs_Dec05_17-54-26_jobid_-1"
     #args.path_2_init_maml ="/home/pzy2/data/logs/logs_Dec06_00-20-03_jobid_-1"
 
-    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower']
-    args.path_2_init_sl = "/home/pzy2/data/logs/logs_Dec03_00-44-02_jobid_-1"
-    args.path_2_init_maml = "/home/pzy2/data/logs/logs_Dec01_01-50-15_jobid_-1"
+    #args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower']
+    #args.path_2_init_sl = "/home/pzy2/data/logs/logs_Dec03_00-44-02_jobid_-1"
+    #args.path_2_init_maml = "/home/pzy2/data/logs/logs_Dec01_01-50-15_jobid_-1"
 
+    args.sources = ['vgg_flower', 'aircraft']
+    args.path_2_init_sl = "/home/pzy2/data/logs/logs_Jan07_19-36-11_jobid_-1"  #"/home/pzy2/data/logs/logs_Dec06_00-06-23_jobid_-1"
+    args.path_2_init_maml ="/home/pzy2/data/logs/logs_Dec06_00-20-03_jobid_-1"
+    
     # -- wandb args
     args.wandb_project = 'SL vs MAML MDS Subsets'
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_resnet12rfs'
     args.run_name = f'{args.sources} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    #args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)

@@ -39,7 +39,6 @@ def setup_args_path_for_ckpt_data_analysis(args: Namespace,
                                            ) -> Namespace:
     """
     note: you didn't actually need this...if the ckpts pointed to the file already this would be redundant...
-
     ckpt_filename values:
         'ckpt_file.pt'
         'ckpt_file_best_loss.pt'
@@ -91,9 +90,7 @@ def get_recommended_batch_size_miniimagenet_5CNN(safety_margin: int = 10):
     Loop through all the layers and computing the largest B recommnded. Most likely the H*W that is
     smallest will win but formally just compute B_l for each layer that your computing sims/dists and then choose
     the largest B_l. That ceil(B_l) satisfies B*H*W >= s*C for all l since it's the largest.
-
         recommended_meta_batch_size = ceil( max([s*C_l/H_l*W_l for l in 1...L]) )
-
     Note: if the cls is present then we need B >= s*D since the output for it has shape
     [B, n_c] where n_c so we need, B >= 10*5 = 50 for example.
     s being used for B = 13 is
@@ -326,7 +323,7 @@ def comparison_via_performance(args: Namespace):
     print('---- maml10 for sl model')
     print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=10, lr_inner=original_lr_inner)
 
-    # -- Adaptation=FFL (LR) (for all models, rand, maml, sl) (adapting head only)
+    # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
     print('\n---- FFL (LR) for rand model')
     print_performance_4_sl(args_mdl_rand, model=args.mdl_rand)
     print('---- FFL (LR) for maml model')
@@ -335,7 +332,6 @@ def comparison_via_performance(args: Namespace):
     print_performance_4_sl(args_mdl_sl, model=args.mdl_sl)
 
     # - quick
-
     print('---- quick ----')
     assert isinstance(args.meta_learner, MAMLMetaLearner)
     args_mdl_rand = copy(args)
@@ -367,7 +363,6 @@ def comparison_via_performance(args: Namespace):
     print_performance_4_sl(args_mdl_maml, model=args.mdl_maml)
 
     print()
-    
 
 
 def items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci) -> tuple[float, float, float, float]:
@@ -418,7 +413,7 @@ def print_performance_results(args: Namespace,
 def print_performance_results_simple(args: Namespace,
                                      training: bool = True,
                                      ):
-    '''meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
                                                                split='train',
                                                                training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
@@ -427,7 +422,7 @@ def print_performance_results_simple(args: Namespace,
                                                                split='val',
                                                                training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
-    print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')'''
+    print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
                                                                split='test',
                                                                training=training)
@@ -522,10 +517,8 @@ def load_model_force_add_cls_layer_as_module(args: Namespace,
                                              ) -> nn.Module:
     """
     Load the most important things: model for USL hack.
-
     Ref:
         - standard way: https://pytorch.org/tutorials/recipes/recipes/saving_and_loading_a_general_checkpoint.html
-
     Hack explained:
     - I accidentally added a .cls layer via .cls = nn.Linear(...) only on cls.
     This made the checkpointing and thus loading checkpointing. This made the load of ckpts from MAML vs USL asymmtric
@@ -581,7 +574,6 @@ def get_meta_learning_dataloaders_for_data_analysis(args: Namespace):
 
 def performance_comparison_with_l2l_end_to_end(args: Namespace):
     """
-
     Alg:
         - get the standard pytorch dataloaders that fetch the l2l data
         - use the SL agent (not the meta-learner), with a good batch size e.g. 1024 or more with the original CLS.

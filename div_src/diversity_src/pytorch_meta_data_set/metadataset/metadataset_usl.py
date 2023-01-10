@@ -54,14 +54,14 @@ def load_args() -> Namespace:
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'resnet12_rfs_cifarfs'  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_train_until_convergence'  # <- REMOVE to remove manual loads
-    args.model_option = 'resnet50_rfs'#'resnet12_rfs'
+    args.model_option = 'resnet12_rfs'#'resnet12_rfs'
     #args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_classes)
 
     args.opt_option = 'Adam_rfs_cifarfs'
     args.num_epochs = 1000
     args.num_its = 1_000_000_000
     args.batch_size = 512
-    args.batch_size_eval = 512
+    args.batch_size_eval = 32
 
     args.lr = 1e-3
     args.opt_hps: dict = dict(lr=args.lr)
