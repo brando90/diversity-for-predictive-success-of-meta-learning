@@ -100,80 +100,118 @@ conda activate mds_env_gpu
 
 tmux attach -t ilsvrc_2012
 
-# - 1. Download ilsvrc2012_img_train.tar, from the ILSVRC2012 website (about 84m-91m +- a lot)
-# todo: https://gist.github.com/bonlime/4e0d236cf98cd5b15d977dfa03a63643
-# todo: https://github.com/google-research/meta-dataset/blob/main/doc/dataset_conversion.md#ilsvrc_2012
-# wget TODO -O $MDS_DATA_PATH/ilsvrc_2012
-# for imagenet url: https://image-net.org/download-images.php
-wget https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_train.tar -O $HOME/data/ILSVRC2012_img_train.tar
-# 18GB
-ls -lh $HOME/data/ILSVRC2012_img_train.tar
-
-# - 2. Extract it into ILSVRC2012_img_train/, which should contain 1000 files, named n????????.tar (expected time: ~30 minutes) ref: https://superuser.com/questions/348205/how-do-i-unzip-a-tar-gz-archive-to-a-specific-destination
-mkdir -p $HOME/data/ILSVRC2012_img_train
-tar xf $HOME/data/ILSVRC2012_img_train.tar -C $HOME/data/ILSVRC2012_img_train
-# expected time: ~30 minutes & should contain 1000 files, named n????????.tar
-ls $HOME/data/ILSVRC2012_img_train | grep -c .tar
-#ls $HOME/data/ | grep -c .tar
-# count the number of .tar files in current dir (doesn't not work recursively, for that use find)
-if [ $(ls $HOME/data/ILSVRC2012_img_train | grep -c "\.tar$") -ne 1000 ]; then
-  echo "Error: expected 1000 .tar files, found $(ls | grep -c "\.tar$")"
-#  exit 1
-else
-  echo "Success"
-fi
-# to finish extracting into ILSVRC2012_img_train/ you need to move the files
-mkdir -p $MDS_DATA_PATH/ILSVRC2012_img_train/
-mv $HOME/data/ILSVRC2012_img_train/* $MDS_DATA_PATH/ILSVRC2012_img_train/
-# check files are there
-ls $MDS_DATA_PATH/ILSVRC2012_img_train/
-ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c .tar
-# should still be 1000
-if [ $(ls $MDS_DATA_PATH/ILSVRC2012_img_train | grep -c "\.tar$") -ne 1000 ]; then
-  echo "Error: expected 1000 .tar files, found $(ls | grep -c "\.tar$")"
-#  exit 1
-else
-  echo "Success"
-fi
-
-# - 3. Extract each of ILSVRC2012_img_train/n????????.tar in its own directory (expected time: ~30 minutes), for instance:
-ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c .tar
-ls -lh $MDS_DATA_PATH/ILSVRC2012_img_train
-for FILE in $MDS_DATA_PATH/ILSVRC2012_img_train/*.tar;
-do
-  echo ---
-  echo $FILE
-  # remove . tar from the end so create a dir of name FILE
-  mkdir -p ${FILE/.tar/};
-  cd ${FILE/.tar/};
-#  tar xvf ../$FILE;
-  tar xvf $FILE -C ${FILE/.tar/};
-  cd ..;
-done
+## - 1. Download ilsvrc2012_img_train.tar, from the ILSVRC2012 website (about 84m-91m +- a lot)
+## todo: https://gist.github.com/bonlime/4e0d236cf98cd5b15d977dfa03a63643
+## todo: https://github.com/google-research/meta-dataset/blob/main/doc/dataset_conversion.md#ilsvrc_2012
+## wget TODO -O $MDS_DATA_PATH/ilsvrc_2012
+## for imagenet url: https://image-net.org/download-images.php
+#wget https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_train.tar -O $HOME/data/ILSVRC2012_img_train.tar
+## 18GB
+#ls -lh $HOME/data/ILSVRC2012_img_train.tar
 #
-ls ${FILE/.tar/} | grep -c .JPEG
-# 1300
-# (expected time: ~30 minutes)
-ls $MDS_DATA_PATH/ILSVRC2012_img_train/
-ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c .tar
-ls $MDS_DATA_PATH/ILSVRC2012_img_train/ -1 | grep -v "\.tar$" | wc -l
-
-# - 4. Download the following two files into ILSVRC2012_img_train/
-wget http://www.image-net.org/data/wordnet.is_a.txt -O $MDS_DATA_PATH/ILSVRC2012_img_train/wordnet.is_a.txt
-wget http://www.image-net.org/data/words.txt -O $MDS_DATA_PATH/ILSVRC2012_img_train/words.txt
+## - 2. Extract it into ILSVRC2012_img_train/, which should contain 1000 files, named n????????.tar (expected time: ~30 minutes) ref: https://superuser.com/questions/348205/how-do-i-unzip-a-tar-gz-archive-to-a-specific-destination
+#mkdir -p $HOME/data/ILSVRC2012_img_train
+#tar xf $HOME/data/ILSVRC2012_img_train.tar -C $HOME/data/ILSVRC2012_img_train
+## expected time: ~30 minutes & should contain 1000 files, named n????????.tar
+#ls $HOME/data/ILSVRC2012_img_train | grep -c .tar
+##ls $HOME/data/ | grep -c .tar
+## count the number of .tar files in current dir (doesn't not work recursively, for that use find)
+#if [ $(ls $HOME/data/ILSVRC2012_img_train | grep -c "\.tar$") -ne 1000 ]; then
+#  echo "Error: expected 1000 .tar files, found $(ls | grep -c "\.tar$")"
+##  exit 1
+#else
+#  echo "Success"
+#fi
+## to finish extracting into ILSVRC2012_img_train/ you need to move the files
+#mkdir -p $MDS_DATA_PATH/ILSVRC2012_img_train/
+#mv $HOME/data/ILSVRC2012_img_train/* $MDS_DATA_PATH/ILSVRC2012_img_train/
+## check files are there
+#ls $MDS_DATA_PATH/ILSVRC2012_img_train/
+#ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c .tar
+## should still be 1000
+#if [ $(ls $MDS_DATA_PATH/ILSVRC2012_img_train | grep -c "\.tar$") -ne 1000 ]; then
+#  echo "Error: expected 1000 .tar files, found $(ls | grep -c "\.tar$")"
+##  exit 1
+#else
+#  echo "Success"
+#fi
 #
-cat $MDS_DATA_PATH/ILSVRC2012_img_train/wordnet.is_a.txt
-cat $MDS_DATA_PATH/ILSVRC2012_img_train/words.txt
-ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c "*"
+## - 3. Extract each of ILSVRC2012_img_train/n????????.tar in its own directory (expected time: ~30 minutes), for instance:
+#ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c .tar
+#ls -lh $MDS_DATA_PATH/ILSVRC2012_img_train
+#for FILE in $MDS_DATA_PATH/ILSVRC2012_img_train/*.tar;
+#do
+#  echo ---
+#  echo $FILE
+#  # remove . tar from the end so create a dir of name FILE
+#  mkdir -p ${FILE/.tar/};
+#  cd ${FILE/.tar/};
+##  tar xvf ../$FILE;
+#  tar xvf $FILE -C ${FILE/.tar/};
+#  cd ..;
+#done
+##
+#ls ${FILE/.tar/} | grep -c .JPEG
+## 1300
+## (expected time: ~30 minutes)
+#ls $MDS_DATA_PATH/ILSVRC2012_img_train/
+#ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c .tar
+#ls $MDS_DATA_PATH/ILSVRC2012_img_train/ -1 | grep -v "\.tar$" | wc -l
+#
+## - 4. Download the following two files into ILSVRC2012_img_train/
+#wget http://www.image-net.org/data/wordnet.is_a.txt -O $MDS_DATA_PATH/ILSVRC2012_img_train/wordnet.is_a.txt
+#wget http://www.image-net.org/data/words.txt -O $MDS_DATA_PATH/ILSVRC2012_img_train/words.txt
+##
+#cat $MDS_DATA_PATH/ILSVRC2012_img_train/wordnet.is_a.txt
+#cat $MDS_DATA_PATH/ILSVRC2012_img_train/words.txt
+#ls $MDS_DATA_PATH/ILSVRC2012_img_train/ | grep -c "*"
+#
+## - 5. Launch the conversion script (Use --dataset=ilsvrc_2012_v2 for the training only MetaDataset-v2 version):
+#python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
+#  --dataset=ilsvrc_2012 \
+#  --ilsvrc_2012_data_root=$MDS_DATA_PATH/ILSVRC2012_img_train \
+#  --splits_root=$SPLITS \
+#  --records_root=$RECORDS
+#
+## -6. Expect the conversion to take 4 to 12 hours, depending on the filesystem's latency and bandwidth.
 
-# - 5. Launch the conversion script (Use --dataset=ilsvrc_2012_v2 for the training only MetaDataset-v2 version):
-python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
-  --dataset=ilsvrc_2012 \
-  --ilsvrc_2012_data_root=$MDS_DATA_PATH/ILSVRC2012_img_train \
-  --splits_root=$SPLITS \
-  --records_root=$RECORDS
+# --ilsvrc, shortcut since original install didnt succceed
+ssh brando9@ampere4.stanford.edu
+tmux new -s ilsvrc_2012_gdown
+reauth
+source $AFS/.bashrc.lfs
+conda activate mds_env_gpu
 
-# -6. Expect the conversion to take 4 to 12 hours, depending on the filesystem's latency and bandwidth.
+tmux attach -t ilsvrc_2012
+#option 1. assuming you still have uiuc netid and can access the /shared/rsaas folder
+#scp <your net id>@vision.cs.illinois.edu:/shared/rsaas/pzy2/ilsvrc.tar.gz <wherever your $RECORDS destination at your stanford cluster>
+
+#option 2. not sure if it works since I got this issue when i tried: https://stackoverflow.com/questions/65312867/how-to-download-large-file-from-google-drive-from-terminal-gdown-doesnt-work
+# tool to "wget" gdrive links
+pip install gdown
+# actual file here https://drive.google.com/file/d/1FkuIIW49_x8Zzr6Vmpq-mHLO69-VvCtX/view?usp=share_link
+gdown https://drive.google.com/uc?id=1FkuIIW49_x8Zzr6Vmpq-mHLO69-VvCtX
+
+
+#check that the md5hash matches my (working) tar.gz file
+md5sum $RECORDS/ilsvrc.tar.gz #should be 56c576d10896bfa8d35200aebfea1704
+
+#should have ilsvrc.tar.gz in $RECORDS/
+#now extract it
+tar -xf $RECORDS/ilsvrc.tar.gz -C $RECORDS/
+
+# Need to un-nest folders since I extracted my mscoco at the top-most directory instead of in $RECORDS/
+mv $RECORDS/shared/rsaas/pzy2/records/ilsvrc_2012  $RECORDS/ilsvrc_2012
+
+
+# ilsvrc doesn't have a dedicated splits file, so should be done
+# -7.Find the following outputs in $RECORDS/ilsvrc_2012/:
+#1000 tfrecords files named [0-999].tfrecords
+ls $RECORDS/ilsvrc_2012/ | grep -c .tfrecords
+#dataset_spec.json (see note 1)
+ls $RECORDS/ilsvrc_2012/dataset_spec.json
+#num_leaf_images.json
+ls $RECORDS/ilsvrc_2012/num_leaf_images.json
 
 # -7.Find the following outputs in $RECORDS/ilsvrc_2012/:
 #1000 tfrecords files named [0-999].tfrecords
@@ -469,47 +507,83 @@ cat $RECORDS/traffic_sign/dataset_spec.json
 ssh brando9@ampere4.stanford.edu
 tmux new -s mscoco
 tmux new -s mscoco2
+tmux new -s mscoco_zenodo
 reauth
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 
-# 1. Download the 2017 train images and annotations from http://cocodataset.org/:
-##You can use gsutil to download them to mscoco/:
-#mkdir -p $MDS_DATA_PATH/mscoco/
-#cd $MDS_DATA_PATH/mscoco/
-#mkdir -p train2017
-## seems to directly download all files, no zip file needed
-#gsutil -m rsync gs://images.cocodataset.org/train2017 train2017
-## todo should have 118287? number of .jpg files (note no unziping needed)
+## 1. Download the 2017 train images and annotations from http://cocodataset.org/:
+###You can use gsutil to download them to mscoco/:
+##mkdir -p $MDS_DATA_PATH/mscoco/
+##cd $MDS_DATA_PATH/mscoco/
+##mkdir -p train2017
+### seems to directly download all files, no zip file needed
+##gsutil -m rsync gs://images.cocodataset.org/train2017 train2017
+### todo should have 118287? number of .jpg files (note no unziping needed)
+##ls $MDS_DATA_PATH/mscoco/train2017 | grep -c .jpg
+### download & extract annotations_trainval2017.zip
+##gsutil -m cp gs://images.cocodataset.org/annotations/annotations_trainval2017.zip
+##unzip $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip -d $MDS_DATA_PATH/mscoco
+### todo says: 6?
+##ls $MDS_DATA_PATH/mscoco/annotations | grep -c .json
+#
+## Download Otherwise, you can download train2017.zip and annotations_trainval2017.zip and extract them into mscoco/. eta ~36m.
+#mkdir -p $MDS_DATA_PATH/mscoco
+#wget http://images.cocodataset.org/zips/train2017.zip -O $MDS_DATA_PATH/mscoco/train2017.zip
+#wget http://images.cocodataset.org/annotations/annotations_trainval2017.zip -O $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip
+## both zips should be there, note: downloading zip takes some time
+#ls $MDS_DATA_PATH/mscoco/
+## Extract them into mscoco/ takes (about ~5mins)
+#unzip $MDS_DATA_PATH/mscoco/train2017.zip -d $MDS_DATA_PATH/mscoco
 #ls $MDS_DATA_PATH/mscoco/train2017 | grep -c .jpg
-## download & extract annotations_trainval2017.zip
-#gsutil -m cp gs://images.cocodataset.org/annotations/annotations_trainval2017.zip
+## says: 118287 for a 2nd time
 #unzip $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip -d $MDS_DATA_PATH/mscoco
-## todo says: 6?
 #ls $MDS_DATA_PATH/mscoco/annotations | grep -c .json
+## says: 6 for a 2nd time
+## move them since it says so in the google NL instructions ref: for moving large num files https://stackoverflow.com/a/75034830/1601580 thanks chatgpt!
+#ls $MDS_DATA_PATH/mscoco/train2017 | grep -c .jpg
+#find $MDS_DATA_PATH/mscoco/train2017 -type f -print0 | xargs -0 mv -t $MDS_DATA_PATH/mscoco
+#ls $MDS_DATA_PATH/mscoco | grep -c .jpg
+## says: 118287 for both
+#ls $MDS_DATA_PATH/mscoco/annotations/ | grep -c .json
+#mv $MDS_DATA_PATH/mscoco/annotations/* $MDS_DATA_PATH/mscoco/
+#ls $MDS_DATA_PATH/mscoco/ | grep -c .json
+## says: 6 for both
+# - download mscoco using Zenodo
+cd $RECORDS/
 
-# Download Otherwise, you can download train2017.zip and annotations_trainval2017.zip and extract them into mscoco/. eta ~36m.
-mkdir -p $MDS_DATA_PATH/mscoco
-wget http://images.cocodataset.org/zips/train2017.zip -O $MDS_DATA_PATH/mscoco/train2017.zip
-wget http://images.cocodataset.org/annotations/annotations_trainval2017.zip -O $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip
-# both zips should be there, note: downloading zip takes some time
-ls $MDS_DATA_PATH/mscoco/
-# Extract them into mscoco/ takes (about ~5mins)
-unzip $MDS_DATA_PATH/mscoco/train2017.zip -d $MDS_DATA_PATH/mscoco
-ls $MDS_DATA_PATH/mscoco/train2017 | grep -c .jpg
-# says: 118287 for a 2nd time
-unzip $MDS_DATA_PATH/mscoco/annotations_trainval2017.zip -d $MDS_DATA_PATH/mscoco
-ls $MDS_DATA_PATH/mscoco/annotations | grep -c .json
-# says: 6 for a 2nd time
-# move them since it says so in the google NL instructions ref: for moving large num files https://stackoverflow.com/a/75034830/1601580 thanks chatgpt!
-ls $MDS_DATA_PATH/mscoco/train2017 | grep -c .jpg
-find $MDS_DATA_PATH/mscoco/train2017 -type f -print0 | xargs -0 mv -t $MDS_DATA_PATH/mscoco
-ls $MDS_DATA_PATH/mscoco | grep -c .jpg
-# says: 118287 for both
-ls $MDS_DATA_PATH/mscoco/annotations/ | grep -c .json
-mv $MDS_DATA_PATH/mscoco/annotations/* $MDS_DATA_PATH/mscoco/
-ls $MDS_DATA_PATH/mscoco/ | grep -c .json
-# says: 6 for both
+#download the records of mscoco and uncompress. took ~1hr (5.1GB) since my wifi is slow but maybe faster for others?
+wget https://zenodo.org/record/7517539/files/mscoco.tar.gz?download=1 -P $RECORDS -O mscoco.tar.gz
+# should (5.1GB)
+ls -lh $RECORDS/mscoco.tar.gz
+
+# unziping is quick
+tar -xf $RECORDS/mscoco.tar.gz -C $RECORDS/
+mv $RECORDS/home/pzy2/data/mds/records/mscoco $RECORDS/mscoco
+# should be (X GHB) todo
+ls -lh $RECORDS/mscoco
+
+#get splits file (should take a few seconds)
+wget https://zenodo.org/record/7517539/files/mscoco_splits.json?download=1 -o $SPLITS/mscoco_splits.json
+cat $SPLITS/mscoco_splits.json
+
+# Find the following outputs in $RECORDS/mscoco/:
+#80 tfrecords files named [0-79].tfrecords
+ls $RECORDS/mscoco/ | grep -c .tfrecords
+#dataset_spec.json (see note 1)
+ls $RECORDS/mscoco/dataset_spec.json
+#this should be X GB if everything goes to plan. todo
+ls -h -sh $RECORDS/mscoco/
+
+# -- TODO other datasets (fungi quickdraw ilsvrc mscoco omniglot), haven't verified they worked yet in my setup
+# try running the old commands from https://github.com/brando90/diversity-for-predictive-success-of-meta-learning/blob/main/download_meta_dataset_mds.sh
+# and let me know which one doesnt work via gitissue
+
+
+# final step - run make_index_files.sh
+cd $HOME/pytorch-meta-dataset/
+chmod +x make_index_files.sh
+./make_index_files.sh
 
 # 2. Launch the conversion script:
 python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
