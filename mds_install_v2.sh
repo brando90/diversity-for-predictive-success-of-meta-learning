@@ -131,6 +131,7 @@ cd $RECORDS/
 #download the records of mscoco and uncompress. took ~1hr (5.1GB) since my wifi is slow but maybe faster for others?
 wget https://zenodo.org/record/7517539/files/mscoco.tar.gz?download=1 -o $RECORDS/mscoco.tar.gz
 tar -xf $RECORDS/mscoco.tar.gz -C $RECORDS/ 
+# Need to un-nest folders since I extracted my mscoco at the top-most directory instead of in $RECORDS/
 mv $RECORDS/home/pzy2/data/mds/records/mscoco $RECORDS/mscoco
 
 #get splits file (should take a few seconds)
@@ -144,7 +145,40 @@ ls $RECORDS/mscoco/dataset_spec.json
 #this should be 5.3G if everything goes to plan.
 ls -h -sh $RECORDS/mscoco/
 
-# -- TODO other datasets (fungi quickdraw ilsvrc mscoco omniglot), haven't verified they worked yet in my setup
+cd $RECORDS/
+
+
+# --ilsvrc, shortcut since original install didnt succceed
+#option 1. assuming you still have uiuc netid and can access the /shared/rsaas folder 
+#scp <your net id>@vision.cs.illinois.edu:/shared/rsaas/pzy2/ilsvrc.tar.gz <wherever your $RECORDS destination at your stanford cluster>
+
+#option 2. not sure if it works since I got this issue when i tried: https://stackoverflow.com/questions/65312867/how-to-download-large-file-from-google-drive-from-terminal-gdown-doesnt-work
+# tool to "wget" gdrive links 
+pip install gdown
+# actual file here https://drive.google.com/file/d/1FkuIIW49_x8Zzr6Vmpq-mHLO69-VvCtX/view?usp=share_link
+gdown https://drive.google.com/uc?id=1FkuIIW49_x8Zzr6Vmpq-mHLO69-VvCtX
+
+
+#check that the md5hash matches my (working) tar.gz file 
+md5sum $RECORDS/ilsvrc.tar.gz #should be 56c576d10896bfa8d35200aebfea1704
+
+#should have ilsvrc.tar.gz in $RECORDS/
+#now extract it
+tar -xf $RECORDS/ilsvrc.tar.gz -C $RECORDS/  
+
+# Need to un-nest folders since I extracted my mscoco at the top-most directory instead of in $RECORDS/
+mv $RECORDS/shared/rsaas/pzy2/records/ilsvrc_2012  $RECORDS/ilsvrc_2012
+
+# ilsvrc doesn't have a dedicated splits file, so should be done
+# -7.Find the following outputs in $RECORDS/ilsvrc_2012/:
+#1000 tfrecords files named [0-999].tfrecords
+ls $RECORDS/ilsvrc_2012/ | grep -c .tfrecords
+#dataset_spec.json (see note 1)
+ls $RECORDS/ilsvrc_2012/dataset_spec.json
+#num_leaf_images.json
+ls $RECORDS/ilsvrc_2012/num_leaf_images.json
+
+# -- TODO other datasets (fungi quickdraw omniglot), haven't verified they worked yet in my setup
 # try running the old commands from https://github.com/brando90/diversity-for-predictive-success-of-meta-learning/blob/main/download_meta_dataset_mds.sh 
 # and let me know which one doesnt work via gitissue
 
