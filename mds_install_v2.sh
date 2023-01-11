@@ -128,10 +128,12 @@ ls $RECORDS/traffic_sign/
 # -- shortcut for mscoco 
 cd $RECORDS/
 
+#download the records of mscoco and uncompress. took ~1hr (5.1GB) since my wifi is slow but maybe faster for others?
 wget https://zenodo.org/record/7517539/files/mscoco.tar.gz?download=1 -o $RECORDS/mscoco.tar.gz
 tar -xf $RECORDS/mscoco.tar.gz -C $RECORDS/ 
 mv $RECORDS/home/pzy2/data/mds/records/mscoco $RECORDS/mscoco
 
+#get splits file (should take a few seconds)
 wget https://zenodo.org/record/7517539/files/mscoco_splits.json?download=1 -o $SPLITS/mscoco_splits.json
 
 # Find the following outputs in $RECORDS/mscoco/:
@@ -139,7 +141,8 @@ wget https://zenodo.org/record/7517539/files/mscoco_splits.json?download=1 -o $S
 ls $RECORDS/mscoco/ | grep -c .tfrecords
 #dataset_spec.json (see note 1)
 ls $RECORDS/mscoco/dataset_spec.json
-du -sh $RECORDS/mscoco/ #this should be 5.3G if everything goes to plan.
+#this should be 5.3G if everything goes to plan.
+ls -h -sh $RECORDS/mscoco/
 
 # -- TODO other datasets (fungi quickdraw ilsvrc mscoco omniglot), haven't verified they worked yet in my setup
 # try running the old commands from https://github.com/brando90/diversity-for-predictive-success-of-meta-learning/blob/main/download_meta_dataset_mds.sh 
