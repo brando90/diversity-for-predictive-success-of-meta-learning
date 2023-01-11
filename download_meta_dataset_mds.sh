@@ -564,7 +564,7 @@ mv $RECORDS/home/pzy2/data/mds/records/mscoco $RECORDS/mscoco
 ls -lh $RECORDS/mscoco
 
 #get splits file (should take a few seconds)
-wget https://zenodo.org/record/7517539/files/mscoco_splits.json?download=1 -o $SPLITS/mscoco_splits.json
+wget https://zenodo.org/record/7517539/files/mscoco_splits.json?download=1 -P $SPLITS -O mscoco_splits.json
 cat $SPLITS/mscoco_splits.json
 
 # Find the following outputs in $RECORDS/mscoco/:
