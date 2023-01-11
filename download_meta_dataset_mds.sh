@@ -254,7 +254,7 @@ python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
 #100 tfrecords files named [0-99].tfrecords
 ls $RECORDS/aircraft/ | grep -c .tfrecords
 #dataset_spec.json (see note 1)
-cat $RECORDS/omniglot/dataset_spec.json
+cat $RECORDS/aircraft/dataset_spec.json
 
 
 
@@ -288,7 +288,7 @@ python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
 #200 tfrecords files named [0-199].tfrecords
 ls $RECORDS/cu_birds/ | grep -c .tfrecords
 #dataset_spec.json (see note 1)
-ls $RECORDS/cu_birds/
+ls $RECORDS/cu_birds/dataset_spec.json
 
 
 
@@ -319,7 +319,8 @@ python -m meta_dataset.dataset_conversion.convert_datasets_to_records \
 #47 tfrecords files named [0-46].tfrecords
 ls $RECORDS/dtd/ | grep -c .tfrecords
 #dataset_spec.json (see note 1)
-ls $RECORDS/dtd/
+ls $RECORDS/dtd/dataset_spec.json
+
 
 
 
@@ -532,32 +533,89 @@ chmod +x make_index_files.sh
 
 
 
-# --- last attempt if above didn't work: https://github.com/google-research/meta-dataset/blob/main/meta_dataset/data/tfds/README.md
+# --- tfds: last attempt if above didn't work: https://github.com/google-research/meta-dataset/blob/main/meta_dataset/data/tfds/README.md
 ssh brando9@ampere4.stanford.edu
-conda activate metalearning_gpu
 
 krbtmux
 reauth
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
+
+tmux new -s tfds
+tmux attach -t tfds
+
+# - start again (CAREFUL!)
+# rm -rf $HOME/tensorflow_datasets/meta_dataset
+
+# - set up the file descriptor limit or the remaining tfds cmds won't work
+# check soft limit, output should be 1024
+ulimit -Sn
+# check hard limit, output should be 1024
+ulimit -Hn
+# increase the limit
+ulimit -n 120000
+# check soft limit, output should be 120000
+ulimit -Sn
+# check hard limit, output should be 120000
+ulimit -Hn
+
 # - The only manual intervention required is to download the ILSVRC 2012 training data (ILSVRC2012_img_train.tar) into TFDS's manual download directory (e.g. ~/tensorflow_datasets/downloads/manual/).
-# - (ILSVRC2012_img_train.tar) into TFDS's manual download directory (e.g. ~/tensorflow_datasets/downloads/manual/).
+# (ILSVRC2012_img_train.tar) into TFDS's manual download directory (e.g. ~/tensorflow_datasets/downloads/manual/).
 mkdir -p $HOME/tensorflow_datasets/downloads/manual/
 wget https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_train.tar -O  $HOME/tensorflow_datasets/downloads/manual/ILSVRC2012_img_train.tar
-ls -l $HOME/tensorflow_datasets/downloads/manual/ILSVRC2012_img_train.tar
-# note you don't have to unzip it. The <MANUAL_DIR> is the directory where the ILSVRC2012_img_train.tar file was downloaded.
+# check size of .tar file, should 138G
+ls -lh $HOME/tensorflow_datasets/downloads/manual/ILSVRC2012_img_train.tar
 
 # - First, make sure that meta_dataset and its dependencies are installed. This can be done with ... one of the approaches at the top of this file. Not copy pasting to avoid maintaining two different set of codes
 # pip install & reqs.txt...
 
 # - Generating the tfrecord files associated with all data sources and storing them in ~/tensorflow_datasets/meta_dataset is done
-# with a single command run from the <PATH_TO_META_DATASET_REPO>/meta_dataset/data/tfds directory
-ls -l $HOME/tensorflow_datasets/downloads/manual/ILSVRC2012_img_train.tar
+# check size of .tar file, should 138G
+ls -lh $HOME/tensorflow_datasets/downloads/manual/ILSVRC2012_img_train.tar
+# check that the imganet tar file is where it should be i.e. the <MANUAL_DIR> is the directory where the ILSVRC2012_img_train.tar file was downloaded. Check that it's there and it's 13GB (according to original instructions)
+ls -lh $HOME/tensorflow_datasets/downloads/manual
+# cd into the tfds dir & run the required command
 cd $HOME/diversity-for-predictive-success-of-meta-learning/meta-dataset/meta_dataset/data/tfds
 tfds build md_tfds --manual_dir=$HOME/tensorflow_datasets/downloads/manual
-# the tfrecord files associated with all data sources and are at $HOME/tensorflow_datasets/meta_dataset
-ls $HOME/tensorflow_datasets/meta_dataset
-#mv $HOME/tensorflow_datasets/meta_dataset/* $HOME/data/mds_tfds
+# todo: this step takes... hours (started 8pm jan 10th...ended...)
+
+# - Check that tfds created the data set correctly by checking the tfrecord files associated with all data sources are at $HOME/tensorflow_datasets/meta_dataset
+# check the folders are the data sets you expect & the sizes
+ls -lh $HOME/tensorflow_datasets/meta_dataset
 # todo check all tfrecords count for each data set
-ls ls $HOME/tensorflow_datasets/meta_dataset/<eachdataset> | grep -c .tfrecords
+#ls ls $HOME/tensorflow_datasets/meta_dataset/<eachdataset> | grep -c .tfrecords
+# a. imagnet todo
+ls $RECORDS/ilsvrc_2012/ | grep -c .tfrecords
+ls $RECORDS/ilsvrc_2012/dataset_spec.json
+ls $RECORDS/ilsvrc_2012/num_leaf_images.json
+# b. omniglot todo
+ls $RECORDS/omniglot/ | grep -c .tfrecords
+ls $RECORDS/omniglot/dataset_spec.json
+# c. aircraft todo
+ls $RECORDS/aircraft/ | grep -c .tfrecords
+ls $RECORDS/aircraft/dataset_spec.json
+# d. cu_birds todo
+ls $RECORDS/cu_birds/ | grep -c .tfrecords
+ls $RECORDS/cu_birds/dataset_spec.json
+# e. dtd todo
+ls $RECORDS/dtd/ | grep -c .tfrecords
+ls $RECORDS/dtd/dataset_spec.json
+# f. quickdraw todo
+ls $RECORDS/quickdraw/ | grep -c .tfrecords
+ls $RECORDS/quickdraw/dataset_spec.json
+# g. fungi todo
+ls $RECORDS/fungi/ | grep -c .tfrecords
+ls $RECORDS/fungi/dataset_spec.json
+# h. vgg_flowers todo
+ls $RECORDS/vgg_flowers/ | grep -c .tfrecords
+ls $RECORDS/vgg_flowers/dataset_spec.json
+# i. traffic_sign todo
+ls $RECORDS/traffic_sign/ | grep -c .tfrecords
+ls $RECORDS/traffic_sign/dataset_spec.json
+# j. mscoco todo
+ls $RECORDS/mscoco/ | grep -c .tfrecords
+ls $RECORDS/mscoco/dataset_spec.json
+
+# todo: decide what to do with this...move it to where the the original instructions without tfds say to move them to? ask patrick how it relates to: $MDS_DATA_PATH, $RECORDS and $SPLITS.
+#mv $HOME/tensorflow_datasets/meta_dataset/* $HOME/data/mds_tfds
 
