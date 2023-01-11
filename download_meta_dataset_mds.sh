@@ -549,22 +549,26 @@ conda activate mds_env_gpu
 #mv $MDS_DATA_PATH/mscoco/annotations/* $MDS_DATA_PATH/mscoco/
 #ls $MDS_DATA_PATH/mscoco/ | grep -c .json
 ## says: 6 for both
-# - download mscoco using Zenodo
+
+# -- download MSCOCO using Zenodo
 cd $RECORDS/
 
-#download the records of mscoco and uncompress. took ~1hr (5.1GB) since my wifi is slow but maybe faster for others?
+#download the records of mscoco and uncompress. Took 20min-1hr (4.8 GB due to compression)
 wget https://zenodo.org/record/7517539/files/mscoco.tar.gz?download=1 -P $RECORDS -O mscoco.tar.gz
-# should (5.1GB)
+# should (4.8GB due to compression I think)
 ls -lh $RECORDS/mscoco.tar.gz
 
-# unziping is quick
+# unziping, takes around ~30sec-1min
 tar -xf $RECORDS/mscoco.tar.gz -C $RECORDS/
+# you need to mv it due to the way patrick accidentally saved it & compressed it
 mv $RECORDS/home/pzy2/data/mds/records/mscoco $RECORDS/mscoco
-# should be (X GHB) todo
-ls -lh $RECORDS/mscoco
+# remove the extra dir that should be there
+rmdir $RECORDS/home
+# should be (5.3 GB) after unziping
+du -sh $RECORDS/mscoco
 
 #get splits file (should take a few seconds)
-wget https://zenodo.org/record/7517539/files/mscoco_splits.json?download=1 -o $SPLITS/mscoco_splits.json
+wget https://zenodo.org/record/7517539/files/mscoco_splits.json?download=1 -O $SPLITS/mscoco_splits.json
 cat $SPLITS/mscoco_splits.json
 
 # Find the following outputs in $RECORDS/mscoco/:
@@ -572,13 +576,7 @@ cat $SPLITS/mscoco_splits.json
 ls $RECORDS/mscoco/ | grep -c .tfrecords
 #dataset_spec.json (see note 1)
 ls $RECORDS/mscoco/dataset_spec.json
-#this should be X GB if everything goes to plan. todo
-ls -h -sh $RECORDS/mscoco/
-
-# -- TODO other datasets (fungi quickdraw ilsvrc mscoco omniglot), haven't verified they worked yet in my setup
-# try running the old commands from https://github.com/brando90/diversity-for-predictive-success-of-meta-learning/blob/main/download_meta_dataset_mds.sh
-# and let me know which one doesnt work via gitissue
-
+ls -lh -sh $RECORDS/mscoco/
 
 # final step - run make_index_files.sh
 cd $HOME/pytorch-meta-dataset/
