@@ -935,6 +935,9 @@ def main_data_analyis():
         comparison_via_performance(args)
     elif args.experiment_option.startswith('diveristiy'):
         do_diversity_data_analysis(args, meta_dataloader)
+    elif args.experiment_option == 'p_value_analysis':
+        from diversity_src.data_analysis.p_values import do_p_value_analysis
+        do_p_value_analysis(args, meta_dataloader)
     else:
         batch = next(iter(meta_dataloader))
         spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
