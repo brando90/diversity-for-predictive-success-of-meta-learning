@@ -183,15 +183,49 @@ source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 
 tmux attach -t ilsvrc_2012
-#option 1. assuming you still have uiuc netid and can access the /shared/rsaas folder
-#scp <your net id>@vision.cs.illinois.edu:/shared/rsaas/pzy2/ilsvrc.tar.gz <wherever your $RECORDS destination at your stanford cluster>
+##option 1. assuming you still have uiuc netid and can access the /shared/rsaas folder
+##scp <your net id>@vision.cs.illinois.edu:/shared/rsaas/pzy2/ilsvrc.tar.gz <wherever your $RECORDS destination at your stanford cluster>
+#
+##option 2. not sure if it works since I got this issue when i tried: https://stackoverflow.com/questions/65312867/how-to-download-large-file-from-google-drive-from-terminal-gdown-doesnt-work
+## tool to "wget" gdrive links
+#pip install gdown
+## actual file here https://drive.google.com/file/d/1FkuIIW49_x8Zzr6Vmpq-mHLO69-VvCtX/view?usp=share_link
+#gdown https://drive.google.com/uc?id=1FkuIIW49_x8Zzr6Vmpq-mHLO69-VvCtX
+#
+#
+##check that the md5hash matches my (working) tar.gz file
+#md5sum $RECORDS/ilsvrc.tar.gz #should be 56c576d10896bfa8d35200aebfea1704
+#
+##should have ilsvrc.tar.gz in $RECORDS/
+##now extract it
+#tar -xf $RECORDS/ilsvrc.tar.gz -C $RECORDS/
+#
+## Need to un-nest folders since I extracted my mscoco at the top-most directory instead of in $RECORDS/
+#mv $RECORDS/shared/rsaas/pzy2/records/ilsvrc_2012  $RECORDS/ilsvrc_2012
+#
+#
+## ilsvrc doesn't have a dedicated splits file, so should be done
+## -7.Find the following outputs in $RECORDS/ilsvrc_2012/:
+##1000 tfrecords files named [0-999].tfrecords
+#ls $RECORDS/ilsvrc_2012/ | grep -c .tfrecords
+##dataset_spec.json (see note 1)
+#ls $RECORDS/ilsvrc_2012/dataset_spec.json
+##num_leaf_images.json
+#ls $RECORDS/ilsvrc_2012/num_leaf_images.json
+#
+## -7.Find the following outputs in $RECORDS/ilsvrc_2012/:
+##1000 tfrecords files named [0-999].tfrecords
+#ls $RECORDS/ilsvrc_2012/ | grep -c .tfrecords
+##dataset_spec.json (see note 1)
+#ls $RECORDS/ilsvrc_2012/dataset_spec.json
+##num_leaf_images.json
+#ls $RECORDS/ilsvrc_2012/num_leaf_images.json
 
-#option 2. not sure if it works since I got this issue when i tried: https://stackoverflow.com/questions/65312867/how-to-download-large-file-from-google-drive-from-terminal-gdown-doesnt-work
-# tool to "wget" gdrive links
-pip install gdown
-# actual file here https://drive.google.com/file/d/1FkuIIW49_x8Zzr6Vmpq-mHLO69-VvCtX/view?usp=share_link
-gdown https://drive.google.com/uc?id=1FkuIIW49_x8Zzr6Vmpq-mHLO69-VvCtX
-
+# option 3: send it from patrick's local to ampere4
+# I want to send a compressed tar.gz file located locally at path /Users/patrickyu/Documents/ilsvrc.tar.gz and want to send it to the server brando9@ampere4.stanford.edu and in the server the path is /lfs/ampere4/0/brando9/data/mds, how do I do this in bash?
+#scp /Users/patrickyu/Documents/ilsvrc.tar.gz brando9@ampere4.stanford.edu:/lfs/ampere4/0/brando9/data/mds
+scp /Users/patrickyu/Documents/ilsvrc.tar.gz brando9@ampere4.stanford.edu:/lfs/ampere4/0/brando9/data/mds/records/
+echo $RECORDS
 
 #check that the md5hash matches my (working) tar.gz file
 md5sum $RECORDS/ilsvrc.tar.gz #should be 56c576d10896bfa8d35200aebfea1704
@@ -202,24 +236,6 @@ tar -xf $RECORDS/ilsvrc.tar.gz -C $RECORDS/
 
 # Need to un-nest folders since I extracted my mscoco at the top-most directory instead of in $RECORDS/
 mv $RECORDS/shared/rsaas/pzy2/records/ilsvrc_2012  $RECORDS/ilsvrc_2012
-
-
-# ilsvrc doesn't have a dedicated splits file, so should be done
-# -7.Find the following outputs in $RECORDS/ilsvrc_2012/:
-#1000 tfrecords files named [0-999].tfrecords
-ls $RECORDS/ilsvrc_2012/ | grep -c .tfrecords
-#dataset_spec.json (see note 1)
-ls $RECORDS/ilsvrc_2012/dataset_spec.json
-#num_leaf_images.json
-ls $RECORDS/ilsvrc_2012/num_leaf_images.json
-
-# -7.Find the following outputs in $RECORDS/ilsvrc_2012/:
-#1000 tfrecords files named [0-999].tfrecords
-ls $RECORDS/ilsvrc_2012/ | grep -c .tfrecords
-#dataset_spec.json (see note 1)
-ls $RECORDS/ilsvrc_2012/dataset_spec.json
-#num_leaf_images.json
-ls $RECORDS/ilsvrc_2012/num_leaf_images.json
 
 
 
