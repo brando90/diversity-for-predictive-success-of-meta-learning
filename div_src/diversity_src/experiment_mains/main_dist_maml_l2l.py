@@ -1422,10 +1422,8 @@ def l2l_resnet12rfs_hdb1_100k_adam_no_scheduler(args: Namespace) -> Namespace:
     args.log_freq = 500
 
     # -- wandb args
-    # args.wandb_project = 'playground'  # needed to log to wandb properly
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_resnet12rfs_hdb1_100k_adam_no_scheduler'
     args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
@@ -1985,54 +1983,7 @@ def load_args() -> Namespace:
     if resume_from_checkpoint(args):
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
     elif args_hardcoded_in_script(args):
-        if args.manual_loads_name == 'l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k':
-            args: Namespace = l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args)
-        elif args.manual_loads_name == 'l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k':
-            args: Namespace = l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args)
-        elif args.manual_loads_name == 'l2l_resnet12rfs_mi_rfs_adam_cl_100k':
-            args: Namespace = l2l_resnet12rfs_mi_rfs_adam_cl_100k(args)
-        elif args.manual_loads_name == 'l2l_5CNNl2l_mi_rfs_adam_cl_70k':
-            args: Namespace = l2l_5CNNl2l_mi_rfs_adam_cl_70k(args)
-        elif args.manual_loads_name == 'l2l_5CNNl2l_mi_rfs_sgd_cl_100k':
-            args: Namespace = l2l_5CNNl2l_mi_rfs_sgd_cl_100k(args)
-        elif args.manual_loads_name == 'l2l_5CNNl2l_cifarfs_rfs_sgd_cl_100k':
-            args: Namespace = l2l_5CNNl2l_cifarfs_rfs_sgd_cl_100k(args)
-        elif args.manual_loads_name == 'l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k':
-            args: Namespace = l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k(args)
-        elif args.manual_loads_name == 'l2l_resnet12rfs_mi_rfs_sgd_cl_100k':
-            args: Namespace = l2l_resnet12rfs_mi_rfs_sgd_cl_100k(args)
-        elif args.manual_loads_name == 'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k':
-            args: Namespace = l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k(args)
-        elif args.manual_loads_name == 'l2l_resnet12rfs_mi_adam_no_scheduler_100k':
-            args: Namespace = l2l_resnet12rfs_mi_adam_no_scheduler_100k(args)
-        elif args.manual_loads_name == 'l2l_5CNN_mi_adam_filter_size':
-            args: Namespace = l2l_5CNN_mi_adam_filter_size(args)
-        elif args.manual_loads_name == 'l2l_5CNN_mi_adam_filter_size_32_filter_size':
-            args: Namespace = l2l_5CNN_mi_adam_filter_size_32_filter_size(args)
-        elif args.manual_loads_name == 'l2l_5CNN_mi_adam_filter_size_16_filter_size':
-            args: Namespace = l2l_5CNN_mi_adam_filter_size_16_filter_size(args)
-        elif args.manual_loads_name == 'l2l_5CNN_mi_adam_filter_size_8_filter_size':
-            args: Namespace = l2l_5CNN_mi_adam_filter_size_8_filter_size(args)
-        elif args.manual_loads_name == 'l2l_5CNN_mi_adam_filter_size_4_filter_size':
-            args: Namespace = l2l_5CNN_mi_adam_filter_size_4_filter_size(args)
-        elif args.manual_loads_name == 'l2l_resnet12rfs_hdb1_100k_adam_no_scheduler':
-            args: Namespace = l2l_resnet12rfs_hdb1_100k_adam_no_scheduler(args)
-        elif args.manual_loads_name == 'l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler':
-            args: Namespace = l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler(args)
-        elif args.manual_loads_name == 'l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order':
-            args: Namespace = l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order(args)
-        elif args.manual_loads_name == 'vit_mi_fo_maml_rfs_adam_cl_100k':
-            args: Namespace = vit_mi_fo_maml_rfs_adam_cl_100k(args)
-        elif args.manual_loads_name == 'l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order_from_ckpt':
-            args: Namespace = l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order_from_ckpt(args)
-        elif args.manual_loads_name == 'l2l_5CNN_hdb1_adam_cs_filter_size':
-            args: Namespace = l2l_5CNN_hdb1_adam_cs_filter_size(args)
-        elif args.manual_loads_name == 'l2l_5CNN_mi_adam_filter_size_128_filter_size':
-            args: Namespace = l2l_5CNN_mi_adam_filter_size_128_filter_size(args)
-        elif args.manual_loads_name == 'l2l_5CNN_mi_adam_filter_size_512_filter_size':
-            args: Namespace = l2l_5CNN_mi_adam_filter_size_512_filter_size(args)
-        else:
-            raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
+        args: Namespace = eval(f'{args.manual_load_name}(args)')
     else:
         # NOP: since we are using args from terminal
         pass

@@ -1,5 +1,5 @@
-#----START mds imports-----#
-#import torch
+# ----START mds imports-----#
+# import torch
 from diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.utils import Split
 import diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.config as config_lib
 import diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.dataset_spec as dataset_spec_lib
@@ -12,7 +12,7 @@ import numpy as np
 import diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.pipeline as pipeline
 from diversity_src.dataloaders.pytorch_mds_lib.pytorch_meta_dataset.utils import worker_init_fn_
 from functools import partial
-#----END mds imports-----#
+# ----END mds imports-----#
 import torch
 import torch.nn as nn
 import torch.multiprocessing as mp
@@ -23,6 +23,8 @@ import uutils
 from uutils import load_cluster_jobids_to, merge_args
 from uutils.logging_uu.wandb_logging.common import setup_wandb
 from uutils.torch_uu.distributed import set_devices
+
+
 def get_mds_args() -> Namespace:
     import argparse
 
@@ -31,7 +33,7 @@ def get_mds_args() -> Namespace:
     # parser = argparse.ArgumentParser(description='Records conversion')
 
     # Data general config
-    parser.add_argument('--data_path', type=str, default='/shared/rsaas/pzy2/records',
+    parser.add_argument('--data_path', type=str, default=os.path.expanduser('~/data/mds/records/'),
                         help='Root to data')
 
     parser.add_argument('--image_size', type=int, default=84,
@@ -165,17 +167,17 @@ def get_mds_args() -> Namespace:
     parser.add_argument('--num_warmup_steps', type=int, default=-1)
     parser.add_argument('--scheduler_option', type=str, default='AdafactorSchedule', help='Its strongly recommended')
     parser.add_argument('--log_scheduler_freq', type=int, default=1, help='default is to put the epochs or iterations '
-                                                                           'default either log every epoch or log ever '
-                                                                           '~100 iterations.')
+                                                                          'default either log every epoch or log ever '
+                                                                          '~100 iterations.')
 
     # - data set args
     parser.add_argument('--batch_size', type=int, default=20)
-    parser.add_argument('--batch_size_eval', type=int, default= 20)
+    parser.add_argument('--batch_size_eval', type=int, default=20)
     parser.add_argument('--split', type=str, default='train', help="possible values: "
                                                                    "'train', val', test'")
     # warning: sl name is path_to_data_set here its data_path
     parser.add_argument('--data_option', type=str, default='None')
-    #parser.add_argument('--data_path', type=str, default=None)
+    # parser.add_argument('--data_path', type=str, default=None)
     # parser.add_argument('--data_path', type=str, default='torchmeta_miniimagenet',
     #                     help='path to data set splits. The code will assume everything is saved in'
     #                          'the uutils standard place in ~/data/, ~/data/logs, etc. see the setup args'
@@ -199,7 +201,7 @@ def get_mds_args() -> Namespace:
 
     # - miscellaneous arguments
     parser.add_argument('--log_freq', type=int, default=1, help='default is to put the epochs or iterations default'
-                                                                 'either log every epoch or log ever ~100 iterations')
+                                                                'either log every epoch or log ever ~100 iterations')
     parser.add_argument('--seed', type=int, default=2020)
     parser.add_argument('--always_use_deterministic_algorithms', action='store_true',
                         help='tries to make pytorch fully deterministic')
@@ -243,11 +245,12 @@ def get_mds_args() -> Namespace:
     args.criterion = args.loss
     assert args.criterion is args.loss
     # - load cluster ids so that wandb can use it later for naming runs, experiments, etc.
-    load_cluster_jobids_to(args) #UNCOMMENT LATER!
+    load_cluster_jobids_to(args)  # UNCOMMENT LATER!
     setup_wandb(args)
     return args
 
-def get_mds_loader(args):
+
+def get_mds_loader(args) -> dict:
     data_config = config_lib.DataConfig(args)
     episod_config = config_lib.EpisodeDescriptionConfig(args)
 
@@ -274,7 +277,7 @@ def get_mds_loader(args):
                                                     split=Split['TRAIN'],
                                                     data_config=data_config,
                                                     episode_descr_config=episod_config)
-    #print("Num workers: ", data_config.num_workers)
+    # print("Num workers: ", data_config.num_workers)
     train_loader = DataLoader(dataset=train_pipeline,
                               batch_size=args.batch_size,  # TODO change to meta batch size
                               num_workers=0,
@@ -302,12 +305,13 @@ def get_mds_loader(args):
     dls: dict = {'train': train_loader, 'val': val_loader, 'test': test_loader}
     return dls
 
+
 # - test
 
 def loop_test(args):
     from uutils.torch_uu import process_meta_batch
     args.batch_size = 10
-    args.batch_size_eval= 10
+    args.batch_size_eval = 10
 
     dataloader = get_mds_loader(args)
 
@@ -328,7 +332,7 @@ def loop_test(args):
 
 if __name__ == "__main__":
     args = get_mds_args()
-    #set_devices(args)  # args.device = rank or .device
+    # set_devices(args)  # args.device = rank or .device
     args.device = uutils.torch_uu.get_device()
 
     import time

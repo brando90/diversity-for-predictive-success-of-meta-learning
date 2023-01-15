@@ -19,32 +19,26 @@ from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
 from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations, meta_train_agent_fit_single_batch
 from uutils import load_cluster_jobids_to, merge_args
-from uutils.logging_uu.wandb_logging.common import setup_wandb
+from uutils.logging_uu.wandb_logging.common import setup_wandb, cleanup_wandb
 
 from pdb import set_trace as st
 
 from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch
 from pathlib import Path
 
-def manual_load_mds_5cnn_maml_adam_no_scheduler(args: Namespace) -> Namespace:
-    """
-    """
-    from pathlib import Path
+
+def mds_resnet18_maml_adam_no_scheduler(args: Namespace) -> Namespace:
     # - model
-    #args.model_option = 'resnet12_rfs_mi' #or use the one in the MDS fo-protoMAML paper
-    #args.model_option = '5CNN_opt_as_model_for_few_shot_sl' #only sanity checks
-    args.model_option = 'resnet12_rfs_mi'
+    args.model_option = 'resnet18_rfs'
     args.n_cls = 5
-    #args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
-    #                      levels=None, spp=False, in_channels=3)
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)
 
     # - data
-    #args.data_option = 'torchmeta_cifarfs'
-    #args.data_path = Path('//').expanduser()
-
-    # - opt
-    args.opt_option = 'Adam_default'
-    args.scheduler_option = 'None'
+    args.data_option = 'mds'
+    # args.sources = ['vgg_flower', 'aircraft']
+    # Mscoco, traffic_sign are VAL only
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower'],
 
     # - training mode
     args.training_mode = 'iterations'
@@ -53,35 +47,42 @@ def manual_load_mds_5cnn_maml_adam_no_scheduler(args: Namespace) -> Namespace:
     args.num_its = 800_000
 
     # - debug flag
-    # args.debug = True
+    # args.debug = False
     args.debug = True
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    args.scheduler_option = 'None'
+    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    # args.log_scheduler_freq = 2_000
+    # args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    # args.eta_min = 1e-5  # match MAML++
+    # args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
 
     # -- Meta-Learner
     # - maml
     args.meta_learner_name = 'maml_fixed_inner_lr'
     args.inner_lr = 1e-1
     args.nb_inner_train_steps = 5
-    #args.track_higher_grads = False  # set to false during meta-testing and for (official) fo maml
     args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
-    args.track_higher_grads = True
-    args.fo = True  # this flag shouldn't matter for if track_higher_grads is set to False
+    args.track_higher_grads = True  # I know this is confusing but look at this ref: https://stackoverflow.com/questions/70961541/what-is-the-official-implementation-of-first-order-maml-using-the-higher-pytorch
+    args.fo = True  # This is needed.
 
     # - outer trainer params
-    # args.lr = 1e-5
-
-    args.batch_size = 1
-    args.batch_size_eval = 1
+    args.batch_size = 8
+    args.batch_size_eval = 2
 
     # -- wandb args
-    # args.wandb_project = 'playground'  # needed to log to wandb properly
-    #args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    # args.experiment_name = f'debug'
-    args.experiment_name = f'MDS Resnet12 official fo maml adam, no scheduler'
-    # args.run_name = f'debug: {args.jobid=}'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.experiment_name = args.manual_load_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     # args.log_to_wandb = True
-    args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -95,13 +96,15 @@ def load_args() -> Namespace:
     3. setup remaining args small details from previous values (e.g. 1 and 2).
     """
     # -- parse args from terminal
-    # args: Namespace = parse_args_standard_sl()
+    # todo: maybe later, add a try catch that if there is an mds only flag given at the python cmd line then it will load the mds args otherwise do the meta-leanring args
+    from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_args
     args: Namespace = get_mds_args()
+    # args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    #args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing'  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing'  # <- REMOVE to remove manual loads
 
-    args: Namespace = manual_load_mds_5cnn_maml_adam_no_scheduler(args)
-    # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
+    # -- manual loads
+    args: Namespace = eval(f'{args.manual_load_name}(args)')
 
     # -- Setup up remaining stuff for experiment
     args: Namespace = setup_args_for_experiment(args)
@@ -129,6 +132,7 @@ def main():
         # set_sharing_strategy()
         mp.spawn(fn=train, args=(args,), nprocs=args.world_size)
 
+
 def train(rank, args):
     print_process_info(rank, flush=True)
     args.rank = rank  # have each process save the rank
@@ -141,21 +145,35 @@ def train(rank, args):
     print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
 
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
-    args.dataloaders: dict = get_mds_loader(args)
+    args.dataloaders: dict = get_meta_learning_dataloader(args)
+    assert args.model.cls.out_features == 5
 
     # Agent does everything, proving, training, evaluate, meta-learnering, etc.
     args.agent = MAMLMetaLearner(args, args.model)
     args.meta_learner = args.agent
 
     # -- Start Training Loop
-    print_dist('====> about to start train loop', args.rank)
-
-    meta_train_fixed_iterations(args, args.agent, args.dataloaders, args.opt, args.scheduler)
+    print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)  # here to make sure mdl has the right cls
+    print_dist('\n\n====> about to start train loop', args.rank)
+    print(f'{args.filter_size=}') if hasattr(args, 'filter_size') else None
+    print(f'{args.number_of_trainable_parameters=}')
+    if args.training_mode == 'meta_train_agent_fit_single_batch':
+        # meta_train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
+        raise NotImplementedError
+    elif 'iterations' in args.training_mode:
+        meta_train_fixed_iterations(args, args.agent, args.opt, args.scheduler)
+    elif 'epochs' in args.training_mode:
+        # meta_train_epochs(args, agent, args.dataloaders, args.opt, args.scheduler) not implemented
+        raise NotImplementedError
+    else:
+        raise ValueError(f'Invalid training_mode value, got: {args.training_mode}')
 
     # -- Clean Up Distributed Processes
     print(f'\n----> about to cleanup worker with rank {rank}')
     cleanup(rank)
     print(f'clean up done successfully! {rank}')
+    # cleanup_wandb(args, delete_wandb_dir=True)
+    cleanup_wandb(args, delete_wandb_dir=False)
 
 
 # -- Run experiment

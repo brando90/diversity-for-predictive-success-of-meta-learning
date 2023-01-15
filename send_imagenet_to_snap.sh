@@ -3,6 +3,9 @@
 scp /Users/patrickyu/Documents/ilsvrc.tar.gz brando9@ampere4.stanford.edu:/lfs/ampere4/0/brando9/data/mds/records/
 echo $RECORDS
 
+# check the size of the file using ls
+ls -lh /lfs/ampere4/0/brando9/data/mds/records/ilsvrc.tar.gz
+
 #check that the md5hash matches my (working) tar.gz file
 md5sum $RECORDS/ilsvrc.tar.gz #should be 56c576d10896bfa8d35200aebfea1704
 
@@ -12,3 +15,6 @@ tar -xf $RECORDS/ilsvrc.tar.gz -C $RECORDS/
 
 # Need to un-nest folders since I extracted my mscoco at the top-most directory instead of in $RECORDS/
 mv $RECORDS/shared/rsaas/pzy2/records/ilsvrc_2012  $RECORDS/ilsvrc_2012
+
+# remove dir $RECORDS/shared/rsaas/pzy2/records/
+rmdir $RECORDS/shared/rsaas/pzy2/records/

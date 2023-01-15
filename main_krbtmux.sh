@@ -89,8 +89,15 @@ python -c "import torch; print(torch.cuda.get_device_name(0));"
 # - mi vs omni
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/diversity/task2vec_based_metrics/diversity_task2vec/mi_vs_omniglot_div.py > $OUT_FILE 2> $ERR_FILE &
 
+# - mds div
+
+# - mds maml
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet18_maml_adam_no_scheduler --data_path $HOME/data/mds/records/
+
+# - mds usl
+
 # - performance comp usl vs maml on hdb1
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py > $OUT_FILE 2> $ERR_FILE &
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py > $OUT_FILE 2> $ERR_FILE &
 
 # -- other option is to run `echo $SU_PASSWORD | /afs/cs/software/bin/reauth` inside of python, right?
 export JOB_PID=$!
