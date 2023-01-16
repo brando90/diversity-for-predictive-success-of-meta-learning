@@ -90,8 +90,14 @@ python -c "import torch; print(torch.cuda.get_device_name(0));"
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/diversity/task2vec_based_metrics/diversity_task2vec/mi_vs_omniglot_div.py > $OUT_FILE 2> $ERR_FILE &
 
 # - mds div
+conda activate mds_env_gpu
 
 # - mds maml
+source $AFS/.bashrc.lfs
+conda activate mds_env_gpu
+tmux new -s mds_maml
+tmux attach -t mds_maml
+
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet18_maml_adam_no_scheduler --data_path $HOME/data/mds/records/
 
 # - mds usl

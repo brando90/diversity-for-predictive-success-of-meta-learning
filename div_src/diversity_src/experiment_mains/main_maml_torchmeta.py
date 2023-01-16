@@ -9,6 +9,7 @@ from uutils import args_hardcoded_in_script, report_times
 from uutils.argparse_uu.common import setup_args_for_experiment
 from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
+from uutils.torch_uu import count_number_of_parameters
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
@@ -38,7 +39,9 @@ def mds_resnet18_maml_adam_no_scheduler(args: Namespace) -> Namespace:
     args.data_option = 'mds'
     # args.sources = ['vgg_flower', 'aircraft']
     # Mscoco, traffic_sign are VAL only
-    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower'],
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower']
+    # todo: this is needed because Patrick Yu add this here or put it in args
+    args.min_examples_in_class = 20
 
     # - training mode
     args.training_mode = 'iterations'
@@ -79,7 +82,7 @@ def mds_resnet18_maml_adam_no_scheduler(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = args.manual_load_name
+    args.experiment_name = args.manual_loads_name
     args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
@@ -104,7 +107,7 @@ def load_args() -> Namespace:
     # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing'  # <- REMOVE to remove manual loads
 
     # -- manual loads
-    args: Namespace = eval(f'{args.manual_load_name}(args)')
+    args: Namespace = eval(f'{args.manual_loads_name}(args)')
 
     # -- Setup up remaining stuff for experiment
     args: Namespace = setup_args_for_experiment(args)
@@ -142,6 +145,7 @@ def train(rank, args):
 
     # create the (ddp) model, opt & scheduler
     get_and_create_model_opt_scheduler_for_run(args)
+    args.number_of_trainable_parameters = count_number_of_parameters(args.model)
     print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
 
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
@@ -161,7 +165,7 @@ def train(rank, args):
         # meta_train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
         raise NotImplementedError
     elif 'iterations' in args.training_mode:
-        meta_train_fixed_iterations(args, args.agent, args.opt, args.scheduler)
+        meta_train_fixed_iterations(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     elif 'epochs' in args.training_mode:
         # meta_train_epochs(args, agent, args.dataloaders, args.opt, args.scheduler) not implemented
         raise NotImplementedError

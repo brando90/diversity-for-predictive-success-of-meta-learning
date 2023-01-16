@@ -24,6 +24,8 @@ from uutils import load_cluster_jobids_to, merge_args
 from uutils.logging_uu.wandb_logging.common import setup_wandb
 from uutils.torch_uu.distributed import set_devices
 
+from pdb import set_trace as st
+
 
 def get_mds_args() -> Namespace:
     import argparse

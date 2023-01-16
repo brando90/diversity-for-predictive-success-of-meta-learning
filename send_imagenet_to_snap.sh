@@ -15,6 +15,21 @@ tar -xf $RECORDS/ilsvrc.tar.gz -C $RECORDS/
 
 # Need to un-nest folders since I extracted my mscoco at the top-most directory instead of in $RECORDS/
 mv $RECORDS/shared/rsaas/pzy2/records/ilsvrc_2012  $RECORDS/ilsvrc_2012
+# save weird dup file
+cd $HOME/data/mds/records/ilsvrc_2012
+md5sum ilsvrc_2012/num_leaf_images.json
+md5sum num_leaf_images.json
+mv num_leaf_images.json _num_leaf_images.json
+# move contents of $RECORDS/ilsvrc_2012/ilsvrc_2012 to $RECORDS/ilsvrc_2012/
+mv $RECORDS/ilsvrc_2012/ilsvrc_2012/* $RECORDS/ilsvrc_2012/
+rmdir $RECORDS/ilsvrc_2012/ilsvrc_2012
 
 # remove dir $RECORDS/shared/rsaas/pzy2/records/
 rmdir $RECORDS/shared/rsaas/pzy2/records/
+
+#
+ls $RECORDS/ilsvrc_2012/ | grep -c .tfrecords
+##dataset_spec.json (see note 1)
+ls $RECORDS/ilsvrc_2012/dataset_spec.json
+##num_leaf_images.json
+ls $RECORDS/ilsvrc_2012/num_leaf_images.json
