@@ -96,6 +96,7 @@ export CUDA_VISIBLE_DEVICES=3; echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #tmux new -s mds_maml
+#tmux new -s mds_usl_resnet18rfs
 #tmux new -s mds_maml_resnet50rfs
 #tmux attach -t mds_maml
 
@@ -103,10 +104,14 @@ conda activate mds_env_gpu
 
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet_maml_adam_scheduler --model_option resnet18_rfs --data_path $HOME/data/mds/records/ \
 #    |& tee $OUT_FILE 2> $ERR_FILE
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet_maml_adam_scheduler --model_option resnet50_rfs --data_path $HOME/data/mds/records/ \
-    |& tee $OUT_FILE 2> $ERR_FILE
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet_maml_adam_scheduler --model_option resnet50_rfs --data_path $HOME/data/mds/records/ \
+#    |& tee $OUT_FILE 2> $ERR_FILE
 
 # - mds usl
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_resnet_usl_adam_scheduler --model_option resnet18_rfs --data_path $HOME/data/mds/records/ \
+    |& tee $OUT_FILE 2> $ERR_FILE
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_resnet_usl_adam_scheduler --model_option resnet50_rfs --data_path $HOME/data/mds/records/ \
+#    |& tee $OUT_FILE 2> $ERR_FILE
 
 # - performance comp usl vs maml on hdb1
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py > $OUT_FILE 2> $ERR_FILE &

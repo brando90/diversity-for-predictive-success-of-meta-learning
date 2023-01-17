@@ -1901,11 +1901,11 @@ def sl_hdb1_5cnn_adam_cl_filter_size(args: Namespace):
     # - training mode
     args.training_mode = 'epochs'
 
-    # -
+    # - debug flag
     # args.debug = True
     args.debug = False
 
-    # -
+    # - logging params
     args.log_freq = 1  # for SL it is meant to be small e.g. 1 or 2
 
     # - wandb args
@@ -1918,6 +1918,112 @@ def sl_hdb1_5cnn_adam_cl_filter_size(args: Namespace):
     return args
 
 
+# - mds
+
+def get_hardcoded_full_mds_num_classes(sources: list[str] = ['hardcodedmds']) -> int:
+    """
+    todo: this is a hack, fix it
+    - use the dataset_spec in each data set
+```
+  "classes_per_split": {
+    "TRAIN": 140,
+    "VALID": 30,
+    "TEST": 30
+```
+    but for imagenet do something else.
+    argh, idk what this means
+```
+{
+  "name": "ilsvrc_2012",
+  "split_subgraphs": {
+    "TRAIN": [
+      {
+        "wn_id": "n00001740",
+        "words": "entity",
+        "children_ids": [
+          "n00001930",
+          "n00002137"
+        ],
+        "parents_ids": []
+      },
+      {
+        "wn_id": "n00001930",
+        "words": "physical entity",
+        "children_ids": [
+          "n00002684",
+          "n00007347",
+          "n00020827"
+        ],
+```
+count the leafs in train & make sure it matches 712 158 130 for each split
+
+ref: https://github.com/google-research/meta-dataset#dataset-summary
+    """
+    print(f'{sources=}')
+    n_cls: int = 0
+    if sources[0] == 'hardcodedmds':
+        # args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower']
+        n_cls = 712 + 70 + 140 + 33 + 994 + 883 + 241 + 71
+    else:
+        raise NotImplementedError
+    print(f'{n_cls=}')
+    assert n_cls != 0
+    return n_cls
+
+
+def mds_resnet_usl_adam_scheduler(args: Namespace) -> Namespace:
+    # - model
+    # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
+    args.n_cls = get_hardcoded_full_mds_num_classes()  # ref: https://github.com/google-research/meta-dataset#dataset-summary
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+
+    # - data
+    args.data_option = 'mds'
+    # Mscoco, traffic_sign are VAL only
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower']
+    args.n_classes = args.n_cls
+
+    # - training mode
+    args.training_mode = 'iterations'
+    # args.num_its = 1_000_000_000  # patrick's default for 2 data sets
+    # args.num_its = 50_000  # mds 50000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    args.num_its = 500_000  # something in between? using 5 times more than MAML for now
+
+    # - debug flag
+    args.debug = True
+    # args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 256
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 2_000
+    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    args.eta_min = 1e-5  # match MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    print(f'{args.T_max=}')
+    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+
+    # - logging params
+    args.log_freq = 500
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+    return args
+
+
 def load_args() -> Namespace:
     """
     1. parse args from user's terminal
@@ -1925,95 +2031,24 @@ def load_args() -> Namespace:
     3. setup remaining args small details from previous values (e.g. 1 and 2).
     """
     # -- parse args from terminal
-    args: Namespace = parse_args_standard_sl()
+    # todo: maybe later, add a try catch that if there is an mds only flag given at the python cmd line then it will load the mds args otherwise do the meta-leanring args
+    # todo: https://stackoverflow.com/questions/75141370/how-does-one-have-python-work-when-multiple-arg-parse-options-are-possible
+    from diversity_src.dataloaders.metadataset_batch_loader import get_mds_batch_args
+    args: Namespace = get_mds_batch_args()
+    # args: Namespace = parse_args_standard_sl()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'sl_hdb1_5cnn_adam_cl_filter_size'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
+    print(f'{args.manual_loads_name=}')
     if resume_from_checkpoint(args):
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
     elif args_hardcoded_in_script(args):
-        if args.manual_loads_name == 'sl_cifarfs_rfs_resnet12rfs_adam_cl_200':
-            args: Namespace = sl_cifarfs_rfs_resnet12rfs_adam_cl_200(args)
-        elif args.manual_loads_name == 'sl_cifarfs_rfs_4cnn_adam_cl_200':
-            args: Namespace = sl_cifarfs_rfs_4cnn_adam_cl_200(args)
-        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_cl_200':
-            args: Namespace = sl_mi_rfs_5cnn_adam_cl_200(args)
-        elif args.manual_loads_name == 'sl_mi_rfs_resnet_rfs_mi_adam_cl_200':
-            args: Namespace = sl_mi_rfs_resnet_rfs_mi_adam_cl_200(args)
-        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_cl':
-            args: Namespace = sl_mi_rfs_5cnn_adam_cl(args)
-        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_cl_600':
-            args: Namespace = sl_mi_rfs_5cnn_adam_cl_600(args)
-        elif args.manual_loads_name == 'sl_cifarfs_rfs_resnet12rfs_adam_cl_600':
-            args: Namespace = sl_cifarfs_rfs_resnet12rfs_adam_cl_600(args)
-        elif args.manual_loads_name == 'sl_cifarfs_rfs_4cnn_adam_cl_600':
-            args: Namespace = sl_cifarfs_rfs_4cnn_adam_cl_600(args)
-        elif args.manual_loads_name == 'sl_cifarfs_rfs_4cnn_adam_cl':
-            args: Namespace = sl_cifarfs_rfs_4cnn_adam_cl(args)
-        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_sgd_cl_600':
-            args: Namespace = sl_mi_rfs_5cnn_sgd_cl_600(args)
-        elif args.manual_loads_name == 'sl_cifarfs_rfs_5cnn_sgd_cl_1000':
-            args: Namespace = sl_cifarfs_rfs_5cnn_sgd_cl_1000(args)
-        elif args.manual_loads_name == 'sl_mi_rfs_resnet12rfs_sgd_cl_200':
-            args: Namespace = sl_mi_rfs_resnet12rfs_sgd_cl_200(args)
-        elif args.manual_loads_name == 'sl_cifarfs_resnet12rfs_sgd_cl_200':
-            args: Namespace = sl_cifarfs_resnet12rfs_sgd_cl_200(args)
-        elif args.manual_loads_name == 'sl_cifarfs_rfs_5cnn_adafactor_1000':
-            args: Namespace = sl_cifarfs_rfs_5cnn_adafactor_1000(args)
-        elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_128_sgd_cl_rfs_500':
-            args: Namespace = sl_cifarfs_4cnn_hidden_size_128_sgd_cl_rfs_500(args)
-        elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_sgd_cl_rfs_500':
-            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_sgd_cl_rfs_500(args)
-        elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_500':
-            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_500(args)
-        elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_epochs_train_convergence':
-            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_epochs_train_convergence(args)
-        elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_adafactor_rfs_epochs_train_convergence':
-            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adafactor_rfs_epochs_train_convergence(args)
-        elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_adafactor_adafactor_scheduler_rfs_epochs_train_convergence':
-            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adafactor_adafactor_scheduler_rfs_epochs_train_convergence(
-                args)
-        elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_1000':
-            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_1000(args)
-        elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_1000':
-            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_1000(args)
-        elif args.manual_loads_name == 'sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_many_epochs':
-            args: Namespace = sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_many_epochs(args)
-        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam':
-            args: Namespace = sl_mi_rfs_5cnn_adam(args)
-
-        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_32_filter_size':
-            args: Namespace = sl_mi_rfs_5cnn_adam_32_filter_size(args)
-
-        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_16_filter_size':
-            args: Namespace = sl_mi_rfs_5cnn_adam_16_filter_size(args)
-        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_8_filter_size':
-            args: Namespace = sl_mi_rfs_5cnn_adam_8_filter_size(args)
-        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_4_filter_size':
-            args: Namespace = sl_mi_rfs_5cnn_adam_4_filter_size(args)
-
-        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_cl_32_filter_size':
-            args: Namespace = sl_mi_rfs_5cnn_adam_cl_32_filter_size(args)
-
-        elif args.manual_loads_name == 'sl_hdb1_rfs_resnet12rfs_adam_cl':
-            args: Namespace = sl_hdb1_rfs_resnet12rfs_adam_cl(args)
-
-        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_cl_128_filter_size':
-            args: Namespace = sl_mi_rfs_5cnn_adam_cl_128_filter_size(args)
-        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_cl_512_filter_size':
-            args: Namespace = sl_mi_rfs_5cnn_adam_cl_512_filter_size(args)
-
-        elif args.manual_loads_name == 'sl_mi_rfs_5cnn_adam_cl_512_filter_size':
-            args: Namespace = sl_mi_rfs_5cnn_adam_cl_512_filter_size(args)
-
-        elif args.manual_loads_name == 'sl_hdb1_5cnn_adam_cl_filter_size':
-            args: Namespace = sl_hdb1_5cnn_adam_cl_filter_size(args)
-        else:
-            raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
+        args: Namespace = eval(f'{args.manual_loads_name}(args)')
     else:
         # NOP: since we are using args from terminal
         pass
+
     # -- Setup up remaining stuff for experiment
     args: Namespace = setup_args_for_experiment(args)
     return args
@@ -2056,15 +2091,15 @@ def train(rank, args):
     args.dataloaders: dict = get_sl_dataloader(args)
     assert args.model.cls.out_features > 5, f'Not meta-learning training, so always more than 5 classes but got {args.model.cls.out_features=}'
     # assert args.model.cls.out_features == 64  # mi (cifar-fs?)
-    # assert args.model.cls.out_features == 64 + 1100, f'hdb1 expects more classes but got {args.model.cls.out_features=},' \
-    #                                                  f'\nfor model {type(args.model)=}'  # hdb1
+    # assert args.model.cls.out_features == 3144  # mds
+    print(f'{args.model.cls.out_features=}')
 
     # Agent does everything, proving, training, evaluate etc.
     args.agent: Agent = UnionClsSLAgent(args, args.model)
 
     # -- Start Training Loop
     print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)  # here to make sure mdl has the right cls
-    print_dist('====> about to start train loop', args.rank)
+    print_dist('\n\n====> about to start train loop', args.rank)
     print(f'{args.filter_size=}') if hasattr(args, 'filter_size') else None
     print(f'{args.number_of_trainable_parameters=}')
     if args.training_mode == 'fit_single_batch':

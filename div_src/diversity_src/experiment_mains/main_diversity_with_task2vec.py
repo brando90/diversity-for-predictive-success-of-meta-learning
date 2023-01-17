@@ -22,11 +22,13 @@ from uutils import report_times, args_hardcoded_in_script, print_args, setup_arg
 # - args for each experiment
 from uutils.argparse_uu.common import create_default_log_root
 from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
+from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint
 from uutils.logging_uu.wandb_logging.common import cleanup_wandb, setup_wandb
 from uutils.numpy_uu.common import get_diagonal, compute_moments
 from uutils.plot import save_to
 from uutils.plot.histograms_uu import get_histogram
 from uutils.torch_uu import get_device_from_model, get_device
+from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
 from uutils.torch_uu.distributed import is_lead_worker, set_devices
 from uutils.torch_uu.models.probe_networks import get_probe_network
@@ -372,39 +374,11 @@ def load_args() -> Namespace:
     # args.manual_loads_name = 'diversity_ala_task2vec_delauny'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
-    if args_hardcoded_in_script(args):
-        if args.manual_loads_name == 'diversity_ala_task2vec_mi_resnet18_pretrained_imagenet':
-            args: Namespace = diversity_ala_task2vec_mi_resnet18_pretrained_imagenet(args)
-        elif args.manual_loads_name == 'diversity_ala_task2vec_mi_resnet18_random':
-            args: Namespace = diversity_ala_task2vec_mi_resnet18_random(args)
-        elif args.manual_loads_name == 'diversity_ala_task2vec_mi_resnet34_pretrained_imagenet':
-            args: Namespace = diversity_ala_task2vec_mi_resnet34_pretrained_imagenet(args)
-        elif args.manual_loads_name == 'diversity_ala_task2vec_mi_resnet34_random':
-            args: Namespace = diversity_ala_task2vec_mi_resnet34_random(args)
-
-        elif args.manual_loads_name == 'diversity_ala_task2vec_cifarfs_resnet18_pretrained_imagenet':
-            args: Namespace = diversity_ala_task2vec_cifarfs_resnet18_pretrained_imagenet(args)
-        elif args.manual_loads_name == 'diversity_ala_task2vec_cifarfs_resnet18_random':
-            args: Namespace = diversity_ala_task2vec_cifarfs_resnet18_random(args)
-        elif args.manual_loads_name == 'diversity_ala_task2vec_cifarfs_resnet34_pretrained_imagenet':
-            args: Namespace = diversity_ala_task2vec_cifarfs_resnet34_pretrained_imagenet(args)
-        elif args.manual_loads_name == 'diversity_ala_task2vec_cifarfs_resnet34_random':
-            args: Namespace = diversity_ala_task2vec_cifarfs_resnet34_random(args)
-
-        elif args.manual_loads_name == 'diversity_ala_task2vec_hdb1_resnet18_pretrained_imagenet':
-            args: Namespace = diversity_ala_task2vec_hdb1_resnet18_pretrained_imagenet(args)
-
-        elif args.manual_loads_name == 'diversity_ala_task2vec_hdb2_resnet18_pretrained_imagenet':
-            args: Namespace = diversity_ala_task2vec_hdb2_resnet18_pretrained_imagenet(args)
-
-        elif args.manual_loads_name == 'diversity_ala_task2vec_delauny':
-            args: Namespace = diversity_ala_task2vec_delauny(args)
-        elif args.manual_loads_name == 'diversity_ala_task2vec_hdb1_mio':
-            args: Namespace = diversity_ala_task2vec_hdb1_mio(args)
-        elif args.manual_loads_name == 'diversity_ala_task2vec_hdb2_cifo':
-            args: Namespace = diversity_ala_task2vec_hdb2_cifo(args)
-        else:
-            raise ValueError(f'Invalid value, got: {args.manual_loads_name=}')
+    print(f'{args.manual_loads_name=}')
+    if resume_from_checkpoint(args):
+        args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
+    elif args_hardcoded_in_script(args):
+        args: Namespace = eval(f'{args.manual_load_name}(args)')
     else:
         # NOP: since we are using args from terminal
         pass

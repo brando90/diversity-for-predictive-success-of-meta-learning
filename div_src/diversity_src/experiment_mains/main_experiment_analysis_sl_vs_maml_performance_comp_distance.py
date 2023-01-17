@@ -860,8 +860,17 @@ def load_args() -> Namespace:
     # args: Namespace = args_5cnn_mi(args)
     # args: Namespace = resnet12rfs_cifarfs(args)
     # args: Namespace = resnet12rfs_mi(args)
-
     args: Namespace = resnet12rfs_hdb1_mio(args)
+    # todo, make sure bellow code works later
+    # # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
+    # print(f'{args.manual_loads_name=}')
+    # if resume_from_checkpoint(args):
+    #     args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
+    # elif args_hardcoded_in_script(args):
+    #     args: Namespace = eval(f'{args.manual_load_name}(args)')
+    # else:
+    #     # NOP: since we are using args from terminal
+    #     pass
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)

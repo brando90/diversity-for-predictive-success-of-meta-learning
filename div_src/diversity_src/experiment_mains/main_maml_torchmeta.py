@@ -49,7 +49,8 @@ def mds_resnet_maml_adam_scheduler(args: Namespace) -> Namespace:
     # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
     args.n_cls = 5
     # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
 
     # - data
     args.data_option = 'mds'
@@ -62,7 +63,7 @@ def mds_resnet_maml_adam_scheduler(args: Namespace) -> Namespace:
     # - training mode
     args.training_mode = 'iterations'
 
-    # note: 75_000 used by MAML mds
+    # note: 75_000 used by MAML mds https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/setups/trainer_config.gin#L1
     args.num_its = 100_000
     # args.num_its = 800_000
 
@@ -75,6 +76,7 @@ def mds_resnet_maml_adam_scheduler(args: Namespace) -> Namespace:
     args.lr = 1e-3  # match MAML++
     args.opt_hps: dict = dict(lr=args.lr)
 
+    # - scheduler
     # args.scheduler_option = 'None'
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
     args.log_scheduler_freq = 2_000
@@ -121,14 +123,22 @@ def load_args() -> Namespace:
     """
     # -- parse args from terminal
     # todo: maybe later, add a try catch that if there is an mds only flag given at the python cmd line then it will load the mds args otherwise do the meta-leanring args
+    # todo: https://stackoverflow.com/questions/75141370/how-does-one-have-python-work-when-multiple-arg-parse-options-are-possible
     from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_args
     args: Namespace = get_mds_args()
     # args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing'  # <- REMOVE to remove manual loads
 
-    # -- manual loads
-    args: Namespace = eval(f'{args.manual_loads_name}(args)')
+    # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
+    print(f'{args.manual_loads_name=}')
+    if resume_from_checkpoint(args):
+        args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
+    elif args_hardcoded_in_script(args):
+        args: Namespace = eval(f'{args.manual_loads_name}(args)')
+    else:
+        # NOP: since we are using args from terminal
+        pass
 
     # -- Setup up remaining stuff for experiment
     args: Namespace = setup_args_for_experiment(args)
