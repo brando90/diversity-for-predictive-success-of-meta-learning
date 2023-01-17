@@ -95,6 +95,7 @@ export CUDA_VISIBLE_DEVICES=3; echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 # - mds maml
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
+ulimit -n 120000
 #tmux new -s mds_maml
 #tmux new -s mds_usl_resnet18rfs
 #tmux new -s mds_maml_resnet50rfs

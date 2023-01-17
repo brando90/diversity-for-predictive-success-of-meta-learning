@@ -1992,8 +1992,8 @@ def mds_resnet_usl_adam_scheduler(args: Namespace) -> Namespace:
     args.num_its = 500_000  # something in between? using 5 times more than MAML for now
 
     # - debug flag
-    args.debug = True
-    # args.debug = False
+    # args.debug = True
+    args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
@@ -2012,7 +2012,7 @@ def mds_resnet_usl_adam_scheduler(args: Namespace) -> Namespace:
     # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
 
     # - logging params
-    args.log_freq = 500
+    args.log_freq = 2
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
