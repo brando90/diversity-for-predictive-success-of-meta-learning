@@ -64,7 +64,9 @@ def mds_resnet_maml_adam_scheduler(args: Namespace) -> Namespace:
     args.training_mode = 'iterations'
 
     # note: 75_000 used by MAML mds https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/setups/trainer_config.gin#L1
-    args.num_its = 100_000
+    args.num_its = 75_000
+    # args.num_its = 2_400
+    # args.num_its = 100_000
     # args.num_its = 800_000
 
     # - debug flag
@@ -101,6 +103,7 @@ def mds_resnet_maml_adam_scheduler(args: Namespace) -> Namespace:
 
     # - logging params
     args.log_freq = 500
+    # args.log_freq = 20
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
