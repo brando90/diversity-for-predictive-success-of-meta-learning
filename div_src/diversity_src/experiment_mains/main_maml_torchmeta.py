@@ -1,3 +1,5 @@
+import sys
+
 import torch
 import torch.nn as nn
 import torch.multiprocessing as mp
@@ -28,42 +30,58 @@ from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_
 from pathlib import Path
 
 
-def mds_resnet18_maml_adam_no_scheduler(args: Namespace) -> Namespace:
+def mds_resnet_maml_adam_scheduler(args: Namespace) -> Namespace:
+    """
+    todo patrick: what exactly is this running? what type of training etc?
+
+    Looking at original mds hps:
+        - https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/setups/trainer_config.gin
+        - https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/best/maml_all_from_scratch.gin
+        Main summary:
+        ```
+        Trainer.num_updates = 75000
+        Trainer.batch_size = 256  # Only applicable to non-episodic models.
+        Trainer.num_eval_episodes = 600
+        ```
+
+    """
     # - model
-    args.model_option = 'resnet18_rfs'
+    # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
     args.n_cls = 5
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
-                          num_classes=args.n_cls)
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
 
     # - data
     args.data_option = 'mds'
     # args.sources = ['vgg_flower', 'aircraft']
     # Mscoco, traffic_sign are VAL only
     args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower']
-    # todo: this is needed because Patrick Yu add this here or put it in args
+    # todo: this is needed because Patrick Yu add explanation here or put it in args
     args.min_examples_in_class = 20
 
     # - training mode
     args.training_mode = 'iterations'
 
-    # note: 60K iterations for original maml 5CNN with adam
-    args.num_its = 800_000
+    # note: 75_000 used by MAML mds
+    args.num_its = 100_000
+    # args.num_its = 800_000
 
     # - debug flag
-    # args.debug = False
-    args.debug = True
+    args.debug = False
+    # args.debug = True
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
     args.lr = 1e-3  # match MAML++
     args.opt_hps: dict = dict(lr=args.lr)
 
-    args.scheduler_option = 'None'
-    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
-    # args.log_scheduler_freq = 2_000
-    # args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
-    # args.eta_min = 1e-5  # match MAML++
-    # args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 2_000
+    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    args.eta_min = 1e-5  # match MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    print(f'{args.T_max=}')
     # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
 
     # -- Meta-Learner
@@ -76,16 +94,19 @@ def mds_resnet18_maml_adam_no_scheduler(args: Namespace) -> Namespace:
     args.fo = True  # This is needed.
 
     # - outer trainer params
-    args.batch_size = 8
+    args.batch_size = 4  # decreased it to 4 even though it gives more noise but updates quicker + nano gpt seems to do that for speed up https://github.com/karpathy/nanoGPT/issues/58
     args.batch_size_eval = 2
+
+    # - logging params
+    args.log_freq = 500
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
     args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)

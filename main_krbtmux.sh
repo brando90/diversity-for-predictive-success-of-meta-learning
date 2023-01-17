@@ -66,9 +66,7 @@ echo WANDB_DIR = $WANDB_DIR
 echo OUT_FILE = $OUT_FILE
 echo ERR_FILE = $ERR_FILE
 
-export CUDA_VISIBLE_DEVICES=3
-echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
-python -c "import torch; print(torch.cuda.get_device_name(0));"
+#python -c "import torch; print(torch.cuda.get_device_name(0));"
 
 # sh main_krbtmux.sh
 # - 5CNN 4 filters
@@ -91,14 +89,22 @@ python -c "import torch; print(torch.cuda.get_device_name(0));"
 
 # - mds div
 conda activate mds_env_gpu
+echo $OUT_FILE; echo $ERR_FILE
+export CUDA_VISIBLE_DEVICES=3; echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 
 # - mds maml
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
-tmux new -s mds_maml
-tmux attach -t mds_maml
+#tmux new -s mds_maml
+#tmux new -s mds_maml_resnet50rfs
+#tmux attach -t mds_maml
 
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet18_maml_adam_no_scheduler --data_path $HOME/data/mds/records/
+#bash ~/diversity-for-predictive-success-of-meta-learning/main_krbtmux.sh
+
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet_maml_adam_scheduler --model_option resnet18_rfs --data_path $HOME/data/mds/records/ \
+#    |& tee $OUT_FILE 2> $ERR_FILE
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet_maml_adam_scheduler --model_option resnet50_rfs --data_path $HOME/data/mds/records/ \
+    |& tee $OUT_FILE 2> $ERR_FILE
 
 # - mds usl
 
