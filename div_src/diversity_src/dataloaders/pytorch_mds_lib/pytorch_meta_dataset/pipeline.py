@@ -137,16 +137,14 @@ class EpisodicDataset(torch.utils.data.IterableDataset):
             support_labels = torch.tensor(support_labels)
             query_labels = torch.tensor(query_labels)
             #yield support_images, query_images, support_labels, query_labels
-            #****!!!!MODIFIED-10/31 to conform to Torchmeta standards!!!!!!!***
+            # modified to support torchmeta style (supportx, supporty, queryx, queryy)
             yield support_images, support_labels, query_images, query_labels
 
     def get_next(self, class_id):
         try:
             sample_dic = next(self.class_datasets[class_id])
         except (StopIteration, KeyError, TypeError) as e:
-            #print("start classid",class_id) #start 2, end 2, start 2, end 2 - whats going on?
             self.class_datasets[class_id] = cycle_(self.class_datasets[class_id])
-            #print("end classid",class_id)
             sample_dic = next(self.class_datasets[class_id])
         return sample_dic
 
@@ -161,25 +159,15 @@ class BatchDataset(torch.utils.data.IterableDataset):
         self.random_gen = np.random.RandomState()
         self.rs = self.random_gen.randint(len(self.class_datasets))
 
-    '''def __len__(self):
-        # sample random source & return length
-        self.rs = self.random_gen.randint(len(self.class_datasets))
-        return len(self.class_datasets[self.rs])
-        #return len(self.dataset_list)
-
-    def __getitem__(self, idx):
-        #sample from the source we got
-        sample = self.class_datasets[self.rs][idx]
-
-        return sample'''
 
     def __iter__(self):
         while True:
-            while True:
-                rand_class = self.random_gen.randint(len(self.class_datasets))
-                if (rand_class != 2): #not sure whats going on with class 2
-                    break
-            #rand_class = self.random_gen.randint(len(self.class_datasets))
+            # previously had issue with quickdraw but no more
+            #while True:
+            #    rand_class = self.random_gen.randint(len(self.class_datasets))
+            #    if (rand_class != 2): #not sure whats going on with class 2
+            #        break
+            rand_class = self.random_gen.randint(len(self.class_datasets))
             sample_dic = self.get_next(rand_class)
             transformed_image = self.transforms(sample_dic['image'])
             target = sample_dic['label'][0]
@@ -189,14 +177,12 @@ class BatchDataset(torch.utils.data.IterableDataset):
         try:
             sample_dic = next(self.class_datasets[class_id])
         except (StopIteration, KeyError, TypeError) as e:
-            #print("start classid_b", class_id)
             self.class_datasets[class_id] = cycle_(self.class_datasets[class_id])
             sample_dic = next(self.class_datasets[class_id])
-            #print("end classid_b", class_id)
         return sample_dic
 
 
-class ZipDataset(torch.utils.data.IterableDataset): #OLD:torch.utils.data.Dataset #chnged from torch.utils.data.IterableDataset 10-12
+class ZipDataset(torch.utils.data.IterableDataset):
     def __init__(self,
                  dataset_list: List[EpisodicDataset]):
         self.dataset_list = dataset_list
@@ -205,25 +191,11 @@ class ZipDataset(torch.utils.data.IterableDataset): #OLD:torch.utils.data.Datase
 
     def __iter__(self):
         while True:
-            rand_source = self.random_gen.randint(len(self.dataset_list)) #if rand source is 6, skip 2.
+            rand_source = self.random_gen.randint(len(self.dataset_list))
             next_e = self.get_next(rand_source)
             yield next_e
 
-    #addded 10/10 - hacky?
-    '''def __len__(self):
-        # sample random source & return length
-        self.rs = self.random_gen.randint(len(self.dataset_list))
-        return len(self.dataset_list[self.rs])
-        #return len(self.dataset_list)
-
-    def __getitem__(self, idx):
-        #sample from the source we got
-        sample = self.dataset_list[self.rs][idx]
-
-        return sample'''
-
     def get_next(self, source_id):
-        #print("sourceid", source_id) #if sourceid 6, block class 2
         try:
             dataset = next(self.dataset_list[source_id])
         except (StopIteration, KeyError, TypeError) as e:

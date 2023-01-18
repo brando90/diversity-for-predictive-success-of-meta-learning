@@ -1981,9 +1981,12 @@ def mds_resnet_usl_adam_scheduler(args: Namespace) -> Namespace:
 
     # - data
     args.data_option = 'mds'
-    # Mscoco, traffic_sign are VAL only
-    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower']
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower', 'mscoco', 'traffic_sign']
     args.n_classes = args.n_cls
+
+    # if we set args.min_examples_in_class = args.k_shot + args.k_eval
+    # we ensure that our n-way k-shot task has enough samples for both the support and query sets.
+    args.min_examples_in_class = 20  # assuming 5-way, 5-shot 15-eval shot
 
     # - training mode
     args.training_mode = 'iterations'
@@ -2037,9 +2040,13 @@ def mds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Na
 
     # - data
     args.data_option = 'mds'
-    # Mscoco, traffic_sign are VAL only
-    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower']
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
+                    'mscoco', 'traffic_sign']
     args.n_classes = args.n_cls
+
+    # if we set args.min_examples_in_class = args.k_shot + args.k_eval
+    # we ensure that our n-way k-shot task has enough samples for both the support and query sets.
+    args.min_examples_in_class = 20  # assuming 5-way, 5-shot 15-eval shot
 
     # - training mode
     args.training_mode = 'iterations_train_convergence'
