@@ -84,7 +84,7 @@ def get_mds_args() -> Namespace:
     parser.add_argument('--max_support_set_size', type=int, default=1000000000000,
                         help='Maximum # of support samples')
 
-    parser.add_argument('--min_examples_in_class', type=int, default=15,  # TODO - changed
+    parser.add_argument('--min_examples_in_class', type=int, default=20,  # TODO - changed
                         help='Classes that have less samples will be skipped')
 
     parser.add_argument('--max_support_size_contrib_per_class', type=int, default=1000000000000,
@@ -314,6 +314,7 @@ def loop_test(args):
     from uutils.torch_uu import process_meta_batch
     args.batch_size = 10
     args.batch_size_eval = 10
+    #args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
 
     dataloader = get_mds_loader(args)
 
