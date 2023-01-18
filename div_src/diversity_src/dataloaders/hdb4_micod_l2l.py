@@ -186,7 +186,49 @@ def hdb4_micod_l2l_tasksets(
 
 
 def loop_through_l2l_indexable_benchmark_with_model_test():
-    pass
+    # - for determinism
+    import random
+    import torch
+    import numpy as np
+    random.seed(0)
+    torch.manual_seed(0)
+    np.random.seed(0)
+
+    # - options for number of tasks/meta-batch size
+    batch_size = 5
+
+    # - get benchmark
+    benchmark: BenchmarkTasksets = hdb4_micod_l2l_tasksets()
+    splits = ['train', 'validation', 'test']
+    tasksets = [getattr(benchmark, split) for split in splits]
+
+    # - loop through tasks
+    device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
+    # from models import get_model
+    # model = get_model('resnet18', pretrained=False, num_classes=5).to(device)
+    # model = torch.hub.load("pytorch/vision", "resnet18", weights="IMAGENET1K_V2")
+    # model = torch.hub.load("pytorch/vision", "resnet50", weights="IMAGENET1K_V2")
+    from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import get_default_learner_and_hps_dict
+    model, _ = get_default_learner_and_hps_dict()  # 5cnn
+    model.to(device)
+    from torch import nn
+    criterion = nn.CrossEntropyLoss()
+    for i, taskset in enumerate(tasksets):
+        print(f'-- {splits[i]=}')
+        for task_num in range(batch_size):
+            print(f'{task_num=}')
+
+            X, y = taskset.sample()
+            print(f'{X.size()=}')
+            print(f'{y.size()=}')
+            print(f'{y=}')
+
+            y_pred = model(X)
+            loss = criterion(y_pred, y)
+            print(f'{loss=}')
+            print()
+
+    print('-- end of test --')
 
 
 # -
