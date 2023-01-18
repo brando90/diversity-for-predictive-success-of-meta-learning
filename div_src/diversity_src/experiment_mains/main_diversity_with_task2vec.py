@@ -359,6 +359,45 @@ def diversity_ala_task2vec_delauny(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
+    from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_args
+    args = get_mds_args() # TODO set this in load_args below
+    #args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
+
+    # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
+                    'mscoco', 'traffic_sign']
+
+    # if we set args.min_examples_in_class = args.k_shot + args.k_eval
+    # we ensure that our n-way k-shot task has enough samples for both the support and query sets.
+    args.min_examples_in_class = 20  # assuming 5-way, 5-shot 15-eval shot
+
+    args.batch_size = 500 #5 for testing
+
+    args.num_support = 5
+    args.num_query = 15
+    args.k_shots = 5
+    args.k_query = 15
+
+    # args.batch_size = 500
+    args.data_option = 'mds'
+    # set datapath if not already
+
+    # - probe_network
+    args.model_option = 'resnet18_pretrained_imagenet'
+    args.classifier_opts = None
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
+    args.log_to_wandb = False
+    # args.log_to_wandb = False
+
+    from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
 
 # - main
 
@@ -370,15 +409,16 @@ def load_args() -> Namespace:
     """
     # -- parse args from terminal
     args: Namespace = parse_args_meta_learning()
+    # args: Namespace = get_mds_args()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'diversity_ala_task2vec_delauny'  # <- REMOVE to remove manual loads
-
+    args.manual_loads_name = 'diversity_ala_task2vec_mds' # for MDS Diversity computation
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')
     if resume_from_checkpoint(args):
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
     elif args_hardcoded_in_script(args):
-        args: Namespace = eval(f'{args.manual_load_name}(args)')
+        args: Namespace = eval(f'{args.manual_loads_name}(args)')
     else:
         # NOP: since we are using args from terminal
         pass
