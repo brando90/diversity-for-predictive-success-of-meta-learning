@@ -17,73 +17,10 @@ from torchvision.transforms import Compose
 
 from diversity_src.dataloaders.common import IndexableDataSet, ToRGB, DifferentTaskTransformIndexableForEachDataset
 
-from diversity_src.dataloaders.hdb1_mi_omniglot_l2l import get_omniglot_datasets, get_remaining_transforms_mi, \
-    get_remaining_transforms_omniglot
 from uutils.torch_uu.dataloaders.cifar100fs_fc100 import get_transform
-
-
-def get_remaining_transforms_cifarfs(dataset: MetaDataset, ways: int, samples: int) -> list[TaskTransform]:
-    remaining_task_transforms = get_remaining_transforms_mi(dataset, ways=ways, samples=samples)
-    return remaining_task_transforms
-
-
-def get_cifarfs_datasets(
-        root='~/data/l2l_data/',
-        data_augmentation='hdb2',
-        device=None,
-        **kwargs,
-):
-    """Tasksets for CIFAR-FS benchmarks."""
-    if data_augmentation is None:
-        train_data_transforms = torchvision.transforms.ToTensor()
-        test_data_transforms = torchvision.transforms.ToTensor()
-    elif data_augmentation == 'normalize':
-        train_data_transforms = Compose([
-            lambda x: x / 255.0,
-        ])
-        test_data_transforms = train_data_transforms
-    elif data_augmentation == 'rfs2020' or data_augmentation == 'hdb2':
-        train_data_transforms = get_transform(augment=True)
-        test_data_transforms = get_transform(augment=False)
-    else:
-        raise ValueError(f'Invalid data_augmentation argument. Got: {data_augmentation=}')
-
-    train_dataset = l2l.vision.datasets.CIFARFS(root=root,
-                                                transform=train_data_transforms,
-                                                mode='train',
-                                                download=True)
-    valid_dataset = l2l.vision.datasets.CIFARFS(root=root,
-                                                transform=test_data_transforms,
-                                                mode='validation',
-                                                download=True)
-    test_dataset = l2l.vision.datasets.CIFARFS(root=root,
-                                               transform=test_data_transforms,
-                                               mode='test',
-                                               download=True)
-    if device is not None:
-        train_dataset = l2l.data.OnDeviceDataset(
-            dataset=train_dataset,
-            device=device,
-        )
-        valid_dataset = l2l.data.OnDeviceDataset(
-            dataset=valid_dataset,
-            device=device,
-        )
-        test_dataset = l2l.data.OnDeviceDataset(
-            dataset=test_dataset,
-            device=device,
-        )
-    train_dataset = l2l.data.MetaDataset(train_dataset)
-    valid_dataset = l2l.data.MetaDataset(valid_dataset)
-    test_dataset = l2l.data.MetaDataset(test_dataset)
-
-    # - add names to be able to get the right task transform for the indexable dataset
-    train_dataset.name = 'train_cifarfs'
-    valid_dataset.name = 'val_cifarfs'
-    test_dataset.name = 'test_cifarfs'
-
-    _datasets = (train_dataset, valid_dataset, test_dataset)
-    return _datasets
+from uutils.torch_uu.dataloaders.meta_learning.cifarfs_l2l import get_cifarfs_datasets, get_remaining_transforms_cifarfs
+from uutils.torch_uu.dataloaders.meta_learning.omniglot_l2l import get_omniglot_datasets, \
+    get_remaining_transforms_omniglot
 
 
 def get_indexable_list_of_datasets_cifarfs_and_omniglot(
@@ -156,10 +93,12 @@ def hdb2_cifarfs_omniglot_tasksets(
         test_dataset[1].name: test_task_transform_omni
     }
 
-    train_transforms: TaskTransform = DifferentTaskTransformIndexableForEachDataset(train_dataset, dict_cons_remaining_task_transforms)
+    train_transforms: TaskTransform = DifferentTaskTransformIndexableForEachDataset(train_dataset,
+                                                                                    dict_cons_remaining_task_transforms)
     validation_transforms: TaskTransform = DifferentTaskTransformIndexableForEachDataset(validation_dataset,
                                                                                          dict_cons_remaining_task_transforms)
-    test_transforms: TaskTransform = DifferentTaskTransformIndexableForEachDataset(test_dataset, dict_cons_remaining_task_transforms)
+    test_transforms: TaskTransform = DifferentTaskTransformIndexableForEachDataset(test_dataset,
+                                                                                   dict_cons_remaining_task_transforms)
 
     # Instantiate the tasksets
     train_tasks = l2l.data.TaskDataset(

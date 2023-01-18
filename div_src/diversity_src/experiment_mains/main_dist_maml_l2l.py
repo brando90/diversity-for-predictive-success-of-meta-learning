@@ -1963,6 +1963,10 @@ def l2l_5CNN_hdb1_adam_cs_filter_size(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+# - hdb4 = micod = mi + omniglot + omniglot + delauny
+
+
+
 # - load args
 
 def load_args() -> Namespace:
