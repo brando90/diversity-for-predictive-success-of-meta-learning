@@ -452,13 +452,11 @@ class EpisodeDescriptionSampler(object):
           A sequence of `(class_id, num_support, num_query)` tuples, where
             relative `class_id` is an integer in [0, self.num_classes).
         """
-        # earlier error from quickdraw that's no longer an issue
-        #keep sampling classids until we dont have a 2 in it! (Temp fix)
+        # earlier error from quickdraw that's no longer issue
         #while True:
         #    class_ids = self.sample_class_ids(random_gen)
         #    if(2 not in class_ids):
         #        break
-
         class_ids = self.sample_class_ids(random_gen)
 
         images_per_class = np.array([
