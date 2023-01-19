@@ -114,6 +114,7 @@ class EpisodicDataset(torch.utils.data.IterableDataset):
             query_labels = []
             episode_classes = list({class_ for class_, _, _ in episode_description})
             for class_id, nb_support, nb_query in episode_description: #avoid sampling source 6, class 2
+                print("class", class_id) #for debugging
                 used_ids = []
                 sup_added = 0
                 query_added = 0
@@ -196,6 +197,7 @@ class ZipDataset(torch.utils.data.IterableDataset):
             yield next_e
 
     def get_next(self, source_id):
+        print("source", source_id) #for debugging
         try:
             dataset = next(self.dataset_list[source_id])
         except (StopIteration, KeyError, TypeError) as e:
