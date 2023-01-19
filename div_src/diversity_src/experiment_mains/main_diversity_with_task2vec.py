@@ -360,8 +360,8 @@ def diversity_ala_task2vec_delauny(args: Namespace) -> Namespace:
     return args
 
 def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
-    from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_args
-    args = get_mds_args() # TODO set this in load_args below
+    from diversity_src.dataloaders.metadataset_common import get_mds_base_args
+    args: Namespace = get_mds_base_args()
     #args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
 
     # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
@@ -374,10 +374,11 @@ def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
 
     args.batch_size = 500 #5 for testing
 
-    args.num_support = 5
-    args.num_query = 15
-    args.k_shots = 5
-    args.k_query = 15
+    # change if needed (default is below)
+    #args.num_support = 5
+    #args.num_query = 15
+    #args.k_shots = 5
+    #args.k_query = 15
 
     # args.batch_size = 500
     args.data_option = 'mds'
@@ -392,7 +393,7 @@ def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
-    args.log_to_wandb = False
+    args.log_to_wandb = True
     # args.log_to_wandb = False
 
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
@@ -444,7 +445,10 @@ def main():
 
 
 def compute_div_and_plot_distance_matrix_for_fsl_benchmark_for_all_splits(args: Namespace, show_plots: bool = True):
-    splits: list[str] = ['train', 'validation', 'test']
+    if (args.data_option == 'mds'):
+        splits: list[str] = ['train', 'val', 'test']
+    else:
+        splits: list[str] = ['train', 'validation', 'test']
     print_args(args)
 
     splits_results = {}

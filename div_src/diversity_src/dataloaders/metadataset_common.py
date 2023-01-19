@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 
 # Returns a base list of args shared for USL and MAML training.
-def mds_base_args() -> Namespace:
+def get_mds_base_args() -> Namespace:
     import argparse
 
     # - great terminal argument parser
@@ -23,7 +23,7 @@ def mds_base_args() -> Namespace:
     # mscoco and traffic sign are val only
     parser.add_argument('--sources', nargs="+",
                         default=['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot',
-                                 'quickdraw', 'vgg_flower', 'mscoco', 'traffic_sign'],
+                                 'quickdraw', 'vgg_flower', 'traffic_sign'],
                         help='List of datasets to use')
 
     parser.add_argument('--train_transforms', nargs="+", default=['random_resized_crop', 'random_flip'],
@@ -116,7 +116,7 @@ def mds_base_args() -> Namespace:
     # model & loss function options
     parser.add_argument('--model_option',
                         type=str,
-                        default="5CNN_opt_as_model_for_few_shot_sl",
+                        default="resnet18_rfs",
                         help="Options: e.g."
                              "5CNN_opt_as_model_for_few_shot_sl"
                              "resnet12_rfs"

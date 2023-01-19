@@ -25,11 +25,6 @@ from uutils import load_cluster_jobids_to, merge_args
 from uutils.logging_uu.wandb_logging.common import setup_wandb
 from uutils.torch_uu.distributed import set_devices
 
-# Assuming that USL and MAML base args are the same
-def get_mds_batch_args() -> Namespace:
-    from diversity_src.dataloaders.metadataset_common import mds_base_args
-    return mds_base_args()
-
 def get_mds_loader(args):
     data_config = config_lib.DataConfig(args)
     episod_config = config_lib.EpisodeDescriptionConfig(args)

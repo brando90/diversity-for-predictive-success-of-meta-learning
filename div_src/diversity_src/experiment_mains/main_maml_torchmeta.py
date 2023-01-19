@@ -194,12 +194,12 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     # todo: maybe later, add a try catch that if there is an mds only flag given at the python cmd line then it will load the mds args otherwise do the meta-leanring args
     # todo: https://stackoverflow.com/questions/75141370/how-does-one-have-python-work-when-multiple-arg-parse-options-are-possible
-    from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_args
-    args: Namespace = get_mds_args()
+    from diversity_src.dataloaders.metadataset_common import get_mds_base_args
+    args: Namespace = get_mds_base_args()
     # args: Namespace = parse_args_meta_learning()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing'  # <- REMOVE to remove manual loads
-
+    # args.manual_loads_name = 'mds_resnet_maml_adam_no_scheduler_train_to_convergence' 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')
     if resume_from_checkpoint(args):
