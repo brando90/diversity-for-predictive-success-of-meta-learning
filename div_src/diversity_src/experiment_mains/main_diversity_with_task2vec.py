@@ -26,9 +26,10 @@ from uutils.argparse_uu.supervised_learning import make_args_from_supervised_lea
 from uutils.logging_uu.wandb_logging.common import cleanup_wandb, setup_wandb
 from uutils.numpy_uu.common import get_diagonal, compute_moments
 from uutils.plot import save_to
-from uutils.plot.histograms_uu import get_histogram
+from uutils.plot.histograms_uu import get_histogram, get_x_axis_y_axis_from_seaborn_histogram
 from uutils.torch_uu import get_device_from_model, get_device
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
+from uutils.torch_uu.dataloaders.common import get_dataset_size
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
 from uutils.torch_uu.distributed import is_lead_worker, set_devices
 from uutils.torch_uu.models.probe_networks import get_probe_network
@@ -39,6 +40,7 @@ from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interva
 
 # import matplotlib.pyplot as plt
 
+from pdb import set_trace as st
 
 # - mi
 
@@ -532,6 +534,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
         args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
         print(f'{args.tasksets=}')
     print(f'{args.data_augmentation=}')
+    print(f'{get_dataset_size(args)=}')
 
     # - compute task embeddings according to task2vec
     print(f'number of tasks to consider: {args.batch_size=}')
@@ -577,6 +580,16 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     print('-- moments of the task2vec pair-wise distances')
     moments: dict = compute_moments(distances_as_flat_array, moment_idxs=moment_idxs)
     pprint(moments)
+    # compute size of data set
+    size_dataset: int = -1
+    # size_dataset = len()
+
+    # compute div aware coeff
+    from diversity_src.diversity.diversity import size_aware_div_coef_discrete_histogram_based
+    effective_num_tasks, size_aware_div_coef, total_frequency, task2vec_dists_binned, frequencies_binned, num_bars_in_histogram, num_bins = size_aware_div_coef_discrete_histogram_based(
+        distances_as_flat_array, verbose=True)
+    print(
+        f'{(effective_num_tasks, size_aware_div_coef, total_frequency, task2vec_dists_binned, frequencies_binned, num_bars_in_histogram, num_bins)=}')
 
     # - save results
     torch.save(embeddings, args.log_root / 'embeddings.pt')  # saving obj version just in case
@@ -584,6 +597,14 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
                      'distance_matrix': distance_matrix,
                      'div': div, 'ci': ci,
                      'split': split,
+                     'effective_num_tasks': effective_num_tasks,
+                     'size_aware_div_coef': size_aware_div_coef,
+                     'total_frequency': total_frequency,
+                     'task2vec_dists_binned': task2vec_dists_binned,
+                     'frequencies_binned': frequencies_binned,
+                     'num_bars_in_histogram': num_bars_in_histogram,
+                     'num_bins': num_bins,
+                     'size_dataset': size_dataset,
                      }
     torch.save(results, args.log_root / f'results_{split}.pt')
     save_to_json_pretty(results, args.log_root / f'results_{split}.json')
@@ -592,7 +613,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     title: str = 'Distribution of Task2Vec Distances'
     xlabel: str = 'Cosine Distance between Task Pairs'
     ylabel = 'Frequency Density (pmf)'
-    get_histogram(distances_as_flat_array, xlabel, ylabel, title, stat='probability', linestyle=None, color='b')
+    ax = get_histogram(distances_as_flat_array, xlabel, ylabel, title, stat='probability', linestyle=None, color='b')
     save_to(args.log_root,
             plot_name=f'hist_density_task2vec_cosine_distances_{args.data_option}_{split}'.replace('-', '_'))
     ylabel = 'Frequency'

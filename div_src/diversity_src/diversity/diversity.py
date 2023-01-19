@@ -45,6 +45,7 @@ import random
 from pprint import pprint
 from typing import Optional
 
+import numpy as np
 from torch import Tensor, nn
 
 # from anatome.helper import LayerIdentifier, dist_data_set_per_layer, _dists_per_task_per_layer_to_list, compute_stats_from_distance_per_batch_of_data_sets_per_layer
@@ -170,7 +171,8 @@ def get_all_required_distances_for_pairs_of_tasks(f1: nn.Module, f2: nn.Module,
     same tasks to each other and that has a distance = 0.0
     :return:
     """
-    from anatome.helper import LayerIdentifier, dist_data_set_per_layer, _dists_per_task_per_layer_to_list, compute_stats_from_distance_per_batch_of_data_sets_per_layer
+    from anatome.helper import LayerIdentifier, dist_data_set_per_layer, _dists_per_task_per_layer_to_list, \
+        compute_stats_from_distance_per_batch_of_data_sets_per_layer
     assert metric_as_sim_or_dist == 'dist'
     L = len(layer_names1)
     B1, B2 = X1.size(0), X2.size(0)
@@ -353,6 +355,76 @@ def compute_diversity_fixed_probe_net(args, meta_dataloader):
     return div_mu, div_ci, distances_for_task_pairs
 
 
+# - size aware dif
+"""
+how to take into account the data set size in the diversity coefficient?
+
+- y-axis freq
+- x-axis div
+- size_aware_div_ceoff(B, smooth) = int_{x \in div} count(x) * div(x) * freq(x) 
+	- use kernel density estimation
+	- and integrals
+- size_aware_div_ceoff(B, discrete with bin_size = X) = sum_{x \in div(bin_size)} count(x) * div(x) * freq(x)
+	- discrete sums are fine
+
+- count(x) = 2, idea for count(x) is that when div(x) == 1 it means the tasks at batch named x are maximally different, therefore there are 2 effective counts every time we compute the task2vec distance between tasks (weighted by div, saying)
+- general eq
+	- sum_{x \in divs} effective_count_concepts(x) * freq(x)
+	- where effective_count_concepts(x) = count(x) * div(x)
+- this metric came about because
+	- according to CLT the data set size N matters to learn things "perfectly"
+	- because in practice it assumes it sees all the distribution (maximally diverse), so we want a measure that takes (effective) N into account 
+	
+ref: 
+  - https://www.evernote.com/shard/s410/sh/78688a3a-06bf-a226-541f-a543d4429b3d/97b8576e4fdce577193d367da250e199
+"""
+
+
+def size_aware_div_coef_kernel_density_estimation_kde():
+    """
+    - y-axis freq
+    - x-axis div
+    - size_aware_div_ceoff(B, smooth) = int_{x \in div} count(x) * div(x) * freq(x)
+        - use kernel density estimation
+        - and integrals
+    """
+
+    return
+
+
+def size_aware_div_coef_discrete_histogram_based(distances_as_flat_array: np.array,
+                                                 verbose: bool = False,
+                                                 count: int = 2,  # count(task2, task2) = 2
+                                                 ) -> tuple:
+    """
+    - y-axis freq
+    - x-axis div
+    - size_aware_div_ceoff(B, discrete with bin_size = X) = sum_{x \in div(bin_size)} count(x) * div(x) * freq(x)
+	    - discrete sums are fine
+    """
+    from uutils.plot.histograms_uu import get_histogram
+    from uutils.plot.histograms_uu import get_x_axis_y_axis_from_seaborn_histogram
+    title: str = 'Distribution of Task2Vec Distances'
+    ylabel = 'Frequency'
+    xlabel: str = 'Cosine Distance between Task Pairs'
+    ax = get_histogram(distances_as_flat_array, xlabel, ylabel, title, linestyle=None, color='b')
+    x_data, y_data, num_bars_in_histogram, num_bins = get_x_axis_y_axis_from_seaborn_histogram(ax, verbose=True)
+    task2vec_dists_binned = x_data
+    frequencies_binned = y_data
+    if verbose:
+        print(f'{x_data, y_data, num_bars_in_histogram, num_bins=}')
+        print(f'{frequencies_binned=} \n {frequencies_binned=} \n {sum(frequencies_binned)=}')
+    # - close the dummy plot created by get_histogram
+    import matplotlib.pyplot as plt
+    plt.close()
+    # - compute the size aware diversity coefficient
+    # numpy dot product between task2vec_dists and frequencies
+    size_aware_div_coef: float = float(np.dot(task2vec_dists_binned, frequencies_binned))
+    total_frequency: int = int(sum(frequencies_binned))  # not same as size of data set, due to pair wise comparison
+    effective_num_tasks: float = count * size_aware_div_coef
+    return effective_num_tasks, size_aware_div_coef, total_frequency, task2vec_dists_binned, frequencies_binned, num_bars_in_histogram, num_bins
+
+
 # - tests
 
 def compute_div_example1_test():
@@ -382,6 +454,31 @@ def compute_div_example2_test():
     pass
 
 
+def compute_size_aware_div_test_go():
+    # - creating dummy histogram to make sure it doesn't get deleted when we do what to print it
+    from uutils.plot.histograms_uu import get_histogram
+    data = np.random.normal(size=50)
+    ax = get_histogram(data, 'x', 'y', 'title', stat='frequency', linestyle=None, color='r')
+    results = size_aware_div_coef_discrete_histogram_based(distances_as_flat_array=np.random.rand(1000), verbose=True)
+    print(f'{results=}')
+    distances_as_flat_array = np.random.rand(1000)
+    effective_num_tasks, size_aware_div_coef, total_frequency, task2vec_dists_binned, frequencies_binned, num_bars_in_histogram, num_bins = size_aware_div_coef_discrete_histogram_based(distances_as_flat_array, verbose=True)
+    print(f'{(effective_num_tasks, size_aware_div_coef, total_frequency, task2vec_dists_binned, frequencies_binned, num_bars_in_histogram, num_bins)=}')
+    # - plot the histogram
+    import matplotlib.pyplot as plt
+    plt.show()
+    # - end
+    print()
+
+
 if __name__ == '__main__':
-    compute_div_example1_test()
-    print('Done! success!\a')
+    import time
+
+    start = time.time()
+    # - run
+    # compute_div_example1_test()
+    compute_size_aware_div_test_go()
+    # - Done
+    from uutils import report_times
+
+    print(f"\nSuccess Done!: {report_times(start)}\a")
