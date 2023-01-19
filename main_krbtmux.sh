@@ -88,13 +88,13 @@ echo ERR_FILE = $ERR_FILE
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/diversity/task2vec_based_metrics/diversity_task2vec/mi_vs_omniglot_div.py > $OUT_FILE 2> $ERR_FILE &
 
 # - mds div
-conda activate mds_env_gpu
 echo $OUT_FILE; echo $ERR_FILE
-export CUDA_VISIBLE_DEVICES=6; echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 
 # - mds
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
+#conda activate metalearning_gpu
+export CUDA_VISIBLE_DEVICES=6; echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 ulimit -n 120000
 ulimit -Sn
 ulimit -Hn
@@ -104,15 +104,23 @@ ulimit -Hn
 #tmux new -s mds_maml_resnet50rfs
 #tmux new -s mds1_maml_resnet50rfs
 
+#tmux new -s div_hdb4_micod
+
 #bash ~/diversity-for-predictive-success-of-meta-learning/main_krbtmux.sh
+
+# - div
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_mds \
+#      > $OUT_FILE 2> $ERR_FILE &
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb4_micod \
+      > $OUT_FILE 2> $ERR_FILE
 
 # - mds maml
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet_maml_adam_scheduler --model_option resnet18_rfs --data_path $HOME/data/mds/records/ \
 #    |& tee $OUT_FILE 2> $ERR_FILE
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet_maml_adam_scheduler --model_option resnet50_rfs --data_path $HOME/data/mds/records/ \
 #    |& tee $OUT_FILE 2> $ERR_FILE
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet_maml_adam_no_scheduler_train_to_convergence --model_option resnet50_rfs --data_path $HOME/data/mds/records/ \
-    |& tee $OUT_FILE 2> $ERR_FILE
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet_maml_adam_no_scheduler_train_to_convergence --model_option resnet50_rfs --data_path $HOME/data/mds/records/ \
+#    |& tee $OUT_FILE 2> $ERR_FILE
 
 # - mds usl
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_resnet_usl_adam_scheduler --model_option resnet18_rfs --data_path $HOME/data/mds/records/ \

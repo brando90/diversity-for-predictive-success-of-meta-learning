@@ -324,10 +324,9 @@ def diversity_ala_task2vec_hdb2_resnet18_pretrained_imagenet(args: Namespace) ->
     return args
 
 
-# - delauny
+# - delaunay
 
-
-def diversity_ala_task2vec_delauny(args: Namespace) -> Namespace:
+def diversity_ala_task2vec_delaunay(args: Namespace) -> Namespace:
     # - data set options
     args.batch_size = 500
     args.data_option = 'delauny_uu_l2l_bm_split'
@@ -359,10 +358,48 @@ def diversity_ala_task2vec_delauny(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+
+# - hdb4 = micod = mi + cifarfs + omniglot + delauanay
+
+def diversity_ala_task2vec_hdb4_micod(args: Namespace) -> Namespace:
+    # - data set options
+    args.batch_size = 5
+    # args.batch_size = 500
+    args.data_option = 'hdb4_micod'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'hdb4_micod'
+    args.classifier_opts = None
+
+    # - probe_network
+    # args.model_option = 'resnet18_random'
+    args.model_option = 'resnet18_pretrained_imagenet'
+    # args.model_option = 'resnet34_random'
+    # args.model_option = 'resnet34_pretrained_imagenet'
+    # - options for fine tuning (ft) or not
+    # args.model_option = 'resnet18_random'
+    # args.classifier_opts = dict(epochs=0)
+    # args.model_option = 'resnet18_pretrained_imagenet'
+    # args.classifier_opts = dict(epochs=0)
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+# - mds
+
 def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
     from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_args
-    args = get_mds_args() # TODO set this in load_args below
-    #args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
+    args = get_mds_args()  # TODO set this in load_args below
+    # args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
 
     # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
     args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
@@ -372,7 +409,7 @@ def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
     # we ensure that our n-way k-shot task has enough samples for both the support and query sets.
     args.min_examples_in_class = 20  # assuming 5-way, 5-shot 15-eval shot
 
-    args.batch_size = 500 #5 for testing
+    args.batch_size = 500  # 5 for testing
 
     args.num_support = 5
     args.num_query = 15
@@ -399,6 +436,7 @@ def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+
 # - main
 
 def load_args() -> Namespace:
@@ -412,7 +450,7 @@ def load_args() -> Namespace:
     # args: Namespace = get_mds_args()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'diversity_ala_task2vec_delauny'  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'diversity_ala_task2vec_mds' # for MDS Diversity computation
+
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')
     if resume_from_checkpoint(args):
@@ -447,6 +485,8 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark_for_all_splits(args: 
     splits: list[str] = ['train', 'validation', 'test']
     print_args(args)
 
+    # -
+    print(f'----> div computations...')
     splits_results = {}
     for split in splits:
         print(f'----> div computations for {split=}')
@@ -454,7 +494,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark_for_all_splits(args: 
         splits_results[split] = results
 
     # - print summary
-    print('---- Summary of results for all splits')
+    print('---- Summary of results for all splits...')
     for split in splits:
         results: dict = splits_results[split]
         div, ci, distance_matrix, split = results['div'], results['ci'], results['distance_matrix'], results['split']
@@ -486,7 +526,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     # create loader
     if args.data_option == 'mds':
         from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_loader
-        args.dataloaders = get_mds_loader(args)# implement returning dicts of torchmeta like dl's for mds
+        args.dataloaders = get_mds_loader(args)  # implement returning dicts of torchmeta like dl's for mds
         print(f'{args.dataloaders=}')
     else:
         args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)

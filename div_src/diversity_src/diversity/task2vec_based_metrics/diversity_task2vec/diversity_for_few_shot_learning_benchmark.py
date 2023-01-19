@@ -69,7 +69,7 @@ from torch.utils.data import Dataset, DataLoader
 
 import diversity_src.diversity.task2vec_based_metrics.task2vec as task2vec
 import diversity_src.diversity.task2vec_based_metrics.task_similarity as task_similarity
-from dataset import TaskDataset
+# from dataset import TaskDataset
 # from models import get_model
 # from task2vec import Embedding, Task2Vec, ProbeNetwork
 from diversity_src.diversity.task2vec_based_metrics.models import get_model
@@ -206,6 +206,7 @@ def get_task_embeddings_from_few_shot_l2l_benchmark(tasksets: BenchmarkTasksets,
         time we create a new fsl.
     """
     # - get the data set of (n-way, k-shot) tasks
+    from learn2learn.data import TaskDataset
     task_dataset: TaskDataset = getattr(tasksets, split)  # tasksets.train
 
     # - compute embeddings for tasks
