@@ -591,7 +591,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     # compute div aware coeff
     from diversity_src.diversity.diversity import size_aware_div_coef_discrete_histogram_based
     effective_num_tasks, size_aware_div_coef, total_frequency, task2vec_dists_binned, frequencies_binned, num_bars_in_histogram, num_bins = size_aware_div_coef_discrete_histogram_based(
-        distances_as_flat_array, verbose=True)
+        distances_as_flat_array)
     print(
         f'{(effective_num_tasks, size_aware_div_coef, total_frequency, task2vec_dists_binned, frequencies_binned, num_bars_in_histogram, num_bins)=}')
 

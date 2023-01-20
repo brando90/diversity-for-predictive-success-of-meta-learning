@@ -1920,24 +1920,20 @@ def sl_hdb1_5cnn_adam_cl_filter_size(args: Namespace):
 
 # - hbd4 micod
 
-
-def sl_hdb4_micod_resnet_rfs_adam_cl(args: Namespace) -> Namespace:
+def usl_hdb4_micod_resnet_rfs_adam_cl_its(args: Namespace) -> Namespace:
     # - model
-    # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
-    args.n_cls = 5000
-    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
-                          num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    args.n_cls = 1262  # 64 + 34 + 64 + 1100
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
 
     # - data
     args.data_option = 'hdb4_micod'
     args.n_classes = args.n_cls
+    args.data_augmentation = 'hdb4_micod'
 
     # - training mode
-    args.training_mode = 'epochs'
-    args.num_its = 1_000
-    # args.training_mode = 'iterations'
-    # args.num_its = 1_000
+    args.training_mode = 'iterations'
+    args.num_its = 100_000  # mds 50000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
 
     # - debug flag
     # args.debug = True
@@ -1960,9 +1956,49 @@ def sl_hdb4_micod_resnet_rfs_adam_cl(args: Namespace) -> Namespace:
     # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
 
     # - logging params
-    # args.log_freq = 500
+    args.log_freq = 500
     # args.log_freq = 20
-    args.log_freq = 2
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+    return args
+
+
+def usl_hdb4_micod_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+    # - model
+    args.n_cls = 1262  # 64 + 34 + 64 + 1100
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+    # - data
+    args.data_option = 'hdb4_micod'
+    args.n_classes = args.n_cls
+    args.data_augmentation = 'hdb4_micod'
+
+    # - training mode
+    args.training_mode = 'iterations_train_convergence'
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 256
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    args.scheduler_option = 'None'
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
@@ -2147,9 +2183,9 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     # todo: maybe later, add a try catch that if there is an mds only flag given at the python cmd line then it will load the mds args otherwise do the meta-leanring args
     # todo: https://stackoverflow.com/questions/75141370/how-does-one-have-python-work-when-multiple-arg-parse-options-are-possible
-    from diversity_src.dataloaders.metadataset_common import get_mds_base_args
-    args: Namespace = get_mds_base_args()
-    # args: Namespace = parse_args_standard_sl()
+    # from diversity_src.dataloaders.metadataset_common import get_mds_base_args
+    # args: Namespace = get_mds_base_args()
+    args: Namespace = parse_args_standard_sl()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'sl_hdb1_5cnn_adam_cl_filter_size'  # <- REMOVE to remove manual loads
 
@@ -2162,6 +2198,8 @@ def load_args() -> Namespace:
     else:
         # NOP: since we are using args from terminal
         pass
+
+    print(f'----> {args.data_augmentation=}')
 
     # -- Setup up remaining stuff for experiment
     args: Namespace = setup_args_for_experiment(args)
@@ -2216,6 +2254,7 @@ def train(rank, args):
     print_dist('\n\n====> about to start train loop', args.rank)
     print(f'{args.filter_size=}') if hasattr(args, 'filter_size') else None
     print(f'{args.number_of_trainable_parameters=}')
+    print(f'{args.data_augmentation=}')
     if args.training_mode == 'fit_single_batch':
         train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     elif 'iterations' in args.training_mode:

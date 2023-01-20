@@ -19,12 +19,12 @@ from uutils.torch_uu.dataloaders.meta_learning.mini_imagenet_mi_l2l import Task_
 from uutils.torch_uu.dataloaders.meta_learning.omniglot_l2l import Task_transform_omniglot
 
 
-def get_indexable_list_of_datasets_hdb4_micod(
+def get_hdb4_micod_list_data_set_splits(
         root: str = '~/data/l2l_data/',
         data_augmentation='hdb4_micod',
         device=None,
         **kwargs,
-) -> tuple[IndexableDataSet]:
+) -> tuple[list, list, list]:
     """ Get data sets for the benchmark as usual, but with the indexable datasets."""
     #
     dataset_list_train: list[MetaDataset, MetaDataset, MetaDataset] = []
@@ -71,12 +71,13 @@ def get_indexable_list_of_datasets_hdb4_micod(
     assert len(dataset_list_train) == 4
     assert len(dataset_list_validation) == 4
     assert len(dataset_list_test) == 4
-    #
-    train_dataset = IndexableDataSet(dataset_list_train)
-    validation_dataset = IndexableDataSet(dataset_list_validation)
-    test_dataset = IndexableDataSet(dataset_list_test)
-    _datasets = (train_dataset, validation_dataset, test_dataset)
-    return _datasets
+    # - print the number of classes for all splits (but only need train for usl model final layer)
+    print('-- Printing num classes')
+    from uutils.torch_uu.dataloaders.common import get_num_classes_l2l_list_meta_dataset
+    get_num_classes_l2l_list_meta_dataset(dataset_list_train, verbose=True)
+    get_num_classes_l2l_list_meta_dataset(dataset_list_validation, verbose=True)
+    get_num_classes_l2l_list_meta_dataset(dataset_list_validation, verbose=True)
+    return dataset_list_train, dataset_list_validation, dataset_list_test
 
 
 def get_task_transforms_hdb4_micod(
@@ -149,10 +150,15 @@ def hdb4_micod_l2l_tasksets(
     this applies for indedable datasets as well, so step 1 is indexable and the task transfroms are different for each dataset
     """
     root = os.path.expanduser(root)
-    # - get data sets
+    # - get data sets lists
+    dataset_list_train, dataset_list_validation, dataset_list_test = get_hdb4_micod_list_data_set_splits(root, data_augmentation)
+
+    # - get indexable datasets
     from diversity_src.dataloaders.common import IndexableDataSet
-    _datasets: tuple[IndexableDataSet] = get_indexable_list_of_datasets_hdb4_micod(root, data_augmentation)
-    train_dataset, validation_dataset, test_dataset = _datasets
+    train_dataset = IndexableDataSet(dataset_list_train)
+    validation_dataset = IndexableDataSet(dataset_list_validation)
+    test_dataset = IndexableDataSet(dataset_list_test)
+    _datasets = (train_dataset, validation_dataset, test_dataset)
 
     # - get task transforms
     _transforms: tuple[TaskTransform, TaskTransform, TaskTransform] = get_task_transforms_hdb4_micod(_datasets,

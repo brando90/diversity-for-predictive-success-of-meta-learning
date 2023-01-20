@@ -15,9 +15,11 @@ from torch import nn
 from torch.utils.data import Dataset
 
 from diversity_src.dataloaders.hdb1_mi_omniglot_l2l import get_mi_and_omniglot_list_data_set_splits
+from uutils.torch_uu.dataloaders.usl.usl_dataloaders import get_len_labels_list_datasets
 from uutils.torch_uu.dataset.concate_dataset import ConcatDatasetMutuallyExclusiveLabels
 
 
+# didn't move it to uutils since it will require me to change other code todo perhaps later
 def hdb1_mi_omniglot_usl_all_splits_dataloaders(
         args: Namespace,
         root: str = '~/data/l2l_data/',
@@ -42,7 +44,7 @@ def hdb1_mi_omniglot_usl_all_splits_dataloaders(
     assert get_len_labels_list_datasets(dataset_list_train) == 64 + 1100
     assert get_len_labels_list_datasets(dataset_list_validation) == 16 + 100
     assert get_len_labels_list_datasets(dataset_list_test) == 20 + 423
-    # -
+    # - concat l2l datasets to get usl single dataset
     train_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_train)
     valid_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_validation)
     test_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_test)
@@ -72,15 +74,6 @@ def hdb1_mi_omniglot_usl_all_splits_dataloaders(
     dataloaders: dict = {'train': train_loader, 'val': val_loader, 'test': test_loader}
     # next(iter(dataloaders[split]))
     return dataloaders
-
-
-def get_len_labels_list_datasets(datasets: list[Dataset], verbose: bool = False) -> int:
-    if verbose:
-        print('--- get_len_labels_list_datasets')
-        print([len(dataset.labels) for dataset in datasets])
-        print([dataset.labels for dataset in datasets])
-        print('--- get_len_labels_list_datasets')
-    return sum([len(dataset.labels) for dataset in datasets])
 
 
 # - tests

@@ -1963,8 +1963,148 @@ def l2l_5CNN_hdb1_adam_cs_filter_size(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+
 # - hdb4 = micod = mi + omniglot + omniglot + delauny
 
+def maml_hdb4_micod_resnet_rfs_scheduler_its(args: Namespace) -> Namespace:
+    from pathlib import Path
+    # - model
+    args.n_cls = 5
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+    # - data
+    args.data_option = 'hdb4_micod'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'hdb4_micod'
+
+    # - training mode
+    args.training_mode = 'iterations'
+
+    # note: 60K iterations for original maml 5CNN with adam
+    args.num_its = 100_000
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 2_000
+    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    args.eta_min = 1e-5  # match MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    print(f'{args.T_max=}')
+    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.nb_inner_train_steps = 5
+    args.first_order = True
+    # args.first_order = False
+
+    # - outer trainer params
+    args.batch_size = 4
+    args.batch_size_eval = 2
+
+    # - dist args
+    args.world_size = torch.cuda.device_count()
+    # args.world_size = 8
+    args.parallel = args.world_size > 1
+    args.seed = 42  # I think this might be important due to how tasksets works.
+    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
+    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+
+    # -- wandb args
+    # args.wandb_project = 'playground'  # needed to log to wandb properly
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+def maml_hdb4_micod_resnet_rfs_scheduler_train_to_convergence(args: Namespace) -> Namespace:
+    from pathlib import Path
+    # - model
+    args.n_cls = 5
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+    # - data
+    args.data_option = 'hdb4_micod'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'hdb4_micod'
+
+    # - training mode
+    args.training_mode = 'iterations_train_convergence'
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    args.scheduler_option = 'None'
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.nb_inner_train_steps = 5
+    args.first_order = True
+    # args.first_order = False
+
+    # - outer trainer params
+    args.batch_size = 4
+    args.batch_size_eval = 2
+
+    # - dist args
+    args.world_size = torch.cuda.device_count()
+    # args.world_size = 8
+    args.parallel = args.world_size > 1
+    args.seed = 42  # I think this might be important due to how tasksets works.
+    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
+    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
 
 
 # - load args
@@ -1987,7 +2127,7 @@ def load_args() -> Namespace:
     if resume_from_checkpoint(args):
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
     elif args_hardcoded_in_script(args):
-        args: Namespace = eval(f'{args.manual_load_name}(args)')
+        args: Namespace = eval(f'{args.manual_loads_name}(args)')
     else:
         # NOP: since we are using args from terminal
         pass
