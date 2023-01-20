@@ -130,6 +130,9 @@ ulimit -Hn
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_resnet_usl_adam_no_scheduler_train_to_convergence --model_option resnet50_rfs --data_path $HOME/data/mds/records/ \
 #    |& tee $OUT_FILE 2> $ERR_FILE
 
+# - hdb4 micod
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name sl_hdb4_micod_resnet_rfs_adam_cl --model_option resnet12_rfs
+
 # - performance comp usl vs maml on hdb1
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py > $OUT_FILE 2> $ERR_FILE &
 

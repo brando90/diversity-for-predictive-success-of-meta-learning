@@ -1918,6 +1918,62 @@ def sl_hdb1_5cnn_adam_cl_filter_size(args: Namespace):
     return args
 
 
+# - hbd4 micod
+
+
+def sl_hdb4_micod_resnet_rfs_adam_cl(args: Namespace) -> Namespace:
+    # - model
+    # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
+    args.n_cls = 5000
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+
+    # - data
+    args.data_option = 'hdb4_micod'
+    args.n_classes = args.n_cls
+
+    # - training mode
+    args.training_mode = 'epochs'
+    args.num_its = 1_000
+    # args.training_mode = 'iterations'
+    # args.num_its = 1_000
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 256
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 2_000
+    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    args.eta_min = 1e-5  # match MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    print(f'{args.T_max=}')
+    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+
+    # - logging params
+    # args.log_freq = 500
+    # args.log_freq = 20
+    args.log_freq = 2
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+    return args
+
+
 # - mds
 
 def get_hardcoded_full_mds_num_classes(sources: list[str] = ['hardcodedmds']) -> int:
@@ -1964,6 +2020,7 @@ ref: https://github.com/google-research/meta-dataset#dataset-summary
     if sources[0] == 'hardcodedmds':
         # args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower']
         n_cls = 712 + 70 + 140 + 33 + 994 + 883 + 241 + 71
+        n_cls = 3144
     else:
         raise NotImplementedError
     print(f'{n_cls=}')
@@ -1981,7 +2038,8 @@ def mds_resnet_usl_adam_scheduler(args: Namespace) -> Namespace:
 
     # - data
     args.data_option = 'mds'
-    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower', 'mscoco', 'traffic_sign']
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
+                    'mscoco', 'traffic_sign']
     args.n_classes = args.n_cls
 
     # if we set args.min_examples_in_class = args.k_shot + args.k_eval
