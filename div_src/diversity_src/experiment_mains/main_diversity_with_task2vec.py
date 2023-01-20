@@ -365,8 +365,9 @@ def diversity_ala_task2vec_delaunay(args: Namespace) -> Namespace:
 
 def diversity_ala_task2vec_hdb4_micod(args: Namespace) -> Namespace:
     # - data set options
-    args.batch_size = 5
-    # args.batch_size = 500
+    # args.batch_size = 5
+    # args.batch_size = 30
+    args.batch_size = 500
     args.data_option = 'hdb4_micod'
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.data_augmentation = 'hdb4_micod'
@@ -374,7 +375,7 @@ def diversity_ala_task2vec_hdb4_micod(args: Namespace) -> Namespace:
 
     # - probe_network
     # args.model_option = 'resnet18_random'
-    args.model_option = 'resnet18_pretrained_imagenet'
+    # args.model_option = 'resnet18_pretrained_imagenet'
     # args.model_option = 'resnet34_random'
     # args.model_option = 'resnet34_pretrained_imagenet'
     # - options for fine tuning (ft) or not
@@ -382,14 +383,17 @@ def diversity_ala_task2vec_hdb4_micod(args: Namespace) -> Namespace:
     # args.classifier_opts = dict(epochs=0)
     # args.model_option = 'resnet18_pretrained_imagenet'
     # args.classifier_opts = dict(epochs=0)
+    if not hasattr(args, 'model_option'):
+        args.model_option = 'resnet34_pretrained_imagenet'
+    print(f'{args.model_option=}')
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
     args = fix_for_backwards_compatibility(args)

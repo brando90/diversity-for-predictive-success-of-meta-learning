@@ -105,14 +105,14 @@ ulimit -Hn
 #tmux new -s mds1_maml_resnet50rfs
 
 #tmux new -s div_hdb4_micod
+#tmux new -s div_hdb4_micod2
 
 #bash ~/diversity-for-predictive-success-of-meta-learning/main_krbtmux.sh
 
 # - div
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_mds \
-#      > $OUT_FILE 2> $ERR_FILE &
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb4_micod
-      > $OUT_FILE 2> $ERR_FILE
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb4_micod --model_option resnet18_pretrained_imagenet \
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb4_micod --model_option resnet34_pretrained_imagenet \
 
 # - mds maml
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet_maml_adam_scheduler --model_option resnet18_rfs --data_path $HOME/data/mds/records/ \
