@@ -119,7 +119,10 @@ def loop_test(args):
 # -- Run experiment
 
 if __name__ == "__main__":
-    args = get_mds_batch_args()
+    from diversity_src.dataloaders.metadataset_common import get_mds_base_args
+
+    args: Namespace = get_mds_base_args()
+    #args.sources = ['vgg_flower','aircraft']
     #set_devices(args)  # args.device = rank or .device
     args.device = uutils.torch_uu.get_device()
 

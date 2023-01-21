@@ -36,17 +36,10 @@ def get_mds_base_args() -> Namespace:
                         help='Whether or not to shuffle data')
 
     # Episode configuration
-    parser.add_argument('--num_ways', type=int, default=5,
-                        help='Set it if you want a fixed # of ways per task')
-
-    parser.add_argument('--num_support', type=int, default=5,
-                        help='Set it if you want a fixed # of support samples per class')
-
-    parser.add_argument('--num_query', type=int, default=15,
-                        help='Set it if you want a fixed # of query samples per class')
+    # see very below for --k_shot, --k_eval, --n_cls, and --min_num_examples_per_class args
 
     parser.add_argument('--min_ways', type=int, default=2,
-                        help='Minimum # of ways per task')
+                        help='Minimum # of ways per task') #doesn't matter since we fixed 5-way setting (so trivially >2 ways)
 
     parser.add_argument('--max_ways_upper_bound', type=int, default=1000000000000,
                         help='Maximum # of ways per task')
@@ -56,9 +49,6 @@ def get_mds_base_args() -> Namespace:
 
     parser.add_argument('--max_support_set_size', type=int, default=1000000000000,
                         help='Maximum # of support samples')
-
-    parser.add_argument('--min_examples_in_class', type=int, default=20,  # TODO - changed
-                        help='Classes that have less samples will be skipped')
 
     parser.add_argument('--max_support_size_contrib_per_class', type=int, default=1000000000000,
                         help='Maximum # of support samples per class')
@@ -148,6 +138,7 @@ def get_mds_base_args() -> Namespace:
     # - data set args
     parser.add_argument('--batch_size', type=int, default=2)
     parser.add_argument('--batch_size_eval', type=int, default=2)
+
     parser.add_argument('--split', type=str, default='train', help="possible values: "
                                                                    "'train', val', test'")
     # warning: sl name is path_to_data_set here its data_path
@@ -215,11 +206,33 @@ def get_mds_base_args() -> Namespace:
     parser.add_argument('--n_aug_support_samples', type=int, default=1,
                         help="The puzzling rfs increase in support examples")
 
+    #These arguments below are aliases since they depend on existing args above.
+    #parser.add_argument('--num_ways', type=int, default=5,
+    #                    help='Set it if you want a fixed # of ways per task')
+
+    #parser.add_argument('--num_support', type=int, default=5,
+    #                    help='Set it if you want a fixed # of support samples per class')
+
+    #parser.add_argument('--num_query', type=int, default=15,
+    #                    help='Set it if you want a fixed # of query samples per class')
+
+    #parser.add_argument('--min_examples_in_class', type=int, default=20,  # TODO - changed
+    #                    help='Classes that have less samples will be skipped')
+
+
+
     # - parse arguments
     args = parser.parse_args()
+
+    # -- set mds config arguments to the ones in our workflow
+    args.num_ways = args.n_cls
+    args.num_support = args.k_shots
+    args.num_query = args.k_eval
+    args.min_examples_in_class = args.k_shots + args.k_eval # should be 5+15=20 in our setting.
+
     args.criterion = args.loss
     assert args.criterion is args.loss
     # - load cluster ids so that wandb can use it later for naming runs, experiments, etc.
-    load_cluster_jobids_to(args)  # UNCOMMENT LATER!
+    load_cluster_jobids_to(args)
     setup_wandb(args)
     return args

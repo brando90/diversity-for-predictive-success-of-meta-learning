@@ -403,24 +403,16 @@ def diversity_ala_task2vec_hdb4_micod(args: Namespace) -> Namespace:
 # - mds
 
 def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
-    from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_args
-    args = get_mds_args()  # TODO set this in load_args below
-    # args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
+    from diversity_src.dataloaders.metadataset_common import get_mds_base_args
+    args = get_mds_base_args()  # TODO set this in load_args below
+    #args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
 
     # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
     args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
                     'mscoco', 'traffic_sign']
 
-    # if we set args.min_examples_in_class = args.k_shot + args.k_eval
-    # we ensure that our n-way k-shot task has enough samples for both the support and query sets.
-    args.min_examples_in_class = 20  # assuming 5-way, 5-shot 15-eval shot
-
     args.batch_size = 500  # 5 for testing
-
-    args.num_support = 5
-    args.num_query = 15
-    args.k_shots = 5
-    args.k_query = 15
+    args.batch_size_eval = args.batch_size # this determines batch size for test/eval
 
     # args.batch_size = 500
     args.data_option = 'mds'
@@ -435,7 +427,7 @@ def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
-    args.log_to_wandb = False
+    args.log_to_wandb = True
     # args.log_to_wandb = False
 
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
@@ -456,6 +448,7 @@ def load_args() -> Namespace:
     # args: Namespace = get_mds_args()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'diversity_ala_task2vec_delauny'  # <- REMOVE to remove manual loads
+    args.manual_loads_name = 'diversity_ala_task2vec_mds'
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')
@@ -488,7 +481,10 @@ def main():
 
 
 def compute_div_and_plot_distance_matrix_for_fsl_benchmark_for_all_splits(args: Namespace, show_plots: bool = True):
-    splits: list[str] = ['train', 'validation', 'test']
+    if (args.data_option == 'mds'):
+        splits: list[str] = ['train', 'val', 'test']
+    else:
+        splits: list[str] = ['train', 'validation', 'test']
     print_args(args)
 
     # -
@@ -538,7 +534,9 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
         args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
         print(f'{args.tasksets=}')
     print(f'{args.data_augmentation=}')
-    print(f'{get_dataset_size(args)=}')
+    # Getting dataset size for mds returns error (as of Jan 20)...
+    if args.data_option != 'mds':
+        print(f'{get_dataset_size(args)=}')
 
     # - compute task embeddings according to task2vec
     print(f'number of tasks to consider: {args.batch_size=}')

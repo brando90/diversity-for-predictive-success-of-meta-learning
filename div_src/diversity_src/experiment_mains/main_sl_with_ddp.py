@@ -2078,10 +2078,6 @@ def mds_resnet_usl_adam_scheduler(args: Namespace) -> Namespace:
                     'mscoco', 'traffic_sign']
     args.n_classes = args.n_cls
 
-    # if we set args.min_examples_in_class = args.k_shot + args.k_eval
-    # we ensure that our n-way k-shot task has enough samples for both the support and query sets.
-    args.min_examples_in_class = 20  # assuming 5-way, 5-shot 15-eval shot
-
     # - training mode
     args.training_mode = 'iterations'
     # args.num_its = 1_000_000_000  # patrick's default for 2 data sets
@@ -2139,10 +2135,6 @@ def mds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Na
                     'mscoco', 'traffic_sign']
     args.n_classes = args.n_cls
 
-    # if we set args.min_examples_in_class = args.k_shot + args.k_eval
-    # we ensure that our n-way k-shot task has enough samples for both the support and query sets.
-    args.min_examples_in_class = 20  # assuming 5-way, 5-shot 15-eval shot
-
     # - training mode
     args.training_mode = 'iterations_train_convergence'
 
@@ -2184,9 +2176,10 @@ def load_args() -> Namespace:
     # todo: maybe later, add a try catch that if there is an mds only flag given at the python cmd line then it will load the mds args otherwise do the meta-leanring args
     # todo: https://stackoverflow.com/questions/75141370/how-does-one-have-python-work-when-multiple-arg-parse-options-are-possible
     # from diversity_src.dataloaders.metadataset_common import get_mds_base_args
-    # args: Namespace = get_mds_base_args()
+    # args: Namespace = get_mds_base_args() #this is for MDS only
     args: Namespace = parse_args_standard_sl()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
+
     # args.manual_loads_name = 'sl_hdb1_5cnn_adam_cl_filter_size'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
