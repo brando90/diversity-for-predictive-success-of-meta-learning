@@ -26,6 +26,7 @@ def get_hdb4_micod_list_data_set_splits(
         **kwargs,
 ) -> tuple[list, list, list]:
     """ Get data sets for the benchmark as usual, but with the indexable datasets."""
+    print(f'{data_augmentation=}')
     #
     dataset_list_train: list[MetaDataset, MetaDataset, MetaDataset] = []
     dataset_list_validation: list[MetaDataset, MetaDataset, MetaDataset] = []

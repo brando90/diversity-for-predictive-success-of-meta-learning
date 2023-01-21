@@ -1964,8 +1964,8 @@ def usl_hdb4_micod_resnet_rfs_adam_cl_its(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
     args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
     return args
 
 
@@ -2005,8 +2005,8 @@ def usl_hdb4_micod_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> N
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
     args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
     return args
 
 
