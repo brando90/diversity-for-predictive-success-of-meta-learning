@@ -403,8 +403,6 @@ def diversity_ala_task2vec_hdb4_micod(args: Namespace) -> Namespace:
 # - mds
 
 def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
-    from diversity_src.dataloaders.metadataset_common import get_mds_base_args
-    args = get_mds_base_args()  # TODO set this in load_args below
     #args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
 
     # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
@@ -435,6 +433,36 @@ def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
     return args
 
 
+def diversity_ala_task2vec_mds_vggaircraft(args: Namespace) -> Namespace:
+    #args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
+
+    # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
+    args.sources = ['aircraft','vgg_flower','cu_birds']
+
+    args.batch_size = 500  # 5 for testing
+    args.batch_size_eval = args.batch_size # this determines batch size for test/eval
+
+    # args.batch_size = 500
+    args.data_option = 'mds'
+    # set datapath if not already
+
+    # - probe_network
+    args.model_option = 'resnet18_pretrained_imagenet'
+    args.classifier_opts = None
+
+    # -- wandb args
+    args.wandb_project = 'meta-dataset task2vec'#'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
 # - main
 
 def load_args() -> Namespace:
@@ -445,10 +473,15 @@ def load_args() -> Namespace:
     """
     # -- parse args from terminal
     args: Namespace = parse_args_meta_learning()
-    # args: Namespace = get_mds_args()
+
+    # -- uncomment below for mds experiments
+    #from diversity_src.dataloaders.metadataset_common import get_mds_base_args
+    #args = get_mds_base_args()
+
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'diversity_ala_task2vec_delauny'  # <- REMOVE to remove manual loads
-    args.manual_loads_name = 'diversity_ala_task2vec_mds'
+    # args.manual_loads_name = 'diversity_ala_task2vec_mds'
+    # args.manual_loads_name = 'diversity_ala_task2vec_mds_vggaircraft'
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')

@@ -2131,8 +2131,7 @@ def mds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Na
     # - data
     args.data_option = 'mds'
     # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
-    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
-                    'mscoco', 'traffic_sign']
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower', 'mscoco', 'traffic_sign']
     args.n_classes = args.n_cls
 
     # - training mode
@@ -2165,6 +2164,50 @@ def mds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Na
     # args.log_to_wandb = False
     return args
 
+def mds_vggaircraft_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Namespace:
+    # - model
+    # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
+    args.n_cls = 141  # ref: https://github.com/google-research/meta-dataset#dataset-summary
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+
+    # - data
+    args.data_option = 'mds'
+    # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
+    args.sources = ['aircraft','vgg_flower']
+    args.n_classes = args.n_cls
+
+    # - training mode
+    args.training_mode = 'iterations_train_convergence'
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 256
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    # no scheduler since we don't know how many steps to do we can't know how to decay with prev code, maybe something else exists e.g. decay once error is low enough
+    args.scheduler_option = 'None'
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+
+    # -- wandb args
+    args.wandb_project = 'meta-learning-playground'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
 
 def load_args() -> Namespace:
     """
@@ -2175,11 +2218,14 @@ def load_args() -> Namespace:
     # -- parse args from terminal
     # todo: maybe later, add a try catch that if there is an mds only flag given at the python cmd line then it will load the mds args otherwise do the meta-leanring args
     # todo: https://stackoverflow.com/questions/75141370/how-does-one-have-python-work-when-multiple-arg-parse-options-are-possible
-    # from diversity_src.dataloaders.metadataset_common import get_mds_base_args
-    # args: Namespace = get_mds_base_args() #this is for MDS only
+    #from diversity_src.dataloaders.metadataset_common import get_mds_base_args
+    #args: Namespace = get_mds_base_args() #this is for MDS only
+
     args: Namespace = parse_args_standard_sl()
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
 
+    # args.manual_loads_name = 'mds_resnet_usl_adam_no_scheduler_train_to_convergence'
+    # args.manual_loads_name = 'mds_vggaircraft_resnet_usl_adam_no_scheduler_train_to_convergence'
     # args.manual_loads_name = 'sl_hdb1_5cnn_adam_cl_filter_size'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
