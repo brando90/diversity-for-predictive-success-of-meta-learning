@@ -103,6 +103,11 @@ def loop_test(args):
     from uutils.torch_uu import process_meta_batch
     args.batch_size = 10
     args.batch_size_eval = 10
+
+    args.min_examples_in_class = 0
+    #args.num_support = None
+    #args.num_query = None
+
     args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
 
     dataloader = get_mds_loader(args)
