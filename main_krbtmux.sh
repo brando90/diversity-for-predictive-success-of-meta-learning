@@ -97,7 +97,7 @@ source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #conda activate metalearning_gpu
 export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
-export CUDA_VISIBLE_DEVICES=7; echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
+export CUDA_VISIBLE_DEVICES=2; echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 ulimit -n 120000
 ulimit -Sn
 ulimit -Hn
