@@ -22,6 +22,8 @@
 # ssh brando9@hyperturing2.stanford.edu
 # ssh brando9@turing1.stanford.edu
 # ssh brando9@ampere1.stanford.edu
+#ssh brando9@ampere3.stanford.edu
+#ssh brando9@ampere4.stanford.edu
 
 # - set up this main sh script
 export RUN_PWD=$(pwd)
