@@ -918,7 +918,7 @@ def resnet18rfs_vggaircraft(args):
     # args.safety_margin = 10
     # args.safety_margin = 20
 
-    args.batch_size = 10#500
+    args.batch_size = 500
     # args.batch_size = 10_000
     args.batch_size_eval = args.batch_size
 
@@ -934,14 +934,16 @@ def resnet18rfs_vggaircraft(args):
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
     args.path_2_init_sl = '~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
-    args.path_2_init_maml = '~/data/logs/logs_Jan21_13-56-48_jobid_-1'  # train acc 0.9667 and rising
+    args.path_2_init_maml = '~/data/logs/logs_Jan23_22-40-05_jobid_-1' # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
+    #'~/data/logs/logs_Jan21_13-56-48_jobid_-1'  # train acc 0.9667 and rising
+
     # -- wandb args
     args.wandb_project = 'SL vs MAML MDS Subsets'#'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_resnet18rfs_mds_vggaircraft'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
     #args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -959,11 +961,11 @@ def load_args() -> Namespace:
     has the right args from the data analysis by doing args.meta_learner.args = new_args.
     """
     # - args from terminal
-    args: Namespace = parse_args_meta_learning()
+    # args: Namespace = parse_args_meta_learning()
 
     # - uncomment below for mds experiments
-    #from diversity_src.dataloaders.metadataset_common import get_mds_base_args
-    #args: Namespace = get_mds_base_args()
+    from diversity_src.dataloaders.metadataset_common import get_mds_base_args
+    args: Namespace = get_mds_base_args()
 
     # - get manual args
     # args: Namespace = args_5cnn_cifarfs(args)
@@ -971,7 +973,7 @@ def load_args() -> Namespace:
     # args: Namespace = resnet12rfs_cifarfs(args)
     # args: Namespace = resnet12rfs_mi(args)
     # args: Namespace = resnet12rfs_hdb1_mio(args)
-    # args: Namespace = resnet18rfs_vggaircraft(args)
+    args: Namespace = resnet18rfs_vggaircraft(args)
     # todo, make sure bellow code works later
     # # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     # print(f'{args.manual_loads_name=}')

@@ -98,22 +98,28 @@ def get_mds_loader(args):
 # - test
 def loop_test(args):
     from uutils.torch_uu import process_meta_batch
-    args.batch_size = 10
-    args.batch_size_eval= 10
-    args.data_path = '/shared/rsaas/pzy2/records/'  # or whereever
+    args.batch_size = 5000
+    args.batch_size_eval= 2
+    args.min_examples_per_class = 20
+    #args.data_path = '/shared/rsaas/pzy2/records/'  # or whereever
+    args.sources = ['dtd','cu_birds']
 
     dataloader = get_mds_loader(args)
 
     print(f'{len(dataloader)}')
-    for batch_idx, batch in enumerate(dataloader['val']):
+    for batch_idx, batch in enumerate(dataloader['train']):
         X,y = batch
         #print("finish batch",batch_idx)
-        print(X.shape)
-        print(y.shape)
-        print(y, "max label:", max(y))
+        #print(X.shape)
+        #print(y.shape)
+        #print(y)
+        #print("min label:", min(y))
+        #print("max label:", max(y))
+        if (max(y) > 172):
+            print("EXceeded: ", max(y), y)
         #print(X, y)
-        if batch_idx == 1000:
-            break
+        #if batch_idx == 1000:
+        #    break
 
 
 # -- Run experiment

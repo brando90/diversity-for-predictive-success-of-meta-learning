@@ -434,10 +434,7 @@ def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
 
 
 def diversity_ala_task2vec_mds_vggaircraft(args: Namespace) -> Namespace:
-    #args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
-
-    # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
-    args.sources = ['aircraft','vgg_flower','cu_birds']
+    args.sources = ['aircraft','vgg_flower']
 
     args.batch_size = 500  # 5 for testing
     args.batch_size_eval = args.batch_size # this determines batch size for test/eval
@@ -456,12 +453,37 @@ def diversity_ala_task2vec_mds_vggaircraft(args: Namespace) -> Namespace:
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
     args.log_to_wandb = True
-    # args.log_to_wandb = False
+    #args.log_to_wandb = False
 
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
     args = fix_for_backwards_compatibility(args)
     return args
 
+def diversity_ala_task2vec_mds_birdsdtd(args: Namespace) -> Namespace:
+    args.sources = ['dtd','cu_birds']#['aircraft','vgg_flower','cu_birds']
+
+    args.batch_size = 500  # 5 for testing
+    args.batch_size_eval = args.batch_size # this determines batch size for test/eval
+
+    # args.batch_size = 500
+    args.data_option = 'mds'
+    # set datapath if not already
+
+    # - probe_network
+    args.model_option = 'resnet18_pretrained_imagenet'
+    args.classifier_opts = None
+
+    # -- wandb args
+    args.wandb_project = 'meta-dataset task2vec'#'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
+    args.log_to_wandb = True
+    #args.log_to_wandb = False
+
+    from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
 
 # - main
 
@@ -482,6 +504,7 @@ def load_args() -> Namespace:
     # args.manual_loads_name = 'diversity_ala_task2vec_delauny'  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'diversity_ala_task2vec_mds'
     # args.manual_loads_name = 'diversity_ala_task2vec_mds_vggaircraft'
+    # args.manual_loads_name = 'diversity_ala_task2vec_mds_birdsdtd'
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')
