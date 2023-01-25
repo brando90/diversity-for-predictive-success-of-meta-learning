@@ -14,7 +14,7 @@ from uutils.argparse_uu.supervised_learning import make_args_from_supervised_lea
 from uutils.torch_uu import count_number_of_parameters
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
-from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
+from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
     print_dist
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
@@ -367,7 +367,7 @@ def train(rank, args):
     print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
 
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
-    args.dataloaders: dict = get_meta_learning_dataloader(args)
+    args.dataloaders: dict = get_meta_learning_dataloaders(args)
     assert args.model.cls.out_features == 5
 
     # Agent does everything, proving, training, evaluate, meta-learnering, etc.

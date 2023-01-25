@@ -29,7 +29,7 @@ from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_lea
     performance_comparison_with_l2l_end_to_end, get_recommended_batch_size_miniimagenet_5CNN
 from diversity_src.diversity.diversity import diversity
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
-from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
+from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
 
 from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal, get_device, norm
 from uutils.torch_uu.distributed import is_lead_worker
@@ -183,8 +183,8 @@ def main_data_analyis():
 
     # - get dataloaders and overwrites so data analysis runs as we want
     #args.dataloaders: dict = get_meta_learning_dataloader(args)
-    from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_loader
-    args.dataloaders = get_mds_loader(args)  # implement returning dicts of torchmeta like dl's for mds
+    from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_loaders
+    args.dataloaders = get_mds_loaders(args)  # implement returning dicts of torchmeta like dl's for mds
 
     # meta_dataloader = dataloaders['train']
     meta_dataloader = args.dataloaders['val']

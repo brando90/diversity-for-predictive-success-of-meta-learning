@@ -26,7 +26,7 @@ from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_lea
 from diversity_src.diversity.diversity import diversity
 
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
-from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
+from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
 
 from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal, get_device, norm
 from uutils.torch_uu.distributed import is_lead_worker
@@ -151,7 +151,7 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # args.experiment_option = 'diveristiy_f_sl'
 
     # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner_default'
+    args.agent_opt = 'MAMLMetaLearner'
 
     # - ckpt name
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/qlubpsfi?workspace=user-brando
@@ -285,7 +285,7 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # args.experiment_option = 'diveristiy_f_sl'
 
     # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner_default'
+    args.agent_opt = 'MAMLMetaLearner'
 
     # - ckpt name
 
@@ -522,7 +522,7 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     args.experiment_option = 'performance_comparison'
 
     # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner_default'
+    args.agent_opt = 'MAMLMetaLearner'
 
     # - ckpt name
     # adam models
@@ -680,7 +680,7 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     args.experiment_option = 'performance_comparison'
 
     # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner_default'
+    args.agent_opt = 'MAMLMetaLearner'
 
     # - ckpt name
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3dx4c9s9?workspace=user-brando
@@ -759,7 +759,7 @@ def resnet12rfs_hdb1_mio(args):
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
 
     # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner_default'
+    args.agent_opt = 'MAMLMetaLearner'
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
     # - ckpt name
@@ -881,7 +881,7 @@ def resnet18rfs_vggaircraft(args):
     args.experiment_option = 'performance_comparison'
 
     # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner_default'
+    args.agent_opt = 'MAMLMetaLearner'
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
     args.path_2_init_sl = '~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
@@ -965,7 +965,7 @@ def main_data_analyis():
     print(f'{args.path_2_init_maml=}')
 
     # - get dataloaders and overwrites so data analysis runs as we want
-    args.dataloaders: dict = get_meta_learning_dataloader(args)
+    args.dataloaders: dict = get_meta_learning_dataloaders(args)
     # meta_dataloader = dataloaders['train']
     meta_dataloader = args.dataloaders['val']
     # meta_dataloader = dataloaders['test']
@@ -1003,8 +1003,6 @@ def main_data_analyis():
     # -- do data analysis
     if args.experiment_option == 'performance_comparison':
         comparison_via_performance(args)
-    elif args.experiment_option.startswith('diveristiy'):
-        do_diversity_data_analysis(args, meta_dataloader)
     elif args.experiment_option == 'stats_analysis_with_emphasis_on_effect_size':
         stats_analysis_with_emphasis_on_effect_size(args, meta_dataloader)
     else:
@@ -1016,7 +1014,7 @@ def main_data_analyis():
         X: Tensor = qry_x
         if args.experiment_option == 'SL_vs_ML':
             distances_per_data_sets_per_layer: list[
-                OrderedDict[LayerIdentifier, float]] = dist_batch_data_sets_for_all_layer(args.mdl1, args.mdl_sl, X, X,
+                OrderedDict[LayerIentifier, float]] = dist_batch_data_sets_for_all_layer(args.mdl1, args.mdl_sl, X, X,
                                                                                           args.layer_names,
                                                                                           args.layer_names,
                                                                                           metric_comparison_type=args.metric_comparison_type,

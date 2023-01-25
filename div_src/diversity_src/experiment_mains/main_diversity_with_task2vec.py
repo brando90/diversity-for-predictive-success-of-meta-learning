@@ -581,22 +581,16 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     print(f'{get_device()=}')
     print(f'{args.device=}')
 
-    # create loader
-    if args.data_option == 'mds':
-        from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_loader
-        args.dataloaders = get_mds_loader(args)  # implement returning dicts of torchmeta like dl's for mds
-        print(f'{args.dataloaders=}')
-    else:
-        args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
-        print(f'{args.tasksets=}')
+    # - create loader
     print(f'{args.data_augmentation=}')
-    # Getting dataset size for mds returns error (as of Jan 20)...
-    if args.data_option != 'mds':
-        print(f'{get_dataset_size(args)=}')
-
-    # - compute task embeddings according to task2vec
-    print(f'number of tasks to consider: {args.batch_size=}')
+    # note, you can't really detect if to use l2l with path since l2l can be converted to a torchmeta loader, for now
+    # we are doing all analysis with mds or l2l (no torchmeta for now)
+    # todo: idk if it works to switch a l2l normal datalaoder, also, if we use a normal data loader how would things be affected?
+    # todo: idk if we want to do a USL div analysis also, it would remove the multi modes of the task2vec histograms
     if args.data_option == 'mds':
+        from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
+        args.dataloaders = get_meta_learning_dataloaders(args)
+        print(f'{args.dataloaders=}')
         embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_dataloader(args,
                                                                                             args.dataloaders,
                                                                                             args.probe_network,
@@ -605,14 +599,17 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
                                                                                             classifier_opts=args.classifier_opts,
                                                                                             )
     else:
+        args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
+        print(f'{args.tasksets=}')
         embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_l2l_benchmark(args.tasksets,
                                                                                                args.probe_network,
                                                                                                split=split,
                                                                                                num_tasks_to_consider=args.batch_size,
                                                                                                classifier_opts=args.classifier_opts,
                                                                                                )
-
     print(f'\n {len(embeddings)=}')
+    print(f'number of tasks to consider: {args.batch_size=}')
+    print(f'{get_dataset_size(args)=}')
 
     # - compute distance matrix & task2vec based diversity, to demo` task2vec, this code computes pair-wise distance between task embeddings
     distance_matrix: np.ndarray = task_similarity.pdist(embeddings, distance='cosine')

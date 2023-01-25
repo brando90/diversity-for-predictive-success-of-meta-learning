@@ -27,7 +27,7 @@ from uutils.torch_uu.distributed import set_devices
 from pdb import set_trace as st
 
 
-def get_mds_loader(args) -> dict:
+def get_mds_loaders(args) -> dict:
     data_config = config_lib.DataConfig(args)
     episod_config = config_lib.EpisodeDescriptionConfig(args)
 
@@ -110,7 +110,7 @@ def loop_test(args):
 
     #args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
     args.sources = ['dtd','cu_birds']
-    dataloader = get_mds_loader(args)
+    dataloader = get_mds_loaders(args)
 
     print(f'{len(dataloader)}')
     for batch_idx, batch in enumerate(dataloader['val']):

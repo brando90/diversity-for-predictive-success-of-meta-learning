@@ -226,7 +226,7 @@ def get_maml_meta_learner(args: Namespace):
         base_model = load_model_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
     args.model = base_model
 
-    args.meta_learner = _get_agent(args)
+    args.meta_learner = _get_maml_agent(args)
     if torch.cuda.is_available():
         args.meta_learner.base_model = base_model.cuda()
     return args.meta_learner
@@ -303,11 +303,11 @@ def comparison_via_performance(args: Namespace):
 
     # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
     print('\n---- FFL (LR) for rand model')
-    print_performance_4_sl(args_mdl_rand, model=args.mdl_rand)
+    print_performance_4_usl_ffl(args_mdl_rand, model=args.mdl_rand)
     print('---- FFL (LR) for maml model')
-    print_performance_4_sl(args_mdl_maml, model=args.mdl_maml)
+    print_performance_4_usl_ffl(args_mdl_maml, model=args.mdl_maml)
     print('---- FFL (LR) for sl model')
-    print_performance_4_sl(args_mdl_sl, model=args.mdl_sl)
+    print_performance_4_usl_ffl(args_mdl_sl, model=args.mdl_sl)
 
     # - quick
     print('---- quick ----')
@@ -334,11 +334,11 @@ def comparison_via_performance(args: Namespace):
 
     # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
     print('---- FFL (LR) for sl model')
-    print_performance_4_sl(args_mdl_sl, model=args.mdl_sl)
+    print_performance_4_usl_ffl(args_mdl_sl, model=args.mdl_sl)
     print('---- FFL (LR) for rand model')
-    print_performance_4_sl(args_mdl_rand, model=args.mdl_rand)
+    print_performance_4_usl_ffl(args_mdl_rand, model=args.mdl_rand)
     print('---- FFL (LR) for maml model')
-    print_performance_4_sl(args_mdl_maml, model=args.mdl_maml)
+    print_performance_4_usl_ffl(args_mdl_maml, model=args.mdl_maml)
 
     print()
 
@@ -391,9 +391,11 @@ def print_performance_4_maml(args: Namespace,
     args.agent = original_meta_learner
 
 
-def print_performance_4_sl(args: Namespace,
-                           model: nn.Module,
-                           ):
+def print_performance_4_usl_ffl(args: Namespace,
+                                model: nn.Module,
+                                ):
+    # this overwrites the meta-learning, but if you see the code in this file, the prints, usl+ffl is always at the end
+    # + we make sure we use the meta-learning we intended to use with the asserts
     original_meta_learner = args.meta_learner
     args.meta_learner = FitFinalLayer(args, base_model=model)
     args.agent = args.meta_learner
@@ -403,52 +405,6 @@ def print_performance_4_sl(args: Namespace,
     assert isinstance(args.meta_learner, FitFinalLayer)
     args.meta_learner = original_meta_learner
     args.agent = original_meta_learner
-
-
-def do_diversity_data_analysis(args, meta_dataloader):
-    from diversity_src.diversity.diversity import compute_diversity_fixed_probe_net
-    from pprint import pprint
-    from anatome.helper import compute_stats_from_distance_per_batch_of_data_sets_per_layer
-    from anatome.helper import compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks
-    from anatome.helper import pprint_results
-
-    print('- Choose model for computing diversity')
-    print(f'{args.run_name=}')
-    if 'f_rand' in args.run_name:
-        args.mdl_for_dv = args.mdl_rand
-        print('==> f_rand')
-    elif 'f_maml' in args.run_name:
-        args.mdl_for_dv = args.mdl_maml
-        print('==> f_maml')
-    elif 'f_sl' in args.run_name:
-        args.mdl_for_dv = args.mdl_sl
-        print('==> f_sl')
-    else:
-        raise ValueError(f'Invalid mdl option: {args.run_name=}')
-
-    # - Compute diversity: sample one batch of tasks and use a random cross product of different tasks to compute diversity.
-    div_mu, div_std, distances_for_task_pairs = compute_diversity_fixed_probe_net(args, meta_dataloader)
-    print(f'{div_mu, div_std, distances_for_task_pairs=}')
-
-    # -- print results
-    print('-- raw results')
-    print(f'distances_for_task_pairs=')
-    pprint(distances_for_task_pairs)
-
-    print('\n-- dist results')
-    div_mu, div_std = compute_stats_from_distance_per_batch_of_data_sets_per_layer(distances_for_task_pairs)
-    pprint_results(div_mu, div_std)
-    mu, std = compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks(
-        distances_for_task_pairs)
-    print(f'----entire net result:\n  {mu=}, {std=}\n')
-
-    print('-- sim results')
-    div_mu, div_std = compute_stats_from_distance_per_batch_of_data_sets_per_layer(distances_for_task_pairs,
-                                                                                   dist2sim=True)
-    pprint_results(div_mu, div_std)
-    mu, std = compute_mu_std_for_entire_net_from_all_distances_from_data_sets_tasks(
-        distances_for_task_pairs, dist2sim=True)
-    print(f'----entire net result:\n  {mu=}, {std=}')
 
 
 def load_model_force_add_cls_layer_as_module(args: Namespace,
@@ -495,9 +451,9 @@ def load_model_force_add_cls_layer_as_module(args: Namespace,
 
 
 def get_meta_learning_dataloaders_for_data_analysis(args: Namespace):
-    from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
+    from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
     # - to load torchmeta
-    args.dataloaders: dict = get_meta_learning_dataloader(args)
+    args.dataloaders: dict = get_meta_learning_dataloaders(args)
     # - to load l2l
     from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
     from learn2learn.vision.benchmarks import BenchmarkTasksets
@@ -533,6 +489,7 @@ def basic_sanity_checks_maml0_does_nothing(args: Namespace,
 
 def get_accs_losses_all_splits_maml(args: Namespace,
                                     model: nn.Module,
+                                    loader,
                                     nb_inner_steps: int,
                                     lr_inner: float,
                                     training: bool = True,
@@ -544,27 +501,78 @@ def get_accs_losses_all_splits_maml(args: Namespace,
         This avoids doing mdl.eval() and using running statistics, which uses stats from a different task -- which
         makes model perform bad due to distribution shifts. Increase batch size to decrease noise.
         Details: https://stats.stackexchange.com/a/551153/28986
+        - note the old code had all these asserts because it used usl+ffl at the end, so it was for extra safety nothing
+        went wrong.
+        - note that we use the torchmeta MAML for consistency of data loader but I don't think it's needed since the
+        code bellow get_meta_eval_lists_accs_losses detects the type of loader and uses the correct one.
     Warning:
         - alwaus manually specify nb_inner_steps and lr_inner. This function might mutate the meta-learner/agent. Sorry! Wont fix.
-        - call basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args) before calling this function
-        to make sure that the models you are feeding this function are the ones you want/expect.
     """
     results: dict = dict(train=dict(losses=[], accs=[]),
                          val=dict(losses=[], accs=[]),
                          test=dict(losses=[], accs=[]))
     # - if this guard fails your likely not using the model you expect/wanted
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
-    # - load params you wanted
-    assert isinstance(args.meta_learner, MAMLMetaLearner)
+    # - load maml params you wanted for eval (note: args.agent_opt == 'MAMLMetaLearner_default' flag exists).
+    assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
+    # original_meta_learner = args.meta_learner
     args.meta_learner.base_model = model
     args.meta_learner.nb_inner_train_steps = nb_inner_steps
     args.meta_learner.lr_inner = lr_inner
     # - get accs and losses for all splits
-    assert isinstance(args.meta_learner, MAMLMetaLearner)
-    print_performance_results_simple(args)
+    assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
+    agent = args.meta_learner
+    for split in ['train', 'val', 'test']:
+        from uutils.torch_uu.eval.eval import get_meta_eval_lists_accs_losses
+        losses, accs = get_meta_eval_lists_accs_losses(args, agent, loader)
     # - return results
-    assert isinstance(args.meta_learner, MAMLMetaLearner)
+    assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     return results
+
+
+def get_accs_losses_all_splits_usl(args: Namespace,
+                                   model: nn.Module,
+                                   loader,
+                                   training: bool = True,
+                                   # False for SL, ML: https://stats.stackexchange.com/a/551153/28986
+                                   ) -> results:
+    """
+    Note:
+        - training = True **always** for meta-leanring. Reason is so to always use the batch statistics **for the current task**.
+        This avoids doing mdl.eval() and using running statistics, which uses stats from a different task -- which
+        makes model perform bad due to distribution shifts. Increase batch size to decrease noise.
+        Details: https://stats.stackexchange.com/a/551153/28986
+        - note the old code had all these asserts because it used usl+ffl at the end, so it was for extra safety nothing
+        went wrong.
+        - note that we use the torchmeta MAML for consistency of data loader but I don't think it's needed since the
+        code bellow get_meta_eval_lists_accs_losses detects the type of loader and uses the correct one.
+    """
+    results: dict = dict(train=dict(losses=[], accs=[]),
+                         val=dict(losses=[], accs=[]),
+                         test=dict(losses=[], accs=[]))
+    # - if this guard fails your likely not using the model you expect/wanted
+    basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
+    # - get accs and losses for all splits
+    original_meta_learner = args.meta_learner
+    args.mdl_sl.cls = deepcopy(args.mdl_maml.cls)  # final layer is a 5-way cls, since ffl is convex anything is fine
+    agent = FitFinalLayer(args, base_model=model)
+    assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
+    for split in ['train', 'val', 'test']:
+        from uutils.torch_uu.eval.eval import get_meta_eval_lists_accs_losses
+        losses, accs = get_meta_eval_lists_accs_losses(args, agent, loader)
+    # - return results
+    assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
+    return results
+
+
+def get_mean_and_ci_from_results(results: dict,
+                                 split: str,
+                                 ) -> tuple[Tensor, Tensor, Tensor, Tensor]:
+    losses, accs = results[split][metric_list], results[split][metric_list]
+    from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interval
+    loss, loss_ci = mean_confidence_interval(meta_losses)
+    acc, acc_ci = mean_confidence_interval(meta_accs)
+    return loss, loss_ci, acc, acc_ci
 
 
 # -
