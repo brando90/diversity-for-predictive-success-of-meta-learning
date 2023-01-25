@@ -104,12 +104,12 @@ def loop_test(args):
     args.batch_size = 10
     args.batch_size_eval = 10
 
-    args.min_examples_in_class = 0
+    args.min_examples_in_class = 10
     #args.num_support = None
     #args.num_query = None
 
-    args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
-
+    #args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
+    args.sources = ['dtd','cu_birds']
     dataloader = get_mds_loader(args)
 
     print(f'{len(dataloader)}')
@@ -121,6 +121,8 @@ def loop_test(args):
 
         print(f'Test inputs shape: {qry_x.size()}')  # (2, 75, 3, 28, 28)
         print(f'Test targets shape: {qry_y.size()}')  # (2, 75)
+        #print(f'Maxspt y: {max(spt_y)}')
+        #print(f'Maxqry y: {max(qry_y)}')
         if batch_idx == 100:
             break
 
