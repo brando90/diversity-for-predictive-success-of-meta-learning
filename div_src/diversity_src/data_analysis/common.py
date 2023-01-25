@@ -270,7 +270,7 @@ def set_maml_cls_to_maml_cls(args: Namespace, model: nn.Module):
     else:
         raise ValueError(f'Model type not supported {type(model)=}')
 
-def basic_guards_that_models_are_fine(args: Namespace):
+def basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args: Namespace):
     assert norm(args.mdl1) != norm(args.mdl2)
     assert norm(args.mdl_maml) == norm(args.mdl1)
     assert norm(args.mdl_sl) == norm(args.mdl2)
@@ -282,7 +282,7 @@ def basic_guards_that_models_are_fine(args: Namespace):
 def comparison_via_performance(args: Namespace):
     print('\n---- comparison_via_performance ----\n')
     print(f'{args.dataloaders=}')
-    basic_guards_that_models_are_fine(args)
+    basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
     # - varying lr_inner
     original_lr_inner = args.meta_learner.lr_inner
     # original_lr_inner = 0.5

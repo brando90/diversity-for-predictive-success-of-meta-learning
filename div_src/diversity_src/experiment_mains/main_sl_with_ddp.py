@@ -2273,10 +2273,6 @@ def load_args() -> Namespace:
     # args: Namespace = get_mds_base_args()
 
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-
-    # args.manual_loads_name = 'mds_resnet_usl_adam_no_scheduler_train_to_convergence'
-    # args.manual_loads_name = 'mds_vggaircraft_resnet_usl_adam_no_scheduler_train_to_convergence'
-    # args.manual_loads_name = 'mds_dtdbirds_resnet_usl_adam_no_scheduler_train_to_convergence'
     # args.manual_loads_name = 'sl_hdb1_5cnn_adam_cl_filter_size'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)

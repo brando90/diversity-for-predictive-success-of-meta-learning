@@ -720,26 +720,16 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
 # -- hdb1 mio
 
 def resnet12rfs_hdb1_mio(args):
-    """
-        """
-    from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_cifarfs_resnet12rfs_body, \
-        get_feature_extractor_conv_layers
     # - model
     args.model_option = 'resnet12_hdb1_mio'
 
     # - data
-    # args.data_option = 'torchmeta_cifarfs'  # no name assumes l2l
-    # args.data_path = Path('~/data/torchmeta_data/').expanduser()
-    # args.augment_train = True
     args.data_option = 'hdb1'
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.data_augmentation = 'hdb1'
 
     # - training mode
-    args.training_mode = 'iterations'  # needed so setup_args doesn't error out
-
-    # note: 60K iterations for original maml 5CNN with adam
-    # args.num_its = 100_000
+    args.training_mode = 'iterations'  # needed so setup_args doesn't error out (sorry for confusioning line!)
 
     # - debug flag
     # args.debug = True
@@ -752,60 +742,18 @@ def resnet12rfs_hdb1_mio(args):
     args.nb_inner_train_steps = 5
     args.first_order = True
 
-    # - outer trainer params
-    # args.batch_size = 32
-    # args.batch_size = 8
-
-    # - dist args
-    # args.world_size = torch.cuda.device_count()
-    # args.world_size = 8
-    # args.parallel = True
-    # args.seed = 42  # I think this might be important due to how tasksets works.
-    # args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
-    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    # args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-
-    # -
-    # args.log_freq = 500
-
-    # -- options I am considering to have as flags in the args_parser...later
-    # - metric for comparison
-    args.metric_comparison_type = 'None'
-    # args.metric_comparison_type = 'svcca'
-    # args.metric_comparison_type = 'pwcca'
-    # args.metric_comparison_type = 'lincka'
-    # args.metric_comparison_type = 'opd'
-    args.metric_as_sim_or_dist = 'dist'  # since we are trying to show meta-learning is happening, the more distance btw task & change in model the more meta-leanring is the hypothesis
-
-    # - effective neuron type
-    # args.effective_neuron_type = 'filter'
-
-    # - layers, this gets the feature layers it seems... unsure why I'm doing this. I thought I was doing a comparison
-    # with all the layers up to the final layer...
-    # args.layer_names: list[str] = get_last_two_layers(layer_type='conv', include_cls=True)
-    # args.layer_names = get_head_cls()
-    # args.layer_names = get_feature_extractor_conv_layers()
-
-    # args.safety_margin = 10
-    # args.safety_margin = 20
-
-    # args.batch_size = 2
+    # args.batch_size = 2  # useful for debugging!
     # args.batch_size = 25
     # args.batch_size = 100
-    # args.batch_size = 500
+    args.batch_size = 500
     # args.batch_size = 1000
     # args.batch_size = 2000
-    args.batch_size = 5000
+    # args.batch_size = 5000
     # args.batch_size = 10_000
     args.batch_size_eval = args.batch_size
 
-    # - set k_eval (qry set batch_size) to make experiments safe/reliable
-    # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_body(safety_margin=args.safety_margin)
-    # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_head(safety_margin=args.safety_margin)
-
     # - expt option
-    args.experiment_option = 'performance_comparison'
+    args.experiment_option = 'stats_analysis_with_emphasis_on_effect_size'
 
     # - agent/meta_learner type
     args.agent_opt = 'MAMLMetaLearner_default'
@@ -830,11 +778,10 @@ def resnet12rfs_hdb1_mio(args):
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
-    # - wandb expt args
-    args.experiment_name = f'{args.experiment_option}_resnet12rfs_hdb1_mio'
-    args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.model_option} {args.batch_size} {args.experiment_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -845,14 +792,15 @@ def resnet12rfs_hdb1_mio(args):
     return args
 
 
+# -- hdb4 micod
 
 # -- mds vggflower+aircraft resnet18_rfs
 
 def resnet18rfs_vggaircraft(args):
     """
         """
-   # from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_cifarfs_resnet12rfs_body, \
-   #     get_feature_extractor_conv_layers
+    # from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_cifarfs_resnet12rfs_body, \
+    #     get_feature_extractor_conv_layers
     # - model
     args.model_option = 'resnet18_rfs'
 
@@ -861,9 +809,9 @@ def resnet18rfs_vggaircraft(args):
     # args.data_path = Path('~/data/torchmeta_data/').expanduser()
     # args.augment_train = True
     args.data_option = 'mds'
-    args.sources = ['vgg_flower','aircraft']
-    #args.data_path = Path('~/data/l2l_data/').expanduser()
-    #args.data_augmentation = 'mds'
+    args.sources = ['vgg_flower', 'aircraft']
+    # args.data_path = Path('~/data/l2l_data/').expanduser()
+    # args.data_augmentation = 'mds'
 
     # - training mode
     args.training_mode = 'iterations'  # needed so setup_args doesn't error out
@@ -934,15 +882,15 @@ def resnet18rfs_vggaircraft(args):
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
     args.path_2_init_sl = '~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
-    args.path_2_init_maml = '~/data/logs/logs_Jan23_22-40-05_jobid_-1' # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
-    #'~/data/logs/logs_Jan21_13-56-48_jobid_-1'  # train acc 0.9667 and rising
+    args.path_2_init_maml = '~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
+    # '~/data/logs/logs_Jan21_13-56-48_jobid_-1'  # train acc 0.9667 and rising
 
     # -- wandb args
-    args.wandb_project = 'SL vs MAML MDS Subsets'#'entire-diversity-spectrum'
+    args.wandb_project = 'SL vs MAML MDS Subsets'  # 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'{args.experiment_option}_resnet18rfs_mds_vggaircraft'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    #args.log_to_wandb = True
+    # args.log_to_wandb = True
     args.log_to_wandb = True
 
     # - fix for backwards compatibility
@@ -952,6 +900,7 @@ def resnet18rfs_vggaircraft(args):
     # - fill in the missing things and make sure things make sense for run
     args = uutils.setup_args_for_experiment(args)
     return args
+
 
 # -- data analysis
 
@@ -968,22 +917,18 @@ def load_args() -> Namespace:
     args: Namespace = get_mds_base_args()
 
     # - get manual args
-    # args: Namespace = args_5cnn_cifarfs(args)
-    # args: Namespace = args_5cnn_mi(args)
-    # args: Namespace = resnet12rfs_cifarfs(args)
-    # args: Namespace = resnet12rfs_mi(args)
-    # args: Namespace = resnet12rfs_hdb1_mio(args)
-    args: Namespace = resnet18rfs_vggaircraft(args)
-    # todo, make sure bellow code works later
-    # # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
-    # print(f'{args.manual_loads_name=}')
-    # if resume_from_checkpoint(args):
-    #     args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
-    # elif args_hardcoded_in_script(args):
-    #     args: Namespace = eval(f'{args.manual_load_name}(args)')
-    # else:
-    #     # NOP: since we are using args from terminal
-    #     pass
+    # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
+    print(f'{args.manual_loads_name=}')
+    if resume_from_checkpoint(args):
+        args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
+        raise NotImplementedError(
+            'This is not implemented yet, dont think I need this, since we are loging the usl & maml'
+            'models bellow')
+    elif args_hardcoded_in_script(args):
+        args: Namespace = eval(f'{args.manual_loads_name}(args)')
+    else:
+        # NOP: since we are using args from terminal
+        pass
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)
@@ -1057,9 +1002,8 @@ def main_data_analyis():
         comparison_via_performance(args)
     elif args.experiment_option.startswith('diveristiy'):
         do_diversity_data_analysis(args, meta_dataloader)
-    elif args.experiment_option == 'p_value_analysis':
-        from diversity_src.data_analysis.p_values import do_p_value_analysis
-        do_p_value_analysis(args, meta_dataloader)
+    elif args.experiment_option == 'stats_analysis_with_emphasis_on_effect_size':
+        stats_analysis_with_emphasis_on_effect_size(args, meta_dataloader)
     else:
         batch = next(iter(meta_dataloader))
         spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
