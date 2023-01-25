@@ -20,19 +20,6 @@ from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_cifarfs_fc100
 
 from pdb import set_trace as st
 
-# modified 5/18 patrick
-maml5train = []
-maml5test = []
-maml5val = []
-maml10train = []
-maml10test = []
-maml10val = []
-usltrain = []
-usltest = []
-uslval = []
-
-
-# end modified 5/18 patrick
 
 def setup_args_path_for_ckpt_data_analysis(args: Namespace,
                                            ckpt_filename: str,
@@ -172,18 +159,6 @@ def load_old_mi_resnet12rfs_ckpt(args: Namespace, path_to_checkpoint: Path) -> n
     return args.model
 
 
-# Don't think this is correct, use the model_hps from the ckpt, so use K
-# def load_4cnn_cifarfs_fix_model_hps_sl(args, path_to_checkpoint):
-#     path_to_checkpoint = args.path_to_checkpoint if path_to_checkpoint is None else path_to_checkpoint
-#     ckpt: dict = torch.load(path_to_checkpoint, map_location=args.device)
-#     from uutils.torch_uu.models.l2l_models import cnn4_cifarsfs
-#     model, model_hps = cnn4_cifarsfs(ways=64)
-#     model.cls = model.classifier
-#     model.load_state_dict(ckpt['model_state_dict'])
-#     args.model = model
-#     return model
-
-
 def load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint):
     path_to_checkpoint = args.path_to_checkpoint if path_to_checkpoint is None else path_to_checkpoint
     ckpt: dict = torch.load(path_to_checkpoint, map_location=args.device)
@@ -269,6 +244,7 @@ def set_maml_cls_to_maml_cls(args: Namespace, model: nn.Module):
         args.mdl_sl.cls = deepcopy(cls)
     else:
         raise ValueError(f'Model type not supported {type(model)=}')
+
 
 def basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args: Namespace):
     assert norm(args.mdl1) != norm(args.mdl2)
@@ -371,49 +347,9 @@ def items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci) -> tuple[float, float,
     return meta_loss.item(), meta_loss_ci.item(), meta_acc.item(), meta_acc_ci.item()
 
 
-def print_performance_results(args: Namespace,
-                              training: bool = True,  # might be good to put false for sl? probably makes maml worse...?
-                              mode='maml5'
-                              ):
-    # assert args.meta_learner is args.agent
-    global maml10train, maml10val, maml10test, maml5val, maml5test, maml5train, usltest, usltrain, uslval
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
-                                                               split='train',
-                                                               training=training)
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
-    if (mode == 'maml5'):
-        maml5train += [meta_acc]
-    elif (mode == 'maml10'):
-        maml10train += [meta_acc]
-    else:
-        usltrain += [meta_acc]
-    print(f'train: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
-                                                               split='val',
-                                                               training=training)
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
-    if (mode == 'maml5'):
-        maml5val += [meta_acc]
-    elif (mode == 'maml10'):
-        maml10val += [meta_acc]
-    else:
-        uslval += [meta_acc]
-    print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
-                                                               split='test',
-                                                               training=training)
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
-    if (mode == 'maml5'):
-        maml5test += [meta_acc]
-    elif (mode == 'maml10'):
-        maml10test += [meta_acc]
-    else:
-        usltest += [meta_acc]
-    print(f'test: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
-
-
 def print_performance_results_simple(args: Namespace,
                                      training: bool = True,
+                                     # True for ML -- even for USL: https://stats.stackexchange.com/a/551153/28986
                                      ):
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
                                                                split='train',
@@ -437,7 +373,11 @@ def print_performance_4_maml(args: Namespace,
                              nb_inner_steps: int,
                              lr_inner: float,
                              ):
-    original_meta_learner = args.meta_learner
+    """
+    Warning:
+        alwaus manually specify nb_inner_steps and lr_inner. This function might mutate the meta-learner/agent. Sorry! Wont fix.
+    """
+    original_meta_learner = args.meta_learner  # todo: wontfix but I don't think this actually does what I want/reset model to avoid mutating it without doing a copy/deepcopy, to much work to check doesn't matter, just hardcode whenever you call this function what you want to evaluate
     assert isinstance(args.meta_learner, MAMLMetaLearner)
     # - this still gives issues create a new instance of MAMLMetaLearner
     # args.meta_learner = MAMLMetaLearner(args, model, inner_debug=False, target_type='classification')
@@ -445,7 +385,6 @@ def print_performance_4_maml(args: Namespace,
     args.meta_learner.nb_inner_train_steps = nb_inner_steps
     args.meta_learner.lr_inner = lr_inner
     assert isinstance(args.meta_learner, MAMLMetaLearner)
-    # print_performance_results(args, mode='maml' + str(nb_inner_steps))
     print_performance_results_simple(args)
     assert isinstance(args.meta_learner, MAMLMetaLearner)
     args.meta_learner = original_meta_learner
@@ -574,53 +513,58 @@ def get_meta_learning_dataloaders_for_data_analysis(args: Namespace):
 
 # -
 
-def performance_comparison_with_l2l_end_to_end(args: Namespace):
+def basic_sanity_checks_maml0_does_nothing(args: Namespace,
+                                           save_time: bool = True,
+                                           ):
+    """ Basic sanity checks that maml0 does nothing and thus performs as random. """
+    # - do basic guards that models maml != usl != rand, i.e. models were loaded correctly
+    basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
+
+    # - Adaptation=MAML 0: santiy check maml0 does nothing (only using one model to save time)
+    # args_mdl_maml = copy(args)
+    print('---- maml0 for sl model (should be around ~0.2 for 5 ways')
+    print_performance_4_maml(args, model=args.mdl_sl, nb_inner_steps=0, lr_inner=0.0)
+    if not save_time:
+        print('\n---- maml0 for rand model')
+        print_performance_4_maml(args, model=args.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
+        print('---- maml0 for maml model')
+        print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
+
+
+def get_accs_losses_all_splits_maml(args: Namespace,
+                                    model: nn.Module,
+                                    nb_inner_steps: int,
+                                    lr_inner: float,
+                                    training: bool = True,
+                                    # False for SL, ML: https://stats.stackexchange.com/a/551153/28986
+                                    ) -> results:
     """
-    Alg:
-        - get the standard pytorch dataloaders that fetch the l2l data
-        - use the SL agent (not the meta-learner), with a good batch size e.g. 1024 or more with the original CLS.
-            Is the meta-train acc 0.993?
+    Note:
+        - training = True **always** for meta-leanring. Reason is so to always use the batch statistics **for the current task**.
+        This avoids doing mdl.eval() and using running statistics, which uses stats from a different task -- which
+        makes model perform bad due to distribution shifts. Increase batch size to decrease noise.
+        Details: https://stats.stackexchange.com/a/551153/28986
+    Warning:
+        - alwaus manually specify nb_inner_steps and lr_inner. This function might mutate the meta-learner/agent. Sorry! Wont fix.
+        - call basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args) before calling this function
+        to make sure that the models you are feeding this function are the ones you want/expect.
     """
-    # -
-    args.world_size = 1
-
-    # -
-    args.mdl_sl = get_sl_learner(args)
-
-    # -
-    args.data_option = 'cifarfs_l2l_sl'  # need to remove this to work for other data sets
-    from uutils.torch_uu.dataloaders.helpers import get_sl_dataloader
-    args.dataloaders: dict = get_sl_dataloader(args)
-    assert args.mdl_sl.cls.out_features > 5
-    assert args.mdl_sl.cls.out_features == 64
-
-    # -
-    from uutils.torch_uu.agents.common import Agent
-    from uutils.torch_uu.agents.supervised_learning import UnionClsSLAgent
-    # assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl)
-    assert not hasattr(args, 'mdl_maml') and not hasattr(args, "mdl_rand")
-    args.agent: Agent = UnionClsSLAgent(args, args.mdl_sl)
-
-    # -
-    print('---- Print original SL error ----')
-    args.batch_size = 1024
-    batch: Any = next(iter(args.dataloaders['train']))
-    # train_loss, train_acc = args.agent(batch, training=True)
-    # print(f'(train_loss, train_acc)=')
-    eval_loss_mean, eval_loss_ci, eval_acc_mean, eval_acc_ci = args.agent.eval_forward(batch, training=True)
-    print(f'train (SL): {(eval_loss_mean, eval_loss_ci, eval_acc_mean, eval_acc_ci)=}')
-
-    # -
-    args.data_option = 'cifarfs_rfs'
-    args.batch_size = 100
-    from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
-    args.dataloaders: dict = get_meta_learning_dataloader(args)
-    args.meta_learner = FitFinalLayer(args, base_model=args.mdl_sl)
-    args.agent = args.meta_learner
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
-                                                               split='train',
-                                                               training=True)
-    print(f'train (Meta-Traon) [TLUSL]: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci )=}')
+    results: dict = dict(train=dict(losses=[], accs=[]),
+                         val=dict(losses=[], accs=[]),
+                         test=dict(losses=[], accs=[]))
+    # - if this guard fails your likely not using the model you expect/wanted
+    basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
+    # - load params you wanted
+    assert isinstance(args.meta_learner, MAMLMetaLearner)
+    args.meta_learner.base_model = model
+    args.meta_learner.nb_inner_train_steps = nb_inner_steps
+    args.meta_learner.lr_inner = lr_inner
+    # - get accs and losses for all splits
+    assert isinstance(args.meta_learner, MAMLMetaLearner)
+    print_performance_results_simple(args)
+    # - return results
+    assert isinstance(args.meta_learner, MAMLMetaLearner)
+    return results
 
 
 # -

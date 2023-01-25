@@ -754,6 +754,9 @@ def resnet12rfs_hdb1_mio(args):
 
     # - expt option
     args.experiment_option = 'stats_analysis_with_emphasis_on_effect_size'
+    args.acceptable_difference1 = 0.01
+    args.acceptable_difference2 = 0.02
+    args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
 
     # - agent/meta_learner type
     args.agent_opt = 'MAMLMetaLearner_default'
@@ -1145,20 +1148,6 @@ def main_data_analyis():
         wandb.finish()
 
 
-def main_data_analyis_check_sl_error():
-    args: Namespace = load_args()
-
-    performance_comparison_with_l2l_end_to_end(args)
-
-    # - done!
-    print(f'time_passed_msg = {uutils.report_times(start)}')
-    # - wandb
-    if is_lead_worker(args.rank) and args.log_to_wandb:
-        import wandb
-        wandb.finish()
-
-
 if __name__ == '__main__':
     main_data_analyis()
-    # main_data_analyis_check_sl_error()
     print('\n--> Success Done!\a\n')

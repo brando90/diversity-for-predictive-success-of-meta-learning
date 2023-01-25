@@ -389,12 +389,6 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/hqfxsf5r/overview?workspace=user-brando
     args.path_2_init_sl = '/logs/logs_May24_11-55-44_jobid_35325'  # 56
 
-
-
-
-
-
-
     # actually you need to run _main_dista... old code I think
     # path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'  # THIS I think
     # path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/meta_learning_expts/logs_Mar09_12-20-03_jobid_14_pid_183122'
@@ -957,20 +951,6 @@ def main_data_analyis():
         wandb.finish()
 
 
-def main_data_analyis_check_sl_error():
-    args: Namespace = load_args()
-
-    performance_comparison_with_l2l_end_to_end(args)
-
-    # - done!
-    print(f'time_passed_msg = {uutils.report_times(start)}')
-    # - wandb
-    if is_lead_worker(args.rank) and args.log_to_wandb:
-        import wandb
-        wandb.finish()
-
-
 if __name__ == '__main__':
     main_data_analyis()
-    # main_data_analyis_check_sl_error()
     print('--> Success Done!\a\n')
