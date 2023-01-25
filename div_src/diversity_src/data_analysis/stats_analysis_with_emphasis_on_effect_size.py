@@ -22,17 +22,15 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace, meta_dataloader
     Statistical Analysis:
         - detect difference in means with emphasis on effect size
     """
-    #
+    # -
     basic_guards_that_models_are_fine(args)
 
+    # - check that basic checks that meta-train errors are fine (check not to different from final learning curve vals)
     # todo: basic checks that meta-train errors are fine
 
-    # get the list/iter errors for each method
+    # - get the list/iter errors for each method & save them
     assert isinstance(args.meta_learner, MAMLMetaLearner)
     # maml_accs: list[float] = args.get_lists_accs_losses(batch)
 
-    # do the p-value test two-tailed test
-    print('two-sided test -- tests if usl vs maml sample means are different')
-
-    # do the p-value test one-tailed test, right sided
-    print('one-sided test -- tests if ')
+    # - do statistical analysis based on effect size
+    # stat_test_with_effect_size_as_emphasis
