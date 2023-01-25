@@ -55,19 +55,22 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     acceptable_difference1: float = args.acceptable_difference1 if hasattr(args, 'acceptable_difference1') else 0.01
     acceptable_difference2: float = args.acceptable_difference2 if hasattr(args, 'acceptable_difference2') else 0.02
     alpha: float = args.alpha if hasattr(args, 'alpha') else 0.01
-
+    # - maml5 vs usl
     group1: list = usl_accs
     group2: list = results_maml5
     stat_test_with_effect_size_as_emphasis(group1, group2, acceptable_difference1, acceptable_difference1, alpha,
                                            print_groups_data=True)
+    # - maml10 vs usl
     group1: list = usl_accs
     group2: list = results_maml10
     stat_test_with_effect_size_as_emphasis(group1, group2, acceptable_difference1, acceptable_difference2, alpha,
                                            print_groups_data=True)
 
     # -- save results
-    results['usl_accs'] = usl_accs
-    results['maml_accs'] = maml_accs
+    results['results_maml5'] = usl_accs
+    results['results_maml10'] = maml_accs
+    results['results_usl'] = usl_accs
+    results['args'] = save
     # save results to json file
     # import json
     # import os
