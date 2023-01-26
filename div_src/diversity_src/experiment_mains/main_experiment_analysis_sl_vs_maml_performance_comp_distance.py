@@ -759,6 +759,7 @@ def resnet12rfs_hdb1_mio(args):
 
     # - expt option
     args.experiment_option = 'stats_analysis_with_emphasis_on_effect_size'
+    args.experiment_option = 'performance_comparison'
     args.acceptable_difference1 = 0.01
     args.acceptable_difference2 = 0.02
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size

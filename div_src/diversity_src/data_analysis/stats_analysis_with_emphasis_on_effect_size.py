@@ -6,7 +6,8 @@ from argparse import Namespace
 
 import torch
 
-from diversity_src.data_analysis.common import basic_guards_that_maml_usl_and_rand_models_loaded_are_different
+from diversity_src.data_analysis.common import basic_guards_that_maml_usl_and_rand_models_loaded_are_different, \
+    print_performance_4_maml
 from uutils import save_to_json_pretty, save_args
 
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
@@ -42,13 +43,16 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace):
     # -- Get the losses & accs for each method (usl & maml) for all splits & save them
     # - once the model guard has been passed you should be able to get args.mdl_rand, args.mdl_maml, args.mdl_sl safely
     original_lr_inner = args.meta_learner.lr_inner
+    print(f'{original_lr_inner=}')
     from diversity_src.data_analysis.common import get_accs_losses_all_splits_maml
     results_maml5 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_lr_inner)
     results_maml10 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_lr_inner)
+    print_performance_4_maml(args, args.mdl_maml, 5, original_lr_inner)
     from diversity_src.data_analysis.common import get_accs_losses_all_splits_usl
     results_usl = get_accs_losses_all_splits_usl(args, args.mdl_sl, loaders)
 
     # -- Sanity check: meta-train acc & loss for each method (usl & maml) are close to final loss after training
+    print('---- Sanity check: meta-train acc & loss for each method (usl & maml) values at the end of training ----')
     from diversity_src.data_analysis.common import get_mean_and_ci_from_results
     loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml5, 'train')
     print(f'train: {(loss, loss_ci, acc, acc_ci)=}')
@@ -87,4 +91,6 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace):
     torch.save(results, args.log_root / f'results.pt')
     save_to_json_pretty(results, args.log_root / f'results.json')
     save_args(args)
+    # -- do performan comparison
+    # todo
     return results
