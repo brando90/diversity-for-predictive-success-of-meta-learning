@@ -148,11 +148,11 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # args.k_eval = get_recommended_batch_size_mi_resnet12rfs_head(safety_margin=args.safety_margin)
 
     # - expt option
-    args.experiment_option = 'performance_comparison'
+    args.stats_analysis_option = 'performance_comparison'
 
-    # args.experiment_option = 'diveristiy_f_rand'
-    # args.experiment_option = 'diveristiy_f_maml'
-    # args.experiment_option = 'diveristiy_f_sl'
+    # args.stats_analysis_option = 'diveristiy_f_rand'
+    # args.stats_analysis_option = 'diveristiy_f_maml'
+    # args.stats_analysis_option = 'diveristiy_f_sl'
 
     # - agent/meta_learner type
     args.agent_opt = 'MAMLMetaLearner'
@@ -186,8 +186,8 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'{args.experiment_option}_resnet12rfs_mi_k_shots_1_5_10_15_30'
-    args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl=} {args.path_2_init_maml=}'
+    args.experiment_name = f'{args.stats_analysis_option}_resnet12rfs_mi_k_shots_1_5_10_15_30'
+    args.run_name = f'{args.stats_analysis_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl=} {args.path_2_init_maml=}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
 
@@ -282,11 +282,11 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # args.k_eval = get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin=args.safety_margin)
 
     # - expt option
-    args.experiment_option = 'performance_comparison'
+    args.stats_analysis_option = 'performance_comparison'
 
-    # args.experiment_option = 'diveristiy_f_rand'
-    # args.experiment_option = 'diveristiy_f_maml'
-    # args.experiment_option = 'diveristiy_f_sl'
+    # args.stats_analysis_option = 'diveristiy_f_rand'
+    # args.stats_analysis_option = 'diveristiy_f_maml'
+    # args.stats_analysis_option = 'diveristiy_f_sl'
 
     # - agent/meta_learner type
     args.agent_opt = 'MAMLMetaLearner'
@@ -397,8 +397,8 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'{args.experiment_option}_args_5cnn_mi'
-    args.run_name = f'{args.experiment_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
+    args.experiment_name = f'{args.stats_analysis_option}_args_5cnn_mi'
+    args.run_name = f'{args.stats_analysis_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
 
@@ -523,7 +523,7 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     args.k_eva = 5
 
     # - expt option
-    args.experiment_option = 'performance_comparison'
+    args.stats_analysis_option = 'performance_comparison'
 
     # - agent/meta_learner type
     args.agent_opt = 'MAMLMetaLearner'
@@ -584,7 +584,7 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'{args.experiment_option}_args_5cnn_cifarfs'
+    args.experiment_name = f'{args.stats_analysis_option}_args_5cnn_cifarfs'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
@@ -681,7 +681,7 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_head(safety_margin=args.safety_margin)
 
     # - expt option
-    args.experiment_option = 'performance_comparison'
+    args.stats_analysis_option = 'performance_comparison'
 
     # - agent/meta_learner type
     args.agent_opt = 'MAMLMetaLearner'
@@ -707,7 +707,7 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'{args.experiment_option}_resnet12rfs_cifarfs_600_meta_batch_size'
+    args.experiment_name = f'{args.stats_analysis_option}_resnet12rfs_cifarfs_600_meta_batch_size'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
@@ -746,8 +746,8 @@ def resnet12rfs_hdb1_mio(args):
     args.nb_inner_train_steps = 5
     args.first_order = True
 
-    # args.batch_size = 2  # useful for debugging!
-    args.batch_size = 5  # useful for debugging!
+    args.batch_size = 2  # useful for debugging!
+    # args.batch_size = 5  # useful for debugging!
     # args.batch_size = 25
     # args.batch_size = 100
     # args.batch_size = 500
@@ -758,8 +758,9 @@ def resnet12rfs_hdb1_mio(args):
     args.batch_size_eval = args.batch_size
 
     # - expt option
-    args.experiment_option = 'stats_analysis_with_emphasis_on_effect_size'
-    args.experiment_option = 'performance_comparison'
+    args.stats_analysis_option = 'performance_comparison'
+    args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size'
+    args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_and_and_full_performance_comp'
     args.acceptable_difference1 = 0.01
     args.acceptable_difference2 = 0.02
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
@@ -788,7 +789,7 @@ def resnet12rfs_hdb1_mio(args):
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.model_option} {args.batch_size} {args.experiment_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
+    args.run_name = f'{args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
 
@@ -884,7 +885,7 @@ def resnet18rfs_vggaircraft(args):
     # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_head(safety_margin=args.safety_margin)
 
     # - expt option
-    args.experiment_option = 'performance_comparison'
+    args.stats_analysis_option = 'performance_comparison'
 
     # - agent/meta_learner type
     args.agent_opt = 'MAMLMetaLearner'
@@ -897,7 +898,7 @@ def resnet18rfs_vggaircraft(args):
     # -- wandb args
     args.wandb_project = 'SL vs MAML MDS Subsets'  # 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'{args.experiment_option}_resnet18rfs_mds_vggaircraft'
+    args.experiment_name = f'{args.stats_analysis_option}_resnet18rfs_mds_vggaircraft'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
     # args.log_to_wandb = True
     args.log_to_wandb = True
@@ -968,35 +969,22 @@ def main_data_analyis():
 
     # - maml param
     args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
-    # args.track_higher_grads = False  # note, I don't think this matters for testing since we aren't doing a backward pass. set to false only during meta-testing, but code sets it automatically only for meta-test
     # decided to use the setting for FO that I have for torchmeta learners, but since there is no training it should not matter.
     args.track_higher_grads = True
     args.fo = True
-
-    # -- start analysis
-    print('---------- start analysis ----------')
-    print(f'{args.dataloaders=}')
-    print(f'{args.num_workers=}')
-    print(f'-->{args.meta_learner.args.copy_initial_weights}')
-    print(f'-->{args.meta_learner.args.track_higher_grads}')
-    print(f'-->{args.meta_learner.fo}')
-    print(f'-->{args.meta_batch_size_eval=}')
-    print(f'-->{args.num_its=}')
-    print(f'-->{args.nb_inner_train_steps=}')
-    print(f'-->{args.inner_lr=}')
-    print(f'-->{args.metric_comparison_type=}') if hasattr(args, 'metric_comparison_type') else None
-    print(f'-->{args.metric_as_sim_or_dist=}') if hasattr(args, 'metric_as_sim_or_dist') else None
-    print(f'-->{args.n_aug_support_samples=}') if hasattr(args, 'n_aug_support_samples') else None
-    print(f'-->{args.k_shots=}')
 
     # - Checks that maml0 acc is lower
     # santity_check_maml_accuracy(args)
 
     # -- do data analysis
-    if args.experiment_option == 'performance_comparison':
+    print('\n\n---------- Start analysis ----------')
+    print(f'{args.stats_analysis_option=}')
+    if args.stats_analysis_option == 'performance_comparison':
         comparison_via_performance(args)
-    elif args.experiment_option == 'stats_analysis_with_emphasis_on_effect_size':
-        stats_analysis_with_emphasis_on_effect_size(args)
+    elif args.stats_analysis_option == 'stats_analysis_with_emphasis_on_effect_size':
+        stats_analysis_with_emphasis_on_effect_size(args, perform_full_performance_comparison=False)
+    elif args.stats_analysis_option == 'stats_analysis_with_emphasis_on_effect_size_and_and_full_performance_comp':
+        stats_analysis_with_emphasis_on_effect_size(args, perform_full_performance_comparison=True)
     else:
         # meta_dataloader = dataloaders['train']
         meta_dataloader = args.dataloaders['val']
@@ -1007,7 +995,7 @@ def main_data_analyis():
         # -- get comparison - SL vs ML
         # TODO: fix confidence inervals CI
         X: Tensor = qry_x
-        if args.experiment_option == 'SL_vs_ML':
+        if args.stats_analysis_option == 'SL_vs_ML':
             distances_per_data_sets_per_layer: list[
                 OrderedDict[LayerIentifier, float]] = dist_batch_data_sets_for_all_layer(args.mdl1, args.mdl_sl, X, X,
                                                                                          args.layer_names,
@@ -1019,7 +1007,7 @@ def main_data_analyis():
                                                                                          metric_as_sim_or_dist=args.metric_as_sim_or_dist)
 
         # -- get comparison - ML vs A(ML)
-        elif args.experiment_option == 'SL_vs_ML':
+        elif args.stats_analysis_option == 'SL_vs_ML':
             inner_opt = get_maml_inner_optimizer(args.mdl1, args.inner_lr)
             distances_per_data_sets_per_layer: list[OrderedDict[LayerIdentifier, float]] = \
                 dist_batch_tasks_for_all_layer_mdl_vs_adapted_mdl(
@@ -1038,7 +1026,7 @@ def main_data_analyis():
                     training=True
                 )
         # -- get comparison - SL vs A(ML)
-        elif args.experiment_option == 'SL_vs_A(AML)':
+        elif args.stats_analysis_option == 'SL_vs_A(AML)':
             inner_opt = get_maml_inner_optimizer(args.mdl1, args.inner_lr)
             distances_per_data_sets_per_layer: list[OrderedDict[LayerIdentifier, float]] = \
                 dist_batch_tasks_for_all_layer_different_mdl_vs_adapted_mdl(
@@ -1057,7 +1045,7 @@ def main_data_analyis():
                     training=True
                 )
         # -- get comparison - LR(SL) vs A(ML)
-        elif args.experiment_option == 'LR(SL)_vs_A(ML)':
+        elif args.stats_analysis_option == 'LR(SL)_vs_A(ML)':
             inner_opt = get_maml_inner_optimizer(args.mdl1, args.inner_lr)
             distances_per_data_sets_per_layer: list[OrderedDict[LayerIdentifier, float]] = \
                 dist_batch_tasks_for_all_layer_different_mdl_vs_adapted_mdl(
@@ -1076,7 +1064,7 @@ def main_data_analyis():
                     training=True
                 )
         # -- get comparison - SL vs MAML(SL)
-        elif args.experiment_option == 'SL vs MAML(SL)':
+        elif args.stats_analysis_option == 'SL vs MAML(SL)':
             args.mdl_sl.model.cls = deepcopy(args.mdl1.model.cls)  # todo - comment why this
             print(
                 '-> sl_mdl has the head of the maml model to make comparisons using maml better, it does not affect when '
@@ -1099,7 +1087,7 @@ def main_data_analyis():
                     training=True
                 )
         else:
-            raise ValueError(f'Invalid experiment option, got{args.args.experiment_option=}')
+            raise ValueError(f'Invalid experiment option, got{args.args.stats_analysis_option=}')
 
         # - print raw results
         print('-- raw results')

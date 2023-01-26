@@ -246,25 +246,25 @@ def set_maml_cls_to_maml_cls(args: Namespace, model: nn.Module):
         raise ValueError(f'Model type not supported {type(model)=}')
 
 
-def basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args: Namespace):
+def basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args: Namespace,
+                                                                    verbose: bool = False,
+                                                                    ):
     assert norm(args.mdl1) != norm(args.mdl2)
     assert norm(args.mdl_maml) == norm(args.mdl1)
     assert norm(args.mdl_sl) == norm(args.mdl2)
     assert norm(args.mdl_maml) != norm(args.mdl_sl)
     assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl)
-    print(f'{norm(args.mdl_rand)=}\n{norm(args.mdl_maml)=}\n{norm(args.mdl_sl)=}')
+    if verbose:
+        print(f'{norm(args.mdl_rand)=}\n{norm(args.mdl_maml)=}\n{norm(args.mdl_sl)=}')
 
 
 def comparison_via_performance(args: Namespace):
     print('\n---- comparison_via_performance ----\n')
     print(f'{args.dataloaders=}')
+    loaders = args.dataloaders
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
     # - varying lr_inner
     original_lr_inner = args.meta_learner.lr_inner
-    # original_lr_inner = 0.5
-    # original_lr_inner = 0.1
-    # original_lr_inner = 0.01
-    # original_lr_inner = -0.01
 
     args.mdl_sl.cls = deepcopy(args.mdl_maml.cls)
     print('-> sl_mdl has the head of the maml model to make comparisons using maml better, it does not affect when '
@@ -273,138 +273,125 @@ def comparison_via_performance(args: Namespace):
     # - full table
     print('---- full table ----')
     assert isinstance(args.meta_learner, MAMLMetaLearner)
-    args_mdl_rand = copy(args)
-    args_mdl_maml = copy(args)
-    args_mdl_sl = copy(args)
 
     # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     print('\n---- maml0 for rand model')
-    print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=0, lr_inner=0.0)
     print('---- maml0 for maml model')
-    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=0, lr_inner=0.0)
     print('---- maml0 for sl model')
-    print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=0, lr_inner=0.0)
 
     # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
     print('\n---- maml5 for rand model')
-    print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=5, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=5, lr_inner=original_lr_inner)
     print('---- maml5 for maml model')
-    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=5, lr_inner=original_lr_inner)
     print('---- maml5 for sl model')
-    print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=5, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=5, lr_inner=original_lr_inner)
 
     # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
     print('\n---- maml10 for rand model')
-    print_performance_4_maml(args_mdl_rand, model=args.mdl_rand, nb_inner_steps=10, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=10, lr_inner=original_lr_inner)
     print('---- maml10 for maml model')
-    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=10, lr_inner=original_lr_inner)
     print('---- maml10 for sl model')
-    print_performance_4_maml(args_mdl_sl, model=args.mdl_sl, nb_inner_steps=10, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=10, lr_inner=original_lr_inner)
 
     # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
     print('\n---- FFL (LR) for rand model')
-    print_performance_4_usl_ffl(args_mdl_rand, model=args.mdl_rand)
+    print_performance_4_usl_ffl(args, args.mdl_rand, loaders)
     print('---- FFL (LR) for maml model')
-    print_performance_4_usl_ffl(args_mdl_maml, model=args.mdl_maml)
+    print_performance_4_usl_ffl(args, args.mdl_maml, loaders)
     print('---- FFL (LR) for sl model')
-    print_performance_4_usl_ffl(args_mdl_sl, model=args.mdl_sl)
+    print_performance_4_usl_ffl(args, args.mdl_sl, loaders)
 
     # - quick
     print('---- quick ----')
     assert isinstance(args.meta_learner, MAMLMetaLearner)
-    args_mdl_rand = copy(args)
-    args_mdl_maml = copy(args)
-    args_mdl_sl = copy(args)
 
     # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     print('---- maml0 for rand model')
-    print_performance_4_maml(args_mdl_maml, model=args_mdl_rand.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args, model=args.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
 
     # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     print('---- maml0 for maml model')
-    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
 
     # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
     print('---- maml5 for maml model')
-    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
 
     # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
     print('---- maml10 for maml model')
-    print_performance_4_maml(args_mdl_maml, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
 
     # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
     print('---- FFL (LR) for sl model')
-    print_performance_4_usl_ffl(args_mdl_sl, model=args.mdl_sl)
+    print_performance_4_usl_ffl(args, model=args.mdl_sl)
     print('---- FFL (LR) for rand model')
-    print_performance_4_usl_ffl(args_mdl_rand, model=args.mdl_rand)
+    print_performance_4_usl_ffl(args, model=args.mdl_rand)
     print('---- FFL (LR) for maml model')
-    print_performance_4_usl_ffl(args_mdl_maml, model=args.mdl_maml)
+    print_performance_4_usl_ffl(args, model=args.mdl_maml)
 
     print()
 
 
-def items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci) -> tuple[float, float, float, float]:
-    return meta_loss.item(), meta_loss_ci.item(), meta_acc.item(), meta_acc_ci.item()
-
-
-def print_performance_results_simple(args: Namespace,
-                                     training: bool = True,
-                                     # True for ML -- even for USL: https://stats.stackexchange.com/a/551153/28986
-                                     ):
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
-                                                               split='train',
-                                                               training=training)
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
-    print(f'train: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
-                                                               split='val',
-                                                               training=training)
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
-    print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, args.meta_learner, args.dataloaders,
-                                                               split='test',
-                                                               training=training)
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
-    print(f'test: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
-
-
 def print_performance_4_maml(args: Namespace,
                              model: nn.Module,
+                             loaders,
                              nb_inner_steps: int,
                              lr_inner: float,
+                             debug_print: bool = False,
+                             training: bool = True,
+                             # True for ML -- even for USL: https://stats.stackexchange.com/a/551153/28986
+                             target_type='classification'
                              ):
-    """
-    Warning:
-        alwaus manually specify nb_inner_steps and lr_inner. This function might mutate the meta-learner/agent. Sorry! Wont fix.
-    """
-    original_meta_learner = args.meta_learner  # todo: wontfix but I don't think this actually does what I want/reset model to avoid mutating it without doing a copy/deepcopy, to much work to check doesn't matter, just hardcode whenever you call this function what you want to evaluate
-    assert isinstance(args.meta_learner, MAMLMetaLearner)
-    # - this still gives issues create a new instance of MAMLMetaLearner
-    # args.meta_learner = MAMLMetaLearner(args, model, inner_debug=False, target_type='classification')
-    args.meta_learner.base_model = model
-    args.meta_learner.nb_inner_train_steps = nb_inner_steps
-    args.meta_learner.lr_inner = lr_inner
-    assert isinstance(args.meta_learner, MAMLMetaLearner)
-    print_performance_results_simple(args)
-    assert isinstance(args.meta_learner, MAMLMetaLearner)
-    args.meta_learner = original_meta_learner
-    args.agent = original_meta_learner
+    """ Print performance of maml for all splits (train, val, test)."""
+    if debug_print:
+        print(f'---- maml {nb_inner_steps} {lr_inner=} model')
+    # - create a new instance of MAMLMetaLearner (avoids overwriting the args one. Also, it only re-assings pointers/refs)
+    meta_learner = MAMLMetaLearner(args, model, inner_debug=False, target_type=target_type)
+    meta_learner.nb_inner_train_steps = nb_inner_steps
+    meta_learner.lr_inner = lr_inner
+    assert isinstance(meta_learner, MAMLMetaLearner)
+    print_performance_results_simple(args, meta_learner, loaders, training=training)
+    assert isinstance(meta_learner, MAMLMetaLearner)
+    assert args.meta_learner is not meta_learner
 
 
 def print_performance_4_usl_ffl(args: Namespace,
                                 model: nn.Module,
+                                loaders,
+                                target_type='classification',
+                                classifier='LR',
                                 ):
-    # this overwrites the meta-learning, but if you see the code in this file, the prints, usl+ffl is always at the end
-    # + we make sure we use the meta-learning we intended to use with the asserts
-    original_meta_learner = args.meta_learner
-    args.meta_learner = FitFinalLayer(args, base_model=model)
-    args.agent = args.meta_learner
-    assert isinstance(args.meta_learner, FitFinalLayer)
-    # print_performance_results(args, mode='usl')
-    print_performance_results_simple(args)
-    assert isinstance(args.meta_learner, FitFinalLayer)
-    args.meta_learner = original_meta_learner
-    args.agent = original_meta_learner
+    meta_learner = FitFinalLayer(args, base_model=model, target_type=target_type, classifier=classifier)
+    assert isinstance(meta_learner, FitFinalLayer)
+    print_performance_results_simple(args, meta_learner, loaders, training=True)
+    assert isinstance(meta_learner, FitFinalLayer)
+    assert args.meta_learner is not meta_learner
+
+
+def print_performance_results_simple(args: Namespace,
+                                     agent,
+                                     loaders,
+                                     training: bool = True,
+                                     # True for ML -- even for USL: https://stats.stackexchange.com/a/551153/28986
+                                     ):
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, agent, loaders, split='train', training=training)
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
+    print(f'train: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, agent, loaders, split='val', training=training)
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
+    print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, agent, loaders, split='test', training=training)
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
+    print(f'test: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
+
+
+def items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci) -> tuple[float, float, float, float]:
+    return meta_loss.item(), meta_loss_ci.item(), meta_acc.item(), meta_acc_ci.item()
 
 
 def load_model_force_add_cls_layer_as_module(args: Namespace,
@@ -467,12 +454,13 @@ def get_meta_learning_dataloaders_for_data_analysis(args: Namespace):
     args.dataloaders['']
 
 
-# -
+# - helper function for new stats analysis based on effect size
 
 def basic_sanity_checks_maml0_does_nothing(args: Namespace,
                                            save_time: bool = True,
                                            ):
     """ Basic sanity checks that maml0 does nothing and thus performs as random. """
+    print(f'{basic_sanity_checks_maml0_does_nothing=}')
     # - do basic guards that models maml != usl != rand, i.e. models were loaded correctly
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
 
