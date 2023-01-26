@@ -39,6 +39,8 @@ from pdb import set_trace as st
 
 from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_mi_resnet12rfs_body
 
+from uutils.argparse_uu.common import create_default_log_root
+
 start = time.time()
 
 
@@ -939,6 +941,8 @@ def load_args() -> Namespace:
     args.meta_learner.args = args  # to avoid meta learner running with args only from past experiment and not with metric analysis experiment
 
     uutils.print_args(args)
+    # - create default log root for this expt, so we can save the results of this expt
+    create_default_log_root(args)
     return args
 
 
@@ -1015,13 +1019,13 @@ def main_data_analyis():
         if args.experiment_option == 'SL_vs_ML':
             distances_per_data_sets_per_layer: list[
                 OrderedDict[LayerIentifier, float]] = dist_batch_data_sets_for_all_layer(args.mdl1, args.mdl_sl, X, X,
-                                                                                          args.layer_names,
-                                                                                          args.layer_names,
-                                                                                          metric_comparison_type=args.metric_comparison_type,
-                                                                                          effective_neuron_type=args.effective_neuron_type,
-                                                                                          subsample_effective_num_data_method=args.subsample_effective_num_data_method,
-                                                                                          subsample_effective_num_data_param=args.subsample_effective_num_data_param,
-                                                                                          metric_as_sim_or_dist=args.metric_as_sim_or_dist)
+                                                                                         args.layer_names,
+                                                                                         args.layer_names,
+                                                                                         metric_comparison_type=args.metric_comparison_type,
+                                                                                         effective_neuron_type=args.effective_neuron_type,
+                                                                                         subsample_effective_num_data_method=args.subsample_effective_num_data_method,
+                                                                                         subsample_effective_num_data_param=args.subsample_effective_num_data_param,
+                                                                                         metric_as_sim_or_dist=args.metric_as_sim_or_dist)
 
         # -- get comparison - ML vs A(ML)
         elif args.experiment_option == 'SL_vs_ML':

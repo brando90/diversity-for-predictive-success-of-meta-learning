@@ -45,38 +45,39 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     # -- Sanity check: meta-train acc & loss for each method (usl & maml) are close to final loss after training
     loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml5, 'train')
     print(f'train: {(loss, loss_ci, acc, acc_ci)=}')
+    results['train_maml5'] = (loss, loss_ci, acc, acc_ci)
     loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml10, 'train')
     print(f'train: {(loss, loss_ci, acc, acc_ci)=}')
+    results['train_maml10'] = (loss, loss_ci, acc, acc_ci)
     loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_usl, 'train')
     print(f'train: {(loss, loss_ci, acc, acc_ci)=}')
+    results['train_usl'] = (loss, loss_ci, acc, acc_ci)
 
     # -- do statistical analysis based on effect size
     from uutils.stats_uu.effect_size import stat_test_with_effect_size_as_emphasis
-    acceptable_difference1: float = args.acceptable_difference1 if hasattr(args, 'acceptable_difference1') else 0.01
-    acceptable_difference2: float = args.acceptable_difference2 if hasattr(args, 'acceptable_difference2') else 0.02
-    alpha: float = args.alpha if hasattr(args, 'alpha') else 0.01
+    args.acceptable_difference1 = args.acceptable_difference1 if hasattr(args, 'acceptable_difference1') else 0.01
+    args.acceptable_difference2 = args.acceptable_difference2 if hasattr(args, 'acceptable_difference2') else 0.02
+    args.alpha: float = args.alpha if hasattr(args, 'alpha') else 0.01
     # - maml5 vs usl
-    group1: list = usl_accs
-    group2: list = results_maml5
-    stat_test_with_effect_size_as_emphasis(group1, group2, acceptable_difference1, acceptable_difference1, alpha,
-                                           print_groups_data=True)
+    group1: list = results_usl['test']['accs']
+    group2: list = results_maml5['test']['accs']
+    cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2 = stat_test_with_effect_size_as_emphasis(
+        group1, group2, args.acceptable_difference1, args.acceptable_difference1,
+        args.alpha, print_groups_data=True)
+    results['maml5_vs_usl'] = (cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2)
     # - maml10 vs usl
-    group1: list = usl_accs
-    group2: list = results_maml10
-    stat_test_with_effect_size_as_emphasis(group1, group2, acceptable_difference1, acceptable_difference2, alpha,
-                                           print_groups_data=True)
+    group1: list = results_usl['test']['accs']
+    group2: list = results_maml10['test']['accs']
+    cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2 = stat_test_with_effect_size_as_emphasis(
+        group1, group2, args.acceptable_difference1, args.acceptable_difference1,
+        args.alpha, print_groups_data=True)
+    results['maml10_vs_usl'] = (cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2)
 
     # -- save results
-    results['results_maml5'] = usl_accs
-    results['results_maml10'] = maml_accs
-    results['results_usl'] = usl_accs
-    results['args'] = save
-    # save results to json file
-    # import json
-    # import os
-    # from uutils.torch_uu import get_path_to_results_dir
-    # path_to_results_dir = get_path_to_results_dir(args)
-    # path_to_json_file = os.path.join(path_to_results_dir, 'results.json')
-    # with open(path_to_json_file, 'w') as f:
-    #     json.dump(results, f)
+    results['results_maml5'] = results_maml5
+    results['results_maml10'] = results_maml10
+    results['results_usl'] = results_usl
+    torch.save(results, args.log_root / f'results.pt')
+    save_to_json_pretty(results, args.log_root / f'results.json')
+    save_args(args)
     return results

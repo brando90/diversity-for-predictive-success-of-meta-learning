@@ -137,7 +137,7 @@ tmux new -s hdb4_micod_usl_convergence
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_resnet_usl_adam_no_scheduler_train_to_convergence --model_option resnet50_rfs --data_path $HOME/data/mds/records/ \
 #    |& tee $OUT_FILE 2> $ERR_FILE
 
- - hdb4 micod
+# - hdb4 micod
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_adam_cl_its --model_option resnet12_rfs &
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_adam_cl_train_to_convergence --model_option resnet12_rfs &
 
