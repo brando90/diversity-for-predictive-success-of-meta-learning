@@ -462,7 +462,7 @@ def diversity_ala_task2vec_mds_vggaircraft(args: Namespace) -> Namespace:
 def diversity_ala_task2vec_mds_birdsdtd(args: Namespace) -> Namespace:
     args.sources = ['dtd','cu_birds']#['aircraft','vgg_flower','cu_birds']
 
-    args.batch_size = 500  # 5 for testing
+    args.batch_size = 5#500  # 5 for testing
     args.batch_size_eval = args.batch_size # this determines batch size for test/eval
 
     # args.batch_size = 500
@@ -472,14 +472,15 @@ def diversity_ala_task2vec_mds_birdsdtd(args: Namespace) -> Namespace:
     # - probe_network
     args.model_option = 'resnet18_pretrained_imagenet'
     args.classifier_opts = None
+    args.PID = 'None'
 
     # -- wandb args
     args.wandb_project = 'meta-dataset task2vec'#'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
-    args.log_to_wandb = True
-    #args.log_to_wandb = False
+    #args.log_to_wandb = True
+    args.log_to_wandb = False
 
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
     args = fix_for_backwards_compatibility(args)
@@ -493,18 +494,13 @@ def load_args() -> Namespace:
     2. optionally set remaining args values (e.g. manually, hardcoded, from ckpt etc.)
     3. setup remaining args small details from previous values (e.g. 1 and 2).
     """
-    # -- parse args from terminal
     args: Namespace = parse_args_meta_learning()
-
-    # -- uncomment below for mds experiments
-    #from diversity_src.dataloaders.metadataset_common import get_mds_base_args
-    #args = get_mds_base_args()
 
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'diversity_ala_task2vec_delauny'  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'diversity_ala_task2vec_mds'
     # args.manual_loads_name = 'diversity_ala_task2vec_mds_vggaircraft'
-    # args.manual_loads_name = 'diversity_ala_task2vec_mds_birdsdtd'
+    args.manual_loads_name = 'diversity_ala_task2vec_mds_birdsdtd'
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')
@@ -588,8 +584,8 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     # todo: idk if it works to switch a l2l normal datalaoder, also, if we use a normal data loader how would things be affected?
     # todo: idk if we want to do a USL div analysis also, it would remove the multi modes of the task2vec histograms
     if args.data_option == 'mds':
-        from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
-        args.dataloaders = get_meta_learning_dataloaders(args)
+        from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
+        args.dataloaders = get_meta_learning_dataloader(args)
         print(f'{args.dataloaders=}')
         embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_dataloader(args,
                                                                                             args.dataloaders,

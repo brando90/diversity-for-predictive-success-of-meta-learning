@@ -100,17 +100,26 @@ def get_mds_loaders(args) -> dict:
 # - test
 
 def loop_test(args):
+
+
     from uutils.torch_uu import process_meta_batch
     args.batch_size = 10
     args.batch_size_eval = 10
 
-    args.min_examples_in_class = 10
+    args.min_examples_in_class = 20
     #args.num_support = None
     #args.num_query = None
 
     #args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
+
+
+
     args.sources = ['dtd','cu_birds']
     dataloader = get_mds_loaders(args)
+
+    #from uutils.torch_uu.dataloaders.common import get_dataset_size
+    #print(len(dataloader['val']))
+
 
     print(f'{len(dataloader)}')
     for batch_idx, batch in enumerate(dataloader['val']):
@@ -130,9 +139,10 @@ def loop_test(args):
 # -- Run experiment
 
 if __name__ == "__main__":
-    from diversity_src.dataloaders.metadataset_common import get_mds_base_args
+    from uutils.argparse_uu.meta_learning import parse_args_meta_learning
 
-    args: Namespace = get_mds_base_args()
+    args: Namespace = parse_args_meta_learning()
+
     # set_devices(args)  # args.device = rank or .device
     args.device = uutils.torch_uu.get_device()
 

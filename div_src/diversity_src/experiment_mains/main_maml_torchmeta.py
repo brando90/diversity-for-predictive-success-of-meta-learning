@@ -252,10 +252,12 @@ def mds_birdsdtd_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namesp
     # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
 
     # - training mode
-    args.training_mode = 'iterations_train_convergence'
+    args.training_mode = 'iterations'#'iterations_train_convergence'
+    args.num_its = 1_000_000_000 # essentially this makes your thing run forever to 'prevent' early termination
+    args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Jan23_23-56-40_jobid_-1/ckpt.pt'  # '/home/pzy2/data/logs/logs_Jan23_23-56-40_jobid-1'
 
     # - debug flag
-    args.debug = False#True
+    args.debug = True#False#True
     #args.debug = False
 
     # - opt
@@ -281,14 +283,14 @@ def mds_birdsdtd_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namesp
     args.batch_size_eval = 2#1
 
     # - logging params
-    args.log_freq = 500
+    args.log_freq = 1#500
 
     # -- wandb args
     args.wandb_project = 'Meta-Dataset'#'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
     args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
-    args.log_to_wandb = True
+    args.log_to_wandb = False
     # args.log_to_wandb = False
 
     # - fix for backwards compatibility
@@ -306,16 +308,12 @@ def load_args() -> Namespace:
     # todo: maybe later, add a try catch that if there is an mds only flag given at the python cmd line then it will load the mds args otherwise do the meta-leanring args
     # todo: https://stackoverflow.com/questions/75141370/how-does-one-have-python-work-when-multiple-arg-parse-options-are-possible
 
-    # - uncomment below for MDS args
-    #from diversity_src.dataloaders.metadataset_common import get_mds_base_args
-    #args: Namespace = get_mds_base_args()
-
     args: Namespace = parse_args_meta_learning()
 
-    #args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
+    args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing'  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'mds_resnet_maml_adam_no_scheduler_train_to_convergence'
-    # args.manual_loads_name = 'mds_vggaircraft_resnet_maml_adam_no_scheduler_train_to_convergence' # mds_birdsdtd_resnet_maml_adam_no_scheduler_train_to_convergence
+    args.manual_loads_name = 'mds_birdsdtd_resnet_maml_adam_no_scheduler_train_to_convergence'# 'mds_vggaircraft_resnet_maml_adam_no_scheduler_train_to_convergence' # mds_birdsdtd_resnet_maml_adam_no_scheduler_train_to_convergence
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')

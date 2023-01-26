@@ -98,7 +98,7 @@ def get_mds_loader(args):
 # - test
 def loop_test(args):
     from uutils.torch_uu import process_meta_batch
-    args.batch_size = 5000
+    args.batch_size = 10
     args.batch_size_eval= 2
     args.min_examples_per_class = 20
     #args.data_path = '/shared/rsaas/pzy2/records/'  # or whereever
@@ -110,13 +110,13 @@ def loop_test(args):
     for batch_idx, batch in enumerate(dataloader['train']):
         X,y = batch
         #print("finish batch",batch_idx)
-        #print(X.shape)
-        #print(y.shape)
-        #print(y)
-        #print("min label:", min(y))
-        #print("max label:", max(y))
-        if (max(y) > 172):
-            print("EXceeded: ", max(y), y)
+        print(X.shape)
+        print(y.shape)
+        print(y)
+        print("min label:", min(y))
+        print("max label:", max(y))
+        #if (max(y) > 172):
+        #    print("EXceeded: ", max(y), y)
         #print(X, y)
         #if batch_idx == 1000:
         #    break
@@ -125,9 +125,10 @@ def loop_test(args):
 # -- Run experiment
 
 if __name__ == "__main__":
-    from diversity_src.dataloaders.metadataset_common import get_mds_base_args
+    from uutils.argparse_uu.supervised_learning import parse_args_standard_sl
 
-    args: Namespace = get_mds_base_args()
+    args: Namespace = parse_args_standard_sl()
+
     #args.sources = ['vgg_flower','aircraft']
     #set_devices(args)  # args.device = rank or .device
     args.device = uutils.torch_uu.get_device()
