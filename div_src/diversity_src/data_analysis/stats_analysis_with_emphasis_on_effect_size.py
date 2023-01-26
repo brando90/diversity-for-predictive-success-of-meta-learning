@@ -4,13 +4,16 @@ Since it meta-learning, the errors/accs are known to have large stds.
 """
 from argparse import Namespace
 
+import torch
+
 from diversity_src.data_analysis.common import basic_guards_that_maml_usl_and_rand_models_loaded_are_different
+from uutils import save_to_json_pretty, save_args
+
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
+from uutils.torch_uu import norm
 
 
-def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
-                                                meta_dataloader,
-                                                ):
+def stats_analysis_with_emphasis_on_effect_size(args: Namespace):
     """
     Note:
         - you need to make sure the models rand, sl, maml are loaded correctly before using this function.
@@ -24,6 +27,9 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
         - H0: no diff btw usl and maml
         - H1: diff btw usl and maml (& USL > MAML, chekcing populat belief)
     """
+    # - get datalaoders from args
+    loaders: dict = args.dataloaders
+    # - results dict
     results: dict = {}
     # -- Guard: that models maml != usl != rand, i.e. models were loaded correctly before using this function
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
@@ -37,12 +43,13 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     # - once the model guard has been passed you should be able to get args.mdl_rand, args.mdl_maml, args.mdl_sl safely
     original_lr_inner = args.meta_learner.lr_inner
     from diversity_src.data_analysis.common import get_accs_losses_all_splits_maml
-    results_maml5 = get_accs_losses_all_splits_maml(args, args.mdl_maml, meta_dataloader, 5, original_lr_inner)
-    results_maml10 = get_accs_losses_all_splits_maml(args, args.mdl_maml, meta_dataloader, 10, original_lr_inner)
-    from diversity_src.data_analysis.common import get_accs_losses_all_splits_maml
-    results_usl = get_accs_losses_all_splits_usl(args, args.mdl_sl, meta_dataloader)
+    results_maml5 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_lr_inner)
+    results_maml10 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_lr_inner)
+    from diversity_src.data_analysis.common import get_accs_losses_all_splits_usl
+    results_usl = get_accs_losses_all_splits_usl(args, args.mdl_sl, loaders)
 
     # -- Sanity check: meta-train acc & loss for each method (usl & maml) are close to final loss after training
+    from diversity_src.data_analysis.common import get_mean_and_ci_from_results
     loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml5, 'train')
     print(f'train: {(loss, loss_ci, acc, acc_ci)=}')
     results['train_maml5'] = (loss, loss_ci, acc, acc_ci)

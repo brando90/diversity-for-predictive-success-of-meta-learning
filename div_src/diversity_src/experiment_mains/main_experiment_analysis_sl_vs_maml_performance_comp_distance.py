@@ -24,6 +24,8 @@ from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_lea
     comparison_via_performance, setup_args_path_for_ckpt_data_analysis, \
     get_recommended_batch_size_miniimagenet_5CNN
 from diversity_src.diversity.diversity import diversity
+from diversity_src.data_analysis.stats_analysis_with_emphasis_on_effect_size import \
+    stats_analysis_with_emphasis_on_effect_size
 
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
@@ -745,9 +747,10 @@ def resnet12rfs_hdb1_mio(args):
     args.first_order = True
 
     # args.batch_size = 2  # useful for debugging!
+    args.batch_size = 5  # useful for debugging!
     # args.batch_size = 25
     # args.batch_size = 100
-    args.batch_size = 500
+    # args.batch_size = 500
     # args.batch_size = 1000
     # args.batch_size = 2000
     # args.batch_size = 5000
@@ -957,9 +960,6 @@ def main_data_analyis():
 
     # - get dataloaders and overwrites so data analysis runs as we want
     args.dataloaders: dict = get_meta_learning_dataloaders(args)
-    # meta_dataloader = dataloaders['train']
-    meta_dataloader = args.dataloaders['val']
-    # meta_dataloader = dataloaders['test']
 
     # - layers to do analysis on
     if hasattr(args, 'layer_names'):
@@ -983,8 +983,8 @@ def main_data_analyis():
     print(f'-->{args.num_its=}')
     print(f'-->{args.nb_inner_train_steps=}')
     print(f'-->{args.inner_lr=}')
-    print(f'-->{args.metric_comparison_type=}')
-    print(f'-->{args.metric_as_sim_or_dist=}')
+    print(f'-->{args.metric_comparison_type=}') if hasattr(args, 'metric_comparison_type') else None
+    print(f'-->{args.metric_as_sim_or_dist=}') if hasattr(args, 'metric_as_sim_or_dist') else None
     print(f'-->{args.n_aug_support_samples=}') if hasattr(args, 'n_aug_support_samples') else None
     print(f'-->{args.k_shots=}')
 
@@ -995,8 +995,11 @@ def main_data_analyis():
     if args.experiment_option == 'performance_comparison':
         comparison_via_performance(args)
     elif args.experiment_option == 'stats_analysis_with_emphasis_on_effect_size':
-        stats_analysis_with_emphasis_on_effect_size(args, meta_dataloader)
+        stats_analysis_with_emphasis_on_effect_size(args)
     else:
+        # meta_dataloader = dataloaders['train']
+        meta_dataloader = args.dataloaders['val']
+        # meta_dataloader = dataloaders['test']
         batch = next(iter(meta_dataloader))
         spt_x, spt_y, qry_x, qry_y = process_meta_batch(args, batch)
 

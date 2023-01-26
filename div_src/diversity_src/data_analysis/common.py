@@ -478,13 +478,13 @@ def basic_sanity_checks_maml0_does_nothing(args: Namespace,
 
     # - Adaptation=MAML 0: santiy check maml0 does nothing (only using one model to save time)
     # args_mdl_maml = copy(args)
-    print('---- maml0 for sl model (should be around ~0.2 for 5 ways')
-    print_performance_4_maml(args, model=args.mdl_sl, nb_inner_steps=0, lr_inner=0.0)
+    print('---- maml0 for maml model (should be around ~0.2 for 5 ways) ----')
+    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
     if not save_time:
         print('\n---- maml0 for rand model')
         print_performance_4_maml(args, model=args.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
-        print('---- maml0 for maml model')
-        print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
+        print('---- maml0 for sl model')
+        print_performance_4_maml(args, model=args.mdl_sl, nb_inner_steps=0, lr_inner=0.0)
 
 
 def get_accs_losses_all_splits_maml(args: Namespace,
@@ -525,6 +525,8 @@ def get_accs_losses_all_splits_maml(args: Namespace,
     for split in ['train', 'val', 'test']:
         from uutils.torch_uu.eval.eval import get_meta_eval_lists_accs_losses
         losses, accs = get_meta_eval_lists_accs_losses(args, agent, loader)
+        results[split]['losses'] = losses
+        results[split]['accs'] = accs
     # - return results
     assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     return results
@@ -560,6 +562,8 @@ def get_accs_losses_all_splits_usl(args: Namespace,
     for split in ['train', 'val', 'test']:
         from uutils.torch_uu.eval.eval import get_meta_eval_lists_accs_losses
         losses, accs = get_meta_eval_lists_accs_losses(args, agent, loader)
+        results[split]['losses'] = losses
+        results[split]['accs'] = accs
     # - return results
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
     return results
@@ -568,10 +572,10 @@ def get_accs_losses_all_splits_usl(args: Namespace,
 def get_mean_and_ci_from_results(results: dict,
                                  split: str,
                                  ) -> tuple[float, float, float, float]:
-    losses, accs = results[split][metric_list], results[split][metric_list]
+    losses, accs = results[split]['losses'], results[split]['accs']
     from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interval
-    loss, loss_ci = mean_confidence_interval(meta_losses)
-    acc, acc_ci = mean_confidence_interval(meta_accs)
+    loss, loss_ci = mean_confidence_interval(losses)
+    acc, acc_ci = mean_confidence_interval(accs)
     return loss, loss_ci, acc, acc_ci
 
 
