@@ -21,8 +21,8 @@ import uutils
 import time
 
 from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_learner, santity_check_maml_accuracy, \
-    comparison_via_performance, setup_args_path_for_ckpt_data_analysis, do_diversity_data_analysis, \
-    performance_comparison_with_l2l_end_to_end, get_recommended_batch_size_miniimagenet_5CNN
+    comparison_via_performance, setup_args_path_for_ckpt_data_analysis, \
+    get_recommended_batch_size_miniimagenet_5CNN
 from diversity_src.diversity.diversity import diversity
 
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
@@ -915,25 +915,12 @@ def load_args() -> Namespace:
     has the right args from the data analysis by doing args.meta_learner.args = new_args.
     """
     # - args from terminal
-    # args: Namespace = parse_args_meta_learning()
-
-    # - uncomment below for mds experiments
-    from diversity_src.dataloaders.metadataset_common import get_mds_base_args
-    args: Namespace = get_mds_base_args()
+    args: Namespace = parse_args_meta_learning()
 
     # - get manual args
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')
-    if resume_from_checkpoint(args):
-        args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
-        raise NotImplementedError(
-            'This is not implemented yet, dont think I need this, since we are loging the usl & maml'
-            'models bellow')
-    elif args_hardcoded_in_script(args):
-        args: Namespace = eval(f'{args.manual_loads_name}(args)')
-    else:
-        # NOP: since we are using args from terminal
-        pass
+    args: Namespace = eval(f'{args.manual_loads_name}(args)')
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)

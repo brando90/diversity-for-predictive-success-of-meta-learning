@@ -9,7 +9,7 @@ from torch import nn
 
 from uutils.torch_uu import norm, process_meta_batch
 from uutils.torch_uu.eval.eval import eval_sl, meta_eval
-from uutils.torch_uu.mains.common import _get_agent, load_model_optimizer_scheduler_from_ckpt, \
+from uutils.torch_uu.mains.common import _get_maml_agent, load_model_optimizer_scheduler_from_ckpt, \
     _get_and_create_model_opt_scheduler, load_model_ckpt
 from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import meta_eval_no_context_manager
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
@@ -494,7 +494,7 @@ def get_accs_losses_all_splits_maml(args: Namespace,
                                     lr_inner: float,
                                     training: bool = True,
                                     # False for SL, ML: https://stats.stackexchange.com/a/551153/28986
-                                    ) -> results:
+                                    ) -> dict:
     """
     Note:
         - training = True **always** for meta-leanring. Reason is so to always use the batch statistics **for the current task**.
@@ -535,7 +535,7 @@ def get_accs_losses_all_splits_usl(args: Namespace,
                                    loader,
                                    training: bool = True,
                                    # False for SL, ML: https://stats.stackexchange.com/a/551153/28986
-                                   ) -> results:
+                                   ) -> dict:
     """
     Note:
         - training = True **always** for meta-leanring. Reason is so to always use the batch statistics **for the current task**.
@@ -567,7 +567,7 @@ def get_accs_losses_all_splits_usl(args: Namespace,
 
 def get_mean_and_ci_from_results(results: dict,
                                  split: str,
-                                 ) -> tuple[Tensor, Tensor, Tensor, Tensor]:
+                                 ) -> tuple[float, float, float, float]:
     losses, accs = results[split][metric_list], results[split][metric_list]
     from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interval
     loss, loss_ci = mean_confidence_interval(meta_losses)
