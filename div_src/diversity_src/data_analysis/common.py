@@ -457,22 +457,20 @@ def get_meta_learning_dataloaders_for_data_analysis(args: Namespace):
 # - helper function for new stats analysis based on effect size
 
 def basic_sanity_checks_maml0_does_nothing(args: Namespace,
+                                           loaders,
                                            save_time: bool = True,
                                            ):
     """ Basic sanity checks that maml0 does nothing and thus performs as random. """
-    print(f'{basic_sanity_checks_maml0_does_nothing=}')
     # - do basic guards that models maml != usl != rand, i.e. models were loaded correctly
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
 
-    # - Adaptation=MAML 0: santiy check maml0 does nothing (only using one model to save time)
-    # args_mdl_maml = copy(args)
     print('---- maml0 for maml model (should be around ~0.2 for 5 ways task its never seen) ----')
-    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=0, lr_inner=0.0)
     if not save_time:
         print('\n---- maml0 for rand model')
-        print_performance_4_maml(args, model=args.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
+        print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=0, lr_inner=0.0)
         print('---- maml0 for sl model')
-        print_performance_4_maml(args, model=args.mdl_sl, nb_inner_steps=0, lr_inner=0.0)
+        print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=0, lr_inner=0.0)
 
 
 def get_accs_losses_all_splits_maml(args: Namespace,
