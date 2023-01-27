@@ -35,7 +35,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
         - H1: diff btw usl and maml (& USL > MAML, chekcing populat belief)
     """
     # -- Start code for real
-    print('\n---------------------  Start code for real2  ---------------------')
+    print('\n---------------------  Start code for real  ---------------------')
     # - get original inner learning rate
     original_inner_lr = args.meta_learner.inner_lr
     # - get datalaoders from args
@@ -72,7 +72,6 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     print(f'train (usl): {(loss, loss_ci, acc, acc_ci)=}')
     results['train_usl'] = (loss, loss_ci, acc, acc_ci)
 
-    st()
     # -- do statistical analysis based on effect size
     from uutils.stats_uu.effect_size import stat_test_with_effect_size_as_emphasis
     args.acceptable_difference1 = args.acceptable_difference1 if hasattr(args, 'acceptable_difference1') else 0.01
@@ -107,8 +106,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     if perform_full_performance_comparison:
         print('---- Full performance comparison ----')
         from diversity_src.data_analysis.common import comparison_via_performance
-        # comparison_via_performance(args)
-        print_performance_4_maml(args, args.mdl_maml, 5, original_inner_lr, debug_print=True)
+        comparison_via_performance(args)
     return results
 
 
