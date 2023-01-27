@@ -232,8 +232,6 @@ def get_maml_meta_learner(args: Namespace):
     return args.meta_learner
 
 
-# --
-
 def set_maml_cls_to_maml_cls(args: Namespace, model: nn.Module):
     from uutils.torch_uu.models.resnet_rfs import ResNet
     if isinstance(model, Learner):
@@ -459,18 +457,19 @@ def get_meta_learning_dataloaders_for_data_analysis(args: Namespace):
 def basic_sanity_checks_maml0_does_nothing(args: Namespace,
                                            loaders,
                                            save_time: bool = True,
+                                           debug_print: bool = False,
                                            ):
     """ Basic sanity checks that maml0 does nothing and thus performs as random. """
     # - do basic guards that models maml != usl != rand, i.e. models were loaded correctly
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
 
     print('---- maml0 for maml model (should be around ~0.2 for 5 ways task its never seen) ----')
-    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=True)
+    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=debug_print)
     if not save_time:
         print('\n---- maml0 for rand model')
-        print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=True)
+        print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=debug_print)
         print('---- maml0 for sl model')
-        print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=True)
+        print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=debug_print)
 
 
 def get_accs_losses_all_splits_maml(args: Namespace,
@@ -553,6 +552,25 @@ def get_accs_losses_all_splits_usl(args: Namespace,
     # - return results
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
     return results
+
+
+# -- print accs & losses
+
+def print_accs_losses_mutates_reslts(results_maml5: dict,
+                                     results_maml10: dict,
+                                     results_usl: dict,
+                                     results: dict,
+                                     split: str,
+                                     ):
+    loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml5, 'train')
+    print(f'{split} (maml 5): {(loss, loss_ci, acc, acc_ci)=}')
+    results[f'{split}_maml5'] = (loss, loss_ci, acc, acc_ci)
+    loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml10, 'train')
+    print(f'{split} (maml 10): {(loss, loss_ci, acc, acc_ci)=}')
+    results[f'{split}_maml10'] = (loss, loss_ci, acc, acc_ci)
+    loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_usl, 'train')
+    print(f'{split} (usl): {(loss, loss_ci, acc, acc_ci)=}')
+    results[f'{split}_usl'] = (loss, loss_ci, acc, acc_ci)
 
 
 def get_mean_and_ci_from_results(results: dict,

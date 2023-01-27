@@ -8,7 +8,7 @@ from argparse import Namespace
 import torch
 
 from diversity_src.data_analysis.common import basic_guards_that_maml_usl_and_rand_models_loaded_are_different, \
-    print_performance_4_maml
+    print_performance_4_maml, print_accs_losses_mutates_reslts
 from uutils import save_to_json_pretty, save_args
 
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
@@ -35,9 +35,10 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
         - H1: diff btw usl and maml (& USL > MAML, chekcing populat belief)
     """
     # -- Start code for real
-    print('\n---------------------  Start code for real  ---------------------')
+    print('\n---------------------  Start Stats analysis  ---------------------')
     # - get original inner learning rate
     original_inner_lr = args.meta_learner.inner_lr
+    print(f'{original_inner_lr=}')
     # - get datalaoders from args
     loaders: dict = args.dataloaders
     # - results dict
@@ -52,7 +53,6 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
 
     # -- Get the losses & accs for each method (usl & maml) for all splits & save them
     # - once the model guard has been passed you should be able to get args.mdl_rand, args.mdl_maml, args.mdl_sl safely
-    print(f'{original_inner_lr=}')
     from diversity_src.data_analysis.common import get_accs_losses_all_splits_maml
     results_maml5 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_inner_lr)
     results_maml10 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_inner_lr)
@@ -61,18 +61,12 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
 
     # -- Sanity check: meta-train acc & loss for each method (usl & maml) are close to final loss after training
     print('---- Sanity check: meta-train acc & loss for each method (usl & maml) values at the end of training ----')
-    from diversity_src.data_analysis.common import get_mean_and_ci_from_results
-    loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml5, 'train')
-    print(f'train (maml 5): {(loss, loss_ci, acc, acc_ci)=}')
-    results['train_maml5'] = (loss, loss_ci, acc, acc_ci)
-    loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml10, 'train')
-    print(f'train (maml 10): {(loss, loss_ci, acc, acc_ci)=}')
-    results['train_maml10'] = (loss, loss_ci, acc, acc_ci)
-    loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_usl, 'train')
-    print(f'train (usl): {(loss, loss_ci, acc, acc_ci)=}')
-    results['train_usl'] = (loss, loss_ci, acc, acc_ci)
+    print_accs_losses_mutates_reslts(results_maml5, results_maml10, results_usl, results, 'train')
+    print('---- Print meta-test acc & loss for each method (usl & maml) ----')
+    print_accs_losses_mutates_reslts(results_maml5, results_maml10, results_usl, results, 'test')
 
     # -- do statistical analysis based on effect size
+    print('\n---- Statistical analysis based on effect size ----')
     from uutils.stats_uu.effect_size import stat_test_with_effect_size_as_emphasis
     args.acceptable_difference1 = args.acceptable_difference1 if hasattr(args, 'acceptable_difference1') else 0.01
     args.acceptable_difference2 = args.acceptable_difference2 if hasattr(args, 'acceptable_difference2') else 0.02
@@ -104,11 +98,12 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     save_args(args)
     # -- do perform comparison
     if perform_full_performance_comparison:
-        print('---- Full performance comparison ----')
+        print('\n---- Full performance comparison ----')
         from diversity_src.data_analysis.common import comparison_via_performance
         comparison_via_performance(args)
     return results
 
+# -- random debug code
 
 def _debug(args: Namespace):
     print('\n---- Start Debug ----')

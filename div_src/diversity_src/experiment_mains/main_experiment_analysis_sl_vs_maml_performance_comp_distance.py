@@ -758,9 +758,9 @@ def resnet12rfs_hdb1_mio(args):
     args.batch_size_eval = args.batch_size
 
     # - expt option
-    args.stats_analysis_option = 'performance_comparison'
+    # args.stats_analysis_option = 'performance_comparison'
     args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size'
-    args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_and_and_full_performance_comp'
+    # args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_and_and_full_performance_comp'
     args.acceptable_difference1 = 0.01
     args.acceptable_difference2 = 0.02
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
