@@ -37,10 +37,10 @@ from uutils.torch_uu.models.probe_networks import get_probe_network
 from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interval, \
     nth_central_moment_and_its_confidence_interval
 
-
 # import matplotlib.pyplot as plt
 
 from pdb import set_trace as st
+
 
 # - mi
 
@@ -403,14 +403,14 @@ def diversity_ala_task2vec_hdb4_micod(args: Namespace) -> Namespace:
 # - mds
 
 def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
-    #args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
+    # args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
 
     # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
     args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
                     'mscoco', 'traffic_sign']
 
     args.batch_size = 500  # 5 for testing
-    args.batch_size_eval = args.batch_size # this determines batch size for test/eval
+    args.batch_size_eval = args.batch_size  # this determines batch size for test/eval
 
     # args.batch_size = 500
     args.data_option = 'mds'
@@ -434,10 +434,10 @@ def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
 
 
 def diversity_ala_task2vec_mds_vggaircraft(args: Namespace) -> Namespace:
-    args.sources = ['aircraft','vgg_flower']
+    args.sources = ['aircraft', 'vgg_flower']
 
     args.batch_size = 500  # 5 for testing
-    args.batch_size_eval = args.batch_size # this determines batch size for test/eval
+    args.batch_size_eval = args.batch_size  # this determines batch size for test/eval
 
     # args.batch_size = 500
     args.data_option = 'mds'
@@ -448,22 +448,23 @@ def diversity_ala_task2vec_mds_vggaircraft(args: Namespace) -> Namespace:
     args.classifier_opts = None
 
     # -- wandb args
-    args.wandb_project = 'meta-dataset task2vec'#'entire-diversity-spectrum'
+    args.wandb_project = 'meta-dataset task2vec'  # 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
     args.log_to_wandb = True
-    #args.log_to_wandb = False
+    # args.log_to_wandb = False
 
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
     args = fix_for_backwards_compatibility(args)
     return args
 
-def diversity_ala_task2vec_mds_birdsdtd(args: Namespace) -> Namespace:
-    args.sources = ['dtd','cu_birds']#['aircraft','vgg_flower','cu_birds']
 
-    args.batch_size = 5#500  # 5 for testing
-    args.batch_size_eval = args.batch_size # this determines batch size for test/eval
+def diversity_ala_task2vec_mds_birdsdtd(args: Namespace) -> Namespace:
+    args.sources = ['dtd', 'cu_birds']  # ['aircraft','vgg_flower','cu_birds']
+
+    args.batch_size = 5  # 500  # 5 for testing
+    args.batch_size_eval = args.batch_size  # this determines batch size for test/eval
 
     # args.batch_size = 500
     args.data_option = 'mds'
@@ -475,16 +476,17 @@ def diversity_ala_task2vec_mds_birdsdtd(args: Namespace) -> Namespace:
     args.PID = 'None'
 
     # -- wandb args
-    args.wandb_project = 'meta-dataset task2vec'#'entire-diversity-spectrum'
+    args.wandb_project = 'meta-dataset task2vec'  # 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
-    #args.log_to_wandb = True
+    # args.log_to_wandb = True
     args.log_to_wandb = False
 
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
     args = fix_for_backwards_compatibility(args)
     return args
+
 
 # - main
 

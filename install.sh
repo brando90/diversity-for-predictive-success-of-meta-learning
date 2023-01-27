@@ -40,12 +40,14 @@ which pip3
 # -- Install PyTorch sometimes requires more careful versioning due to cuda, ref: official install instruction https://pytorch.org/get-started/previous-versions/
 # you need python 3.9 for torch version 1.9.1 to work, due to torchmeta==1.8.0 requirement
 if ! python -V 2>&1 | grep -q 'Python 3\.9'; then
-    echo "Error: Python 3.9 is required!"
-    exit 1
+  echo "Error: Python 3.9 is required!"
+  exit 1
 fi
 # - install torch 1.9.1 with cuda using pip
+# NOTE: YOU **NECESSERILY** NEED TO INSTALL CPU or GPU MANUALLY (can't be put in setup.py afaik, I guess it can, its turing complete. Would go in div setup.py)
 pip uninstall torchtext
 pip install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+#pip install torch==1.9.1 torchvision==0.10.1 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
 
 # - bellow doesn't work, idk why. ref SO Q: https://stackoverflow.com/questions/75023120/why-does-conda-install-the-pytorch-cpu-version-despite-me-putting-explicitly-to
 #conda install pytorch torchvision torchaudio pytorch-cuda=11.1 -c pytorch -c nvidia
@@ -59,6 +61,7 @@ cd $HOME
 git clone git@github.com:brando90/diversity-for-predictive-success-of-meta-learning.git
 pip install -e $HOME/diversity-for-predictive-success-of-meta-learning/
 
+#pip install statsmodels  # not sure why it's needed hardcoded and in setup.py uutils is not enough
 git clone git@github.com:brando90/ultimate-utils.git
 pip install -e $HOME/ultimate-utils/
 
@@ -67,4 +70,3 @@ python -c "import torch; print(torch.__version__)"
 python -c "import uutils; uutils.torch_uu.gpu_test()"
 
 echo Done "Done Install!"
-

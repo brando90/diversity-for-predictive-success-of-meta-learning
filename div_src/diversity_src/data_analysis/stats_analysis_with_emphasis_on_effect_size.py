@@ -19,7 +19,7 @@ from pdb import set_trace as st
 
 def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
                                                 perform_full_performance_comparison: bool = False,
-                                                save_hist_losses: bool = True,
+                                                save_hist_losses: bool = False,
                                                 ):
     """
     Note:
@@ -88,7 +88,8 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
 
     # -- Save hist losses
     if save_hist_losses:
-        pass
+        save_loss_histogram()
+        raise NotImplementedError
     # -- Save results
     results['results_maml5'] = results_maml5
     results['results_maml10'] = results_maml10
@@ -102,6 +103,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
         from diversity_src.data_analysis.common import comparison_via_performance
         comparison_via_performance(args)
     return results
+
 
 # -- random debug code
 
@@ -151,3 +153,19 @@ def _debug(args: Namespace):
     basic_sanity_checks_maml0_does_nothing(args, loaders)
     print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_inner_lr, debug_print=True)
     print('---- End Debug ----\n')
+
+
+def save_loss_histogram():
+    pass
+    # - save histograms
+    # title: str = 'Distribution of Task2Vec Distances'
+    # xlabel: str = 'Cosine Distance between Task Pairs'
+    # ylabel = 'Frequency Density (pmf)'
+    # ax = get_histogram(distances_as_flat_array, xlabel, ylabel, title, stat='probability', linestyle=None, color='b')
+    # save_to(args.log_root,
+    #         plot_name=f'hist_density_task2vec_cosine_distances_{args.data_option}_{split}'.replace('-', '_'))
+    # ylabel = 'Frequency'
+    # get_histogram(distances_as_flat_array, xlabel, ylabel, title, linestyle=None, color='b')
+    # save_to(args.log_root,
+    #         plot_name=f'hist_freq_task2vec_cosine_distances_{args.data_option}_{split}'.replace('-', '_'))
+    raise NotImplementedError

@@ -2131,7 +2131,8 @@ def mds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Na
     # - data
     args.data_option = 'mds'
     # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
-    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower', 'mscoco', 'traffic_sign']
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
+                    'mscoco', 'traffic_sign']
     args.n_classes = args.n_cls
 
     # - training mode
@@ -2176,7 +2177,7 @@ def mds_vggaircraft_resnet_usl_adam_no_scheduler_train_to_convergence(args: Name
     # - data
     args.data_option = 'mds'
     # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
-    args.sources = ['dtd','cu_birds']#['aircraft','vgg_flower']
+    args.sources = ['dtd', 'cu_birds']  # ['aircraft','vgg_flower']
     args.n_classes = args.n_cls
 
     # - training mode
@@ -2213,7 +2214,7 @@ def mds_vggaircraft_resnet_usl_adam_no_scheduler_train_to_convergence(args: Name
 def mds_dtdbirds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Namespace:
     # - model
     # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
-    args.n_cls = 177#173#141  # ref: https://github.com/google-research/meta-dataset#dataset-summary
+    args.n_cls = 177  # 173#141  # ref: https://github.com/google-research/meta-dataset#dataset-summary
     # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
     args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
                           num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
@@ -2221,12 +2222,12 @@ def mds_dtdbirds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespa
     # - data
     args.data_option = 'mds'
     # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
-    args.sources = ['dtd','cu_birds']#['aircraft','vgg_flower']
+    args.sources = ['dtd', 'cu_birds']  # ['aircraft','vgg_flower']
     args.n_classes = args.n_cls
 
     # - training mode
-    args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Jan24_10-04-41_jobid_-1/ckpt.pt'#'/home/pzy2/data/logs/logs_Jan23_23-56-40_jobid-1'
-    args.training_mode = 'iterations'#'iterations_train_convergence'
+    args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Jan24_10-04-41_jobid_-1/ckpt.pt'  # '/home/pzy2/data/logs/logs_Jan23_23-56-40_jobid-1'
+    args.training_mode = 'iterations'  # 'iterations_train_convergence'
     args.num_its = 1_000_000_000
     # - debug flag
     # args.debug = True

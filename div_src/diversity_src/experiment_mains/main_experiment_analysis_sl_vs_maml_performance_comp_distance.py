@@ -42,6 +42,7 @@ from pdb import set_trace as st
 from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_mi_resnet12rfs_body
 
 from uutils.argparse_uu.common import create_default_log_root
+from uutils.argparse_uu.common import setup_args_for_experiment
 
 start = time.time()
 
@@ -195,14 +196,10 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     # - setup paths to ckpts for data analysis
     args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
-    # - fill in the missing things and make sure things make sense for run
-    args = uutils.setup_args_for_experiment(args)
     return args
 
 
 def args_5cnn_mi(args: Namespace) -> Namespace:
-    """
-    """
     from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_cifarfs_resnet12rfs_body, \
         get_feature_extractor_conv_layers
     # - model
@@ -406,8 +403,6 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     # - setup paths to ckpts for data analysis
     args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
-    # - fill in the missing things and make sure things make sense for run
-    args = uutils.setup_args_for_experiment(args)
     return args
 
 
@@ -593,8 +588,6 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     # - setup paths to ckpts for data analysis
     args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
-    # - fill in the missing things and make sure things make sense for run
-    args = uutils.setup_args_for_experiment(args)
     return args
 
 
@@ -716,8 +709,6 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     # - setup paths to ckpts for data analysis
     args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
-    # - fill in the missing things and make sure things make sense for run
-    args = uutils.setup_args_for_experiment(args)
     return args
 
 
@@ -748,7 +739,7 @@ def resnet12rfs_hdb1_mio(args):
 
     args.batch_size = 2  # useful for debugging!
     # args.batch_size = 5  # useful for debugging!
-    # args.batch_size = 25
+    # args.batch_size = 30
     # args.batch_size = 100
     # args.batch_size = 500
     # args.batch_size = 1000
@@ -797,8 +788,6 @@ def resnet12rfs_hdb1_mio(args):
     args = fix_for_backwards_compatibility(args)
     # - setup paths to ckpts for data analysis
     args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
-    # - fill in the missing things and make sure things make sense for run
-    args = uutils.setup_args_for_experiment(args)
     return args
 
 
@@ -907,8 +896,6 @@ def resnet18rfs_vggaircraft(args):
     args = fix_for_backwards_compatibility(args)
     # - setup paths to ckpts for data analysis
     args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
-    # - fill in the missing things and make sure things make sense for run
-    args = uutils.setup_args_for_experiment(args)
     return args
 
 
@@ -926,20 +913,22 @@ def load_args() -> Namespace:
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')
     args: Namespace = eval(f'{args.manual_loads_name}(args)')
+    args: Namespace = setup_args_for_experiment(args) # do this before we the meta-learner code so to not overwrite the meta-learner stuff accidentally, so yes this must be commented out
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)
     args = uutils.merge_args(starting_args=args.meta_learner.args, updater_args=args)  # second takes priority
     args.meta_learner.args = args  # to avoid meta learner running with args only from past experiment and not with metric analysis experiment
 
-    uutils.print_args(args)
-    # - create default log root for this expt, so we can save the results of this expt
-    create_default_log_root(args)
+    # -- Setup up remaining stuff for experiment
+    ### args: Namespace = setup_args_for_experiment(args) # do this before we the meta-learner code so to not overwrite the meta-learner stuff accidentally, so yes this must be commented out
     return args
 
 
 def main_data_analyis():
     args: Namespace = load_args()
+    # - print args
+    uutils.print_args(args)
 
     # - set base_models to be used for experiments
     print(f'{args.data_path=}')
