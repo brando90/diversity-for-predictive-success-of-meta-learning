@@ -61,7 +61,7 @@ cd $HOME
 git clone git@github.com:brando90/diversity-for-predictive-success-of-meta-learning.git
 pip install -e $HOME/diversity-for-predictive-success-of-meta-learning/
 
-#pip install statsmodels  # not sure why it's needed hardcoded and in setup.py uutils is not enough
+pip install statsmodels  # not sure why it's needed hardcoded and in setup.py uutils is not enough
 git clone git@github.com:brando90/ultimate-utils.git
 pip install -e $HOME/ultimate-utils/
 

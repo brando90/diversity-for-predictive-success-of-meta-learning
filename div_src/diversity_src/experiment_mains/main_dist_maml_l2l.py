@@ -1981,7 +1981,9 @@ def maml_hdb4_micod_resnet_rfs_scheduler_its(args: Namespace) -> Namespace:
     args.training_mode = 'iterations'
 
     # note: 60K iterations for original maml 5CNN with adam
-    args.num_its = 100_000
+    # args.num_its = 100_000
+    args.num_its = 300_000
+    # args.num_its = 600_000
 
     # - debug flag
     # args.debug = True
@@ -2011,7 +2013,7 @@ def maml_hdb4_micod_resnet_rfs_scheduler_its(args: Namespace) -> Namespace:
     # args.first_order = False
 
     # - outer trainer params
-    args.batch_size = 4
+    args.batch_size = 3
     args.batch_size_eval = 2
 
     # - dist args

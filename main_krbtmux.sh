@@ -93,6 +93,11 @@ echo ERR_FILE = $ERR_FILE
 echo $OUT_FILE; echo $ERR_FILE
 
 # - mds
+ssh brando9@ampere4.stanford.edu
+
+krbtmux
+reauth
+
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #conda activate metalearning_gpu
@@ -101,6 +106,8 @@ export CUDA_VISIBLE_DEVICES=2; echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 ulimit -n 120000
 ulimit -Sn
 ulimit -Hn
+nvidia-smi
+
 #tmux new -s mds_usl_resnet50rfs
 #tmux new -s mds1_usl_resnet50rfs
 
@@ -110,9 +117,13 @@ ulimit -Hn
 #tmux new -s div_hdb4_micod
 #tmux new -s div_hdb4_micod2
 
-tmux new -s hdb4_micod_usl_its
 tmux new -s hdb4_usl_its
-tmux new -s hdb4_micod_usl_convergence
+#tmux new -s hdb4_usl_convergence
+
+tmux new -s hdb4_maml_its_sched
+tmux new -s hdb4_maml_its_sched2
+
+tmux new -s hdb1_stats_analysis
 
 #bash ~/diversity-for-predictive-success-of-meta-learning/main_krbtmux.sh
 
@@ -138,11 +149,11 @@ tmux new -s hdb4_micod_usl_convergence
 #    |& tee $OUT_FILE 2> $ERR_FILE
 
 # - hdb4 micod
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_adam_cl_its --model_option resnet12_rfs &
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_adam_cl_train_to_convergence --model_option resnet12_rfs &
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_adam_cl_its --model_option resnet12_rfs
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_adam_cl_train_to_convergence --model_option resnet12_rfs
 
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_resnet_rfs_scheduler_its --model_option resnet12_rfs
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_resnet_rfs_scheduler_train_to_convergence --model_option resnet12_rfs &
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_resnet_rfs_scheduler_its --model_option resnet12_rfs
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_resnet_rfs_scheduler_train_to_convergence --model_option resnet12_rfs
 
 # - performance comp usl vs maml on hdb1
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name resnet12rfs_hdb1_mio

@@ -1933,7 +1933,8 @@ def usl_hdb4_micod_resnet_rfs_adam_cl_its(args: Namespace) -> Namespace:
 
     # - training mode
     args.training_mode = 'iterations'
-    args.num_its = 100_000  # mds 50000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    # args.num_its = 100_000  # mds 50000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    args.num_its = 1_000_000  # mds 50000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
 
     # - debug flag
     # args.debug = True
@@ -2264,16 +2265,8 @@ def load_args() -> Namespace:
     3. setup remaining args small details from previous values (e.g. 1 and 2).
     """
     # -- parse args from terminal
-    # todo: maybe later, add a try catch that if there is an mds only flag given at the python cmd line then it will load the mds args otherwise do the meta-leanring args
-    # todo: https://stackoverflow.com/questions/75141370/how-does-one-have-python-work-when-multiple-arg-parse-options-are-possible
     args: Namespace = parse_args_standard_sl()
-
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-
-    # args.manual_loads_name = 'mds_resnet_usl_adam_no_scheduler_train_to_convergence'
-    # args.manual_loads_name = 'mds_vggaircraft_resnet_usl_adam_no_scheduler_train_to_convergence'
-    args.manual_loads_name = 'mds_dtdbirds_resnet_usl_adam_no_scheduler_train_to_convergence'
-    # args.manual_loads_name = 'sl_hdb1_5cnn_adam_cl_filter_size'  # <- REMOVE to remove manual loads
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')

@@ -737,7 +737,7 @@ def resnet12rfs_hdb1_mio(args):
     args.nb_inner_train_steps = 5
     args.first_order = True
 
-    args.batch_size = 2  # useful for debugging!
+    # args.batch_size = 2  # useful for debugging!
     # args.batch_size = 5  # useful for debugging!
     # args.batch_size = 30
     # args.batch_size = 100
@@ -745,14 +745,14 @@ def resnet12rfs_hdb1_mio(args):
     # args.batch_size = 1000
     # args.batch_size = 2000
     # args.batch_size = 5000
-    # args.batch_size = 10_000
+    args.batch_size = 10_000
     args.batch_size_eval = args.batch_size
 
     # - expt option
     # args.stats_analysis_option = 'performance_comparison'
     # args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size'
-    args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_hist'
     # args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_and_full_performance_comp_hist'
+    args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_hist'
     args.acceptable_difference1 = 0.01
     args.acceptable_difference2 = 0.02
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
@@ -782,8 +782,8 @@ def resnet12rfs_hdb1_mio(args):
     args.wandb_project = 'entire-diversity-spectrum'
     args.experiment_name = args.manual_loads_name
     args.run_name = f'{args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -793,6 +793,73 @@ def resnet12rfs_hdb1_mio(args):
 
 
 # -- hdb4 micod
+
+def resnet12rfs_hdb4_micod(args):
+    # - model
+    args.model_option = 'resnet12'
+
+    # - data
+    args.data_option = 'hdb4'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'hdb4_micod'
+
+    # - training mode
+    args.training_mode = 'iterations'  # needed so setup_args doesn't error out (sorry for confusioning line!)
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.nb_inner_train_steps = 5
+    args.first_order = True
+
+    args.batch_size = 2  # useful for debugging!
+    # args.batch_size = 5  # useful for debugging!
+    # args.batch_size = 30
+    # args.batch_size = 100
+    # args.batch_size = 500
+    # args.batch_size = 1000
+    # args.batch_size = 2000
+    # args.batch_size = 5000
+    # args.batch_size = 10_000
+    args.batch_size_eval = args.batch_size
+
+    # - expt option
+    # args.stats_analysis_option = 'performance_comparison'
+    # args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size'
+    # args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_and_full_performance_comp_hist'
+    args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_hist'
+    args.acceptable_difference1 = 0.01
+    args.acceptable_difference2 = 0.02
+    args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
+
+    # - agent/meta_learner type
+    args.agent_opt = 'MAMLMetaLearner'
+    # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+
+    # - ckpt name
+    # https://wandb.ai/brando/entire-diversity-spectrum/runs/3psfe5hn/overview?workspace=user-brando
+    args.path_2_init_sl = ''  #
+    # https://wandb.ai/brando/entire-diversity-spectrum/runs/1etjuijm/overview?workspace=user-brando
+    args.path_2_init_maml = ''  #
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    # - setup paths to ckpts for data analysis
+    args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
+    return args
+
 
 # -- mds vggflower+aircraft resnet18_rfs
 
