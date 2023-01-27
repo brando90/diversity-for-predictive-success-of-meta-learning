@@ -312,27 +312,27 @@ def comparison_via_performance(args: Namespace):
 
     # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     print('---- maml0 for rand model')
-    print_performance_4_maml(args, model=args.mdl_rand, nb_inner_steps=0, inner_lr=0.0)
+    print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=0, inner_lr=0.0)
 
     # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     print('---- maml0 for maml model')
-    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=0, inner_lr=0.0)
+    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=0, inner_lr=0.0)
 
     # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
     print('---- maml5 for maml model')
-    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=5, inner_lr=original_inner_lr)
+    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=5, inner_lr=original_inner_lr)
 
     # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
     print('---- maml10 for maml model')
-    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=10, inner_lr=original_inner_lr)
+    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=10, inner_lr=original_inner_lr)
 
     # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
     print('---- FFL (LR) for sl model')
-    print_performance_4_usl_ffl(args, model=args.mdl_sl)
+    print_performance_4_usl_ffl(args, args.mdl_sl, loaders)
     print('---- FFL (LR) for rand model')
-    print_performance_4_usl_ffl(args, model=args.mdl_rand)
+    print_performance_4_usl_ffl(args, args.mdl_rand, loaders)
     print('---- FFL (LR) for maml model')
-    print_performance_4_usl_ffl(args, model=args.mdl_maml)
+    print_performance_4_usl_ffl(args, args.mdl_maml, loaders)
 
     print()
 
