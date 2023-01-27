@@ -10,6 +10,8 @@ import torch
 from diversity_src.data_analysis.common import basic_guards_that_maml_usl_and_rand_models_loaded_are_different, \
     print_performance_4_maml, print_accs_losses_mutates_reslts
 from uutils import save_to_json_pretty, save_args
+from uutils.plot import save_to
+from uutils.plot.histograms_uu import get_histogram
 
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
 from uutils.torch_uu import norm
@@ -19,7 +21,7 @@ from pdb import set_trace as st
 
 def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
                                                 perform_full_performance_comparison: bool = False,
-                                                save_hist_losses: bool = False,
+                                                hist: bool = False,
                                                 ):
     """
     Note:
@@ -86,10 +88,6 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
         args.alpha, print_groups_data=True)
     results['maml10_vs_usl'] = (cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2)
 
-    # -- Save hist losses
-    if save_hist_losses:
-        save_loss_histogram()
-        raise NotImplementedError
     # -- Save results
     results['results_maml5'] = results_maml5
     results['results_maml10'] = results_maml10
@@ -97,6 +95,10 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     torch.save(results, args.log_root / f'results.pt')
     save_to_json_pretty(results, args.log_root / f'results.json')
     save_args(args)
+
+    # -- Save hist losses
+    if hist:
+        save_loss_histogram(args, results)
     # -- do perform comparison
     if perform_full_performance_comparison:
         print('\n---- Full performance comparison ----')
@@ -155,17 +157,16 @@ def _debug(args: Namespace):
     print('---- End Debug ----\n')
 
 
-def save_loss_histogram():
-    pass
-    # - save histograms
-    # title: str = 'Distribution of Task2Vec Distances'
-    # xlabel: str = 'Cosine Distance between Task Pairs'
-    # ylabel = 'Frequency Density (pmf)'
-    # ax = get_histogram(distances_as_flat_array, xlabel, ylabel, title, stat='probability', linestyle=None, color='b')
-    # save_to(args.log_root,
-    #         plot_name=f'hist_density_task2vec_cosine_distances_{args.data_option}_{split}'.replace('-', '_'))
-    # ylabel = 'Frequency'
-    # get_histogram(distances_as_flat_array, xlabel, ylabel, title, linestyle=None, color='b')
-    # save_to(args.log_root,
-    #         plot_name=f'hist_freq_task2vec_cosine_distances_{args.data_option}_{split}'.replace('-', '_'))
-    raise NotImplementedError
+def save_loss_histogram(args: Namespace, results: dict):
+    # - save histograms maml5
+    accs = results['results_maml5']['test']['accs']
+    get_histogram(accs, xlabel='accuracy', ylabel='pdf', title='maml5 accuracies', stat='probability')
+    save_to(args.log_root, plot_name='maml5_accs_hist')
+    # - save histograms maml10
+    accs = results['results_maml10']['test']['accs']
+    get_histogram(accs, xlabel='accuracy', ylabel='pdf', title='maml10 accuracies', stat='probability')
+    save_to(args.log_root, plot_name='maml10_accs_hist')
+    # - save histograms usl
+    accs = results['results_usl']['test']['accs']
+    get_histogram(accs, xlabel='accuracy', ylabel='pdf', title='usl accuracies', stat='probability')
+    save_to(args.log_root, plot_name='usl_accs_hist')

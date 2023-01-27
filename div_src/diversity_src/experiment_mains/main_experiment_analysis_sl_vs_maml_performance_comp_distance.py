@@ -750,8 +750,9 @@ def resnet12rfs_hdb1_mio(args):
 
     # - expt option
     # args.stats_analysis_option = 'performance_comparison'
-    args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size'
-    # args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_and_and_full_performance_comp'
+    # args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size'
+    args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_hist'
+    # args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_and_full_performance_comp_hist'
     args.acceptable_difference1 = 0.01
     args.acceptable_difference2 = 0.02
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
@@ -913,7 +914,8 @@ def load_args() -> Namespace:
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')
     args: Namespace = eval(f'{args.manual_loads_name}(args)')
-    args: Namespace = setup_args_for_experiment(args) # do this before we the meta-learner code so to not overwrite the meta-learner stuff accidentally, so yes this must be commented out
+    args: Namespace = setup_args_for_experiment(
+        args)  # do this before we the meta-learner code so to not overwrite the meta-learner stuff accidentally, so yes this must be commented out
 
     # - over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)
@@ -971,9 +973,11 @@ def main_data_analyis():
     if args.stats_analysis_option == 'performance_comparison':
         comparison_via_performance(args)
     elif args.stats_analysis_option == 'stats_analysis_with_emphasis_on_effect_size':
-        stats_analysis_with_emphasis_on_effect_size(args, perform_full_performance_comparison=False)
-    elif args.stats_analysis_option == 'stats_analysis_with_emphasis_on_effect_size_and_and_full_performance_comp':
-        stats_analysis_with_emphasis_on_effect_size(args, perform_full_performance_comparison=True)
+        stats_analysis_with_emphasis_on_effect_size(args)
+    elif args.stats_analysis_option == 'stats_analysis_with_emphasis_on_effect_size_hist':
+        stats_analysis_with_emphasis_on_effect_size(args, hist=True)
+    elif args.stats_analysis_option == 'stats_analysis_with_emphasis_on_effect_size_and_full_performance_comp_hist':
+        stats_analysis_with_emphasis_on_effect_size(args, perform_full_performance_comparison=True, hist=True)
     else:
         # meta_dataloader = dataloaders['train']
         meta_dataloader = args.dataloaders['val']
