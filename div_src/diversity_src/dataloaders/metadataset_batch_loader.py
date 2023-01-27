@@ -20,10 +20,10 @@ import torch.multiprocessing as mp
 from pathlib import Path
 
 from argparse import Namespace
-import uutils
-from uutils import load_cluster_jobids_to, merge_args
-from uutils.logging_uu.wandb_logging.common import setup_wandb
-from uutils.torch_uu.distributed import set_devices
+#import uutils
+#from uutils import load_cluster_jobids_to, merge_args
+#from uutils.logging_uu.wandb_logging.common import setup_wandb
+#from uutils.torch_uu.distributed import set_devices
 
 def get_mds_loader(args):
     data_config = config_lib.DataConfig(args)
@@ -95,9 +95,61 @@ def get_mds_loader(args):
     dls: dict ={'train': train_loader, 'val': val_loader, 'test': test_loader}
     return dls
 
+
+
+# - get number of images in our split for mds dataloader (for both USL and MAML)
+def get_num_images(args, split: str = 'VALID'):
+    # first we want to get the sources to figure out which datasets we use
+    data_config = config_lib.DataConfig(args)
+    datasets = data_config.sources
+    num_images = 0
+
+    for dataset_name in datasets:
+        dataset_records_path = os.path.join(data_config.path, dataset_name)
+        dataset_spec = dataset_spec_lib.load_dataset_spec(dataset_records_path)
+
+        all_class_sizes = dataset_spec.images_per_class
+
+        # let's get only the class sizes of our split
+        class_set = dataset_spec.get_classes(Split[split])
+        #print(class_set)
+
+        for c in class_set:
+            # ignore classes that have less images than needed for a n-way k-shot task
+            if (all_class_sizes[c] >= args.min_examples_in_class):
+                num_images += all_class_sizes[c]
+
+    return num_images
+
+
+
+# - get number of images in our split for mds dataloader (for both USL and MAML)
+def get_num_classes(args, split: str = 'VALID'):
+    # first we want to get the sources to figure out which datasets we use
+    data_config = config_lib.DataConfig(args)
+    datasets = data_config.sources
+    num_classes = 0
+
+    for dataset_name in datasets:
+        dataset_records_path = os.path.join(data_config.path, dataset_name)
+        dataset_spec = dataset_spec_lib.load_dataset_spec(dataset_records_path)
+
+        all_class_sizes = dataset_spec.images_per_class
+
+        # let's get only the class sizes of our split
+        class_set = dataset_spec.get_classes(Split[split])
+        #print(class_set)
+
+        for c in class_set:
+            # ignore classes that have less images than n-way k-shot teas
+            if (all_class_sizes[c] >= args.min_examples_in_class):
+                num_classes += 1
+
+    return num_classes
+
 # - test
 def loop_test(args):
-    from uutils.torch_uu import process_meta_batch
+    #from uutils.torch_uu import process_meta_batch
     args.batch_size = 10
     args.batch_size_eval= 2
     args.min_examples_per_class = 20
@@ -106,20 +158,26 @@ def loop_test(args):
 
     dataloader = get_mds_loader(args)
 
+    print(get_num_images(args, 'TRAIN'))
+    print(get_num_images(args, 'VALID'))
+    print(get_num_images(args, 'TEST'))
+
+    print(get_num_classes(args, 'TRAIN'))
+    print(get_num_classes(args, 'VALID'))
+    print(get_num_classes(args, 'TEST'))
+
+
     print(f'{len(dataloader)}')
     for batch_idx, batch in enumerate(dataloader['train']):
         X,y = batch
-        #print("finish batch",batch_idx)
         print(X.shape)
         print(y.shape)
         print(y)
         print("min label:", min(y))
         print("max label:", max(y))
-        #if (max(y) > 172):
-        #    print("EXceeded: ", max(y), y)
         #print(X, y)
-        #if batch_idx == 1000:
-        #    break
+        if batch_idx == 2:
+            break
 
 
 # -- Run experiment
@@ -131,7 +189,7 @@ if __name__ == "__main__":
 
     #args.sources = ['vgg_flower','aircraft']
     #set_devices(args)  # args.device = rank or .device
-    args.device = uutils.torch_uu.get_device()
+    #args.device = uutils.torch_uu.get_device()
 
     import time
     from uutils import report_times

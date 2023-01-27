@@ -19,10 +19,10 @@ import torch.multiprocessing as mp
 from pathlib import Path
 
 from argparse import Namespace
-import uutils
-from uutils import load_cluster_jobids_to, merge_args
-from uutils.logging_uu.wandb_logging.common import setup_wandb
-from uutils.torch_uu.distributed import set_devices
+#import uutils
+#from uutils import load_cluster_jobids_to, merge_args
+#from uutils.logging_uu.wandb_logging.common import setup_wandb
+#from uutils.torch_uu.distributed import set_devices
 
 from pdb import set_trace as st
 
@@ -43,6 +43,7 @@ def get_mds_loaders(args) -> dict:
     for dataset_name in datasets:
         dataset_records_path = os.path.join(data_config.path, dataset_name)
         dataset_spec = dataset_spec_lib.load_dataset_spec(dataset_records_path)
+        #print(dataset_name, " ",dataset_spec.images_per_class)
 
         if (dataset_name == 'traffic_sign'):
             # traffic sign is test only
@@ -96,13 +97,12 @@ def get_mds_loaders(args) -> dict:
     dls: dict = {'train': train_loader, 'val': val_loader, 'test': test_loader}
     return dls
 
-
 # - test
 
 def loop_test(args):
 
 
-    from uutils.torch_uu import process_meta_batch
+    #from uutils.torch_uu import process_meta_batch
     args.batch_size = 10
     args.batch_size_eval = 10
 
@@ -144,7 +144,7 @@ if __name__ == "__main__":
     args: Namespace = parse_args_meta_learning()
 
     # set_devices(args)  # args.device = rank or .device
-    args.device = uutils.torch_uu.get_device()
+    #args.device = uutils.torch_uu.get_device()
 
     import time
     from uutils import report_times
