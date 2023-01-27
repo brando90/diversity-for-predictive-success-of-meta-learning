@@ -2298,7 +2298,8 @@ def main():
     if not args.parallel:  # serial
         print('RUNNING SERIALLY')
         args.world_size = 1
-        train(rank=-1, args=args)
+        args.rank = -1
+        train(args=args)
     else:
         print(f"{torch.cuda.device_count()=}")
         args.world_size = torch.cuda.device_count()
@@ -2307,11 +2308,10 @@ def main():
         mp.spawn(fn=train, args=(args,), nprocs=args.world_size)
 
 
-def train(rank, args):
+def train(args):
     print_process_info(rank, flush=True)
-    args.rank = rank  # have each process save the rank
     set_devices(args)  # args.device = rank or .device
-    setup_process(args, rank, master_port=args.master_port, world_size=args.world_size)
+    setup_process(args, args.rank, master_port=args.master_port, world_size=args.world_size)
     print(f'setup process done for rank={rank}')
 
     # create the (ddp) model, opt & scheduler
@@ -2348,9 +2348,9 @@ def train(rank, args):
         raise ValueError(f'Invalid training_mode value, got: {args.training_mode}')
 
     # -- Clean Up Distributed Processes
-    print(f'\n----> about to cleanup worker with rank {rank}')
-    cleanup(rank)
-    print(f'clean up done successfully! {rank}')
+    print(f'\n----> about to cleanup worker with rank {args.rank}')
+    cleanup(args.rank)
+    print(f'clean up done successfully! {args.rank}')
 
 
 # -- Run experiment

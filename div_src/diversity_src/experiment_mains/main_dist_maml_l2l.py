@@ -2211,9 +2211,9 @@ def train(args):
         raise ValueError(f'Invalid training_mode value, got: {args.training_mode}')
 
     # -- Clean Up Distributed Processes
-    print(f'\n----> about to cleanup worker with rank {rank}')
-    cleanup(rank)
-    print(f'clean up done successfully! {rank}')
+    print(f'\n----> about to cleanup worker with rank {args.rank}')
+    cleanup(args.rank)
+    print(f'clean up done successfully! {args.rank}')
     # cleanup_wandb(args, delete_wandb_dir=True)
     cleanup_wandb(args, delete_wandb_dir=False)
 
