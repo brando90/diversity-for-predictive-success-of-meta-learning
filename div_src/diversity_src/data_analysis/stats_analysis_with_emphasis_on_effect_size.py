@@ -26,6 +26,13 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     """
     Note:
         - you need to make sure the models rand, sl, maml are loaded correctly before using this function.
+        - note:
+
+        group1: list = results_usl['test']['accs']
+        group2: list = results_maml5['test']['accs']
+
+        group1: list = results_usl['test']['accs']
+        group2: list = results_maml10['test']['accs']
 
     Currently ppl believed:
         - USL > MAML
@@ -34,7 +41,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     Statistical Analysis:
         - detect difference in means with emphasis on effect size
         - H0: no diff btw usl and maml
-        - H1: diff btw usl and maml (& USL > MAML, chekcing populat belief)
+        - H1: diff btw usl & maml (& USL > MAML, chekcing populat belief)
     """
     # -- Start code for real
     print('\n---------------------  Start Stats analysis  ---------------------')
@@ -74,6 +81,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     args.acceptable_difference2 = args.acceptable_difference2 if hasattr(args, 'acceptable_difference2') else 0.02
     args.alpha: float = args.alpha if hasattr(args, 'alpha') else 0.01
     # - maml5 vs usl
+    print(f'\n--- maml5 vs usl ---')
     group1: list = results_usl['test']['accs']
     group2: list = results_maml5['test']['accs']
     cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2 = stat_test_with_effect_size_as_emphasis(
@@ -81,6 +89,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
         args.alpha, print_groups_data=True)
     results['maml5_vs_usl'] = (cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2)
     # - maml10 vs usl
+    print(f'\n--- maml10 vs usl ---')
     group1: list = results_usl['test']['accs']
     group2: list = results_maml10['test']['accs']
     cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2 = stat_test_with_effect_size_as_emphasis(
@@ -98,6 +107,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
 
     # -- Save hist losses
     if hist:
+        print('\n---- Save hist losses ----')
         save_loss_histogram(args, results)
     # -- do perform comparison
     if perform_full_performance_comparison:

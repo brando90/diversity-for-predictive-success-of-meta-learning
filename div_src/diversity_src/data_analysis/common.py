@@ -47,6 +47,9 @@ def setup_args_path_for_ckpt_data_analysis(args: Namespace,
         # if you need that name just put t in the path from the beginning
         # ckpt_filename_maml = 'ckpt_file_best_loss.pt'  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
         args.path_2_init_maml = (Path(args.path_2_init_maml) / ckpt_filename_maml).expanduser()
+    # -
+    print(f'{args.path_2_init_sl=}')
+    print(f'{args.path_2_init_maml=}')
     return args
 
 

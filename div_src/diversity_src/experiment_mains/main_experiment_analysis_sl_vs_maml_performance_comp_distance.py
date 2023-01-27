@@ -796,10 +796,10 @@ def resnet12rfs_hdb1_mio(args):
 
 def resnet12rfs_hdb4_micod(args):
     # - model
-    args.model_option = 'resnet12'
+    args.model_option = 'resnet12_rfs'
 
     # - data
-    args.data_option = 'hdb4'
+    args.data_option = 'hdb4_micod'
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.data_augmentation = 'hdb4_micod'
 
@@ -821,7 +821,7 @@ def resnet12rfs_hdb4_micod(args):
     # args.batch_size = 5  # useful for debugging!
     # args.batch_size = 30
     # args.batch_size = 100
-    # args.batch_size = 500
+    args.batch_size = 500
     # args.batch_size = 1000
     # args.batch_size = 2000
     # args.batch_size = 5000
@@ -842,17 +842,24 @@ def resnet12rfs_hdb4_micod(args):
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
     # - ckpt name
-    # https://wandb.ai/brando/entire-diversity-spectrum/runs/3psfe5hn/overview?workspace=user-brando
+    # super trained: https://wandb.ai/brando/entire-diversity-spectrum/runs/3kod7pdv
     args.path_2_init_sl = ''  #
-    # https://wandb.ai/brando/entire-diversity-spectrum/runs/1etjuijm/overview?workspace=user-brando
-    args.path_2_init_maml = ''  #
-
+    # super trained: https://wandb.ai/brando/entire-diversity-spectrum/runs/2lmyr2lk
+    args.path_2_init_sl = ''  #
+    # train to ~0.90 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/wxrh4t0s
+    args.path_2_init_sl = ''  #
+    # trained to ~0.92 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/26c6m7ed
+    args.path_2_init_sl = '~/data/logs/logs_Jan20_14-47-00_jobid_-1'  # train acc 0.921875, train loss 0.25830933451652527
+    # https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
+    # https://wandb.ai/brando/entire-diversity-spectrum/runs/2rkhpnbx/overview?workspace=user-brando
+    # args.path_2_init_maml = ''
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     args.experiment_name = args.manual_loads_name
     args.run_name = f'{args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)

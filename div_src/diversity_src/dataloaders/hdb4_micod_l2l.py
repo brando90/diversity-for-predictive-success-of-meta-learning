@@ -77,7 +77,7 @@ def get_hdb4_micod_list_data_set_splits(
     from uutils.torch_uu.dataloaders.common import get_num_classes_l2l_list_meta_dataset
     get_num_classes_l2l_list_meta_dataset(dataset_list_train, verbose=True)
     get_num_classes_l2l_list_meta_dataset(dataset_list_validation, verbose=True)
-    get_num_classes_l2l_list_meta_dataset(dataset_list_validation, verbose=True)
+    get_num_classes_l2l_list_meta_dataset(dataset_list_test, verbose=True)
     return dataset_list_train, dataset_list_validation, dataset_list_test
 
 

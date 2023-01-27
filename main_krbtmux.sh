@@ -93,6 +93,8 @@ echo ERR_FILE = $ERR_FILE
 echo $OUT_FILE; echo $ERR_FILE
 
 # - mds
+tput rmcup
+
 ssh brando9@ampere4.stanford.edu
 
 krbtmux
@@ -114,7 +116,7 @@ nvidia-smi
 #tmux new -s mds_maml_resnet50rfs
 #tmux new -s mds1_maml_resnet50rfs
 
-#tmux new -s div_hdb4_micod
+tmux new -s div_hdb4_micod
 #tmux new -s div_hdb4_micod2
 
 tmux new -s hdb4_usl_its
@@ -123,7 +125,8 @@ tmux new -s hdb4_usl_its
 tmux new -s hdb4_maml_its_sched
 tmux new -s hdb4_maml_its_sched2
 
-tmux new -s hdb1_stats_analysis
+#tmux new -s hdb1_stats_analysis
+tmux new -s hdb4_stats_analysis
 
 #bash ~/diversity-for-predictive-success-of-meta-learning/main_krbtmux.sh
 
@@ -156,7 +159,8 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_resnet_rfs_scheduler_train_to_convergence --model_option resnet12_rfs
 
 # - performance comp usl vs maml on hdb1
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name resnet12rfs_hdb1_mio
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name resnet12rfs_hdb1_mio
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name resnet12rfs_hdb4_micod
 
 # -- other option is to run `echo $SU_PASSWORD | /afs/cs/software/bin/reauth` inside of python, right?
 export JOB_PID=$!
