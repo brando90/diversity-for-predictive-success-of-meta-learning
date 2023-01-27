@@ -37,7 +37,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     # -- Start code for real
     print('\n---------------------  Start code for real2  ---------------------')
     # - get original inner learning rate
-    original_lr_inner = args.meta_learner.lr_inner
+    original_inner_lr = args.meta_learner.inner_lr
     # - get datalaoders from args
     loaders: dict = args.dataloaders
     # - results dict
@@ -52,10 +52,10 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
 
     # -- Get the losses & accs for each method (usl & maml) for all splits & save them
     # - once the model guard has been passed you should be able to get args.mdl_rand, args.mdl_maml, args.mdl_sl safely
-    print(f'{original_lr_inner=}')
+    print(f'{original_inner_lr=}')
     from diversity_src.data_analysis.common import get_accs_losses_all_splits_maml
-    results_maml5 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_lr_inner)
-    results_maml10 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_lr_inner)
+    results_maml5 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_inner_lr)
+    results_maml10 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_inner_lr)
     from diversity_src.data_analysis.common import get_accs_losses_all_splits_usl
     results_usl = get_accs_losses_all_splits_usl(args, args.mdl_sl, loaders)
 
@@ -108,7 +108,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
         print('---- Full performance comparison ----')
         from diversity_src.data_analysis.common import comparison_via_performance
         # comparison_via_performance(args)
-        print_performance_4_maml(args, args.mdl_maml, 5, original_lr_inner, debug_print=True)
+        print_performance_4_maml(args, args.mdl_maml, 5, original_inner_lr, debug_print=True)
     return results
 
 
@@ -122,25 +122,25 @@ def _debug(args: Namespace):
     from diversity_src.data_analysis.common import get_mean_and_ci_from_results
 
     results: dict = {}
-    original_lr_inner = args.meta_learner.lr_inner
-    print(f'{original_lr_inner=}')
+    original_inner_lr = args.meta_learner.inner_lr
+    print(f'{original_inner_lr=}')
     loaders: dict = args.dataloaders
 
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
 
     print()
-    print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_lr_inner, debug_print=True)
+    print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_inner_lr, debug_print=True)
     basic_sanity_checks_maml0_does_nothing(args, loaders)
-    print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_lr_inner, debug_print=True)
+    print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_inner_lr, debug_print=True)
 
-    results_maml5 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_lr_inner)
-    results_maml10 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_lr_inner)
+    results_maml5 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_inner_lr)
+    results_maml10 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_inner_lr)
     results_usl = get_accs_losses_all_splits_usl(args, args.mdl_sl, loaders)
 
     print()
-    print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_lr_inner, debug_print=True)
+    print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_inner_lr, debug_print=True)
     basic_sanity_checks_maml0_does_nothing(args, loaders)
-    print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_lr_inner, debug_print=True)
+    print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_inner_lr, debug_print=True)
 
     print()
     loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml5, 'train')
@@ -154,7 +154,7 @@ def _debug(args: Namespace):
     results['train_usl'] = (loss, loss_ci, acc, acc_ci)
 
     print()
-    print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_lr_inner, debug_print=True)
+    print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_inner_lr, debug_print=True)
     basic_sanity_checks_maml0_does_nothing(args, loaders)
-    print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_lr_inner, debug_print=True)
+    print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_inner_lr, debug_print=True)
     print('---- End Debug ----\n')

@@ -56,20 +56,20 @@ def santity_check_maml_accuracy(args: Namespace):
     """
     # - good maml with proper adaptaiton
     print('\n- Sanity check: MAML vs MAML0 (1st should have better performance but there is an assert to check it too)')
-    print(f'{args.meta_learner.lr_inner=}')
+    print(f'{args.meta_learner.inner_lr=}')
     eval_loss, _, eval_acc, _ = eval_sl(args, args.agent, args.dataloaders, split='val', training=True)
     print(f'{eval_loss=}, {eval_acc=}')
 
     # - with no adaptation
-    original_lr_inner = args.meta_learner.lr_inner
-    args.meta_learner.lr_inner = 0
-    print(f'{args.meta_learner.lr_inner=}')
+    original_inner_lr = args.meta_learner.inner_lr
+    args.meta_learner.inner_lr = 0
+    print(f'{args.meta_learner.inner_lr=}')
     eval_loss_maml0, _, eval_acc_maml0, _ = eval_sl(args, args.agent, args.dataloaders, split='val', training=True)
     print(f'{eval_loss_maml0=}, {eval_acc_maml0=}')
     assert eval_acc_maml0 < eval_acc, f'The accuracy of no adaptation should be smaller but got ' \
                                       f'{eval_acc_maml0=}, {eval_acc=}'
-    args.meta_learner.lr_inner = original_lr_inner
-    print(f'{args.meta_learner.lr_inner=} [should be restored lr_inner]\n')
+    args.meta_learner.inner_lr = original_inner_lr
+    print(f'{args.meta_learner.inner_lr=} [should be restored inner_lr]\n')
 
 
 def get_recommended_batch_size_miniimagenet_5CNN(safety_margin: int = 10):
@@ -263,8 +263,8 @@ def comparison_via_performance(args: Namespace):
     print(f'{args.dataloaders=}')
     loaders = args.dataloaders
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
-    # - varying lr_inner
-    original_lr_inner = args.meta_learner.lr_inner
+    # - varying inner_lr
+    original_inner_lr = args.meta_learner.inner_lr
 
     args.mdl_sl.cls = deepcopy(args.mdl_maml.cls)
     print('-> sl_mdl has the head of the maml model to make comparisons using maml better, it does not affect when '
@@ -276,27 +276,27 @@ def comparison_via_performance(args: Namespace):
 
     # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     print('\n---- maml0 for rand model')
-    print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=0, inner_lr=0.0)
     print('---- maml0 for maml model')
-    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=0, inner_lr=0.0)
     print('---- maml0 for sl model')
-    print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=0, inner_lr=0.0)
 
     # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
     print('\n---- maml5 for rand model')
-    print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=5, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=5, inner_lr=original_inner_lr)
     print('---- maml5 for maml model')
-    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=5, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=5, inner_lr=original_inner_lr)
     print('---- maml5 for sl model')
-    print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=5, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=5, inner_lr=original_inner_lr)
 
     # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
     print('\n---- maml10 for rand model')
-    print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=10, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=10, inner_lr=original_inner_lr)
     print('---- maml10 for maml model')
-    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=10, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=10, inner_lr=original_inner_lr)
     print('---- maml10 for sl model')
-    print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=10, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=10, inner_lr=original_inner_lr)
 
     # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
     print('\n---- FFL (LR) for rand model')
@@ -312,19 +312,19 @@ def comparison_via_performance(args: Namespace):
 
     # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     print('---- maml0 for rand model')
-    print_performance_4_maml(args, model=args.mdl_rand, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args, model=args.mdl_rand, nb_inner_steps=0, inner_lr=0.0)
 
     # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     print('---- maml0 for maml model')
-    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=0, lr_inner=0.0)
+    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=0, inner_lr=0.0)
 
     # -- Adaptation=MAML 5 (for all models, rand, maml, sl)
     print('---- maml5 for maml model')
-    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=5, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=5, inner_lr=original_inner_lr)
 
     # -- Adaptation=MAML 10 (for all models, rand, maml, sl)
     print('---- maml10 for maml model')
-    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=10, lr_inner=original_lr_inner)
+    print_performance_4_maml(args, model=args.mdl_maml, nb_inner_steps=10, inner_lr=original_inner_lr)
 
     # -- Adaptation=FFL (LR) (for all models, rand, maml, sl)
     print('---- FFL (LR) for sl model')
@@ -341,7 +341,7 @@ def print_performance_4_maml(args: Namespace,
                              model: nn.Module,
                              loaders,
                              nb_inner_steps: int,
-                             lr_inner: float,
+                             inner_lr: float,
                              debug_print: bool = False,
                              training: bool = True,
                              # True for ML -- even for USL: https://stats.stackexchange.com/a/551153/28986
@@ -349,11 +349,11 @@ def print_performance_4_maml(args: Namespace,
                              ):
     """ Print performance of maml for all splits (train, val, test)."""
     if debug_print:
-        print(f'---- maml {nb_inner_steps} {lr_inner=} model')
+        print(f'---- maml {nb_inner_steps} {inner_lr=} model')
     # - create a new instance of MAMLMetaLearner (avoids overwriting the args one. Also, it only re-assings pointers/refs)
     meta_learner = MAMLMetaLearner(args, model, inner_debug=False, target_type=target_type)
     meta_learner.nb_inner_train_steps = nb_inner_steps
-    meta_learner.lr_inner = lr_inner
+    meta_learner.inner_lr = inner_lr
     assert isinstance(meta_learner, MAMLMetaLearner)
     print_performance_results_simple(args, meta_learner, loaders, training=training)
     assert isinstance(meta_learner, MAMLMetaLearner)
@@ -465,19 +465,19 @@ def basic_sanity_checks_maml0_does_nothing(args: Namespace,
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
 
     print('---- maml0 for maml model (should be around ~0.2 for 5 ways task its never seen) ----')
-    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=0, lr_inner=0.0, debug_print=True)
+    print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=True)
     if not save_time:
         print('\n---- maml0 for rand model')
-        print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=0, lr_inner=0.0, debug_print=True)
+        print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=True)
         print('---- maml0 for sl model')
-        print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=0, lr_inner=0.0, debug_print=True)
+        print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=True)
 
 
 def get_accs_losses_all_splits_maml(args: Namespace,
                                     model: nn.Module,
                                     loader,
                                     nb_inner_steps: int,
-                                    lr_inner: float,
+                                    inner_lr: float,
                                     training: bool = True,
                                     # False for SL, ML: https://stats.stackexchange.com/a/551153/28986
                                     ) -> dict:
@@ -492,7 +492,7 @@ def get_accs_losses_all_splits_maml(args: Namespace,
         - note that we use the torchmeta MAML for consistency of data loader but I don't think it's needed since the
         code bellow get_meta_eval_lists_accs_losses detects the type of loader and uses the correct one.
     Warning:
-        - alwaus manually specify nb_inner_steps and lr_inner. This function might mutate the meta-learner/agent. Sorry! Wont fix.
+        - alwaus manually specify nb_inner_steps and inner_lr. This function might mutate the meta-learner/agent. Sorry! Wont fix.
     """
     results: dict = dict(train=dict(losses=[], accs=[]),
                          val=dict(losses=[], accs=[]),
@@ -504,7 +504,7 @@ def get_accs_losses_all_splits_maml(args: Namespace,
     # original_meta_learner = args.meta_learner
     args.meta_learner.base_model = model
     args.meta_learner.nb_inner_train_steps = nb_inner_steps
-    args.meta_learner.lr_inner = lr_inner
+    args.meta_learner.inner_lr = inner_lr
     # - get accs and losses for all splits
     assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     agent = args.meta_learner
