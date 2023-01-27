@@ -118,7 +118,7 @@ def loop_test(args):
     dataloader = get_mds_loaders(args)
 
     #from uutils.torch_uu.dataloaders.common import get_dataset_size
-    #print(len(dataloader['val']))
+    print(len(dataloader['val']))
 
 
     print(f'{len(dataloader)}')

@@ -501,8 +501,6 @@ def load_args() -> Namespace:
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'diversity_ala_task2vec_delauny'  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'diversity_ala_task2vec_mds'
-    # args.manual_loads_name = 'diversity_ala_task2vec_mds_vggaircraft'
-    args.manual_loads_name = 'diversity_ala_task2vec_mds_birdsdtd'
 
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')
