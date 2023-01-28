@@ -16,7 +16,7 @@ from diversity_src.diversity.task2vec_based_metrics.diversity_task2vec.diversity
 from diversity_src.diversity.task2vec_based_metrics.task2vec import ProbeNetwork
 import diversity_src.diversity.task2vec_based_metrics.task2vec as task2vec
 import diversity_src.diversity.task2vec_based_metrics.task_similarity as task_similarity
-from uutils import report_times, args_hardcoded_in_script, print_args, setup_args_for_experiment, save_args, \
+from uutils import report_times, args_hardcoded_in_script, print_args, save_args, \
     save_to_json_pretty
 
 # - args for each experiment
@@ -584,8 +584,8 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     # todo: idk if it works to switch a l2l normal datalaoder, also, if we use a normal data loader how would things be affected?
     # todo: idk if we want to do a USL div analysis also, it would remove the multi modes of the task2vec histograms
     if args.data_option == 'mds':
-        from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
-        args.dataloaders = get_meta_learning_dataloader(args)
+        from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
+        args.dataloaders = get_meta_learning_dataloaders(args)
         print(f'{args.dataloaders=}')
         embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_dataloader(args,
                                                                                             args.dataloaders,
