@@ -32,7 +32,7 @@ import time
 from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_learner, santity_check_maml_accuracy, \
     comparison_via_performance, setup_args_path_for_ckpt_data_analysis, do_diversity_data_analysis, \
     performance_comparison_with_l2l_end_to_end, get_recommended_batch_size_miniimagenet_5CNN
-from diversity_src.diversity.diversity import diversity
+from uutils.torch_uu.metrics.diversity.diversity import diversity
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
 

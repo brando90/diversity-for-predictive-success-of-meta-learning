@@ -11,11 +11,6 @@ import numpy as np
 import torch
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 
-from diversity_src.diversity.task2vec_based_metrics.diversity_task2vec.diversity_for_few_shot_learning_benchmark import \
-    get_task_embeddings_from_few_shot_l2l_benchmark, get_task_embeddings_from_few_shot_dataloader
-from diversity_src.diversity.task2vec_based_metrics.task2vec import ProbeNetwork
-import diversity_src.diversity.task2vec_based_metrics.task2vec as task2vec
-import diversity_src.diversity.task2vec_based_metrics.task_similarity as task_similarity
 from uutils import report_times, args_hardcoded_in_script, print_args, save_args, \
     save_to_json_pretty
 
@@ -32,6 +27,10 @@ from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
 from uutils.torch_uu.dataloaders.common import get_dataset_size
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
 from uutils.torch_uu.distributed import is_lead_worker, set_devices
+from uutils.torch_uu.metrics.diversity.task2vec_based_metrics import task2vec, task_similarity
+from uutils.torch_uu.metrics.diversity.task2vec_based_metrics.diversity_task2vec.diversity_for_few_shot_learning_benchmark import \
+    get_task_embeddings_from_few_shot_dataloader, get_task_embeddings_from_few_shot_l2l_benchmark
+from uutils.torch_uu.metrics.diversity.task2vec_based_metrics.task2vec import ProbeNetwork
 from uutils.torch_uu.models.probe_networks import get_probe_network
 
 from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interval, \
@@ -636,7 +635,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     # size_dataset = len()
 
     # compute div aware coeff
-    from diversity_src.diversity.diversity import size_aware_div_coef_discrete_histogram_based
+    from uutils.torch_uu.metrics.diversity.diversity import size_aware_div_coef_discrete_histogram_based
     effective_num_tasks, size_aware_div_coef, total_frequency, task2vec_dists_binned, frequencies_binned, num_bars_in_histogram, num_bins = size_aware_div_coef_discrete_histogram_based(
         distances_as_flat_array)
     print(

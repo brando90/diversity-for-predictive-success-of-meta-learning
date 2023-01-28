@@ -30,7 +30,7 @@ import time
 # from meta_learning.diversity.diversity import diversity
 
 # from meta_learning.meta_learners.pretrain_convergence import FitFinalLayer
-from diversity_src.diversity.diversity import diversity
+from uutils.torch_uu.metrics.diversity.diversity import diversity
 # from uutils.torch_uu.meta_learners.pretrain_convergence import FitFinalLayer
 
 from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal, norm

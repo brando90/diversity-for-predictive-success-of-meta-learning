@@ -13,16 +13,11 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 """
 from argparse import Namespace
 from collections import OrderedDict
-from copy import deepcopy, copy
+from copy import deepcopy
 from pprint import pprint
-
-import diversity_src.data_analysis.common
-import torch
 
 import scipy.stats
 import numpy as np
-
-from pathlib import Path
 
 from torch import Tensor
 
@@ -30,27 +25,17 @@ from anatome.helper import compute_mu_std_for_entire_net_from_all_distances_from
     compute_stats_from_distance_per_batch_of_data_sets_per_layer, LayerIdentifier, dist_batch_data_sets_for_all_layer
 
 import uutils
-from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
-from torchmeta.utils.data import BatchMetaDataLoader
 import time
 
-from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_learner, santity_check_maml_accuracy, \
-    comparison_via_performance, setup_args_path_for_ckpt_data_analysis, do_diversity_data_analysis, \
-    performance_comparison_with_l2l_end_to_end, get_recommended_batch_size_miniimagenet_5CNN
-from diversity_src.diversity.diversity import diversity
+from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_learner, comparison_via_performance, setup_args_path_for_ckpt_data_analysis, do_diversity_data_analysis, \
+    performance_comparison_with_l2l_end_to_end
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
-from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
 
-from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal, get_device, norm
+from uutils.torch_uu import process_meta_batch, norm
 from uutils.torch_uu.distributed import is_lead_worker
 from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import get_maml_inner_optimizer, \
     dist_batch_tasks_for_all_layer_mdl_vs_adapted_mdl, dist_batch_tasks_for_all_layer_different_mdl_vs_adapted_mdl
 from uutils.torch_uu.models import reset_all_weights
-from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import get_last_two_layers
-
-from pdb import set_trace as st
-
-from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_mi_resnet12rfs_body
 
 start = time.time()
 
@@ -60,8 +45,7 @@ start = time.time()
 def args_fnn_gaussian(args: Namespace) -> Namespace:
     """
     """
-    from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_cifarfs_resnet12rfs_body, \
-        get_feature_extractor_conv_layers
+    from uutils.torch_uu.models.resnet_rfs import get_feature_extractor_conv_layers
     # - model
     args.model_option = '3FNN_5_gaussian'
     args.hidden_layers = [128,128,128,128]
