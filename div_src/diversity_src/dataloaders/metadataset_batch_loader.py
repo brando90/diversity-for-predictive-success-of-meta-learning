@@ -147,6 +147,13 @@ def get_num_classes(args, split: str = 'VALID'):
 
     return num_classes
 
+# implements split 2 size for mds loader
+def mds_split_2_size(args) -> dict[str, int]:
+    return {'train': get_num_images(args, 'TRAIN'),
+            'val' : get_num_images(args, 'VALID'),
+            'test' : get_num_images(args, 'TEST')}
+
+
 # - test
 def loop_test(args):
     #from uutils.torch_uu import process_meta_batch
