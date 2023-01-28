@@ -30,6 +30,12 @@ conda create -n metalearning_gpu python=3.9
 conda activate metalearning_gpu
 ## conda remove --name metalearning_gpu --all
 
+conda create -n mds_env_gpu python=3.9
+conda activate mds_env_gpu
+## conda remove --name mds_env_gpu --all
+pip install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+pip install -r $HOME/diversity-for-predictive-success-of-meta-learning/req_mds_essentials.txt
+
 # - make sure pip is up to date
 which python
 pip install --upgrade pip
@@ -61,7 +67,8 @@ cd $HOME
 git clone git@github.com:brando90/diversity-for-predictive-success-of-meta-learning.git
 pip install -e $HOME/diversity-for-predictive-success-of-meta-learning/
 
-pip install statsmodels  # not sure why it's needed hardcoded and in setup.py uutils is not enough
+#pip install statsmodels  # not sure why it's needed hardcoded and in setup.py uutils is not enough
+#pip install statsmodels==0.13.5  # not sure why it's needed hardcoded and in setup.py uutils is not enough
 git clone git@github.com:brando90/ultimate-utils.git
 pip install -e $HOME/ultimate-utils/
 

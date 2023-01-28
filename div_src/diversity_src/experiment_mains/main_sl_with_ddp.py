@@ -1933,8 +1933,9 @@ def usl_hdb4_micod_resnet_rfs_adam_cl_its(args: Namespace) -> Namespace:
 
     # - training mode
     args.training_mode = 'iterations'
-    # args.num_its = 100_000  # mds 50000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
-    args.num_its = 1_000_000  # mds 50000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    # args.num_its = 100_000  # mds 50_000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    # args.num_its = 1_000_000  # mds 50_000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    args.num_its = 300_000  # mds 50_000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
 
     # - debug flag
     # args.debug = True
@@ -2309,10 +2310,10 @@ def main():
 
 
 def train(args):
-    print_process_info(rank, flush=True)
+    print_process_info(args.rank, flush=True)
     set_devices(args)  # args.device = rank or .device
     setup_process(args, args.rank, master_port=args.master_port, world_size=args.world_size)
-    print(f'setup process done for rank={rank}')
+    print(f'setup process done for rank={args.rank}')
 
     # create the (ddp) model, opt & scheduler
     get_and_create_model_opt_scheduler_for_run(args)

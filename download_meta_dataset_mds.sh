@@ -11,7 +11,12 @@
 
 # - if your doing this in snap you might need to do
 ssh brando9@ampere4.stanford.edu
-conda activate metalearning_gpu
+
+conda create -n mds_env_gpu python=3.9
+conda activate mds_env_gpu
+## conda remove --name mds_env_gpu --all
+pip install -r $HOME/diversity-for-predictive-success-of-meta-learning/req_mds_essentials.txt
+pip install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
 
 krbtmux
 reauth

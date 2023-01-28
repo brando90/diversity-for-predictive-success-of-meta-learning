@@ -56,15 +56,17 @@ def mds_resnet_maml_adam_scheduler(args: Namespace) -> Namespace:
     args.data_option = 'mds'
     # args.sources = ['vgg_flower', 'aircraft']
     # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
-    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower', 'mscoco', 'traffic_sign']
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
+                    'mscoco', 'traffic_sign']
 
     # - training mode
     args.training_mode = 'iterations'
 
     # note: 75_000 used by MAML mds https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/setups/trainer_config.gin#L1
-    args.num_its = 75_000
+    # args.num_its = 75_000
     # args.num_its = 2_400
     # args.num_its = 100_000
+    args.num_its = 200_000
     # args.num_its = 800_000
 
     # - debug flag
@@ -175,6 +177,7 @@ def mds_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) -> N
     args = fix_for_backwards_compatibility(args)
     return args
 
+
 def mds_vggaircraft_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) -> Namespace:
     # - model
     args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
@@ -192,8 +195,8 @@ def mds_vggaircraft_resnet_maml_adam_no_scheduler_train_to_convergence(args: Nam
     args.training_mode = 'iterations_train_convergence'
 
     # - debug flag
-    args.debug = False#True
-    #args.debug = False
+    args.debug = False  # True
+    # args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
@@ -214,20 +217,20 @@ def mds_vggaircraft_resnet_maml_adam_no_scheduler_train_to_convergence(args: Nam
     args.fo = True  # This is needed.
 
     # - outer trainer params
-    args.batch_size = 4#1  # decreased it to 4 even though it gives more noise but updates quicker + nano gpt seems to do that for speed up https://github.com/karpathy/nanoGPT/issues/58
-    args.batch_size_eval = 2#1
+    args.batch_size = 4  # 1  # decreased it to 4 even though it gives more noise but updates quicker + nano gpt seems to do that for speed up https://github.com/karpathy/nanoGPT/issues/58
+    args.batch_size_eval = 2  # 1
 
     # - logging params
     args.log_freq = 500
 
-    #args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Jan21_13-56-48_jobid_-1/ckpt.pt'
-    #args.min_examples_in_class=0
-    #args.num_support =None
-    #args.num_query=None
+    # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Jan21_13-56-48_jobid_-1/ckpt.pt'
+    # args.min_examples_in_class=0
+    # args.num_support =None
+    # args.num_query=None
     # args.log_freq = 20
 
     # -- wandb args
-    args.wandb_project = 'Meta-Dataset'#'entire-diversity-spectrum'
+    args.wandb_project = 'Meta-Dataset'  # 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
     args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
@@ -237,6 +240,7 @@ def mds_vggaircraft_resnet_maml_adam_no_scheduler_train_to_convergence(args: Nam
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
     return args
+
 
 def mds_birdsdtd_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) -> Namespace:
     # - model
@@ -248,17 +252,17 @@ def mds_birdsdtd_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namesp
 
     # - data
     args.data_option = 'mds'
-    args.sources = ['cu_birds','dtd']#['vgg_flower', 'aircraft']
+    args.sources = ['cu_birds', 'dtd']  # ['vgg_flower', 'aircraft']
     # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
 
     # - training mode
-    args.training_mode = 'iterations'#'iterations_train_convergence'
-    args.num_its = 1_000_000_000 # essentially this makes your thing run forever to 'prevent' early termination
+    args.training_mode = 'iterations'  # 'iterations_train_convergence'
+    args.num_its = 1_000_000_000  # essentially this makes your thing run forever to 'prevent' early termination
     args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Jan23_23-56-40_jobid_-1/ckpt.pt'  # '/home/pzy2/data/logs/logs_Jan23_23-56-40_jobid-1'
 
     # - debug flag
-    args.debug = True#False#True
-    #args.debug = False
+    args.debug = True  # False#True
+    # args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
@@ -279,14 +283,14 @@ def mds_birdsdtd_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namesp
     args.fo = True  # This is needed.
 
     # - outer trainer params
-    args.batch_size = 4#1  # decreased it to 4 even though it gives more noise but updates quicker + nano gpt seems to do that for speed up https://github.com/karpathy/nanoGPT/issues/58
-    args.batch_size_eval = 2#1
+    args.batch_size = 4  # 1  # decreased it to 4 even though it gives more noise but updates quicker + nano gpt seems to do that for speed up https://github.com/karpathy/nanoGPT/issues/58
+    args.batch_size_eval = 2  # 1
 
     # - logging params
-    args.log_freq = 1#500
+    args.log_freq = 1  # 500
 
     # -- wandb args
-    args.wandb_project = 'Meta-Dataset'#'entire-diversity-spectrum'
+    args.wandb_project = 'Meta-Dataset'  # 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
     args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
@@ -309,7 +313,7 @@ def load_args() -> Namespace:
 
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing'  # <- REMOVE to remove manual loads
-    
+
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')
     if resume_from_checkpoint(args):
