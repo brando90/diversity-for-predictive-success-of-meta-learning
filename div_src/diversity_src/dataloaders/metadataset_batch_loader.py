@@ -157,22 +157,23 @@ def mds_split_2_size(args) -> dict[str, int]:
 # - test
 def loop_test(args):
     #from uutils.torch_uu import process_meta_batch
+    args.data_path = '/shared/rsaas/pzy2/records'
     args.batch_size = 10
     args.batch_size_eval= 2
     args.min_examples_per_class = 20
     #args.data_path = '/shared/rsaas/pzy2/records/'  # or whereever
-    args.sources = ['dtd','cu_birds']
+    args.sources = []#['dtd','cu_birds']
 
     dataloader = get_mds_loader(args)
 
-    print(get_num_images(args, 'TRAIN'))
+    '''print(get_num_images(args, 'TRAIN'))
     print(get_num_images(args, 'VALID'))
     print(get_num_images(args, 'TEST'))
 
     print(get_num_classes(args, 'TRAIN'))
     print(get_num_classes(args, 'VALID'))
     print(get_num_classes(args, 'TEST'))
-
+    '''
 
     print(f'{len(dataloader)}')
     for batch_idx, batch in enumerate(dataloader['train']):
