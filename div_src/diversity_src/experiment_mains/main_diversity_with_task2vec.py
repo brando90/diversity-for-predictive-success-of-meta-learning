@@ -453,7 +453,7 @@ def diversity_ala_task2vec_mds_vggaircraft(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
-    args.log_to_wandb = True
+    args.log_to_wandb = False#True
     # args.log_to_wandb = False
 
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
@@ -464,7 +464,7 @@ def diversity_ala_task2vec_mds_vggaircraft(args: Namespace) -> Namespace:
 def diversity_ala_task2vec_mds_birdsdtd(args: Namespace) -> Namespace:
     args.sources = ['dtd', 'cu_birds']  # ['aircraft','vgg_flower','cu_birds']
 
-    args.batch_size = 2  # 500  # 5 for testing
+    args.batch_size = 10  # 500  # 5 for testing
     args.batch_size_eval = args.batch_size  # this determines batch size for test/eval
 
     # args.batch_size = 500
@@ -488,6 +488,62 @@ def diversity_ala_task2vec_mds_birdsdtd(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+
+def diversity_ala_task2vec_mds_ilsvrc(args: Namespace) -> Namespace:
+    args.data_path = '/shared/rsaas/pzy2/records'
+    args.sources = ['ilsvrc_2012']  # ['aircraft','vgg_flower','cu_birds']
+
+    args.batch_size = 10  # 500  # 5 for testing
+    args.batch_size_eval = args.batch_size  # this determines batch size for test/eval
+
+    # args.batch_size = 500
+    args.data_option = 'mds'
+    # set datapath if not already
+
+    # - probe_network
+    args.model_option = 'resnet18_pretrained_imagenet'
+    args.classifier_opts = None
+    args.PID = 'None'
+
+    # -- wandb args
+    args.wandb_project = 'meta-dataset task2vec'  # 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+def diversity_ala_task2vec_mds_omniglot(args: Namespace) -> Namespace:
+    args.data_path = '/shared/rsaas/pzy2/records'
+    args.sources = ['omniglot']  # ['aircraft','vgg_flower','cu_birds']
+
+    args.batch_size = 10  # 500  # 5 for testing
+    args.batch_size_eval = args.batch_size  # this determines batch size for test/eval
+
+    # args.batch_size = 500
+    args.data_option = 'mds'
+    # set datapath if not already
+
+    # - probe_network
+    args.model_option = 'resnet18_pretrained_imagenet'
+    args.classifier_opts = None
+    args.PID = 'None'
+
+    # -- wandb args
+    args.wandb_project = 'meta-dataset task2vec'  # 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
 
 # - main
 

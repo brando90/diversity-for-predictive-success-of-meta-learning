@@ -109,19 +109,34 @@ def get_num_images(args, split: str = 'VALID'):
         dataset_spec = dataset_spec_lib.load_dataset_spec(dataset_records_path)
 
         all_class_sizes = dataset_spec.images_per_class
+        #print("all class sizes:", all_class_sizes)
 
         # let's get only the class sizes of our split
         class_set = dataset_spec.get_classes(Split[split])
         #print(class_set)
 
         for c in class_set:
-            # ignore classes that have less images than needed for a n-way k-shot task
-            if (all_class_sizes[c] >= args.min_examples_in_class):
-                num_images += all_class_sizes[c]
+            if (dataset_name != 'ilsvrc_2012'):
+                images_in_class_c = all_class_sizes[c]
+            else:
+                images_in_class_c = get_hierarchical_num_classes(dataset_spec, c)
+
+            # ignore classes that have less images than n-way k-shot teas
+            if (images_in_class_c >= args.min_examples_in_class):
+                num_images += images_in_class_c
 
     return num_images
 
 
+# - helper
+def get_hierarchical_num_classes(dataset_spec, class_id):
+    for s in Split:
+        for n in dataset_spec.split_subgraphs[s]:
+            # Only consider leaves, as class_names_to_ids only has keys for them.
+            if n.children:
+                continue
+            if dataset_spec.class_names_to_ids[n.wn_id] == class_id:
+                return dataset_spec.images_per_class[s][n]
 
 # - get number of images in our split for mds dataloader (for both USL and MAML)
 def get_num_classes(args, split: str = 'VALID'):
@@ -136,14 +151,21 @@ def get_num_classes(args, split: str = 'VALID'):
 
         all_class_sizes = dataset_spec.images_per_class
 
+
         # let's get only the class sizes of our split
         class_set = dataset_spec.get_classes(Split[split])
         #print(class_set)
 
         for c in class_set:
+            if (dataset_name != 'ilsvrc_2012'):
+                images_in_class_c = all_class_sizes[c]
+            else:
+                images_in_class_c = get_hierarchical_num_classes(dataset_spec, c)
+
             # ignore classes that have less images than n-way k-shot teas
-            if (all_class_sizes[c] >= args.min_examples_in_class):
+            if (images_in_class_c >= args.min_examples_in_class):
                 num_classes += 1
+
 
     return num_classes
 
@@ -162,17 +184,19 @@ def loop_test(args):
     args.batch_size_eval= 2
     args.min_examples_per_class = 20
     #args.data_path = '/shared/rsaas/pzy2/records/'  # or whereever
-    args.sources = []#['dtd','cu_birds']
 
-    dataloader = get_mds_loader(args)
+    for source in ['ilsvrc_2012','aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower', 'mscoco', 'traffic_sign']:
+        args.sources = [source]
+        #dataloader = get_mds_loader(args)
+        print(source)
 
-    '''print(get_num_images(args, 'TRAIN'))
-    print(get_num_images(args, 'VALID'))
-    print(get_num_images(args, 'TEST'))
+        print(get_num_images(args, 'TRAIN'))
+        print(get_num_images(args, 'VALID'))
+        print(get_num_images(args, 'TEST'))
 
-    print(get_num_classes(args, 'TRAIN'))
-    print(get_num_classes(args, 'VALID'))
-    print(get_num_classes(args, 'TEST'))
+        print(get_num_classes(args, 'TRAIN'))
+        print(get_num_classes(args, 'VALID'))
+        print(get_num_classes(args, 'TEST'))
     '''
 
     print(f'{len(dataloader)}')
@@ -186,7 +210,9 @@ def loop_test(args):
         #print(X, y)
         if batch_idx == 2:
             break
-
+    
+    
+    '''
 
 # -- Run experiment
 
