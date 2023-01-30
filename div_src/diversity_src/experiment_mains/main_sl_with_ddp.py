@@ -2052,7 +2052,7 @@ def usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached(args: Namespace) ->
     # - logging params
     args.log_freq = 500
     # args.log_freq = 20
-    args.smart_logging = dict(metric_to_use='train_acc', threshold=0.9, log_speed_up=10)
+    args.smart_logging = dict(smart_logging_type='train_acc', metric_to_use='train_acc', threshold=0.9, log_speed_up=10)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
