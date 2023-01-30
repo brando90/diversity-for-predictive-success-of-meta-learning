@@ -2358,6 +2358,7 @@ def train(args):
 
 if __name__ == "__main__":
     import time
+    from uutils import report_times
 
     start = time.time()
     # - run experiment
