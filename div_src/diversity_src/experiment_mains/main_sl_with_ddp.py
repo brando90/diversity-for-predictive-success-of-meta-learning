@@ -2012,6 +2012,48 @@ def usl_hdb4_micod_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> N
     return args
 
 
+def usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached(args: Namespace) -> Namespace:
+    # - model
+    args.n_cls = 1262  # 64 + 34 + 64 + 1100
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+    # - data
+    args.data_option = 'hdb4_micod'
+    args.n_classes = args.n_cls
+    args.data_augmentation = 'hdb4_micod'
+
+    # - training mode
+    args.training_mode = 'iterations'
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 256
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    args.scheduler_option = 'None'
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+    args.smart_logging = dict(metric_to_use='train_acc', threshold=0.9, log_speed_up=10)
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
 # - mds
 
 def get_hardcoded_full_mds_num_classes(sources: list[str] = ['hardcodedmds']) -> int:
@@ -2142,7 +2184,7 @@ def mds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Na
 
     # - debug flag
     args.debug = True
-    #args.debug = False
+    # args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
@@ -2164,7 +2206,7 @@ def mds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Na
     args.experiment_name = args.manual_loads_name
     args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = True
-    #args.log_to_wandb = False
+    # args.log_to_wandb = False
     return args
 
 
