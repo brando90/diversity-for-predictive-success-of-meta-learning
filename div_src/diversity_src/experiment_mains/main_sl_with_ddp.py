@@ -709,6 +709,8 @@ def sl_cifarfs_rfs_4cnn_adam_cl_200(args: Namespace) -> Namespace:
     # - model
     args.model_option = '4CNN_l2l_cifarfs'
     args.model_hps = dict(ways=64, hidden_size=64, embedding_size=64 * 4)
+    args.model_option = '4CNN_l2l_cifarfs'
+    args.model_hps = dict(ways=args.n_cls, hidden_size=64, embedding_size=64 * 4)
 
     # - data
     # args.data_path = Path('~/data/CIFAR-FS/').expanduser()
@@ -2024,12 +2026,24 @@ def usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached(args: Namespace) ->
     # args.n_classes = args.n_cls
     # args.data_augmentation = 'hdb4_micod'
 
-    # - model
+    # # doesn't work on ampere without sending the MI rfs data to the server, only for debugging
+    # # - model
+    # args.n_cls = 64
+    # # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    # args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+    # # - data
+    # args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
+
+    # - model, only for debugging
+    ## args.model_option = '4CNN_l2l_cifarfs'
+    ## args.model_hps = dict(ways=64, hidden_size=64, embedding_size=64 * 4)
     args.n_cls = 64
-    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+    args.model_option = 'resnet12_rfs_cifarfs_fc100'
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=args.n_cls)
     # - data
-    args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
+    # args.data_path = Path('~/data/CIFAR-FS/').expanduser()
+    args.data_option = 'cifarfs_l2l_sl'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
 
     # - training mode
     args.training_mode = 'iterations'
@@ -2060,7 +2074,8 @@ def usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached(args: Namespace) ->
     # - logging params
     args.log_freq = 500
     # args.log_freq = 20
-    args.smart_logging = dict(smart_logging_type='train_acc', metric_to_use='train_acc', threshold=0.9, log_speed_up=10)
+    args.smart_logging = dict(smart_logging_type='log_more_often_after_threshold_is_reached', metric_to_use='train_acc',
+                              threshold=0.9, log_speed_up=10)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'

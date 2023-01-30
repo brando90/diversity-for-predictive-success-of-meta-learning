@@ -131,6 +131,8 @@ tmux new -s mds1_usl_resnet50rfs
 #tmux new -s hdb1_stats_analysis
 #tmux new -s hdb4_stats_analysis
 
+tmux new -s rand
+
 #bash ~/diversity-for-predictive-success-of-meta-learning/main_krbtmux.sh
 
 # - div
