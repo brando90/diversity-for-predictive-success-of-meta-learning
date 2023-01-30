@@ -32,6 +32,8 @@ from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_
 
 from socket import gethostname
 
+from pathlib import Path
+
 from pdb import set_trace as st
 
 
@@ -2013,15 +2015,21 @@ def usl_hdb4_micod_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> N
 
 
 def usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached(args: Namespace) -> Namespace:
+    # # - model
+    # args.n_cls = 1262  # 64 + 34 + 64 + 1100
+    # # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    # args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+    # # - data
+    # args.data_option = 'hdb4_micod'
+    # args.n_classes = args.n_cls
+    # args.data_augmentation = 'hdb4_micod'
+
     # - model
-    args.n_cls = 1262  # 64 + 34 + 64 + 1100
+    args.n_cls = 64
     # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
     args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
-
     # - data
-    args.data_option = 'hdb4_micod'
-    args.n_classes = args.n_cls
-    args.data_augmentation = 'hdb4_micod'
+    args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
 
     # - training mode
     args.training_mode = 'iterations'
@@ -2058,9 +2066,9 @@ def usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached(args: Namespace) ->
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
     return args
 
 
