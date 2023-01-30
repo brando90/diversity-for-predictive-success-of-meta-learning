@@ -2141,8 +2141,8 @@ def mds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Na
     args.training_mode = 'iterations_train_convergence'
 
     # - debug flag
-    # args.debug = True
-    args.debug = False
+    args.debug = True
+    #args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
@@ -2164,7 +2164,7 @@ def mds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Na
     args.experiment_name = args.manual_loads_name
     args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = True
-    # args.log_to_wandb = False
+    #args.log_to_wandb = False
     return args
 
 

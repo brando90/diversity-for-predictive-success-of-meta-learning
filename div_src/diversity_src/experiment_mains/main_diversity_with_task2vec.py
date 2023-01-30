@@ -36,6 +36,8 @@ from uutils.torch_uu.models.probe_networks import get_probe_network
 from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interval, \
     nth_central_moment_and_its_confidence_interval
 
+from uutils.torch_uu.metrics.complexity.task2vec_norm_complexity import avg_norm_complexity, total_norm_complexity, get_task_complexities
+
 # import matplotlib.pyplot as plt
 
 from pdb import set_trace as st
@@ -451,7 +453,7 @@ def diversity_ala_task2vec_mds_vggaircraft(args: Namespace) -> Namespace:
     # - wandb expt args
     args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
-    args.log_to_wandb = True
+    args.log_to_wandb = False#True
     # args.log_to_wandb = False
 
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
@@ -462,7 +464,7 @@ def diversity_ala_task2vec_mds_vggaircraft(args: Namespace) -> Namespace:
 def diversity_ala_task2vec_mds_birdsdtd(args: Namespace) -> Namespace:
     args.sources = ['dtd', 'cu_birds']  # ['aircraft','vgg_flower','cu_birds']
 
-    args.batch_size = 5  # 500  # 5 for testing
+    args.batch_size = 10  # 500  # 5 for testing
     args.batch_size_eval = args.batch_size  # this determines batch size for test/eval
 
     # args.batch_size = 500
@@ -486,6 +488,62 @@ def diversity_ala_task2vec_mds_birdsdtd(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+
+def diversity_ala_task2vec_mds_ilsvrc(args: Namespace) -> Namespace:
+    args.data_path = '/shared/rsaas/pzy2/records'
+    args.sources = ['ilsvrc_2012']  # ['aircraft','vgg_flower','cu_birds']
+
+    args.batch_size = 10  # 500  # 5 for testing
+    args.batch_size_eval = args.batch_size  # this determines batch size for test/eval
+
+    # args.batch_size = 500
+    args.data_option = 'mds'
+    # set datapath if not already
+
+    # - probe_network
+    args.model_option = 'resnet18_pretrained_imagenet'
+    args.classifier_opts = None
+    args.PID = 'None'
+
+    # -- wandb args
+    args.wandb_project = 'meta-dataset task2vec'  # 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+def diversity_ala_task2vec_mds_omniglot(args: Namespace) -> Namespace:
+    args.data_path = '/shared/rsaas/pzy2/records'
+    args.sources = ['omniglot']  # ['aircraft','vgg_flower','cu_birds']
+
+    args.batch_size = 10  # 500  # 5 for testing
+    args.batch_size_eval = args.batch_size  # this determines batch size for test/eval
+
+    # args.batch_size = 500
+    args.data_option = 'mds'
+    # set datapath if not already
+
+    # - probe_network
+    args.model_option = 'resnet18_pretrained_imagenet'
+    args.classifier_opts = None
+    args.PID = 'None'
+
+    # -- wandb args
+    args.wandb_project = 'meta-dataset task2vec'  # 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+
+    from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
 
 # - main
 
@@ -602,9 +660,19 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
                                                                                                num_tasks_to_consider=args.batch_size,
                                                                                                classifier_opts=args.classifier_opts,
                                                                                                )
+
     print(f'\n {len(embeddings)=}')
     print(f'number of tasks to consider: {args.batch_size=}')
     print(f'{get_dataset_size(args)=}')
+
+    # - compute complexity of benchmark (p determines which L_p norm we use to compute complexity. See task2vec_norm_complexity.py for details)
+    p_norm = 1 #Set 1 for L1 norm, 2 for L2 norm, etc. 'nuc' for nuclear norm, np.inf for infinite norm
+    all_complexities = get_task_complexities(embeddings, p=p_norm)
+    print(f'{all_complexities=}')
+    complexity_tot = total_norm_complexity(all_complexities)
+    print(f'Total Complexity: {complexity_tot=}')
+    complexity_avg, complexity_ci = avg_norm_complexity(all_complexities)
+    print(f'Average Complexity: {(complexity_avg, complexity_ci)=}')
 
     # - compute distance matrix & task2vec based diversity, to demo` task2vec, this code computes pair-wise distance between task embeddings
     distance_matrix: np.ndarray = task_similarity.pdist(embeddings, distance='cosine')
@@ -655,6 +723,9 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
                      'num_bars_in_histogram': num_bars_in_histogram,
                      'num_bins': num_bins,
                      'size_dataset': size_dataset,
+                     'complexity_tot' : complexity_tot,
+                     'complexity_avg' : complexity_avg, 'complexity_ci' : complexity_ci,
+                     'all_complexities' : all_complexities
                      }
     torch.save(results, args.log_root / f'results_{split}.pt')
     save_to_json_pretty(results, args.log_root / f'results_{split}.json')
@@ -670,6 +741,18 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     get_histogram(distances_as_flat_array, xlabel, ylabel, title, linestyle=None, color='b')
     save_to(args.log_root,
             plot_name=f'hist_freq_task2vec_cosine_distances_{args.data_option}_{split}'.replace('-', '_'))
+
+    # - histograms for complexity metric
+    title: str = 'Distribution of Task Complexities'
+    xlabel: str = f'Task Complexity (L{p_norm} norm of embedding)'
+    ylabel = 'Frequency Density (pmf)'
+    ax = get_histogram(all_complexities, xlabel, ylabel, title, stat='probability', linestyle=None, color='b')
+    save_to(args.log_root,
+            plot_name=f'hist_density_task_complexities_{args.data_option}_{split}'.replace('-', '_'))
+    ylabel = 'Frequency'
+    get_histogram(all_complexities, xlabel, ylabel, title, linestyle=None, color='b')
+    save_to(args.log_root,
+            plot_name=f'hist_freq_task_complexities_{args.data_option}_{split}'.replace('-', '_'))
 
     # - show plot, this code is similar to above but put computes the distance matrix internally & then displays it, hierchical clustering
     task_similarity.plot_distance_matrix(embeddings, labels=list(range(len(embeddings))), distance='cosine',
