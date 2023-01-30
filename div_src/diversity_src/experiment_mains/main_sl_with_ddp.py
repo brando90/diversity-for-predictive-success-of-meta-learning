@@ -2038,7 +2038,7 @@ def usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached(args: Namespace) ->
     ## args.model_option = '4CNN_l2l_cifarfs'
     ## args.model_hps = dict(ways=64, hidden_size=64, embedding_size=64 * 4)
     args.n_cls = 64
-    args.model_option = 'resnet12_rfs_cifarfs_fc100'
+    args.model_option = 'resnet50_rfs'
     args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=args.n_cls)
     # - data
     # args.data_path = Path('~/data/CIFAR-FS/').expanduser()
@@ -2047,7 +2047,7 @@ def usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached(args: Namespace) ->
 
     # - training mode
     args.training_mode = 'iterations'
-    # args.num_its = 100_000  # mds 50_000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    # args.num_its = 100_000  # mds 50_000: https://gitA,aahub.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
     # args.num_its = 1_000_000  # mds 50_000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
     args.num_its = 300_000  # mds 50_000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
 
