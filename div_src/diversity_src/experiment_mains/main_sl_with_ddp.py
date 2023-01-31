@@ -2244,9 +2244,9 @@ def mds_resnet_usl_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespace
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=} {args.manual_loads_name}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
     return args
 
 

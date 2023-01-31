@@ -302,6 +302,98 @@ def mds_birdsdtd_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namesp
     return args
 
 
+def mds_resnet_maml_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespace) -> Namespace:
+    """
+    todo patrick: what exactly is this running? what type of training etc?
+
+    Looking at original mds hps:
+        - https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/setups/trainer_config.gin
+        - https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/best/maml_all_from_scratch.gin
+        Main summary:
+        ```
+        Trainer.num_updates = 75000
+        Trainer.batch_size = 256  # Only applicable to non-episodic models.
+        Trainer.num_eval_episodes = 600
+        ```
+
+    """
+    # - model
+    # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
+    args.n_cls = 5
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+
+    # - data
+    args.data_option = 'mds'
+    # args.sources = ['vgg_flower', 'aircraft']
+    # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
+                    'mscoco', 'traffic_sign']
+
+    # - training mode
+    args.training_mode = 'iterations'
+
+    # note: 75_000 used by MAML mds https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/setups/trainer_config.gin#L1
+    # args.num_its = 75_000
+    # args.num_its = 2_400
+    # args.num_its = 100_000
+    args.num_its = 200_000
+    # args.num_its = 800_000
+
+    # - debug flag
+    args.debug = False
+    # args.debug = True
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 2_000
+    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    args.eta_min = 1e-5  # match MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    print(f'{args.T_max=}')
+    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1
+    args.nb_inner_train_steps = 5
+    args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
+    args.track_higher_grads = True  # I know this is confusing but look at this ref: https://stackoverflow.com/questions/70961541/what-is-the-official-implementation-of-first-order-maml-using-the-higher-pytorch
+    args.fo = True  # This is needed.
+
+    # - outer trainer params
+    args.batch_size = 3  # decreased it to 4 even though it gives more noise but updates quicker + nano gpt seems to do that for speed up https://github.com/karpathy/nanoGPT/issues/58
+    args.batch_size_eval = 2
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+    args.smart_logging = dict(smart_logging_type='log_more_often_after_threshold_is_reached', metric_to_use='train_acc',
+                              threshold=0.9, log_speed_up=10)
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=} {args.manual_loads_name}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+# -- main
+
 def load_args() -> Namespace:
     """
     1. parse args from user's terminal
