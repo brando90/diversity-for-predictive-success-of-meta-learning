@@ -29,6 +29,7 @@ from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_firs
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch, train_agent_iterations, \
     train_agent_epochs
+from uutils.torch_uu.dataloaders.mds_uu.common import get_hardcoded_full_mds_num_classes
 
 from socket import gethostname
 
@@ -2017,14 +2018,14 @@ def usl_hdb4_micod_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> N
 
 
 def usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached(args: Namespace) -> Namespace:
-    # # - model
-    # args.n_cls = 1262  # 64 + 34 + 64 + 1100
-    # # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
-    # args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
-    # # - data
-    # args.data_option = 'hdb4_micod'
-    # args.n_classes = args.n_cls
-    # args.data_augmentation = 'hdb4_micod'
+    # - model
+    args.n_cls = 1262  # 64 + 34 + 64 + 1100
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+    # - data
+    args.data_option = 'hdb4_micod'
+    args.n_classes = args.n_cls
+    args.data_augmentation = 'hdb4_micod'
 
     # # doesn't work on ampere without sending the MI rfs data to the server, only for debugging
     # # - model
@@ -2034,16 +2035,16 @@ def usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached(args: Namespace) ->
     # # - data
     # args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
 
-    # - model, only for debugging
-    ## args.model_option = '4CNN_l2l_cifarfs'
-    ## args.model_hps = dict(ways=64, hidden_size=64, embedding_size=64 * 4)
-    args.n_cls = 64
-    args.model_option = 'resnet50_rfs'
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=args.n_cls)
-    # - data
-    # args.data_path = Path('~/data/CIFAR-FS/').expanduser()
-    args.data_option = 'cifarfs_l2l_sl'
-    args.data_path = Path('~/data/l2l_data/').expanduser()
+    # # - model, only for debugging
+    # ## args.model_option = '4CNN_l2l_cifarfs'
+    # ## args.model_hps = dict(ways=64, hidden_size=64, embedding_size=64 * 4)
+    # args.n_cls = 64
+    # args.model_option = 'resnet50_rfs'
+    # args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=args.n_cls)
+    # # - data
+    # # args.data_path = Path('~/data/CIFAR-FS/').expanduser()
+    # args.data_option = 'cifarfs_l2l_sl'
+    # args.data_path = Path('~/data/l2l_data/').expanduser()
 
     # - training mode
     args.training_mode = 'iterations'
@@ -2088,58 +2089,6 @@ def usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached(args: Namespace) ->
 
 
 # - mds
-
-def get_hardcoded_full_mds_num_classes(sources: list[str] = ['hardcodedmds']) -> int:
-    """
-    todo: this is a hack, fix it
-    - use the dataset_spec in each data set
-```
-  "classes_per_split": {
-    "TRAIN": 140,
-    "VALID": 30,
-    "TEST": 30
-```
-    but for imagenet do something else.
-    argh, idk what this means
-```
-{
-  "name": "ilsvrc_2012",
-  "split_subgraphs": {
-    "TRAIN": [
-      {
-        "wn_id": "n00001740",
-        "words": "entity",
-        "children_ids": [
-          "n00001930",
-          "n00002137"
-        ],
-        "parents_ids": []
-      },
-      {
-        "wn_id": "n00001930",
-        "words": "physical entity",
-        "children_ids": [
-          "n00002684",
-          "n00007347",
-          "n00020827"
-        ],
-```
-count the leafs in train & make sure it matches 712 158 130 for each split
-
-ref: https://github.com/google-research/meta-dataset#dataset-summary
-    """
-    print(f'{sources=}')
-    n_cls: int = 0
-    if sources[0] == 'hardcodedmds':
-        # args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower']
-        n_cls = 712 + 70 + 140 + 33 + 994 + 883 + 241 + 71
-        n_cls = 3144
-    else:
-        raise NotImplementedError
-    print(f'{n_cls=}')
-    assert n_cls != 0
-    return n_cls
-
 
 def mds_resnet_usl_adam_scheduler(args: Namespace) -> Namespace:
     # - model
@@ -2240,6 +2189,64 @@ def mds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Na
     args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
+    return args
+
+
+def mds_resnet_usl_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespace) -> Namespace:
+    # - model
+    # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
+    args.n_cls = get_hardcoded_full_mds_num_classes()  # ref: https://github.com/google-research/meta-dataset#dataset-summary
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+
+    # - data
+    args.data_option = 'mds'
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
+                    'mscoco', 'traffic_sign']
+    args.n_classes = args.n_cls
+
+    # - training mode
+    args.training_mode = 'iterations'
+    # args.num_its = 1_000_000_000  # patrick's default for 2 data sets
+    # args.num_its = 50_000  # mds 50000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    args.num_its = 100_000  # mds 50000 so I feel it should be fine to double it
+    # args.num_its = 20*6_000 = 120_000 # based on some estimates for resnet50, to reach 0.99 acc
+    # args.num_its = 2*120_000  # times 2 to be safe + increase log freq from 20 to something larger for speed up
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 256
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 2_000
+    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    args.eta_min = 1e-5  # match MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    print(f'{args.T_max=}')
+    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+    args.smart_logging = dict(smart_logging_type='log_more_often_after_threshold_is_reached', metric_to_use='train_acc',
+                              threshold=0.9, log_speed_up=10)
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
     return args
 
 

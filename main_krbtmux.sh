@@ -95,10 +95,13 @@ echo $OUT_FILE; echo $ERR_FILE
 # - mds
 # C-b d (C=Ctl not command, similar tmux detach)
 
+ssh brando9@ampere1.stanford.edu
+ssh brando9@ampere2.stanford.edu
 ssh brando9@ampere3.stanford.edu
 ssh brando9@ampere4.stanford.edu
 
 tput rmcup
+
 krbtmux
 reauth
 
@@ -106,7 +109,7 @@ source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #conda activate metalearning_gpu
 export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
-export CUDA_VISIBLE_DEVICES=6; echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
+export CUDA_VISIBLE_DEVICES=7; echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES
 ulimit -n 120000
 ulimit -Sn
 ulimit -Hn
@@ -118,12 +121,12 @@ tmux new -s mds1_maml_resnet50rfs
 
 tmux new -s mds0_usl_resnet50rfs
 tmux new -s mds1_usl_resnet50rfs
+tmux new -s mds0_usl_resnet50rfs_smart
 
 #tmux new -s div_hdb4_micod
 #tmux new -s div_hdb4_micod2
 
 #tmux new -s hdb4_usl_its
-#tmux new -s hdb4_usl_convergence
 
 #tmux new -s hdb4_maml_its_sched
 #tmux new -s hdb4_maml_its_sched2
@@ -146,12 +149,13 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 
 # - mds usl
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_resnet_usl_adam_scheduler --model_option resnet18_rfs --data_path $HOME/data/mds/records/
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_resnet_usl_adam_scheduler --model_option resnet50_rfs --data_path $HOME/data/mds/records/
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_resnet_usl_adam_scheduler --model_option resnet50_rfs --data_path $HOME/data/mds/records/
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_resnet_usl_adam_scheduler_log_more_often_0p9_acc_reached --model_option resnet50_rfs --data_path $HOME/data/mds/records/
 
 # - hdb4 micod usl
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_adam_cl_its --model_option resnet12_rfs
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_adam_cl_train_to_convergence --model_option resnet12_rfs
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached --model_option resnet12_rfs
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached --model_option resnet12_rfs
 
 # - hdb4 micod maml
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_resnet_rfs_scheduler_its --model_option resnet12_rfs
