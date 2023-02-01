@@ -1189,8 +1189,8 @@ def main_data_analyis():
     print(f'time_passed_msg = {uutils.report_times(start)}')
     # - wandb
     if is_lead_worker(args.rank) and args.log_to_wandb:
-        import wandb
-        wandb.finish()
+        # cleanup_wandb(args, delete_wandb_dir=True)
+        cleanup_wandb(args, delete_wandb_dir=False)
 
 
 if __name__ == '__main__':

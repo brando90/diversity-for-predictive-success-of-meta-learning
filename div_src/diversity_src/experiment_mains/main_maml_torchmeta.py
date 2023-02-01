@@ -442,11 +442,15 @@ def main():
 
 
 def train(rank, args):
+    # this dist script sets up rank dist etc, which is not at all given torchmeta doesn't use distributed training
     print_process_info(rank, flush=True)
     args.rank = rank  # have each process save the rank
     set_devices(args)  # args.device = rank or .device
     setup_process(args, rank, master_port=args.master_port, world_size=args.world_size)
     print(f'setup process done for rank={rank}')
+
+    # - set up wandb only for the lead process, commented out, torchmeta doesn't support distributed
+    # setup_wandb(args) if is_lead_worker(args.rank) else None
 
     # create the (ddp) model, opt & scheduler
     get_and_create_model_opt_scheduler_for_run(args)

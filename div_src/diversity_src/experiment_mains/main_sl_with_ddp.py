@@ -2401,6 +2401,10 @@ def train(args):
     setup_process(args, args.rank, master_port=args.master_port, world_size=args.world_size)
     print(f'setup process done for rank={args.rank}')
 
+    # this ddp script sets up rank dist etc
+    # - set up wandb only for the lead process, bellow likely fine since not having dist_option sets up wandb in main python processes (assuming not the weird multiple python processes torch case is used)
+    # setup_wandb(args) if is_lead_worker(args.rank) else None
+
     # create the (ddp) model, opt & scheduler
     get_and_create_model_opt_scheduler_for_run(args)
     args.number_of_trainable_parameters = count_number_of_parameters(args.model)
@@ -2438,6 +2442,8 @@ def train(args):
     print(f'\n----> about to cleanup worker with rank {args.rank}')
     cleanup(args.rank)
     print(f'clean up done successfully! {args.rank}')
+    # cleanup_wandb(args, delete_wandb_dir=True)
+    cleanup_wandb(args, delete_wandb_dir=False)
 
 
 # -- Run experiment

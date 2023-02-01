@@ -18,10 +18,10 @@ from argparse import Namespace
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 
 from uutils import args_hardcoded_in_script, report_times
-from uutils.argparse_uu.common import setup_args_for_experiment, setup_wandb
+from uutils.argparse_uu.common import setup_args_for_experiment
 from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
-from uutils.logging_uu.wandb_logging.common import cleanup_wandb
+from uutils.logging_uu.wandb_logging.common import setup_wandb, cleanup_wandb
 from uutils.torch_uu import count_number_of_parameters
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
@@ -2248,8 +2248,10 @@ def main():
 
 
 def train(args):
+    # this dist script sets up rank dist etc
     # if is_running_parallel(args.rank):
     if args.parallel:
+        # this might be set up cleaner if we setup args in this function and not in main train, but don't want to deal with organizing l2l vs ddp vs etc, just in their own main they can setup args
         # - set up processes a la l2l
         local_rank: int = get_local_rank()
         print(f'{local_rank=}')
@@ -2260,7 +2262,7 @@ def train(args):
     print(f'setup process done for rank={args.rank}')
 
     # - set up wandb only for the lead process
-    setup_wandb(args) if is_lead_worker(args.rank) else None
+    setup_wandb(args) if is_lead_worker(args.rank) else None  # this might be set up cleaner if we setup args in this function and not in main train
 
     # create the model, opt & scheduler
     get_and_create_model_opt_scheduler_for_run(args)
