@@ -304,18 +304,13 @@ def mds_birdsdtd_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namesp
 
 def mds_resnet_maml_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespace) -> Namespace:
     """
-    todo patrick: what exactly is this running? what type of training etc?
-
     Looking at original mds hps:
         - https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/setups/trainer_config.gin
         - https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/best/maml_all_from_scratch.gin
-        Main summary:
-        ```
+    Main summary:
         Trainer.num_updates = 75000
         Trainer.batch_size = 256  # Only applicable to non-episodic models.
         Trainer.num_eval_episodes = 600
-        ```
-
     """
     # - model
     # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
@@ -376,8 +371,9 @@ def mds_resnet_maml_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespac
     # - logging params
     args.log_freq = 500
     # args.log_freq = 20
-    args.smart_logging = dict(smart_logging_type='log_more_often_after_threshold_is_reached', metric_to_use='train_acc',
-                              threshold=0.9, log_speed_up=10)
+    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+                                   metric_to_use='train_acc',
+                                   threshold=0.9, log_speed_up=10)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
