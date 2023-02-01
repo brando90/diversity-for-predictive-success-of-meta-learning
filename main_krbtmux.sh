@@ -157,7 +157,7 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 # - hdb4 micod usl
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_adam_cl_its --model_option resnet12_rfs
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_adam_cl_train_to_convergence --model_option resnet12_rfs
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached --model_option resnet12_rfs
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached --model_option resnet12_rfs
 
 # - hdb4 micod maml
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_resnet_rfs_scheduler_its --model_option resnet12_rfs

@@ -97,7 +97,7 @@ def l2l_resnet12rfs_mi_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -175,7 +175,7 @@ def l2l_5CNNl2l_mi_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -254,7 +254,7 @@ def l2l_5CNNl2l_mi_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 4
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -332,7 +332,7 @@ def l2l_resnet12rfs_mi_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -411,7 +411,7 @@ def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -488,7 +488,7 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -565,7 +565,7 @@ def l2l_5CNNl2l_cifarfs_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -642,7 +642,7 @@ def l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -719,7 +719,7 @@ def l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     # - dist args
     args.world_size = torch.cuda.device_count()
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -797,7 +797,7 @@ def l2l_resnet12rfs_mi_adam_no_scheduler_100k(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -877,7 +877,7 @@ def l2l_5CNN_mi_adam_filter_size(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -954,7 +954,7 @@ def l2l_5CNN_mi_adam_filter_size_32_filter_size(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1031,7 +1031,7 @@ def l2l_5CNN_mi_adam_filter_size_16_filter_size(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1108,7 +1108,7 @@ def l2l_5CNN_mi_adam_filter_size_8_filter_size(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1185,7 +1185,7 @@ def l2l_5CNN_mi_adam_filter_size_4_filter_size(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1261,7 +1261,7 @@ def l2l_5CNN_mi_adam_filter_size_128_filter_size(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1337,7 +1337,7 @@ def l2l_5CNN_mi_adam_filter_size_512_filter_size(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1412,7 +1412,7 @@ def l2l_resnet12rfs_hdb1_100k_adam_no_scheduler(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1483,7 +1483,7 @@ def l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler(args: Namespace) -> Namespac
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1555,7 +1555,7 @@ def l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order(args: Namespace)
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1637,7 +1637,7 @@ def l2l_resnet18task2vec_hdb1_100k(args: Namespace) -> Namespace:
     # args.world_size = 8
     args.parallel = args.world_size > 1
     # args.parallel = False
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1714,7 +1714,7 @@ def l2l_5cnn_hdb1_100k(args: Namespace) -> Namespace:
     # args.world_size = 8
     args.parallel = args.world_size > 1
     # args.parallel = False
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1785,7 +1785,7 @@ def l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order_from_ckpt(args: 
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1862,7 +1862,7 @@ def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -1942,7 +1942,7 @@ def l2l_5CNN_hdb1_adam_cs_filter_size(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 1
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -2020,7 +2020,7 @@ def maml_hdb4_micod_resnet_rfs_scheduler_its(args: Namespace) -> Namespace:
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -2086,7 +2086,7 @@ def maml_hdb4_micod_resnet_rfs_scheduler_train_to_convergence(args: Namespace) -
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -2163,7 +2163,7 @@ def maml_hdb4_micod_resnet_rfs_scheduler_its_0p9_log_more_often(args: Namespace)
     args.world_size = torch.cuda.device_count()
     # args.world_size = 8
     args.parallel = args.world_size > 1
-    args.seed = 42  # I think this might be important due to how tasksets works.
+    # args.seed = 42  # I think this might be important due to how tasksets works.
     args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
     # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
     # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -2172,9 +2172,11 @@ def maml_hdb4_micod_resnet_rfs_scheduler_its_0p9_log_more_often(args: Namespace)
     # - logging params
     args.log_freq = 500
     # args.log_freq = 20
-    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
-                                   metric_to_use='train_acc',
-                                   threshold=0.9, log_speed_up=10)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.9, log_speed_up=10)
+    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_acc',
+                                   log_speed_up=10)
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly

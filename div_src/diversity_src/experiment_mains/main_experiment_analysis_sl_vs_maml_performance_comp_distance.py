@@ -18,7 +18,8 @@ import uutils
 
 import time
 
-from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_learner, comparison_via_performance, setup_args_path_for_ckpt_data_analysis, \
+from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_learner, comparison_via_performance, \
+    setup_args_path_for_ckpt_data_analysis, \
     get_recommended_batch_size_miniimagenet_5CNN
 from diversity_src.data_analysis.stats_analysis_with_emphasis_on_effect_size import \
     stats_analysis_with_emphasis_on_effect_size
@@ -838,11 +839,17 @@ def resnet12rfs_hdb4_micod(args):
     # train to ~0.90 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/wxrh4t0s
     args.path_2_init_sl = ''  #
     # trained to ~0.92 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/26c6m7ed
-    args.path_2_init_sl = '~/data/logs/logs_Jan20_14-47-00_jobid_-1'  # train acc 0.921875, train loss 0.25830933451652527
+    # args.path_2_init_sl = '~/data/logs/logs_Jan20_14-47-00_jobid_-1'  # train acc 0.921875, train loss 0.25830933451652527
+    # trained to 0.98828125 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/3kod7pdv?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Jan26_20-35-37_jobid_923629_pid_653526_wandb_True/'  # train acc 0.98828125
+
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
+    # args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/2rkhpnbx/overview?workspace=user-brando
-    # args.path_2_init_maml = ''
+    # args.path_2_init_maml = ''  # train acc 0.9266666769981384, train loss 0.2417697161436081
+    # https://wandb.ai/brando/entire-diversity-spectrum/runs/11od07w0/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Jan26_20-28-37_jobid_406367_pid_649975_wandb_True'  # train acc 0.9911110997200012
+
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     args.experiment_name = args.manual_loads_name
@@ -970,20 +977,21 @@ def load_args() -> Namespace:
     Get the manual args and replace the missing fields using the args from the ckpt. Then make sure the meta-learner
     has the right args from the data analysis by doing args.meta_learner.args = new_args.
     """
-    # - args from terminal
+    # -- args from terminal
     args: Namespace = parse_args_meta_learning()
 
-    # - get manual args
-    # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
+    # -- get manual args
+    # - set remaining args values (e.g. hardcoded, checkpoint etc.)
     print(f'{args.manual_loads_name=}')
     args: Namespace = eval(f'{args.manual_loads_name}(args)')
-    args: Namespace = setup_args_for_experiment(
-        args)  # do this before we the meta-learner code so to not overwrite the meta-learner stuff accidentally, so yes this must be commented out
+    # do this before we the meta-learner code so to not overwrite the meta-learner stuff accidentally, so yes this must be commented out
+    args: Namespace = setup_args_for_experiment(args)
 
-    # - over write my manual args (starting args) using the ckpt_args (updater args)
+    # -- over write my manual args (starting args) using the ckpt_args (updater args)
     args.meta_learner = get_maml_meta_learner(args)
     args = uutils.merge_args(starting_args=args.meta_learner.args, updater_args=args)  # second takes priority
     args.meta_learner.args = args  # to avoid meta learner running with args only from past experiment and not with metric analysis experiment
+    # note, this my overwrite your seed. todo: fix this, don't think I need to actually
 
     # -- Setup up remaining stuff for experiment
     ### args: Namespace = setup_args_for_experiment(args) # do this before we the meta-learner code so to not overwrite the meta-learner stuff accidentally, so yes this must be commented out

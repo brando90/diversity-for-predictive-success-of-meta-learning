@@ -371,9 +371,11 @@ def mds_resnet_maml_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespac
     # - logging params
     args.log_freq = 500
     # args.log_freq = 20
-    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
-                                   metric_to_use='train_acc',
-                                   threshold=0.9, log_speed_up=10)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.9, log_speed_up=10)
+    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached', metric_to_use='train_acc',
+                              threshold=0.9, log_speed_up=10)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
