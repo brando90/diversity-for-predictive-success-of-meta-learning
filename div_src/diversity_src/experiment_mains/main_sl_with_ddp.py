@@ -21,11 +21,9 @@ from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
 from uutils.torch_uu.dataloaders.helpers import get_sl_dataloader
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
     print_dist
-# from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_first_time
-# from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch, train_agent_iterations, \
-#     train_agent_epochs
-from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_first_time, \
-    get_and_create_model_opt_scheduler_for_run
+import uutils.torch_uu.mains.common
+from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_first_time
+from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch, train_agent_iterations, \
     train_agent_epochs
@@ -88,7 +86,7 @@ def sl_mi_rfs_5cnn_adam_cl(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_adam_cl'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.training_mode}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.training_mode}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -135,7 +133,7 @@ def sl_mi_rfs_5cnn_adam_cl_200(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_adam_cl_200'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -190,7 +188,7 @@ def sl_mi_rfs_5cnn_adam_cl_600(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_adam_cl_600'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -244,7 +242,7 @@ def sl_mi_rfs_resnet_rfs_mi_adam_cl_200(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_resnet_rfs_mi_adam_cl_200'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -301,7 +299,7 @@ def sl_mi_rfs_5cnn_sgd_cl_600(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_sgd_cl_600'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -357,7 +355,7 @@ def sl_mi_rfs_resnet12rfs_sgd_cl_200(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_resnet12rfs_sgd_cl_200'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -414,7 +412,7 @@ def sl_mi_rfs_5cnn_adam(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_adam'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -471,7 +469,7 @@ def sl_mi_rfs_5cnn_adam(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_adam'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -525,7 +523,7 @@ def sl_mi_rfs_5cnn_adam_32_filter_size(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_adam'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -579,7 +577,7 @@ def sl_mi_rfs_5cnn_adam_16_filter_size(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_adam'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -633,7 +631,7 @@ def sl_mi_rfs_5cnn_adam_8_filter_size(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_adam'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -687,7 +685,7 @@ def sl_mi_rfs_5cnn_adam_4_filter_size(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_adam'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -747,7 +745,7 @@ def sl_cifarfs_rfs_4cnn_adam_cl_200(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_rfs_4cnn_adam_cl_200'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -803,7 +801,7 @@ def sl_cifarfs_rfs_4cnn_adam_cl_600(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_rfs_4cnn_adam_cl_600'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -859,7 +857,7 @@ def sl_cifarfs_rfs_resnet12rfs_adam_cl_200(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_rfs_resnet12rfs_adam_cl_200'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -915,7 +913,7 @@ def sl_cifarfs_rfs_resnet12rfs_adam_cl_600(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_rfs_resnet12rfs_adam_cl_600'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -970,7 +968,7 @@ def sl_cifarfs_rfs_4cnn_adam_cl(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_rfs_4cnn_adam_cl'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.training_mode}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.training_mode}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1028,7 +1026,7 @@ def sl_cifarfs_rfs_5cnn_sgd_cl_1000(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_rfs_5cnn_sgd_cl_1000'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1086,7 +1084,7 @@ def sl_cifarfs_resnet12rfs_sgd_cl_200(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_resnet12rfs_sgd_cl_200'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1137,7 +1135,7 @@ def sl_cifarfs_rfs_5cnn_adafactor_1000(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_rfs_5cnn_adafactor_1000'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1196,7 +1194,7 @@ def sl_cifarfs_4cnn_hidden_size_128_sgd_cl_rfs_500(args: Namespace) -> Namespace
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_4cnn_hidden_size_128_sgd_cl_rfs_500'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1255,7 +1253,7 @@ def sl_cifarfs_4cnn_hidden_size_1024_sgd_cl_rfs_500(args: Namespace) -> Namespac
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_4cnn_hidden_size_1024_sgd_cl_rfs_500'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1312,7 +1310,7 @@ def sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_500(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_500'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1364,7 +1362,7 @@ def sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_epochs_train_convergence(args: Nam
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_epochs_train_convergence'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1411,7 +1409,7 @@ def sl_cifarfs_4cnn_hidden_size_1024_adafactor_rfs_epochs_train_convergence(args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_4cnn_hidden_size_1024_adafactor_rfs_epochs_train_convergence'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1459,7 +1457,7 @@ def sl_cifarfs_4cnn_hidden_size_1024_adafactor_adafactor_scheduler_rfs_epochs_tr
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_4cnn_hidden_size_1024_adafactor_adafactor_scheduler_rfs_epochs_train_convergence'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1516,7 +1514,7 @@ def sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_1000(args: Namespace) -> Namespace
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_4cnn_hidden_size_1024_adam_rfs_1000'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1569,7 +1567,7 @@ def sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_1000(args: Namespace) -> 
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_1000'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {args.hidden_size=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1622,7 +1620,7 @@ def sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_many_epochs(args: Namespa
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_cifarfs_4cnn_hidden_size_1024_adam_no_scheduler_many_epochs'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.num_epochs}: {args.jobid=} {args.hidden_size=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.num_epochs}: {args.jobid=} {args.hidden_size=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1683,7 +1681,7 @@ def sl_mi_rfs_5cnn_adam_cl_32_filter_size(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_adam'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1745,7 +1743,7 @@ def sl_mi_rfs_5cnn_adam_cl_128_filter_size(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_adam'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1807,7 +1805,7 @@ def sl_mi_rfs_5cnn_adam_cl_512_filter_size(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_adam'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1865,7 +1863,7 @@ def sl_hdb1_rfs_resnet12rfs_adam_cl(args: Namespace) -> Namespace:
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'sl_hdb1_rfs_resnet12rfs_adam_cl'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1917,7 +1915,7 @@ def sl_hdb1_5cnn_adam_cl_filter_size(args: Namespace):
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'sl_hdb1_5cnn_adam_cl_filter_size'
-    args.run_name = f'{args.filter_size=} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {gethostname()}'
+    args.run_name = f'{args.manual_loads_name} {args.filter_size=} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {gethostname()}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1970,7 +1968,7 @@ def usl_hdb4_micod_resnet_rfs_adam_cl_its(args: Namespace) -> Namespace:
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -2011,7 +2009,7 @@ def usl_hdb4_micod_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> N
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -2091,6 +2089,96 @@ def usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached(args: Namespace) ->
     return args
 
 
+# - hdb4 micod - 5cnn
+
+def usl_hdb4_micod_convg_reached_log_ckpt_more(args: Namespace) -> Namespace:
+    # - model
+    # args.n_cls = 1262  # 64 + 34 + 64 + 1100
+    # # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    # args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+    # # - data
+    # args.data_option = 'hdb4_micod'
+    # args.n_classes = args.n_cls
+    # args.data_augmentation = 'hdb4_micod'
+    # # doesn't work on ampere without sending the MI rfs data to the server, only for debugging
+    # # - model
+    # args.n_cls = 64
+    # # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    # args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+    # # - data
+    # args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
+    # - model, only for debugging
+    ## args.model_option = '4CNN_l2l_cifarfs'
+    ## args.model_hps = dict(ways=64, hidden_size=64, embedding_size=64 * 4)
+    # args.n_cls = 64
+    # args.model_option = 'resnet50_rfs'
+    # args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=2, num_classes=args.n_cls)
+    # - data
+    # ###args.data_path = Path('~/data/CIFAR-FS/').expanduser()
+    # args.data_option = 'cifarfs_l2l_sl'
+    # args.data_path = Path('~/data/l2l_data/').expanduser()
+
+    # - model
+    assert args.filter_size != -1, f'Err: {args.filter_size=}'
+    print(f'--->{args.filter_size=}')
+    # args.n_cls = 64 + 1100  # mio
+    args.n_cls = 1262  # micod
+    # args.n_cls = 5  # 5-way
+    args.n_classes = args.n_cls
+    # args.model_option = '5CNN_opt_as_model_for_few_shot'
+    args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
+                          filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
+
+    # - data
+    args.data_option = 'hdb4_micod'
+    args.n_classes = args.n_cls
+    args.data_augmentation = 'hdb4_micod'
+
+    # - training mode
+    args.training_mode = 'iterations'
+    # args.num_its = 100_000  # mds 50_000: https://gitA,aahub.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    # args.num_its = 1_000_000  # mds 50_000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    # args.num_its = 300_000  # mds 50_000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    args.num_its = 800_000  # hdb4 resnetrfs usl's its to convg visually
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 256
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 2_000
+    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    args.eta_min = 1e-5  # match MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    print(f'{args.T_max=}')
+    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached', metric_to_use='train_acc',
+    #                           threshold=0.9, log_speed_up=10)
+    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
+                                   log_speed_up=5)
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
 # - mds
 
 def mds_resnet_usl_adam_scheduler(args: Namespace) -> Namespace:
@@ -2143,7 +2231,7 @@ def mds_resnet_usl_adam_scheduler(args: Namespace) -> Namespace:
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -2189,7 +2277,7 @@ def mds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Na
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -2248,7 +2336,7 @@ def mds_resnet_usl_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespace
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=} {args.manual_loads_name}'
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=} {args.manual_loads_name}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -2293,7 +2381,7 @@ def mds_vggaircraft_resnet_usl_adam_no_scheduler_train_to_convergence(args: Name
     args.wandb_project = 'meta-learning-playground'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -2339,7 +2427,7 @@ def mds_dtdbirds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespa
     args.wandb_project = 'meta-learning-playground'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = False
     # args.log_to_wandb = False
     return args
@@ -2425,6 +2513,7 @@ def train(args):
     print(f'{args.filter_size=}') if hasattr(args, 'filter_size') else None
     print(f'{args.number_of_trainable_parameters=}')
     print(f'{args.data_augmentation=}')
+    try_printing_wandb_url(args.log_to_wandb) if hasattr(args, 'log_to_wandb') else None
     if args.training_mode == 'fit_single_batch':
         train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     elif 'iterations' in args.training_mode:

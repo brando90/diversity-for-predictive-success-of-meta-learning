@@ -109,7 +109,7 @@ def mds_resnet_maml_adam_scheduler(args: Namespace) -> Namespace:
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
 
@@ -169,7 +169,7 @@ def mds_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) -> N
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
 
@@ -233,7 +233,7 @@ def mds_vggaircraft_resnet_maml_adam_no_scheduler_train_to_convergence(args: Nam
     args.wandb_project = 'Meta-Dataset'  # 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
 
@@ -293,7 +293,7 @@ def mds_birdsdtd_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namesp
     args.wandb_project = 'Meta-Dataset'  # 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = False
     # args.log_to_wandb = False
 
@@ -374,14 +374,14 @@ def mds_resnet_maml_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespac
     # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
     #                                metric_to_use='train_acc',
     #                                threshold=0.9, log_speed_up=10)
-    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached', metric_to_use='train_acc',
-                              threshold=0.9, log_speed_up=10)
+    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
+                                   log_speed_up=10)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=} {args.manual_loads_name}'
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=} {args.manual_loads_name}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
 
@@ -493,6 +493,7 @@ def train(rank, args):
 
 if __name__ == "__main__":
     import time
+    from uutils import report_times
 
     start = time.time()
     # - run experiment
