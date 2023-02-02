@@ -67,6 +67,8 @@ setup(
 
         'seaborn',
 
+        'tiktoken',
+
         # 'fairseq',
 
         # 'gsutil',

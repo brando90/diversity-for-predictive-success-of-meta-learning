@@ -26,6 +26,8 @@ from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch, train_agent_iterations, \
     train_agent_epochs
 
+from uutils.logging_uu.wandb_logging.common import setup_wandb
+
 from socket import gethostname
 
 from pdb import set_trace as st
@@ -43,6 +45,16 @@ def load_args() -> Namespace:
     args.manual_loads_name = 'usl_gpt2_webtext2'
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
 
+    # # args for model
+    # # default values from https://github.com/karpathy/nanoGPT except block size
+    # args.block_size = 1024
+    # args.vocab_size = 50257
+    # args.n_layer = 12
+    # args.n_head = 12
+    # args.n_embd = 768
+    # args.dropout = 0.1
+
+
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
     if resume_from_checkpoint(args):
         args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
@@ -54,33 +66,34 @@ def load_args() -> Namespace:
         #                       levels=None,
         #                       spp=False, in_channels=3)
 
-        args.model_hps = {}
+        args.model_hps = dict(block_size = 64, vocab_size = 50257, n_layer = 12, n_head = 12, n_embd = 768, dropout = 0.1)
 
         # - data
         args.data_option = 'webtext'
         args.data_path = Path('~/data/webtext/').expanduser()
 
         # - opt
-        args.opt_option = 'Adam_rfs_cifarfs'
-        args.num_epochs = 1000
-        args.lr = 1e-3
-        args.opt_hps: dict = dict(lr=args.lr)
+        args.opt_option = 'Adam_default'
+        args.num_its = 1000
+        args.lr = 6e-4
+        args.weight_decay = 1e-2
+        args.opt_hps: dict = dict(lr=args.lr, weight_decay = args.weight_decay)
 
         args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
         args.log_scheduler_freq = 1
-        args.T_max = args.num_epochs // args.log_scheduler_freq
+        args.T_max = args.num_its // args.log_scheduler_freq
         args.eta_min = 1e-5  # coincidentally, matches MAML++
         args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
 
         # - training mode
-        args.training_mode = 'epochs'
+        args.training_mode = 'iterations'
 
         # -
-        args.debug = True
-        # args.debug = False
+        # args.debug = True
+        args.debug = False
 
         # -
-        args.log_freq = 1  # for SL it is meant to be small e.g. 1 or 2
+        args.log_freq = 100  # for SL it is meant to be small e.g. 1 or 2
 
         # - wandb args
         args.wandb_project = 'entire-diversity-spectrum'
@@ -88,6 +101,7 @@ def load_args() -> Namespace:
         args.experiment_name = f'usl_gpt2_webtext2'
         args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=} {gethostname()}'
         args.log_to_wandb = True
+        args.wandb_entity = 'saumyagoyal01'
         # args.log_to_wandb = False
     else:
         # NOP: since we are using args from terminal
@@ -122,6 +136,7 @@ def train(rank, args):
     args.rank = rank  # have each process save the rank
     set_devices(args)  # args.device = rank or .device
     setup_process(args, rank, master_port=args.master_port, world_size=args.world_size)
+    setup_wandb(args)
     print(f'setup process done for rank={rank}')
 
     # create the (ddp) model, opt & scheduler
@@ -146,7 +161,10 @@ def train(rank, args):
     if args.training_mode == 'fit_single_batch':
         train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     elif 'iterations' in args.training_mode:
+        halt_loss = 'train'
         # note train code will see training mode to determine halting criterion
+        if halt_loss == 'val':
+            train_agent_iterations(args, args.agent, args.dataloaders, args.opt, args.scheduler, halt_loss = 'val', target_loss = 3.039)
         train_agent_iterations(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     elif 'epochs' in args.training_mode:
         # note train code will see training mode to determine halting criterion
