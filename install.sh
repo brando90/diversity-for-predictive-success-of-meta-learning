@@ -73,7 +73,8 @@ git clone git@github.com:brando90/ultimate-utils.git
 pip install -e $HOME/ultimate-utils/
 
 # temporary, should be in setup.py for uutils and reqs mds .txt file
-#pip install fairseq
+pip install fairseq
+pip install setuptools==59.5.0
 
 # - test uutils was installed and gpus are working
 python -c "import torch; print(torch.__version__)"

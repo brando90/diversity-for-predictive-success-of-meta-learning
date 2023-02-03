@@ -33,6 +33,8 @@ from socket import gethostname
 
 from pathlib import Path
 
+from uutils.logging_uu.wandb_logging.common import try_printing_wandb_url
+
 from pdb import set_trace as st
 
 
@@ -2284,7 +2286,7 @@ def mds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespace) -> Na
     return args
 
 
-def mds_resnet_usl_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespace) -> Namespace:
+def mds_usl(args: Namespace) -> Namespace:
     # - model
     # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
     args.n_cls = get_hardcoded_full_mds_num_classes()  # ref: https://github.com/google-research/meta-dataset#dataset-summary
@@ -2302,7 +2304,7 @@ def mds_resnet_usl_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespace
     args.training_mode = 'iterations'
     # args.num_its = 1_000_000_000  # patrick's default for 2 data sets
     # args.num_its = 50_000  # mds 50000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
-    args.num_its = 100_000  # mds 50000 so I feel it should be fine to double it
+    # args.num_its = 100_000  # mds 50000 so I feel it should be fine to double it, took 2 days didn't reach >=0.9 acc
     # args.num_its = 20*6_000 = 120_000 # based on some estimates for resnet50, to reach 0.99 acc
     # args.num_its = 2*120_000  # times 2 to be safe + increase log freq from 20 to something larger for speed up
     args.num_its = int(7.5*100_000)  # estimate 15 days = 2 days * 7.5
@@ -2312,20 +2314,22 @@ def mds_resnet_usl_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespace
     args.debug = False
 
     # - opt
-    args.opt_option = 'Adam_rfs_cifarfs'
-    args.batch_size = 256
-    args.lr = 1e-3
-    args.opt_hps: dict = dict(lr=args.lr)
+    args.opt_option = 'AdafactorDefaultFair'
+    args.opt_hps: dict = dict()
+    # args.opt_option = 'Adam_rfs_cifarfs'
+    # args.batch_size = 256
+    # args.lr = 1e-3
+    # args.opt_hps: dict = dict(lr=args.lr)
 
     # - scheduler
+    args.scheduler_option = 'AdafactorSchedule'
     # args.scheduler_option = 'None'
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
-    args.log_scheduler_freq = 2_000
-    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
-    args.eta_min = 1e-5  # match MAML++
-    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
-    print(f'{args.T_max=}')
-    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    # args.log_scheduler_freq = 2_000
+    # args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    # args.eta_min = 1e-5  # match MAML++
+    # args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    # print(f'{args.T_max=}')
 
     # - logging params
     args.log_freq = 500
@@ -2333,6 +2337,8 @@ def mds_resnet_usl_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespace
     args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
                                    metric_to_use='train_acc',
                                    threshold=0.9, log_speed_up=10)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
+    #                                log_speed_up=10)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'

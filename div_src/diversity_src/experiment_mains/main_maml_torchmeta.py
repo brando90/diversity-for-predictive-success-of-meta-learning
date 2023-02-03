@@ -302,7 +302,7 @@ def mds_birdsdtd_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namesp
     return args
 
 
-def mds_resnet_maml_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespace) -> Namespace:
+def mds_maml(args: Namespace) -> Namespace:
     """
     Looking at original mds hps:
         - https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/setups/trainer_config.gin
@@ -330,10 +330,11 @@ def mds_resnet_maml_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespac
     args.training_mode = 'iterations'
 
     # note: 75_000 used by MAML mds https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/setups/trainer_config.gin#L1
-    # args.num_its = 75_000
+    # args.num_its = 75_000  # 7_500 in 2 days
     # args.num_its = 2_400
     # args.num_its = 100_000
     args.num_its = 200_000
+    # args.num_its = 300_000
     # args.num_its = 800_000
 
     # - debug flag
@@ -341,19 +342,21 @@ def mds_resnet_maml_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespac
     # args.debug = True
 
     # - opt
-    args.opt_option = 'Adam_rfs_cifarfs'
-    args.lr = 1e-3  # match MAML++
-    args.opt_hps: dict = dict(lr=args.lr)
+    args.opt_option = 'AdafactorDefaultFair'
+    args.opt_hps: dict = dict()
+    # args.opt_option = 'Adam_rfs_cifarfs'
+    # args.lr = 1e-3  # match MAML++
+    # args.opt_hps: dict = dict(lr=args.lr)
 
     # - scheduler
+    args.scheduler_option = 'AdafactorSchedule'
     # args.scheduler_option = 'None'
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
-    args.log_scheduler_freq = 2_000
-    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
-    args.eta_min = 1e-5  # match MAML++
-    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
-    print(f'{args.T_max=}')
-    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    # args.log_scheduler_freq = 2_000
+    # args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    # args.eta_min = 1e-5  # match MAML++
+    # args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    # print(f'{args.T_max=}')
 
     # -- Meta-Learner
     # - maml
@@ -371,11 +374,11 @@ def mds_resnet_maml_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespac
     # - logging params
     args.log_freq = 500
     # args.log_freq = 20
-    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
-    #                                metric_to_use='train_acc',
-    #                                threshold=0.9, log_speed_up=10)
-    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
-                                   log_speed_up=10)
+    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+                                   metric_to_use='train_acc',
+                                   threshold=0.9, log_speed_up=10)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
+    #                                log_speed_up=10)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
