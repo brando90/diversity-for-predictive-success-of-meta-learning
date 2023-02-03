@@ -72,6 +72,9 @@ pip install -e $HOME/diversity-for-predictive-success-of-meta-learning/
 git clone git@github.com:brando90/ultimate-utils.git
 pip install -e $HOME/ultimate-utils/
 
+# temporary, should be in setup.py for uutils and reqs mds .txt file
+#pip install fairseq
+
 # - test uutils was installed and gpus are working
 python -c "import torch; print(torch.__version__)"
 python -c "import uutils; uutils.torch_uu.gpu_test()"

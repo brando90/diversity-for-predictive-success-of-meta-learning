@@ -2199,9 +2199,10 @@ def mds_resnet_usl_adam_scheduler(args: Namespace) -> Namespace:
     args.training_mode = 'iterations'
     # args.num_its = 1_000_000_000  # patrick's default for 2 data sets
     # args.num_its = 50_000  # mds 50000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
-    args.num_its = 100_000  # mds 50000 so I feel it should be fine to double it
+    # args.num_its = 100_000  # mds 50000 so I feel it should be fine to double it, took ~2 days on a100
     # args.num_its = 20*6_000 = 120_000 # based on some estimates for resnet50, to reach 0.99 acc
     # args.num_its = 2*120_000  # times 2 to be safe + increase log freq from 20 to something larger for speed up
+    args.num_its = int(7.5*100_000)  # estimate 15 days = 2 days * 7.5
 
     # - debug flag
     # args.debug = True
@@ -2304,6 +2305,7 @@ def mds_resnet_usl_adam_scheduler_log_more_often_0p9_acc_reached(args: Namespace
     args.num_its = 100_000  # mds 50000 so I feel it should be fine to double it
     # args.num_its = 20*6_000 = 120_000 # based on some estimates for resnet50, to reach 0.99 acc
     # args.num_its = 2*120_000  # times 2 to be safe + increase log freq from 20 to something larger for speed up
+    args.num_its = int(7.5*100_000)  # estimate 15 days = 2 days * 7.5
 
     # - debug flag
     # args.debug = True
