@@ -2283,6 +2283,89 @@ def maml_hdb4_micod_log_more_often_convg(args: Namespace) -> Namespace:
     return args
 
 
+# - hdb5 expts
+
+
+def hdb5_vggair_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) -> Namespace:
+    # - model
+    args.model_option = 'resnet12_rfs'#'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
+    args.n_cls = 5
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+
+    #args.model_option = '5CNN_opt_as_model_for_few_shot'
+    #args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+    #                      levels=None, spp=False, in_channels=3)
+
+    # - data
+    args.wandb_entity = 'brando-uiuc'
+    args.data_option = 'hdb5_vggair'
+    args.data_path = '/home/pzy2/data/l2l_data/'
+    args.data_augmentation = 'hdb5_vggair'
+    # - training mode
+    args.training_mode = 'iterations_train_convergence'
+
+    # - debug flag
+    args.debug = False
+    # args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    # no scheduler since we don't know how many steps to do we can't know how to decay with prev code, maybe something else exists e.g. decay once error is low enough
+    args.scheduler_option = 'None'
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1
+    args.nb_inner_train_steps = 5
+    args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
+    args.track_higher_grads = True  # I know this is confusing but look at this ref: https://stackoverflow.com/questions/70961541/what-is-the-official-implementation-of-first-order-maml-using-the-higher-pytorch
+    args.fo = True  # This is needed.
+    args.first_order = True
+
+    # - outer trainer params
+    args.batch_size = 4  # 1  # decreased it to 4 even though it gives more noise but updates quicker + nano gpt seems to do that for speed up https://github.com/karpathy/nanoGPT/issues/58
+    args.batch_size_eval = 2  # 1
+
+    # - dist args
+    args.world_size = torch.cuda.device_count()
+    # args.world_size = 8
+    args.parallel = args.world_size > 1
+    args.seed = 42  # I think this might be important due to how tasksets works.
+    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
+    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+    # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Jan21_13-56-48_jobid_-1/ckpt.pt'
+    # args.min_examples_in_class=0
+    # args.num_support =None
+    # args.num_query=None
+    # args.log_freq = 20
+
+    # -- wandb args
+    args.wandb_project = 'Meta-Dataset'  # 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+
 # - load args
 
 def load_args() -> Namespace:
