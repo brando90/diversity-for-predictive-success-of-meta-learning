@@ -22,7 +22,7 @@ from pdb import set_trace as st
 
 
 def setup_args_path_for_ckpt_data_analysis(args: Namespace,
-                                           ckpt_filename: str,
+                                           ckpt_filename: str = 'hardcoded_already_in_paths',
                                            ) -> Namespace:
     """
     note: you didn't actually need this...if the ckpts pointed to the file already this would be redundant...
@@ -32,25 +32,38 @@ def setup_args_path_for_ckpt_data_analysis(args: Namespace,
         'ckpt.pt'
         'ckpt_best_loss.pt'
     """
-    args.path_2_init_sl = Path(args.path_2_init_sl).expanduser()
-    if args.path_2_init_sl.is_file():
-        pass
+    # - legacy file processing name, user specified
+    if ckpt_filename == 'ckpt.pt':
+        # append given file name
+        args.path_2_init_sl = Path(args.path_2_init_sl).expanduser()
+        #  Whether this path is a regular file (also True for symlinks pointing to regular files).
+        if args.path_2_init_sl.is_file():
+            pass
+        else:
+            ckpt_filename_sl = ckpt_filename  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
+            args.path_2_init_sl = (Path(args.path_2_init_sl) / ckpt_filename_sl).expanduser()
+        args.path_2_init_maml = Path(args.path_2_init_maml).expanduser()
+        if args.path_2_init_maml.is_file():
+            pass
+        else:
+            ckpt_filename_maml = ckpt_filename  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
+            # if you need that name just put t in the path from the beginning
+            # ckpt_filename_maml = 'ckpt_file_best_loss.pt'  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
+            args.path_2_init_maml = (Path(args.path_2_init_maml) / ckpt_filename_maml).expanduser()
+    elif ckpt_filename == 'hardcoded_already_in_path':
+        # the sl path & maml ckpt paths already contain the path to the ckpt, so just open them as is
+        # could be nice to do assert strings ckpt and .pt are present
+        pass  # nop
     else:
-        ckpt_filename_sl = ckpt_filename  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
-        args.path_2_init_sl = (Path(args.path_2_init_sl) / ckpt_filename_sl).expanduser()
-
-    args.path_2_init_maml = Path(args.path_2_init_maml).expanduser()
-    if args.path_2_init_maml.is_file():
-        pass
-    else:
-        ckpt_filename_maml = ckpt_filename  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
-        # if you need that name just put t in the path from the beginning
-        # ckpt_filename_maml = 'ckpt_file_best_loss.pt'  # this one is the one that has the accs that match, at least when I went through the files, json runs, MI_plots_sl_vs_maml_1st_attempt etc.
-        args.path_2_init_maml = (Path(args.path_2_init_maml) / ckpt_filename_maml).expanduser()
+        args.path_2_init_sl = Path(args.path_2_init_sl).expanduser()
+        args.path_2_init_sl = (Path(args.path_2_init_sl) / ckpt_filename).expanduser()
+        args.path_2_init_maml = Path(args.path_2_init_maml).expanduser()
+        args.path_2_init_maml = (Path(args.path_2_init_maml) / ckpt_filename).expanduser()
     # -
     print(f'{args.path_2_init_sl=}')
     print(f'{args.path_2_init_maml=}')
     return args
+
 
 
 def santity_check_maml_accuracy(args: Namespace):

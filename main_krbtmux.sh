@@ -108,12 +108,13 @@ reauth
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #conda activate metalearning_gpu
-export CUDA_VISIBLE_DEVICES=0; export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
+export CUDA_VISIBLE_DEVICES=1; export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES; echo SLURM_JOBID = $SLURM_JOBID; echo hostname = $(hostname)
 ulimit -n 120000; ulimit -Sn; ulimit -Hn
 nvidia-smi; ps -up `nvidia-smi -q -x | grep pid | sed -e 's/<pid>//g' -e 's/<\/pid>//g' -e 's/^[[:space:]]*//'`; hostname
 
 tmux new -s gpu0
+tmux new -s gpu1
 tmux new -s gpu4
 tmux new -s gpu6
 tmux new -s gpu7
@@ -171,7 +172,7 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 
 # - performance comp usl vs maml
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name resnet12rfs_hdb1_mio
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name resnet12rfs_hdb4_micod
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name hdb4_micod
 
 # -- other option is to run `echo $SU_PASSWORD | /afs/cs/software/bin/reauth` inside of python, right?
 export JOB_PID=$!

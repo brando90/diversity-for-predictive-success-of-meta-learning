@@ -37,6 +37,8 @@ from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_mi_resn
 
 from uutils.argparse_uu.common import setup_args_for_experiment
 
+from uutils.logging_uu.wandb_logging.common import try_printing_wandb_url
+
 start = time.time()
 
 
@@ -784,7 +786,7 @@ def resnet12rfs_hdb1_mio(args):
 
 # -- hdb4 micod
 
-def resnet12rfs_hdb4_micod(args):
+def hdb4_micod(args):
     # - model
     args.model_option = 'resnet12_rfs'
 
@@ -841,7 +843,9 @@ def resnet12rfs_hdb4_micod(args):
     # trained to ~0.92 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/26c6m7ed
     # args.path_2_init_sl = '~/data/logs/logs_Jan20_14-47-00_jobid_-1'  # train acc 0.921875, train loss 0.25830933451652527
     # trained to 0.98828125 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/3kod7pdv?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Jan26_20-35-37_jobid_923629_pid_653526_wandb_True/'  # train acc 0.98828125
+    args.path_2_init_sl = '~/data/logs/logs_Jan26_20-35-37_jobid_923629_pid_653526_wandb_True'  # train acc 0.98828125
+    # 5cnn 4 filters
+    args.path_2_init_sl =  '~/data/logs/logs_Feb02_14-00-31_jobid_43228_pid_2821217_wandb_True'  # ampere3
 
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
@@ -849,13 +853,15 @@ def resnet12rfs_hdb4_micod(args):
     # args.path_2_init_maml = ''  # train acc 0.9266666769981384, train loss 0.2417697161436081
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/11od07w0/overview?workspace=user-brando
     args.path_2_init_maml = '~/data/logs/logs_Jan26_20-28-37_jobid_406367_pid_649975_wandb_True'  # train acc 0.9911110997200012
+    # 5cnn 4 filters
+    args.path_2_init_maml = '~/data/logs/logs_Feb02_14-00-49_jobid_991923_pid_2822438_wandb_True'  # ampere3
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
-    args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -1039,6 +1045,7 @@ def main_data_analyis():
     # santity_check_maml_accuracy(args)
 
     # -- do data analysis
+    print(f'{try_printing_wandb_url(args.log_to_wandb)=}')
     print('\n\n---------- Start analysis ----------')
     print(f'{args.stats_analysis_option=}')
     if args.stats_analysis_option == 'performance_comparison':
