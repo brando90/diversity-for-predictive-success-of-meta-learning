@@ -110,8 +110,8 @@ def l2l_resnet12rfs_mi_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     # args.wandb_project = 'playground'  # needed to log to wandb properly
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_resnet12rfs_mi_rfs_adam_cl_100k'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
@@ -190,6 +190,7 @@ def l2l_5CNNl2l_mi_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_5CNNl2l_mi_rfs_adam_cl_70k'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -269,6 +270,7 @@ def l2l_5CNNl2l_mi_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_5CNNl2l_mi_rfs_sgd_cl_100k'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -347,6 +349,7 @@ def l2l_resnet12rfs_mi_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_resnet12rfs_mi_rfs_sgd_cl_100k'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -426,6 +429,7 @@ def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -503,6 +507,7 @@ def l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_resnet12rfs_cifarfs_rfs_adam_cl_100k'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -580,6 +585,7 @@ def l2l_5CNNl2l_cifarfs_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_5CNNl2l_cifarfs_rfs_sgd_cl_100k'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -657,6 +663,7 @@ def l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_resnet12rfs_cifarfs_rfs_sgd_cl_100k'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -734,6 +741,7 @@ def l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_4CNNl2l_1024_cifarfs_rfs_adam_cl_100k'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -812,6 +820,7 @@ def l2l_resnet12rfs_mi_adam_no_scheduler_100k(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_resnet12rfs_mi_rfs_adam_cl_100k'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
@@ -892,6 +901,7 @@ def l2l_5CNN_mi_adam_filter_size(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_5CNN_mi_adam_filter_size'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -969,6 +979,7 @@ def l2l_5CNN_mi_adam_filter_size_32_filter_size(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_5CNN_mi_adam_filter_size'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -1046,6 +1057,7 @@ def l2l_5CNN_mi_adam_filter_size_16_filter_size(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_5CNN_mi_adam_filter_size'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -1123,6 +1135,7 @@ def l2l_5CNN_mi_adam_filter_size_8_filter_size(args: Namespace) -> Namespace:
     # - wandb expt args
     # args.experiment_name = f'debug'
     args.experiment_name = f'l2l_5CNN_mi_adam_filter_size'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -2273,8 +2286,8 @@ def maml_hdb4_micod_log_more_often_convg(args: Namespace) -> Namespace:
     # args.wandb_project = 'playground'  # needed to log to wandb properly
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
 
@@ -2288,14 +2301,14 @@ def maml_hdb4_micod_log_more_often_convg(args: Namespace) -> Namespace:
 
 def hdb5_vggair_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) -> Namespace:
     # - model
-    args.model_option = 'resnet12_rfs'#'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
+    args.model_option = 'resnet12_rfs'  # 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
     args.n_cls = 5
     # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
     args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
                           num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
 
-    #args.model_option = '5CNN_opt_as_model_for_few_shot'
-    #args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+    # args.model_option = '5CNN_opt_as_model_for_few_shot'
+    # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
     #                      levels=None, spp=False, in_channels=3)
 
     # - data
@@ -2363,7 +2376,6 @@ def hdb5_vggair_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespa
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
     return args
-
 
 
 # - load args
@@ -2474,6 +2486,7 @@ def train(args):
     print(f'\n----> about to cleanup worker with rank {args.rank}')
     cleanup(args.rank)
     print(f'clean up done successfully! {args.rank}')
+    from uutils.logging_uu.wandb_logging.common import cleanup_wandb
     # cleanup_wandb(args, delete_wandb_dir=True)
     cleanup_wandb(args, delete_wandb_dir=False)
 

@@ -21,13 +21,16 @@ from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
 from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations, meta_train_agent_fit_single_batch
+
+import os
+
 from uutils import load_cluster_jobids_to, merge_args
 from uutils.logging_uu.wandb_logging.common import setup_wandb, cleanup_wandb
 
-from pdb import set_trace as st
-
 from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch
 from pathlib import Path
+
+from pdb import set_trace as st
 
 
 def mds_resnet_maml_adam_scheduler(args: Namespace) -> Namespace:
@@ -383,7 +386,7 @@ def mds_maml(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = args.manual_loads_name
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=} {args.manual_loads_name}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -488,6 +491,7 @@ def train(rank, args):
     print(f'\n----> about to cleanup worker with rank {rank}')
     cleanup(rank)
     print(f'clean up done successfully! {rank}')
+    from uutils.logging_uu.wandb_logging.common import cleanup_wandb
     # cleanup_wandb(args, delete_wandb_dir=True)
     cleanup_wandb(args, delete_wandb_dir=False)
 

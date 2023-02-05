@@ -1,3 +1,5 @@
+import os
+
 from pprint import pprint
 
 import time
@@ -36,7 +38,8 @@ from uutils.torch_uu.models.probe_networks import get_probe_network
 from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interval, \
     nth_central_moment_and_its_confidence_interval
 
-from uutils.torch_uu.metrics.complexity.task2vec_norm_complexity import avg_norm_complexity, total_norm_complexity, get_task_complexities
+from uutils.torch_uu.metrics.complexity.task2vec_norm_complexity import avg_norm_complexity, total_norm_complexity, \
+    get_task_complexities
 
 # import matplotlib.pyplot as plt
 
@@ -59,7 +62,8 @@ def diversity_ala_task2vec_mi_resnet18_pretrained_imagenet(args: Namespace) -> N
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-    args.experiment_name = f'diversity_ala_task2vec_mi_resnet18'
+    # args.experiment_name = f'diversity_ala_task2vec_mi_resnet18'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option} {current_time}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
@@ -80,7 +84,8 @@ def diversity_ala_task2vec_mi_resnet18_random(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_mi_resnet18'
+    # args.experiment_name = f'diversity_ala_task2vec_mi_resnet18'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -101,7 +106,8 @@ def diversity_ala_task2vec_mi_resnet34_pretrained_imagenet(args: Namespace) -> N
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_mi_resnet34'
+    # args.experiment_name = f'diversity_ala_task2vec_mi_resnet34'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -123,7 +129,8 @@ def diversity_ala_task2vec_mi_resnet34_random(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_mi_resnet34'
+    # args.experiment_name = f'diversity_ala_task2vec_mi_resnet34'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -135,6 +142,7 @@ def diversity_ala_task2vec_mi_resnet34_random(args: Namespace) -> Namespace:
 # -cifar-fs
 
 def diversity_ala_task2vec_cifarfs_resnet18_pretrained_imagenet(args: Namespace) -> Namespace:
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.batch_size = 500
     # args.batch_size = 3
     args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
@@ -147,7 +155,8 @@ def diversity_ala_task2vec_cifarfs_resnet18_pretrained_imagenet(args: Namespace)
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_cifarfs_resnet18'
+    # args.experiment_name = f'diversity_ala_task2vec_cifarfs_resnet18'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -168,7 +177,8 @@ def diversity_ala_task2vec_cifarfs_resnet18_random(args: Namespace) -> Namespace
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_cifarfs_resnet18'
+    # args.experiment_name = f'diversity_ala_task2vec_cifarfs_resnet18'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -189,7 +199,8 @@ def diversity_ala_task2vec_cifarfs_resnet34_pretrained_imagenet(args: Namespace)
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_cifarfs_resnet34'
+    # args.experiment_name = f'diversity_ala_task2vec_cifarfs_resnet34'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -210,7 +221,8 @@ def diversity_ala_task2vec_cifarfs_resnet34_random(args: Namespace) -> Namespace
     # -- wandb args
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_cifarfs_resnet34'
+    # args.experiment_name = f'diversity_ala_task2vec_cifarfs_resnet34'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_option} {args.model_option}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -233,7 +245,8 @@ def diversity_ala_task2vec_hdb1_resnet18_pretrained_imagenet(args: Namespace) ->
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    # args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -264,7 +277,8 @@ def diversity_ala_task2vec_hdb1_mio(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    # args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -296,7 +310,8 @@ def diversity_ala_task2vec_hdb2_cifo(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    # args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -352,7 +367,8 @@ def diversity_ala_task2vec_delaunay(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    # args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -391,7 +407,8 @@ def diversity_ala_task2vec_hdb4_micod(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    # args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -424,7 +441,8 @@ def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    # args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -451,9 +469,10 @@ def diversity_ala_task2vec_mds_vggaircraft(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'meta-dataset task2vec'  # 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    # args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
-    args.log_to_wandb = False#True
+    args.log_to_wandb = False  # True
     # args.log_to_wandb = False
 
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
@@ -479,7 +498,8 @@ def diversity_ala_task2vec_mds_birdsdtd(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'meta-dataset task2vec'  # 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    # args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
@@ -517,6 +537,7 @@ def diversity_ala_task2vec_mds_ilsvrc(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+
 def diversity_ala_task2vec_mds_omniglot(args: Namespace) -> Namespace:
     args.data_path = '/shared/rsaas/pzy2/records'
     args.sources = ['omniglot']  # ['aircraft','vgg_flower','cu_birds']
@@ -536,7 +557,8 @@ def diversity_ala_task2vec_mds_omniglot(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'meta-dataset task2vec'  # 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    # args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
@@ -544,6 +566,7 @@ def diversity_ala_task2vec_mds_omniglot(args: Namespace) -> Namespace:
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
     args = fix_for_backwards_compatibility(args)
     return args
+
 
 # - main
 
@@ -586,6 +609,7 @@ def main():
     compute_div_and_plot_distance_matrix_for_fsl_benchmark_for_all_splits(args)
 
     # - wandb
+    from uutils.logging_uu.wandb_logging.common import cleanup_wandb
     cleanup_wandb(args)
 
 
@@ -666,7 +690,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     print(f'{get_dataset_size(args)=}')
 
     # - compute complexity of benchmark (p determines which L_p norm we use to compute complexity. See task2vec_norm_complexity.py for details)
-    p_norm = 1 #Set 1 for L1 norm, 2 for L2 norm, etc. 'nuc' for nuclear norm, np.inf for infinite norm
+    p_norm = 1  # Set 1 for L1 norm, 2 for L2 norm, etc. 'nuc' for nuclear norm, np.inf for infinite norm
     all_complexities = get_task_complexities(embeddings, p=p_norm)
     print(f'{all_complexities=}')
     complexity_tot = total_norm_complexity(all_complexities)
@@ -723,9 +747,9 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
                      'num_bars_in_histogram': num_bars_in_histogram,
                      'num_bins': num_bins,
                      'size_dataset': size_dataset,
-                     'complexity_tot' : complexity_tot,
-                     'complexity_avg' : complexity_avg, 'complexity_ci' : complexity_ci,
-                     'all_complexities' : all_complexities
+                     'complexity_tot': complexity_tot,
+                     'complexity_avg': complexity_avg, 'complexity_ci': complexity_ci,
+                     'all_complexities': all_complexities
                      }
     torch.save(results, args.log_root / f'results_{split}.pt')
     save_to_json_pretty(results, args.log_root / f'results_{split}.json')

@@ -108,14 +108,17 @@ reauth
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #conda activate metalearning_gpu
-export CUDA_VISIBLE_DEVICES=1; export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
+export CUDA_VISIBLE_DEVICES=5; export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES; echo SLURM_JOBID = $SLURM_JOBID; echo hostname = $(hostname)
 ulimit -n 120000; ulimit -Sn; ulimit -Hn
 nvidia-smi; ps -up `nvidia-smi -q -x | grep pid | sed -e 's/<pid>//g' -e 's/<\/pid>//g' -e 's/^[[:space:]]*//'`; hostname
 
 tmux new -s gpu0
 tmux new -s gpu1
+tmux new -s gpu2
+tmux new -s gpu3
 tmux new -s gpu4
+tmux new -s gpu5
 tmux new -s gpu6
 tmux new -s gpu7
 
@@ -163,12 +166,16 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached --model_option resnet12_rfs
 
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_convg_reached_log_ckpt_more --filter_size 4 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_convg_reached_log_ckpt_more --filter_size 8 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_convg_reached_log_ckpt_more --filter_size 256 --model_option 5CNN_opt_as_model_for_few_shot
 
 # - hdb4 micod maml
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_resnet_rfs_scheduler_its --model_option resnet12_rfs
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_resnet_rfs_scheduler_train_to_convergence --model_option resnet12_rfs
 
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 4 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 8 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 256 --model_option 5CNN_opt_as_model_for_few_shot
 
 # - performance comp usl vs maml
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name resnet12rfs_hdb1_mio

@@ -35,6 +35,8 @@ from pathlib import Path
 
 from uutils.logging_uu.wandb_logging.common import try_printing_wandb_url
 
+import os
+
 from pdb import set_trace as st
 
 
@@ -2174,8 +2176,8 @@ def usl_hdb4_micod_convg_reached_log_ckpt_more(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -2204,7 +2206,7 @@ def mds_resnet_usl_adam_scheduler(args: Namespace) -> Namespace:
     # args.num_its = 100_000  # mds 50000 so I feel it should be fine to double it, took ~2 days on a100
     # args.num_its = 20*6_000 = 120_000 # based on some estimates for resnet50, to reach 0.99 acc
     # args.num_its = 2*120_000  # times 2 to be safe + increase log freq from 20 to something larger for speed up
-    args.num_its = int(7.5*100_000)  # estimate 15 days = 2 days * 7.5
+    args.num_its = int(7.5 * 100_000)  # estimate 15 days = 2 days * 7.5
 
     # - debug flag
     # args.debug = True
@@ -2307,7 +2309,7 @@ def mds_usl(args: Namespace) -> Namespace:
     # args.num_its = 100_000  # mds 50000 so I feel it should be fine to double it, took 2 days didn't reach >=0.9 acc
     # args.num_its = 20*6_000 = 120_000 # based on some estimates for resnet50, to reach 0.99 acc
     # args.num_its = 2*120_000  # times 2 to be safe + increase log freq from 20 to something larger for speed up
-    args.num_its = int(7.5*100_000)  # estimate 15 days = 2 days * 7.5
+    args.num_its = int(7.5 * 100_000)  # estimate 15 days = 2 days * 7.5
 
     # - debug flag
     # args.debug = True
@@ -2343,7 +2345,7 @@ def mds_usl(args: Namespace) -> Namespace:
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = args.manual_loads_name
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=} {args.manual_loads_name}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -2440,6 +2442,7 @@ def mds_dtdbirds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespa
     # args.log_to_wandb = False
     return args
 
+
 # - hdb5
 
 def usl_hdb5_vggair_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
@@ -2483,6 +2486,7 @@ def usl_hdb5_vggair_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> 
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
+
 
 def load_args() -> Namespace:
     """
@@ -2582,6 +2586,7 @@ def train(args):
     print(f'\n----> about to cleanup worker with rank {args.rank}')
     cleanup(args.rank)
     print(f'clean up done successfully! {args.rank}')
+    from uutils.logging_uu.wandb_logging.common import cleanup_wandb
     # cleanup_wandb(args, delete_wandb_dir=True)
     cleanup_wandb(args, delete_wandb_dir=False)
 

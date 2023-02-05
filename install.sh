@@ -68,13 +68,14 @@ git clone git@github.com:brando90/diversity-for-predictive-success-of-meta-learn
 pip install -e $HOME/diversity-for-predictive-success-of-meta-learning/
 
 #pip install statsmodels  # not sure why it's needed hardcoded and in setup.py uutils is not enough
-#pip install statsmodels==0.13.5  # not sure why it's needed hardcoded and in setup.py uutils is not enough
 git clone git@github.com:brando90/ultimate-utils.git
 pip install -e $HOME/ultimate-utils/
 
 # temporary, should be in setup.py for uutils and reqs mds .txt file
 pip install fairseq
 pip install setuptools==59.5.0
+# not sure why it's needed hardcoded and in setup.py uutils is not enough
+pip install statsmodels==0.13.5
 
 # - test uutils was installed and gpus are working
 python -c "import torch; print(torch.__version__)"

@@ -39,6 +39,8 @@ from uutils.argparse_uu.common import setup_args_for_experiment
 
 from uutils.logging_uu.wandb_logging.common import try_printing_wandb_url
 
+import os
+
 start = time.time()
 
 
@@ -845,7 +847,7 @@ def hdb4_micod(args):
     # trained to 0.98828125 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/3kod7pdv?workspace=user-brando
     args.path_2_init_sl = '~/data/logs/logs_Jan26_20-35-37_jobid_923629_pid_653526_wandb_True'  # train acc 0.98828125
     # 5cnn 4 filters
-    args.path_2_init_sl =  '~/data/logs/logs_Feb02_14-00-31_jobid_43228_pid_2821217_wandb_True'  # ampere3
+    args.path_2_init_sl = '~/data/logs/logs_Feb02_14-00-31_jobid_43228_pid_2821217_wandb_True'  # ampere3
 
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
@@ -858,10 +860,10 @@ def hdb4_micod(args):
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
-    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size}'
+    args.experiment_name = f'{args.manual_loads_name} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -1007,7 +1009,9 @@ def load_args() -> Namespace:
 def main_data_analyis():
     args: Namespace = load_args()
     # - print args
+    print(f'{try_printing_wandb_url(args.log_to_wandb)=}')
     uutils.print_args(args)
+    print(f'{try_printing_wandb_url(args.log_to_wandb)=}')
 
     # - set base_models to be used for experiments
     print(f'{args.data_path=}')
@@ -1196,6 +1200,8 @@ def main_data_analyis():
     print(f'time_passed_msg = {uutils.report_times(start)}')
     # - wandb
     if is_lead_worker(args.rank) and args.log_to_wandb:
+        print(f'{try_printing_wandb_url(args.log_to_wandb)=}')
+        from uutils.logging_uu.wandb_logging.common import cleanup_wandb
         # cleanup_wandb(args, delete_wandb_dir=True)
         cleanup_wandb(args, delete_wandb_dir=False)
 
