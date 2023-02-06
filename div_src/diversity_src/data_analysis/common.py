@@ -526,6 +526,8 @@ def get_accs_losses_all_splits_maml(args: Namespace,
     for split in ['train', 'val', 'test']:
         from uutils.torch_uu.eval.eval import get_meta_eval_lists_accs_losses
         losses, accs = get_meta_eval_lists_accs_losses(args, agent, loader)
+        assert isinstance(losses, list), f'losses should be a list of floats, but got {type(losses)=}'
+        assert isinstance(losses[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
         results[split]['losses'] = losses
         results[split]['accs'] = accs
     # - return results

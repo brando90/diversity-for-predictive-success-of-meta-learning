@@ -62,16 +62,21 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     # -- Get the losses & accs for each method (usl & maml) for all splits & save them
     # - once the model guard has been passed you should be able to get args.mdl_rand, args.mdl_maml, args.mdl_sl safely
     from diversity_src.data_analysis.common import get_accs_losses_all_splits_maml
-    results_maml5 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_inner_lr)
-    results_maml10 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_inner_lr)
+    results_maml5: dict = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_inner_lr)
+    results_maml10: dict = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_inner_lr)
     from diversity_src.data_analysis.common import get_accs_losses_all_splits_usl
-    results_usl = get_accs_losses_all_splits_usl(args, args.mdl_sl, loaders)
+    results_usl: dict = get_accs_losses_all_splits_usl(args, args.mdl_sl, loaders)
 
     # -- Sanity check: meta-train acc & loss for each method (usl & maml) are close to final loss after training
     print('---- Sanity check: meta-train acc & loss for each method (usl & maml) values at the end of training ----')
     print_accs_losses_mutates_reslts(results_maml5, results_maml10, results_usl, results, 'train')
     print('---- Print meta-test acc & loss for each method (usl & maml) ----')
     print_accs_losses_mutates_reslts(results_maml5, results_maml10, results_usl, results, 'test')
+
+    # -- Compute generalization gap for each method (usl & maml) -- to estimate (meta) overfitting
+    print('---- Compute generatlization gap for each method (usl & maml) ----')
+    compute_overfitting_analysis_stats_for_all_models_mutate_results(args, results_maml5, results_maml10, results_usl,
+                                                                     results)
 
     # -- do statistical analysis based on effect size
     print('\n---- Statistical analysis based on effect size ----')
@@ -114,6 +119,78 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
         from diversity_src.data_analysis.common import comparison_via_performance
         comparison_via_performance(args)
     return results
+
+
+def compute_overfitting_analysis_stats_for_all_models_mutate_results(args: Namespace,
+                                                                     results_maml5: dict,
+                                                                     results_maml10: dict,
+                                                                     results_usl: dict,
+                                                                     results: dict,
+                                                                     ) -> None:
+    """
+
+
+    If generalization gap of maml models is larger than that of usl model, then maml models are overfitting more than usl model.
+
+    ref:
+        - https://en.wikipedia.org/wiki/Generalization_error
+    """
+    from uutils.stats_uu.overfitting import compute_generalization_gap
+    # - compute generalization gap for all methods using accuracy
+    gen_maml5_acc = compute_generalization_gap(results_maml5['train']['accs'], results_maml5['test']['accs'])
+    gen_maml10_acc = compute_generalization_gap(results_maml10['train']['accs'], results_maml10['test']['accs'])
+    gen_usl_acc = compute_generalization_gap(results_usl['train']['accs'], results_usl['test']['accs'], 'acc')
+    results['gen_maml5_acc'] = gen_maml5_acc
+    results['gen_maml10_acc'] = gen_maml10_acc
+    results['gen_usl_acc'] = gen_usl_acc
+    print(f'{gen_maml5_acc=}')
+    print(f'{gen_maml10_acc=}')
+    print(f'{gen_usl_acc=}')
+    if abs(gen_maml5_acc) > abs(gen_usl_acc):
+        print(f'Maml5 might be overfitting more than usl model: {abs(gen_maml5_acc)=} > {abs(gen_usl_acc)=}')
+    if gen_maml10_acc > gen_usl_acc:
+        print(f'Maml10 might be overfitting more than usl model: {abs(gen_maml10_acc)=} > {abs(gen_usl_acc)=}')
+    # - compute generalization gap for all methods using loss using loss
+    gen_maml5_loss = compute_generalization_gap(results_maml5['train']['losses'], results_maml5['test']['losses'])
+    gen_maml10_loss = compute_generalization_gap(results_maml10['train']['losses'], results_maml10['test']['losses'])
+    gen_usl_loss = compute_generalization_gap(results_usl['train']['losses'], results_usl['test']['losses'])
+    results['gen_maml5_loss'] = gen_maml5_loss
+    results['gen_maml10_loss'] = gen_maml10_loss
+    results['gen_usl_loss'] = gen_usl_loss
+    print(f'{gen_maml5_loss=}')
+    print(f'{gen_maml10_loss=}')
+    print(f'{gen_usl_loss=}')
+    if gen_maml5_loss > gen_usl_loss:
+        print(f'Maml5 might be overfitting more than usl model: {gen_maml5_loss=} > {gen_usl_loss=}')
+    if gen_maml10_loss > gen_usl_loss:
+        print(f'Maml10 might be overfitting more than usl model: {gen_maml10_loss=} > {gen_usl_loss=}')
+    # -- note: decided against bic & aic because all methods have the same number of parameters (and data points) -- so this metric ends up just comparing the likelihoods (so train losses). If we could incorporate maml into this metric perhaps it would have some use for me.
+    # # - estimate AIC & BIC for methods
+    # from uutils.torch_uu import count_number_of_parameters
+    # from uutils.stats_uu.overfitting import aic, bic
+    # assert norm(args.mdl_maml) == norm(args.mdl1)
+    # assert norm(args.mdl_sl) == norm(args.mdl2)
+    # num_params_maml: int = count_number_of_parameters(args.mdl_maml)
+    # num_params_sl: int = count_number_of_parameters(args.mdl_sl)
+    # aic_maml5 = aic(results_maml5['test']['losses'], num_params_maml)
+    # aic_maml10 = aic(results_maml10['test']['losses'], num_params_maml)
+    # aic_usl = aic(results_usl['test']['losses'], num_params_sl)
+    # bic_maml5 = bic(results_maml5['test']['losses'], num_params_maml, len(results_maml5['test']['losses']))
+    # bic_maml10 = bic(results_maml10['test']['losses'], num_params_maml, len(results_maml10['test']['losses']))
+    # bic_usl = bic(results_usl['test']['losses'], num_params_sl, len(results_usl['test']['losses']))
+    # results['aic_maml5'] = aic_maml5
+    # results['aic_maml10'] = aic_maml10
+    # results['aic_usl'] = aic_usl
+    # results['bic_maml5'] = bic_maml5
+    # results['bic_maml10'] = bic_maml10
+    # results['bic_usl'] = bic_usl
+    # print(f'{aic_maml5=}')
+    # print(f'{aic_maml10=}')
+    # print(f'{aic_usl=}')
+    # print(f'{bic_maml5=}')
+    # print(f'{bic_maml10=}')
+    # print(f'{bic_usl=}')
+    return
 
 
 # -- random debug code
@@ -179,3 +256,13 @@ def save_loss_histogram(args: Namespace, results: dict):
     accs = results['results_usl']['test']['accs']
     get_histogram(accs, xlabel='accuracy', ylabel='pdf', title='usl accuracies', stat='probability')
     save_to(args.log_root, plot_name='usl_accs_hist')
+
+
+# - run it
+
+if __name__ == '__main__':
+    import time
+
+    start_time = time.time()
+    # main()
+    print(f'Done in {time.time() - start_time} seconds')
