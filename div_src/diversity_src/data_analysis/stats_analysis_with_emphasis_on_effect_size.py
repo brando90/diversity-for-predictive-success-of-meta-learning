@@ -26,7 +26,6 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     """
     Note:
         - you need to make sure the models rand, sl, maml are loaded correctly before using this function.
-        - note:
 
         group1: list = results_usl['test']['accs']
         group2: list = results_maml5['test']['accs']

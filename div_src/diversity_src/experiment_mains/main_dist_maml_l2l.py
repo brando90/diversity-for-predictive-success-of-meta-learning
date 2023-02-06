@@ -2260,7 +2260,7 @@ def maml_hdb4_micod_log_more_often_convg(args: Namespace) -> Namespace:
     # args.first_order = False
 
     # - outer trainer params
-    args.batch_size = 3
+    args.batch_size = 8
     args.batch_size_eval = 2
 
     # - dist args
@@ -2280,7 +2280,7 @@ def maml_hdb4_micod_log_more_often_convg(args: Namespace) -> Namespace:
     #                                metric_to_use='train_acc',
     #                                threshold=0.9, log_speed_up=10)
     args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
-                                   log_speed_up=10)
+                                   log_speed_up=5)
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly

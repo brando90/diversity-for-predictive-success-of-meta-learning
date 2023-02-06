@@ -846,7 +846,7 @@ def hdb4_micod(args):
     # args.path_2_init_sl = '~/data/logs/logs_Jan20_14-47-00_jobid_-1'  # train acc 0.921875, train loss 0.25830933451652527
     # trained to 0.98828125 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/3kod7pdv?workspace=user-brando
     args.path_2_init_sl = '~/data/logs/logs_Jan26_20-35-37_jobid_923629_pid_653526_wandb_True'  # train acc 0.98828125
-    # 5cnn 4 filters
+    # 5cnn 4 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/r8xgfx07?workspace=user-brando
     args.path_2_init_sl = '~/data/logs/logs_Feb02_14-00-31_jobid_43228_pid_2821217_wandb_True'  # ampere3
 
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
@@ -855,7 +855,7 @@ def hdb4_micod(args):
     # args.path_2_init_maml = ''  # train acc 0.9266666769981384, train loss 0.2417697161436081
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/11od07w0/overview?workspace=user-brando
     args.path_2_init_maml = '~/data/logs/logs_Jan26_20-28-37_jobid_406367_pid_649975_wandb_True'  # train acc 0.9911110997200012
-    # 5cnn 4 filters
+    # 5cnn 4 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/sgoiu5tx/overview?workspace=user-brando
     args.path_2_init_maml = '~/data/logs/logs_Feb02_14-00-49_jobid_991923_pid_2822438_wandb_True'  # ampere3
 
     # -- wandb args
@@ -1057,6 +1057,7 @@ def main_data_analyis():
     elif args.stats_analysis_option == 'stats_analysis_with_emphasis_on_effect_size':
         stats_analysis_with_emphasis_on_effect_size(args)
     elif args.stats_analysis_option == 'stats_analysis_with_emphasis_on_effect_size_hist':
+        # more often this analysis
         stats_analysis_with_emphasis_on_effect_size(args, hist=True)
     elif args.stats_analysis_option == 'stats_analysis_with_emphasis_on_effect_size_and_full_performance_comp_hist':
         stats_analysis_with_emphasis_on_effect_size(args, perform_full_performance_comparison=True, hist=True)
