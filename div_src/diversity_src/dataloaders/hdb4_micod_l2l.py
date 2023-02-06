@@ -9,7 +9,6 @@ from learn2learn.data import MetaDataset, FilteredMetaDataset
 from learn2learn.data.transforms import TaskTransform
 from learn2learn.vision.benchmarks import BenchmarkTasksets
 
-# -
 from torch.utils.data import Dataset
 
 from diversity_src.dataloaders.common import IndexableDataSet, DifferentTaskTransformIndexableForEachDataset
@@ -73,11 +72,11 @@ def get_hdb4_micod_list_data_set_splits(
     assert len(dataset_list_validation) == 4
     assert len(dataset_list_test) == 4
     # - print the number of classes for all splits (but only need train for usl model final layer)
-    print('-- Printing num classes')
-    from uutils.torch_uu.dataloaders.common import get_num_classes_l2l_list_meta_dataset
-    get_num_classes_l2l_list_meta_dataset(dataset_list_train, verbose=True)
-    get_num_classes_l2l_list_meta_dataset(dataset_list_validation, verbose=True)
-    get_num_classes_l2l_list_meta_dataset(dataset_list_test, verbose=True)
+    # print('-- Printing num classes')
+    # from uutils.torch_uu.dataloaders.common import get_num_classes_l2l_list_meta_dataset
+    # get_num_classes_l2l_list_meta_dataset(dataset_list_train, verbose=True)
+    # get_num_classes_l2l_list_meta_dataset(dataset_list_validation, verbose=True)
+    # get_num_classes_l2l_list_meta_dataset(dataset_list_test, verbose=True)
     return dataset_list_train, dataset_list_validation, dataset_list_test
 
 

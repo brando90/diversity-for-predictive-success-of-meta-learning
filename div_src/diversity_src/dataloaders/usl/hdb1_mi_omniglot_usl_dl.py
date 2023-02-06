@@ -45,12 +45,12 @@ def hdb1_mi_omniglot_usl_all_splits_dataloaders(
     assert get_len_labels_list_datasets(dataset_list_validation) == 16 + 100
     assert get_len_labels_list_datasets(dataset_list_test) == 20 + 423
     # - concat l2l datasets to get usl single dataset
-    train_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_train)
-    valid_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_validation)
-    test_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_test)
-    assert len(train_dataset.labels) == 64 + 1100, f'Err:\n{len(train_dataset.labels)=}'
-    assert len(valid_dataset.labels) == 16 + 100, f'Err:\n{len(valid_dataset.labels)=}'
-    assert len(test_dataset.labels) == 20 + 423, f'Err:\n{len(test_dataset.labels)=}'
+    relabel_filename: str = 'hdb1_train_relabel_usl.pt'
+    train_dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_train, root, relabel_filename)
+    relabel_filename: str = 'hdb1_val_relabel_usl.pt'
+    valid_dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_validation, root, relabel_filename)
+    relabel_filename: str = 'hdb1_test_relabel_usl.pt'
+    test_dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_test, root, relabel_filename)
     # - get data loaders, see the usual data loader you use
     from uutils.torch_uu.dataloaders.common import get_serial_or_distributed_dataloaders
     train_loader, val_loader = get_serial_or_distributed_dataloaders(
