@@ -29,6 +29,9 @@ from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
 from uutils.torch_uu.dataloaders.common import get_dataset_size
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
 from uutils.torch_uu.distributed import is_lead_worker, set_devices
+from uutils.torch_uu.metrics.diversity.diversity import \
+    get_task2vec_diversity_coefficient_from_pair_wise_comparison_of_tasks, \
+    get_standardized_diversity_coffecient_from_pair_wise_comparison_of_tasks
 from uutils.torch_uu.metrics.diversity.task2vec_based_metrics import task2vec, task_similarity
 from uutils.torch_uu.metrics.diversity.task2vec_based_metrics.diversity_task2vec.diversity_for_few_shot_learning_benchmark import \
     get_task_embeddings_from_few_shot_dataloader, get_task_embeddings_from_few_shot_l2l_benchmark
@@ -39,7 +42,7 @@ from uutils.torch_uu.metrics.confidence_intervals import mean_confidence_interva
     nth_central_moment_and_its_confidence_interval
 
 from uutils.torch_uu.metrics.complexity.task2vec_norm_complexity import avg_norm_complexity, total_norm_complexity, \
-    get_task_complexities
+    get_task_complexities, standardized_norm_complexity
 
 # import matplotlib.pyplot as plt
 
@@ -690,6 +693,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     print(f'{get_dataset_size(args)=}')
 
     # - compute complexity of benchmark (p determines which L_p norm we use to compute complexity. See task2vec_norm_complexity.py for details)
+    from uutils.torch_uu.metrics.complexity.task2vec_norm_complexity import standardized_norm_complexity  # pycharm bug?
     p_norm = 1  # Set 1 for L1 norm, 2 for L2 norm, etc. 'nuc' for nuclear norm, np.inf for infinite norm
     all_complexities = get_task_complexities(embeddings, p=p_norm)
     print(f'{all_complexities=}')
@@ -697,6 +701,8 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     print(f'Total Complexity: {complexity_tot=}')
     complexity_avg, complexity_ci = avg_norm_complexity(all_complexities)
     print(f'Average Complexity: {(complexity_avg, complexity_ci)=}')
+    standardized_norm_complexity = standardized_norm_complexity(all_complexities)
+    print(f'Standardized Norm Complexity: {standardized_norm_complexity=}')
 
     # - compute distance matrix & task2vec based diversity, to demo` task2vec, this code computes pair-wise distance between task embeddings
     distance_matrix: np.ndarray = task_similarity.pdist(embeddings, distance='cosine')
@@ -704,10 +710,14 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     distances_as_flat_array, _, _ = get_diagonal(distance_matrix, check_if_symmetric=True)
 
     # - compute div
+    # from uutils.torch_uu.metrics.diversity.diversity import get_task2vec_diversity_coefficient_from_pair_wise_comparison_of_tasks, get_standardized_diversity_coffecient_from_pair_wise_comparison_of_tasks
     div_tot = float(distances_as_flat_array.sum())
     print(f'Diversity: {div_tot=}')
-    div, ci = task_similarity.stats_of_distance_matrix(distance_matrix)
+    div, ci = get_task2vec_diversity_coefficient_from_pair_wise_comparison_of_tasks(distance_matrix)
     print(f'Diversity: {(div, ci)=}')
+    standardized_div: float = get_standardized_diversity_coffecient_from_pair_wise_comparison_of_tasks(distance_matrix)
+    print(f'Standardised Diversity: {standardized_div=}')
+    # momments
     div_var, ci = nth_central_moment_and_its_confidence_interval(distances_as_flat_array, moment_idx=2)
     print(f'Diversity: {(div_var, ci)=}')
     div_std, ci = div_var ** 0.5, ci ** 0.5
@@ -738,6 +748,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     results: dict = {'embeddings': [(embed.hessian, embed.scale, embed.meta) for embed in embeddings],
                      'distance_matrix': distance_matrix,
                      'div': div, 'ci': ci,
+                     'standardized_div': standardized_div,
                      'split': split,
                      'effective_num_tasks': effective_num_tasks,
                      'size_aware_div_coef': size_aware_div_coef,
@@ -749,7 +760,8 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
                      'size_dataset': size_dataset,
                      'complexity_tot': complexity_tot,
                      'complexity_avg': complexity_avg, 'complexity_ci': complexity_ci,
-                     'all_complexities': all_complexities
+                     'all_complexities': all_complexities,
+                     'standardized_norm_complexity': standardized_norm_complexity,
                      }
     torch.save(results, args.log_root / f'results_{split}.pt')
     save_to_json_pretty(results, args.log_root / f'results_{split}.json')
