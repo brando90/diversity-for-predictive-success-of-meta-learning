@@ -385,9 +385,10 @@ def diversity_ala_task2vec_delaunay(args: Namespace) -> Namespace:
 
 def diversity_ala_task2vec_hdb4_micod(args: Namespace) -> Namespace:
     # - data set options
+    args.batch_size = 2
     # args.batch_size = 5
     # args.batch_size = 30
-    args.batch_size = 500
+    # args.batch_size = 500
     args.data_option = 'hdb4_micod'
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.data_augmentation = 'hdb4_micod'
@@ -413,8 +414,8 @@ def diversity_ala_task2vec_hdb4_micod(args: Namespace) -> Namespace:
     # args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
     args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
     args = fix_for_backwards_compatibility(args)
@@ -617,28 +618,31 @@ def main():
 
 
 def compute_div_and_plot_distance_matrix_for_fsl_benchmark_for_all_splits(args: Namespace, show_plots: bool = True):
-    if (args.data_option == 'mds'):
-        splits: list[str] = ['train', 'val', 'test']
-    else:
-        splits: list[str] = ['train', 'validation', 'test']
-    print_args(args)
+    for probe_net in ['resnet18_pretrained_imagenet', 'resnet34_pretrained_imagenet']:
+        print(f'\n----> {probe_net=}')
+        args.model_option = probe_net
+        if args.data_option == 'mds':
+            splits: list[str] = ['train', 'val', 'test']
+        else:
+            splits: list[str] = ['train', 'validation', 'test']
+        print_args(args)
 
-    # -
-    print(f'----> div computations...')
-    splits_results = {}
-    for split in splits:
-        print(f'----> div computations for {split=}')
-        results = compute_div_and_plot_distance_matrix_for_fsl_benchmark(args, split, show_plots)
-        splits_results[split] = results
+        # -
+        print(f'----> div computations...')
+        splits_results = {}
+        for split in splits:
+            print(f'----> div computations for {split=}')
+            results = compute_div_and_plot_distance_matrix_for_fsl_benchmark(args, split, show_plots)
+            splits_results[split] = results
 
-    # - print summary
-    print('---- Summary of results for all splits...')
-    for split in splits:
-        results: dict = splits_results[split]
-        div, ci, distance_matrix, split = results['div'], results['ci'], results['distance_matrix'], results['split']
-        print(f'\n-> {split=}')
-        print(f'Diversity: {(div, ci)=}')
-        print(f'{distance_matrix=}')
+        # - print summary
+        print('---- Summary of results for all splits...')
+        for split in splits:
+            results: dict = splits_results[split]
+            div, ci, distance_matrix, split = results['div'], results['ci'], results['distance_matrix'], results['split']
+            print(f'\n-> {split=}')
+            print(f'Diversity: {(div, ci)=}')
+            print(f'{distance_matrix=}')
 
 
 def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
@@ -687,7 +691,8 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
                                                                                                num_tasks_to_consider=args.batch_size,
                                                                                                classifier_opts=args.classifier_opts,
                                                                                                )
-
+    # print(f'{embeddings=}')
+    # print(f'{embeddings[0]=}')
     print(f'\n {len(embeddings)=}')
     print(f'number of tasks to consider: {args.batch_size=}')
     print(f'{get_dataset_size(args)=}')
@@ -701,7 +706,7 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     print(f'Total Complexity: {complexity_tot=}')
     complexity_avg, complexity_ci = avg_norm_complexity(all_complexities)
     print(f'Average Complexity: {(complexity_avg, complexity_ci)=}')
-    standardized_norm_complexity = standardized_norm_complexity(all_complexities)
+    standardized_norm_complexity = standardized_norm_complexity(embeddings)
     print(f'Standardized Norm Complexity: {standardized_norm_complexity=}')
 
     # - compute distance matrix & task2vec based diversity, to demo` task2vec, this code computes pair-wise distance between task embeddings

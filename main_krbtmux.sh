@@ -106,10 +106,11 @@ krbtmux
 reauth
 
 # https://stackoverflow.com/questions/75368679/how-do-i-output-in-a-nice-table-in-the-terminal-the-mapping-of-the-gpu-id-the-p
+# https://www.quora.com/unanswered/How-do-I-output-in-a-nice-table-in-the-terminal-the-mapping-of-the-GPU-ID-the-pid-and-the-username
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #conda activate metalearning_gpu
-export CUDA_VISIBLE_DEVICES=2; export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
+export CUDA_VISIBLE_DEVICES=3; export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES; echo SLURM_JOBID = $SLURM_JOBID; echo hostname = $(hostname)
 ulimit -n 120000; ulimit -Sn; ulimit -Hn
 nvidia-smi; ps -up `nvidia-smi -q -x | grep pid | sed -e 's/<pid>//g' -e 's/<\/pid>//g' -e 's/^[[:space:]]*//'`; hostname
@@ -148,8 +149,7 @@ tmux new -s mds0_usl_resnet50rfs_smart
 
 # - div
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_mds \
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb4_micod --model_option resnet18_pretrained_imagenet \
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb4_micod --model_option resnet34_pretrained_imagenet \
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb4_mico
 
 # - mds maml
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet_maml_adam_scheduler --model_option resnet18_rfs --data_path $HOME/data/mds/records/
