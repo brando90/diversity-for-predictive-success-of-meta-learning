@@ -574,12 +574,12 @@ def get_accs_losses_all_splits_usl(args: Namespace,
 
 # -- print accs & losses
 
-def print_accs_losses_mutates_reslts(results_maml5: dict,
-                                     results_maml10: dict,
-                                     results_usl: dict,
-                                     results: dict,
-                                     split: str,
-                                     ):
+def print_accs_losses_mutates_results(results_maml5: dict,
+                                      results_maml10: dict,
+                                      results_usl: dict,
+                                      results: dict,
+                                      split: str,
+                                      ):
     loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml5, 'train')
     print(f'{split} (maml 5): {(loss, loss_ci, acc, acc_ci)=}')
     results[f'{split}_maml5'] = (loss, loss_ci, acc, acc_ci)

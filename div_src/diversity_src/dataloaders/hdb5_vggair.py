@@ -1,5 +1,4 @@
 """
-micod = mi + cifarfs + omniglot + delauny
 """
 
 import os

@@ -815,7 +815,7 @@ def hdb4_micod(args):
     # args.batch_size = 5  # useful for debugging!
     # args.batch_size = 30
     # args.batch_size = 100
-    args.batch_size = 500
+    # args.batch_size = 500
     # args.batch_size = 1000
     # args.batch_size = 2000
     # args.batch_size = 5000
@@ -862,8 +862,8 @@ def hdb4_micod(args):
     args.wandb_project = 'entire-diversity-spectrum'
     args.experiment_name = f'{args.manual_loads_name} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)

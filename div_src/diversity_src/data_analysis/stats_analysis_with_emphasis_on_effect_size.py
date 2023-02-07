@@ -8,7 +8,7 @@ from argparse import Namespace
 import torch
 
 from diversity_src.data_analysis.common import basic_guards_that_maml_usl_and_rand_models_loaded_are_different, \
-    print_performance_4_maml, print_accs_losses_mutates_reslts
+    print_performance_4_maml, print_accs_losses_mutates_results
 from uutils import save_to_json_pretty, save_args
 from uutils.plot import save_to
 from uutils.plot.histograms_uu import get_histogram
@@ -69,9 +69,9 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
 
     # -- Sanity check: meta-train acc & loss for each method (usl & maml) are close to final loss after training
     print('---- Sanity check: meta-train acc & loss for each method (usl & maml) values at the end of training ----')
-    print_accs_losses_mutates_reslts(results_maml5, results_maml10, results_usl, results, 'train')
+    print_accs_losses_mutates_results(results_maml5, results_maml10, results_usl, results, 'train')
     print('---- Print meta-test acc & loss for each method (usl & maml) ----')
-    print_accs_losses_mutates_reslts(results_maml5, results_maml10, results_usl, results, 'test')
+    print_accs_losses_mutates_results(results_maml5, results_maml10, results_usl, results, 'test')
 
     # -- Compute generalization gap for each method (usl & maml) -- to estimate (meta) overfitting
     print('---- Compute generatlization gap for each method (usl & maml) ----')
@@ -84,22 +84,22 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     args.acceptable_difference1 = args.acceptable_difference1 if hasattr(args, 'acceptable_difference1') else 0.01
     args.acceptable_difference2 = args.acceptable_difference2 if hasattr(args, 'acceptable_difference2') else 0.02
     args.alpha: float = args.alpha if hasattr(args, 'alpha') else 0.01
-    # - maml5 vs usl
-    print(f'\n--- maml5 vs usl ---')
+    # - usl vs maml5
+    print(f'\n--- usl vs maml5 ---')
     group1: list = results_usl['test']['accs']
     group2: list = results_maml5['test']['accs']
     cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2 = stat_test_with_effect_size_as_emphasis(
         group1, group2, args.acceptable_difference1, args.acceptable_difference1,
         args.alpha, print_groups_data=True)
-    results['maml5_vs_usl'] = (cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2)
-    # - maml10 vs usl
-    print(f'\n--- maml10 vs usl ---')
+    results['usl_vs_maml5'] = (cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2)
+    # - usl vs maml10
+    print(f'\n--- usl vs maml5 ---')
     group1: list = results_usl['test']['accs']
     group2: list = results_maml10['test']['accs']
     cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2 = stat_test_with_effect_size_as_emphasis(
         group1, group2, args.acceptable_difference1, args.acceptable_difference1,
         args.alpha, print_groups_data=True)
-    results['maml10_vs_usl'] = (cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2)
+    results['usl_vs_maml10'] = (cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2)
 
     # -- Save results
     results['results_maml5'] = results_maml5
@@ -164,6 +164,39 @@ def compute_overfitting_analysis_stats_for_all_models_mutate_results(args: Names
         print(f'Maml5 might be overfitting more than usl model: {gen_maml5_loss=} > {gen_usl_loss=}')
     if gen_maml10_loss > gen_usl_loss:
         print(f'Maml10 might be overfitting more than usl model: {gen_maml10_loss=} > {gen_usl_loss=}')
+    # -- measure gen error using cohen's d (mu1 - mu2) / pool(std1, std2) ==> test_metric - train_metric
+    print("\n---- Compute generalization gap using cohen's d (effect size) ----")
+    # - use accs
+    from uutils.stats_uu.effect_size import stat_test_with_effect_size_as_emphasis
+    group1, group2 = results_maml5['test']['accs'], results_maml5['train']['accs']
+    standardized_gen_gap_acc_maml5, _, _ = stat_test_with_effect_size_as_emphasis(group1, group2)
+    group1, group2 = results_maml10['test']['accs'], results_maml10['train']['accs']
+    standardized_gen_gap_acc_maml10, _, _ = stat_test_with_effect_size_as_emphasis(group1, group2)
+    group1, group2 = results_usl['test']['accs'], results_usl['train']['accs']
+    standardized_gen_gap_acc_usl, _, _ = stat_test_with_effect_size_as_emphasis(group1, group2)
+    results['standardized_gen_gap_acc_maml5'] = standardized_gen_gap_acc_maml5
+    results['standardized_gen_gap_acc_maml10'] = standardized_gen_gap_acc_maml10
+    results['standardized_gen_gap_acc_usl'] = standardized_gen_gap_acc_usl
+    print(f'{standardized_gen_gap_acc_maml5=}')
+    print(f'{standardized_gen_gap_acc_maml10=}')
+    print(f'{standardized_gen_gap_acc_usl=}')
+    # - use losses
+    group1, group2 = results_maml5['test']['losses'], results_maml5['train']['losses']
+    standardized_gen_gap_loss_maml5, _, _ = stat_test_with_effect_size_as_emphasis(group1, group2)
+    group1, group2 = results_maml10['test']['losses'], results_maml10['train']['losses']
+    standardized_gen_gap_loss_maml10, _, _ = stat_test_with_effect_size_as_emphasis(group1, group2)
+    group1, group2 = results_usl['test']['losses'], results_usl['train']['losses']
+    standardized_gen_gap_loss_usl, _, _ = stat_test_with_effect_size_as_emphasis(group1, group2)
+    results['standardized_gen_gap_loss_maml5'] = standardized_gen_gap_loss_maml5
+    results['standardized_gen_gap_loss_maml10'] = standardized_gen_gap_loss_maml10
+    results['standardized_gen_gap_loss_usl'] = standardized_gen_gap_loss_usl
+    print(f'{standardized_gen_gap_loss_maml5=}')
+    print(f'{standardized_gen_gap_loss_maml10=}')
+    print(f'{standardized_gen_gap_loss_usl=}')
+    return
+
+
+def aic_bic_gen_gap_analysis():
     # -- note: decided against bic & aic because all methods have the same number of parameters (and data points) -- so this metric ends up just comparing the likelihoods (so train losses). If we could incorporate maml into this metric perhaps it would have some use for me.
     # # - estimate AIC & BIC for methods
     # from uutils.torch_uu import count_number_of_parameters
@@ -190,7 +223,7 @@ def compute_overfitting_analysis_stats_for_all_models_mutate_results(args: Names
     # print(f'{bic_maml5=}')
     # print(f'{bic_maml10=}')
     # print(f'{bic_usl=}')
-    return
+    pass
 
 
 # -- random debug code
