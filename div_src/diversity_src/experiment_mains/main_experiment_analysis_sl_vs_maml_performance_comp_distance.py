@@ -815,7 +815,7 @@ def hdb4_micod(args):
     # args.batch_size = 5  # useful for debugging!
     # args.batch_size = 30
     # args.batch_size = 100
-    # args.batch_size = 500
+    args.batch_size = 500
     # args.batch_size = 1000
     # args.batch_size = 2000
     # args.batch_size = 5000
@@ -845,25 +845,37 @@ def hdb4_micod(args):
     # trained to ~0.92 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/26c6m7ed
     # args.path_2_init_sl = '~/data/logs/logs_Jan20_14-47-00_jobid_-1'  # train acc 0.921875, train loss 0.25830933451652527
     # trained to 0.98828125 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/3kod7pdv?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Jan26_20-35-37_jobid_923629_pid_653526_wandb_True'  # train acc 0.98828125
+    args.path_2_init_sl = '~/data/logs/logs_Jan26_20-35-37_jobid_923629_pid_653526_wandb_True'  # train acc 0.98828125, ampere4
     # 5cnn 4 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/r8xgfx07?workspace=user-brando
     args.path_2_init_sl = '~/data/logs/logs_Feb02_14-00-31_jobid_43228_pid_2821217_wandb_True'  # ampere3
+    # 5cnn 8 filers: https://wandb.ai/brando/entire-diversity-spectrum/runs/klzycucu/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Feb04_17-27-39_jobid_191466_pid_101120_wandb_True'  # ampere2
+    # 5cnn 32 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/fnmjoy4e/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Feb05_22-46-35_jobid_38937_pid_2768598_wandb_True'  # ampere3
+    # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/fuxwz30l/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Feb04_17-38-21_jobid_855372_pid_2723881_wandb_True'  # ampere1
 
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/2rkhpnbx/overview?workspace=user-brando
     # args.path_2_init_maml = ''  # train acc 0.9266666769981384, train loss 0.2417697161436081
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/11od07w0/overview?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_Jan26_20-28-37_jobid_406367_pid_649975_wandb_True'  # train acc 0.9911110997200012
+    args.path_2_init_maml = '~/data/logs/logs_Jan26_20-28-37_jobid_406367_pid_649975_wandb_True'  # train acc 0.9911110997200012, ampere4
     # 5cnn 4 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/sgoiu5tx/overview?workspace=user-brando
     args.path_2_init_maml = '~/data/logs/logs_Feb02_14-00-49_jobid_991923_pid_2822438_wandb_True'  # ampere3
+    # 5cnn 8 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/6qgk090q/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Feb04_17-31-05_jobid_28465_pid_102367_wandb_True' # ampere2
+    # 5cnn 32 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/esu6l2gi/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Feb05_22-44-43_jobid_851192_pid_2766216_wandb_True'  # ampere3
+    # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/96wo1c43/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Feb04_17-39-17_jobid_568243_pid_2724751_wandb_True'  # ampere1
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     args.experiment_name = f'{args.manual_loads_name} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)

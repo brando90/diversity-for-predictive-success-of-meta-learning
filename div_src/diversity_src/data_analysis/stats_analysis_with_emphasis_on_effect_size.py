@@ -89,7 +89,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     group1: list = results_usl['test']['accs']
     group2: list = results_maml5['test']['accs']
     cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2 = stat_test_with_effect_size_as_emphasis(
-        group1, group2, args.acceptable_difference1, args.acceptable_difference1,
+        group1, group2, args.acceptable_difference1, args.acceptable_difference2,
         args.alpha, print_groups_data=True)
     results['usl_vs_maml5'] = (cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2)
     # - usl vs maml10
@@ -97,7 +97,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     group1: list = results_usl['test']['accs']
     group2: list = results_maml10['test']['accs']
     cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2 = stat_test_with_effect_size_as_emphasis(
-        group1, group2, args.acceptable_difference1, args.acceptable_difference1,
+        group1, group2, args.acceptable_difference1, args.acceptable_difference2,
         args.alpha, print_groups_data=True)
     results['usl_vs_maml10'] = (cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2)
 

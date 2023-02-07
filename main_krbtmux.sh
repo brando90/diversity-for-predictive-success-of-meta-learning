@@ -105,10 +105,11 @@ tput rmcup
 krbtmux
 reauth
 
+# https://stackoverflow.com/questions/75368679/how-do-i-output-in-a-nice-table-in-the-terminal-the-mapping-of-the-gpu-id-the-p
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #conda activate metalearning_gpu
-export CUDA_VISIBLE_DEVICES=2; export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
+export CUDA_VISIBLE_DEVICES=1; export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES; echo SLURM_JOBID = $SLURM_JOBID; echo hostname = $(hostname)
 ulimit -n 120000; ulimit -Sn; ulimit -Hn
 nvidia-smi; ps -up `nvidia-smi -q -x | grep pid | sed -e 's/<pid>//g' -e 's/<\/pid>//g' -e 's/^[[:space:]]*//'`; hostname
