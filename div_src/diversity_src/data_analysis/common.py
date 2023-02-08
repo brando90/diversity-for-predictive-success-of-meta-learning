@@ -8,6 +8,8 @@ import torch
 from torch import nn
 
 from uutils.torch_uu import norm, process_meta_batch
+from uutils.torch_uu.agents.common import Agent
+from uutils.torch_uu.agents.supervised_learning import UnionClsSLAgent
 from uutils.torch_uu.eval.eval import eval_sl, meta_eval
 from uutils.torch_uu.mains.common import _get_maml_agent, load_model_optimizer_scheduler_from_ckpt, \
     _get_and_create_model_opt_scheduler, load_model_ckpt
@@ -63,7 +65,6 @@ def setup_args_path_for_ckpt_data_analysis(args: Namespace,
     print(f'{args.path_2_init_sl=}')
     print(f'{args.path_2_init_maml=}')
     return args
-
 
 
 def santity_check_maml_accuracy(args: Namespace):
@@ -558,8 +559,10 @@ def get_episodic_accs_losses_all_splits_usl(args: Namespace,
     # - if this guard fails your likely not using the model you expect/wanted
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
     # - get accs and losses for all splits
-    original_meta_learner = args.meta_learner
+    # original_meta_learner = args.meta_learner
+    assert args.mdl_sl.cls.out_features != 5, f'Before assigning a new cls, it should not be 5-way yet, but got {args.mdl_sl.cls=}'
     args.mdl_sl.cls = deepcopy(args.mdl_maml.cls)  # final layer is a 5-way cls, since ffl is convex anything is fine
+    assert args.mdl_sl.cls.out_features == 5, f'expected 5-way cls, but got {args.mdl_sl.cls.out_features=}'
     agent = FitFinalLayer(args, base_model=model)
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
     for split in ['train', 'val', 'test']:
@@ -569,6 +572,33 @@ def get_episodic_accs_losses_all_splits_usl(args: Namespace,
         results[split]['accs'] = accs
     # - return results
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
+    return results
+
+
+def get_usl_accs_losses_all_splits_usl(args: Namespace,
+                                       model: nn.Module,
+                                       loader,
+                                       training: bool = True,
+                                       # False for SL, ML: https://stats.stackexchange.com/a/551153/28986
+                                       ) -> dict:
+    results: dict = dict(train=dict(losses=[], accs=[]),
+                         val=dict(losses=[], accs=[]),
+                         test=dict(losses=[], accs=[]))
+    # - if this guard fails your likely not using the model you expect/wanted
+    basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
+    # - get accs and losses for all splits
+    print(f'{args.mdl_sl.cls=}')
+    assert args.mdl_sl.cls.out_features != 5, f'Before assigning a new cls, it should not be 5-way yet, but got {args.mdl_sl.cls=}'
+    agent: Agent = UnionClsSLAgent(args, model)
+    assert isinstance(agent, UnionClsSLAgent)  # leaving this to leave a consistent interface to get loader
+    for split in ['train', 'val', 'test']:
+        from uutils.torch_uu.eval.eval import get_sl_eval_lists_accs_losses
+        assert args.mdl_sl.cls.out_features != 5, f'Before assigning a new cls, it should not be 5-way yet, but got {args.mdl_sl.cls=}'
+        losses, accs = get_sl_eval_lists_accs_losses(args, agent, loader, split, training=training)
+        results[split]['losses'] = losses
+        results[split]['accs'] = accs
+    # - return results
+    assert isinstance(agent, UnionClsSLAgent)  # leaving this to leave a consistent interface
     return results
 
 
@@ -591,6 +621,20 @@ def print_accs_losses_mutates_results(results_maml5: dict,
     results[f'{split}_usl'] = (loss, loss_ci, acc, acc_ci)
 
 
+def print_usl_accs_losses_mutates_results(results_usl_usl: dict,
+                                          results: dict,
+                                          # split: str,  # didn't put this compared to above since for usl usl we only need to check train is same as learning train + val is totally random due to cls layer not batch the val cls and no adaption
+                                          ):
+    """
+    Print losses for usl using usl loss. So no meta-learning, no fine tuning, its the cls accs/losses from USL cls model.
+    """
+    # for split in ['train', 'val', 'test']:
+    for split in ['train', 'val']:
+        loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_usl_usl, split)
+        print(f'{split} (usl usl): {(loss, loss_ci, acc, acc_ci)=}')
+        results[f'{split}_usl_usl'] = (loss, loss_ci, acc, acc_ci)
+
+
 def get_mean_and_ci_from_results(results: dict,
                                  split: str,
                                  ) -> tuple[float, float, float, float]:
@@ -610,8 +654,24 @@ def rfs_ckpts():
     print(ckpt.keys())
     print(ckpt['model'])
 
+
+def check_out_features_cls_layer():
+    import torch.nn as nn
+
+    linear = nn.Linear(in_features=64, out_features=32)
+    print(f'{linear=}')
+    print("Input features:", linear.in_features)
+    print("Output features:", linear.out_features)
+
+
 # - run main
 
 if __name__ == '__main__':
-    rfs_ckpts()
-    print('Done\a\n')
+    import time
+
+    start_time = time.time()
+    # - run main, expt, test, examples
+    # rfs_ckpts()
+    check_out_features_cls_layer()
+    # - done and compute time it toook
+    print(f'\n\nDone, Total time: {time.time() - start_time:.2f} seconds\n\a')

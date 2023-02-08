@@ -8,7 +8,7 @@ from argparse import Namespace
 import torch
 
 from diversity_src.data_analysis.common import basic_guards_that_maml_usl_and_rand_models_loaded_are_different, \
-    print_performance_4_maml, print_accs_losses_mutates_results
+    print_performance_4_maml, print_accs_losses_mutates_results, print_usl_accs_losses_mutates_results
 from uutils import save_to_json_pretty, save_args
 from uutils.plot import save_to
 from uutils.plot.histograms_uu import get_histogram
@@ -64,12 +64,16 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     from diversity_src.data_analysis.common import get_episodic_accs_losses_all_splits_maml
     results_maml5: dict = get_episodic_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_inner_lr)
     results_maml10: dict = get_episodic_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_inner_lr)
-    from diversity_src.data_analysis.common import get_episodic_accs_losses_all_splits_usl
+    from diversity_src.data_analysis.common import get_episodic_accs_losses_all_splits_usl, \
+        get_usl_accs_losses_all_splits_usl
+    results_usl_usl: dict = get_usl_accs_losses_all_splits_usl(args, args.mdl_sl, args.usl_loaders)
+    # goes later since this modifies cls layer for args.mdl_sl (we do have asserts to guard us from bugs)
     results_usl: dict = get_episodic_accs_losses_all_splits_usl(args, args.mdl_sl, loaders)
 
     # -- Sanity check: meta-train acc & loss for each method (usl & maml) are close to final loss after training
     print('---- Sanity check: meta-train acc & loss for each method (usl & maml) values at the end of training ----')
     print_accs_losses_mutates_results(results_maml5, results_maml10, results_usl, results, 'train')
+    print_usl_accs_losses_mutates_results(results_usl_usl, results)
     print('---- Print meta-test acc & loss for each method (usl & maml) ----')
     print_accs_losses_mutates_results(results_maml5, results_maml10, results_usl, results, 'test')
 
@@ -105,6 +109,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     results['results_maml5'] = results_maml5
     results['results_maml10'] = results_maml10
     results['results_usl'] = results_usl
+    results['results_usl_usl'] = results_usl_usl
     torch.save(results, args.log_root / f'results.pt')
     save_to_json_pretty(results, args.log_root / f'results.json')
     save_args(args)

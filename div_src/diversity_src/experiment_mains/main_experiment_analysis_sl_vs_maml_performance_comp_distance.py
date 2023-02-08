@@ -874,8 +874,8 @@ def hdb4_micod(args):
     args.wandb_project = 'entire-diversity-spectrum'
     args.experiment_name = f'{args.manual_loads_name} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -1046,6 +1046,11 @@ def main_data_analyis():
 
     # - get dataloaders and overwrites so data analysis runs as we want
     args.dataloaders: dict = get_meta_learning_dataloaders(args)
+    # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
+    from uutils.torch_uu.dataloaders.helpers import get_sl_dataloader
+    args.usl_loaders: dict = get_sl_dataloader(args)
+    print(f'{args.mdl_sl.cls.out_features=}')
+    assert args.mdl_sl.cls.out_features != 5, f'{args.mdl_sl.cls.out_features=}'
 
     # - layers to do analysis on
     if hasattr(args, 'layer_names'):
