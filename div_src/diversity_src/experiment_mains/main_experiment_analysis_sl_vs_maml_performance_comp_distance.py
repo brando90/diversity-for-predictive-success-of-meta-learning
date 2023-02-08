@@ -815,7 +815,7 @@ def hdb4_micod(args):
     # args.batch_size = 5  # useful for debugging!
     # args.batch_size = 30
     # args.batch_size = 100
-    args.batch_size = 500
+    # args.batch_size = 500
     # args.batch_size = 1000
     # args.batch_size = 2000
     # args.batch_size = 5000

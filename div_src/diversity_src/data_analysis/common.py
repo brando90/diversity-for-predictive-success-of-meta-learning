@@ -9,7 +9,7 @@ from torch import nn
 
 from uutils.torch_uu import norm, process_meta_batch
 from uutils.torch_uu.agents.common import Agent
-from uutils.torch_uu.agents.supervised_learning import UnionClsSLAgent
+from uutils.torch_uu.agents.supervised_learning import ClassificationSLAgent
 from uutils.torch_uu.eval.eval import eval_sl, meta_eval
 from uutils.torch_uu.mains.common import _get_maml_agent, load_model_optimizer_scheduler_from_ckpt, \
     _get_and_create_model_opt_scheduler, load_model_ckpt
@@ -559,10 +559,10 @@ def get_episodic_accs_losses_all_splits_usl(args: Namespace,
     # - if this guard fails your likely not using the model you expect/wanted
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
     # - get accs and losses for all splits
-    # original_meta_learner = args.meta_learner
-    assert args.mdl_sl.cls.out_features != 5, f'Before assigning a new cls, it should not be 5-way yet, but got {args.mdl_sl.cls=}'
-    args.mdl_sl.cls = deepcopy(args.mdl_maml.cls)  # final layer is a 5-way cls, since ffl is convex anything is fine
-    assert args.mdl_sl.cls.out_features == 5, f'expected 5-way cls, but got {args.mdl_sl.cls.out_features=}'
+    assert model.cls.out_features != 5, f'Before assigning a new cls, it should not be 5-way yet, but got {model.cls=}'
+    model.cls = deepcopy(args.mdl_maml.cls)  # final layer is a 5-way cls, since ffl is convex anything is fine
+    print(f'{args.mdl_maml.cls=}')
+    assert model.cls.out_features == 5, f'expected 5-way cls, but got {model.cls.out_features=}'
     agent = FitFinalLayer(args, base_model=model)
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
     for split in ['train', 'val', 'test']:
@@ -587,10 +587,10 @@ def get_usl_accs_losses_all_splits_usl(args: Namespace,
     # - if this guard fails your likely not using the model you expect/wanted
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
     # - get accs and losses for all splits
-    print(f'{args.mdl_sl.cls=}')
-    assert args.mdl_sl.cls.out_features != 5, f'Before assigning a new cls, it should not be 5-way yet, but got {args.mdl_sl.cls=}'
-    agent: Agent = UnionClsSLAgent(args, model)
-    assert isinstance(agent, UnionClsSLAgent)  # leaving this to leave a consistent interface to get loader
+    print(f'{model.cls=}')
+    assert model.cls.out_features != 5, f'{model.cls=}'
+    agent: Agent = ClassificationSLAgent(args, model)
+    assert isinstance(agent, ClassificationSLAgent)  # leaving this to leave a consistent interface to get loader
     for split in ['train', 'val', 'test']:
         from uutils.torch_uu.eval.eval import get_sl_eval_lists_accs_losses
         assert args.mdl_sl.cls.out_features != 5, f'Before assigning a new cls, it should not be 5-way yet, but got {args.mdl_sl.cls=}'
@@ -598,8 +598,17 @@ def get_usl_accs_losses_all_splits_usl(args: Namespace,
         results[split]['losses'] = losses
         results[split]['accs'] = accs
     # - return results
-    assert isinstance(agent, UnionClsSLAgent)  # leaving this to leave a consistent interface
+    assert isinstance(agent, ClassificationSLAgent)  # leaving this to leave a consistent interface
     return results
+
+
+def get_new_random_cls_n_way(model: nn.Module, n_way: int = 5) -> nn.Module:
+    """
+    Gets a final random cls layer to be replaced so outside of this function you mutate the model.
+    Random is fine since your feature extractor is most likely fixed and thus fine-tuning the final layer
+    is convex.
+    """
+    return nn.Linear(in_features=model.cls.in_features, out_features=n_way, bias=model.cls.bias)
 
 
 # -- print accs & losses
