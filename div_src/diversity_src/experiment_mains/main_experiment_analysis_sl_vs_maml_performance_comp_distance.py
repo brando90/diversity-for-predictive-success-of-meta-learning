@@ -1045,12 +1045,15 @@ def main_data_analyis():
     print(f'{args.path_2_init_maml=}')
 
     # - get dataloaders and overwrites so data analysis runs as we want
-    args.dataloaders: dict = get_meta_learning_dataloaders(args)
+    torchmeta_dataloaders: dict = get_meta_learning_dataloaders(args)
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
     from uutils.torch_uu.dataloaders.helpers import get_sl_dataloader
-    args.usl_loaders: dict = get_sl_dataloader(args)
+    usl_loaders: dict = get_sl_dataloader(args)
     print(f'{args.mdl_sl.cls.out_features=}')
     assert args.mdl_sl.cls.out_features != 5, f'{args.mdl_sl.cls.out_features=}'
+    # - above getter loaders funcs mutate args so we need to fix their wrong mutations
+    args.dataloaders = torchmeta_dataloaders
+    args.usl_loaders = usl_loaders
 
     # - layers to do analysis on
     if hasattr(args, 'layer_names'):

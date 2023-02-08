@@ -33,8 +33,6 @@ from uutils.torch_uu.metrics.diversity.diversity import \
     get_task2vec_diversity_coefficient_from_pair_wise_comparison_of_tasks, \
     get_standardized_diversity_coffecient_from_pair_wise_comparison_of_tasks
 from uutils.torch_uu.metrics.diversity.task2vec_based_metrics import task2vec, task_similarity
-from uutils.torch_uu.metrics.diversity.task2vec_based_metrics.diversity_task2vec.diversity_for_few_shot_learning_benchmark import \
-    get_task_embeddings_from_few_shot_dataloader, get_task_embeddings_from_few_shot_l2l_benchmark
 from uutils.torch_uu.metrics.diversity.task2vec_based_metrics.task2vec import ProbeNetwork
 from uutils.torch_uu.models.probe_networks import get_probe_network
 
@@ -676,6 +674,8 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
         from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
         args.dataloaders = get_meta_learning_dataloaders(args)
         print(f'{args.dataloaders=}')
+        from uutils.torch_uu.metrics.diversity.diversity import get_task_embeddings_from_few_shot_dataloader
+        from uutils.torch_uu.metrics.diversity.task2vec_based_metrics import task2vec, task_similarity
         embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_dataloader(args,
                                                                                             args.dataloaders,
                                                                                             args.probe_network,
@@ -686,6 +686,8 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     else:
         args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
         print(f'{args.tasksets=}')
+        from uutils.torch_uu.metrics.diversity.diversity import get_task_embeddings_from_few_shot_l2l_benchmark
+        from uutils.torch_uu.metrics.diversity.task2vec_based_metrics import task2vec, task_similarity
         embeddings: list[task2vec.Embedding] = get_task_embeddings_from_few_shot_l2l_benchmark(args.tasksets,
                                                                                                args.probe_network,
                                                                                                split=split,
