@@ -61,11 +61,11 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
 
     # -- Get the losses & accs for each method (usl & maml) for all splits & save them
     # - once the model guard has been passed you should be able to get args.mdl_rand, args.mdl_maml, args.mdl_sl safely
-    from diversity_src.data_analysis.common import get_accs_losses_all_splits_maml
-    results_maml5: dict = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_inner_lr)
-    results_maml10: dict = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_inner_lr)
-    from diversity_src.data_analysis.common import get_accs_losses_all_splits_usl
-    results_usl: dict = get_accs_losses_all_splits_usl(args, args.mdl_sl, loaders)
+    from diversity_src.data_analysis.common import get_episodic_accs_losses_all_splits_maml
+    results_maml5: dict = get_episodic_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_inner_lr)
+    results_maml10: dict = get_episodic_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_inner_lr)
+    from diversity_src.data_analysis.common import get_episodic_accs_losses_all_splits_usl
+    results_usl: dict = get_episodic_accs_losses_all_splits_usl(args, args.mdl_sl, loaders)
 
     # -- Sanity check: meta-train acc & loss for each method (usl & maml) are close to final loss after training
     print('---- Sanity check: meta-train acc & loss for each method (usl & maml) values at the end of training ----')
@@ -232,8 +232,8 @@ def _debug(args: Namespace):
     print('\n---- Start Debug ----')
     from diversity_src.data_analysis.common import basic_sanity_checks_maml0_does_nothing
 
-    from diversity_src.data_analysis.common import get_accs_losses_all_splits_maml
-    from diversity_src.data_analysis.common import get_accs_losses_all_splits_usl
+    from diversity_src.data_analysis.common import get_episodic_accs_losses_all_splits_maml
+    from diversity_src.data_analysis.common import get_episodic_accs_losses_all_splits_usl
 
     from diversity_src.data_analysis.common import get_mean_and_ci_from_results
 
@@ -249,9 +249,9 @@ def _debug(args: Namespace):
     basic_sanity_checks_maml0_does_nothing(args, loaders)
     print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_inner_lr, debug_print=True)
 
-    results_maml5 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_inner_lr)
-    results_maml10 = get_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_inner_lr)
-    results_usl = get_accs_losses_all_splits_usl(args, args.mdl_sl, loaders)
+    results_maml5 = get_episodic_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_inner_lr)
+    results_maml10 = get_episodic_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_inner_lr)
+    results_usl = get_episodic_accs_losses_all_splits_usl(args, args.mdl_sl, loaders)
 
     print()
     print_performance_4_maml(args, args.mdl_maml, loaders, 5, original_inner_lr, debug_print=True)

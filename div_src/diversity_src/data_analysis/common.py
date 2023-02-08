@@ -488,14 +488,14 @@ def basic_sanity_checks_maml0_does_nothing(args: Namespace,
         print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=debug_print)
 
 
-def get_accs_losses_all_splits_maml(args: Namespace,
-                                    model: nn.Module,
-                                    loader,
-                                    nb_inner_steps: int,
-                                    inner_lr: float,
-                                    training: bool = True,
-                                    # False for SL, ML: https://stats.stackexchange.com/a/551153/28986
-                                    ) -> dict:
+def get_episodic_accs_losses_all_splits_maml(args: Namespace,
+                                             model: nn.Module,
+                                             loader,
+                                             nb_inner_steps: int,
+                                             inner_lr: float,
+                                             training: bool = True,
+                                             # False for SL, ML: https://stats.stackexchange.com/a/551153/28986
+                                             ) -> dict:
     """
     Note:
         - training = True **always** for meta-leanring. Reason is so to always use the batch statistics **for the current task**.
@@ -525,7 +525,7 @@ def get_accs_losses_all_splits_maml(args: Namespace,
     agent = args.meta_learner
     for split in ['train', 'val', 'test']:
         from uutils.torch_uu.eval.eval import get_meta_eval_lists_accs_losses
-        losses, accs = get_meta_eval_lists_accs_losses(args, agent, loader)
+        losses, accs = get_meta_eval_lists_accs_losses(args, agent, loader, split, training=training)
         assert isinstance(losses, list), f'losses should be a list of floats, but got {type(losses)=}'
         assert isinstance(losses[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
         results[split]['losses'] = losses
@@ -535,12 +535,12 @@ def get_accs_losses_all_splits_maml(args: Namespace,
     return results
 
 
-def get_accs_losses_all_splits_usl(args: Namespace,
-                                   model: nn.Module,
-                                   loader,
-                                   training: bool = True,
-                                   # False for SL, ML: https://stats.stackexchange.com/a/551153/28986
-                                   ) -> dict:
+def get_episodic_accs_losses_all_splits_usl(args: Namespace,
+                                            model: nn.Module,
+                                            loader,
+                                            training: bool = True,
+                                            # False for SL, ML: https://stats.stackexchange.com/a/551153/28986
+                                            ) -> dict:
     """
     Note:
         - training = True **always** for meta-leanring. Reason is so to always use the batch statistics **for the current task**.
@@ -564,7 +564,7 @@ def get_accs_losses_all_splits_usl(args: Namespace,
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
     for split in ['train', 'val', 'test']:
         from uutils.torch_uu.eval.eval import get_meta_eval_lists_accs_losses
-        losses, accs = get_meta_eval_lists_accs_losses(args, agent, loader)
+        losses, accs = get_meta_eval_lists_accs_losses(args, agent, loader, split, training=training)
         results[split]['losses'] = losses
         results[split]['accs'] = accs
     # - return results
@@ -580,13 +580,13 @@ def print_accs_losses_mutates_results(results_maml5: dict,
                                       results: dict,
                                       split: str,
                                       ):
-    loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml5, 'train')
+    loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml5, split)
     print(f'{split} (maml 5): {(loss, loss_ci, acc, acc_ci)=}')
     results[f'{split}_maml5'] = (loss, loss_ci, acc, acc_ci)
-    loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml10, 'train')
+    loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_maml10, split)
     print(f'{split} (maml 10): {(loss, loss_ci, acc, acc_ci)=}')
     results[f'{split}_maml10'] = (loss, loss_ci, acc, acc_ci)
-    loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_usl, 'train')
+    loss, loss_ci, acc, acc_ci = get_mean_and_ci_from_results(results_usl, split)
     print(f'{split} (usl): {(loss, loss_ci, acc, acc_ci)=}')
     results[f'{split}_usl'] = (loss, loss_ci, acc, acc_ci)
 
@@ -601,7 +601,7 @@ def get_mean_and_ci_from_results(results: dict,
     return loss, loss_ci, acc, acc_ci
 
 
-# -
+# - exmaples, test, etc
 
 def rfs_ckpts():
     path = '~/data/rfs_checkpoints/mini_simple.pt'
@@ -610,6 +610,7 @@ def rfs_ckpts():
     print(ckpt.keys())
     print(ckpt['model'])
 
+# - run main
 
 if __name__ == '__main__':
     rfs_ckpts()

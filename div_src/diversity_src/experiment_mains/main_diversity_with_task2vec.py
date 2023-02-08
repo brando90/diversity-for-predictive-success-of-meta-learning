@@ -385,10 +385,11 @@ def diversity_ala_task2vec_delaunay(args: Namespace) -> Namespace:
 
 def diversity_ala_task2vec_hdb4_micod(args: Namespace) -> Namespace:
     # - data set options
-    args.batch_size = 2
-    # args.batch_size = 5
+    # args.batch_size = 2
+    args.batch_size = 5
+    # args.batch_size = 7
     # args.batch_size = 30
-    # args.batch_size = 500
+    args.batch_size = 500
     args.data_option = 'hdb4_micod'
     args.data_path = Path('~/data/l2l_data/').expanduser()
     args.data_augmentation = 'hdb4_micod'
@@ -414,8 +415,8 @@ def diversity_ala_task2vec_hdb4_micod(args: Namespace) -> Namespace:
     # args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
     args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
     args = fix_for_backwards_compatibility(args)
