@@ -137,9 +137,12 @@ def compute_overfitting_analysis_stats_for_all_models_mutate_results(args: Names
     """
     from uutils.stats_uu.overfitting import compute_generalization_gap
     # - compute generalization gap for all methods using accuracy
-    gen_maml5_acc = compute_generalization_gap(results_maml5['train']['accs'], results_maml5['test']['accs'])
-    gen_maml10_acc = compute_generalization_gap(results_maml10['train']['accs'], results_maml10['test']['accs'])
-    gen_usl_acc = compute_generalization_gap(results_usl['train']['accs'], results_usl['test']['accs'], 'acc')
+    gen_maml5_acc = compute_generalization_gap(results_maml5['train']['accs'], results_maml5['test']['accs'],
+                                               metric_name='acc')
+    gen_maml10_acc = compute_generalization_gap(results_maml10['train']['accs'], results_maml10['test']['accs'],
+                                                metric_name='acc')
+    gen_usl_acc = compute_generalization_gap(results_usl['train']['accs'], results_usl['test']['accs'],
+                                             metric_name='acc')
     results['gen_maml5_acc'] = gen_maml5_acc
     results['gen_maml10_acc'] = gen_maml10_acc
     results['gen_usl_acc'] = gen_usl_acc
@@ -151,9 +154,12 @@ def compute_overfitting_analysis_stats_for_all_models_mutate_results(args: Names
     if gen_maml10_acc > gen_usl_acc:
         print(f'Maml10 might be overfitting more than usl model: {abs(gen_maml10_acc)=} > {abs(gen_usl_acc)=}')
     # - compute generalization gap for all methods using loss using loss
-    gen_maml5_loss = compute_generalization_gap(results_maml5['train']['losses'], results_maml5['test']['losses'])
-    gen_maml10_loss = compute_generalization_gap(results_maml10['train']['losses'], results_maml10['test']['losses'])
-    gen_usl_loss = compute_generalization_gap(results_usl['train']['losses'], results_usl['test']['losses'])
+    gen_maml5_loss = compute_generalization_gap(results_maml5['train']['losses'], results_maml5['test']['losses'],
+                                                metric_name='loss')
+    gen_maml10_loss = compute_generalization_gap(results_maml10['train']['losses'], results_maml10['test']['losses'],
+                                                 metric_name='loss')
+    gen_usl_loss = compute_generalization_gap(results_usl['train']['losses'], results_usl['test']['losses'],
+                                              metric_name='loss')
     results['gen_maml5_loss'] = gen_maml5_loss
     results['gen_maml10_loss'] = gen_maml10_loss
     results['gen_usl_loss'] = gen_usl_loss
