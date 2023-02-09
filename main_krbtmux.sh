@@ -105,15 +105,14 @@ tput rmcup
 krbtmux
 reauth
 
-# https://stackoverflow.com/questions/75368679/how-do-i-output-in-a-nice-table-in-the-terminal-the-mapping-of-the-gpu-id-the-p
-# https://www.quora.com/unanswered/How-do-I-output-in-a-nice-table-in-the-terminal-the-mapping-of-the-GPU-ID-the-pid-and-the-username
+# answer: https://www.reddit.com/r/HPC/comments/10x9w6x/comment/j7sg7w2/?utm_source=share&utm_medium=web2x&context=3 my copy paste to SO: https://stackoverflow.com/a/75403918/1601580
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #conda activate metalearning_gpu
-export CUDA_VISIBLE_DEVICES=3; export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
+export CUDA_VISIBLE_DEVICES=0; export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES; echo SLURM_JOBID = $SLURM_JOBID; echo hostname = $(hostname)
 ulimit -n 120000; ulimit -Sn; ulimit -Hn
-nvidia-smi; ps -up `nvidia-smi -q -x | grep pid | sed -e 's/<pid>//g' -e 's/<\/pid>//g' -e 's/^[[:space:]]*//'`; hostname
+nvidia-smi; (echo "GPU_ID PID UID APP" ; for GPU in 0 1 2 3 ; do for PID in $( nvidia-smi -q --id=${GPU} --display=PIDS | awk '/Process ID/{print $NF}') ; do echo -n "${GPU} ${PID} " ; ps -up ${PID} | awk 'NR-1 {print $1,$NF}' ; done ; done) | column -t; hostname
 
 tmux new -s gpu0
 tmux new -s gpu1

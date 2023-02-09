@@ -72,19 +72,21 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     results_usl: dict = get_episodic_accs_losses_all_splits_usl(args, args.mdl_sl, loaders)
 
     # -- Sanity check: meta-train acc & loss for each method (usl & maml) are close to final loss after training
-    print('---- Sanity check: meta-train acc & loss for each method (usl & maml) values at the end of training ----')
+    print('\n---- Sanity check: meta-train acc & loss for each method (usl & maml) values at the end of training ----')
     print_accs_losses_mutates_results(results_maml5, results_maml10, results_usl, results, 'train')
+    print('-- Sanity check: maml episodic/meta acc & losses from learning curves --')
     print_acc_loss_from_training_curve(path=args.path_2_init_maml)  # print maml episodic/meta acc & loss from training
 
-    print('-- Sanity check: usl on usl loss/acc, does it match the currently computed vs the one from training? --')
+    print('\n-- Sanity check: usl on usl loss/acc, does it match the currently computed vs the one from training? --')
     print_usl_accs_losses_mutates_results(results_usl_usl, results)
+    print('-- Sanity check: usl on usl acc & loss from learning curves --')
     print_acc_loss_from_training_curve(path=args.path_2_init_sl)  # print usl usl acc & loss from training
 
-    print('---- Print meta-test acc & loss for each method (usl & maml) ----')
+    print('\n---- Print meta-test acc & loss for each method (usl & maml) ----')
     print_accs_losses_mutates_results(results_maml5, results_maml10, results_usl, results, 'test')
 
     # -- Compute generalization gap for each method (usl & maml) -- to estimate (meta) overfitting
-    print('---- Compute generatlization gap for each method (usl & maml) ----')
+    print('\n---- Compute generatlization gap for each method (usl & maml) ----')
     compute_overfitting_analysis_stats_for_all_models_mutate_results(args, results_maml5, results_maml10, results_usl,
                                                                      results)
 
