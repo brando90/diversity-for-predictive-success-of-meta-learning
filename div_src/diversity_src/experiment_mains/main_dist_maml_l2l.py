@@ -2306,10 +2306,15 @@ def hdb5_vggair_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespa
     # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
     args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
                           num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
-
+    
     # args.model_option = '5CNN_opt_as_model_for_few_shot'
     # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+    #args.model_option = '5CNN_opt_as_model_for_few_shot'
+    #args.model_option = '5CNN_opt_as_model_for_few_shot'
+    #args.model_option = '5CNN_opt_as_model_for_few_shot'
+    #args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
     #                      levels=None, spp=False, in_channels=3)
+
 
     # - data
     args.wandb_entity = 'brando-uiuc'
@@ -2317,11 +2322,21 @@ def hdb5_vggair_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespa
     args.data_path = '/home/pzy2/data/l2l_data/'
     args.data_augmentation = 'hdb5_vggair'
     # - training mode
-    args.training_mode = 'iterations_train_convergence'
+    #args.training_mode = 'iterations_train_convergence'
+    #args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-2 1-43_jobid_-1_pid_108167_wandb_True/ckpt.pt' #Continue 5CNNN
+    #args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True/ckpt.pt'
+
+    args.training_mode = 'iterations'
+    args.num_its = 1_000_000_000
+    #args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
+    #                               log_speed_up=10)
+    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+                                    metric_to_use='train_acc',
+                                    threshold=0.9, log_speed_up=10)
 
     # - debug flag
+    #args.debug = True
     args.debug = False
-    # args.debug = False
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
@@ -2369,7 +2384,7 @@ def hdb5_vggair_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespa
     args.wandb_project = 'Meta-Dataset'  # 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.run_name = f'continue {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
 
