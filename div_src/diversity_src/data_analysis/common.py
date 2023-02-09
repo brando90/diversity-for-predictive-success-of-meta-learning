@@ -249,16 +249,41 @@ def get_maml_meta_learner(args: Namespace):
     return args.meta_learner
 
 
-def set_maml_cls_to_maml_cls(args: Namespace, model: nn.Module):
+def set_maml_cls_to_usl_cls_mutates(args: Namespace,
+                                    verbose: bool = False,
+                                    ):
+    """ Set maml cls to usl so usl can be used for meta-learning. """
     from uutils.torch_uu.models.resnet_rfs import ResNet
-    if isinstance(model, Learner):
-        cls = model.model.cls
+    if isinstance(args.mdl_maml, Learner):
+        # - print final cls layer before changing it
+        if verbose:
+            print(f'{args.mdl_maml.model.cls=}')
+            print(f'{args.mdl_sl.model.cls=}')
+        # - change cls layer to hav n-way using maml model
+        assert args.mdl_sl.model.cls.out_features != 5, f'Got 5 final layer units but expected more than 5 for usl (likely).'
+        cls = args.mdl_maml.model.cls
         args.mdl_sl.model.cls = deepcopy(cls)
-    elif isinstance(model, ResNet):
-        cls = model.cls
+        # - assert cls layer for usl is indeed n-way
+        assert args.mdl_sl.model.cls.out_features == 5, f'expected 5-way cls, but got {args.mdl_sl.model.cls.out_features=}'
+        if verbose:
+            print(f'{args.mdl_maml.model.cls=}')
+            print(f'{args.mdl_sl.model.cls=}')
+    elif isinstance(args.mdl_maml, ResNet):
+        # - print final cls layer before changing it
+        if verbose:
+            print(f'{args.mdl_maml.cls=}')
+            print(f'{args.mdl_sl.cls=}')
+        # - change cls layer to hav n-way using maml model
+        assert args.mdl_sl.cls.out_features != 5, f'Got 5 final layer units but expected more than 5 for usl (likely).'
+        cls = args.mdl_maml.cls
         args.mdl_sl.cls = deepcopy(cls)
+        # - assert cls layer for usl is indeed n-way
+        assert args.mdl_sl.cls.out_features == 5, f'expected 5-way cls, but got {args.mdl_sl.cls.out_features=}'
+        if verbose:
+            print(f'{args.mdl_maml.cls=}')
+            print(f'{args.mdl_sl.cls=}')
     else:
-        raise ValueError(f'Model type not supported {type(model)=}')
+        raise ValueError(f'Model type not supported {type(args.mdl_maml)=}')
 
 
 def basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args: Namespace,
@@ -559,10 +584,7 @@ def get_episodic_accs_losses_all_splits_usl(args: Namespace,
     # - if this guard fails your likely not using the model you expect/wanted
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
     # - get accs and losses for all splits
-    assert model.cls.out_features != 5, f'Before assigning a new cls, it should not be 5-way yet, but got {model.cls=}'
-    model.cls = deepcopy(args.mdl_maml.cls)  # final layer is a 5-way cls, since ffl is convex anything is fine
-    print(f'{args.mdl_maml.cls=}')
-    assert model.cls.out_features == 5, f'expected 5-way cls, but got {model.cls.out_features=}'
+    set_maml_cls_to_usl_cls_mutates(args)
     agent = FitFinalLayer(args, base_model=model)
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
     for split in ['train', 'val', 'test']:
@@ -673,6 +695,23 @@ def check_out_features_cls_layer():
     print("Output features:", linear.out_features)
 
 
+def check_usl_final_layer_changes_to_mamls_outfeatures():
+    from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_first_time
+    args: Namespace = Namespace(model_option='resnet12_rfs')
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=64)
+    mdl_sl, _, _ = get_and_create_model_opt_scheduler_first_time(args)
+    args: Namespace = Namespace(model_option='resnet12_rfs')
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=5)
+    mdl_maml, _, _ = get_and_create_model_opt_scheduler_first_time(args)
+    args.mdl_sl = mdl_sl
+    args.mdl_maml = mdl_maml
+    assert hasattr(args, 'mdl_maml'), f'expected to have mdl_maml, but got {args=}'
+    assert hasattr(args, 'mdl_sl'), f'expected to have mdl_sl, but got {args=}'
+    set_maml_cls_to_usl_cls_mutates(args)
+    assert args.mdl_sl.cls.out_features == 5, f'expected 5-way cls, but got {args.mdl_sl.cls.out_features=}'
+    print(f'{args.mdl_maml.cls=}')
+    print(f'{args.mdl_sl.cls=}')
+
 # - run main
 
 if __name__ == '__main__':
@@ -681,6 +720,7 @@ if __name__ == '__main__':
     start_time = time.time()
     # - run main, expt, test, examples
     # rfs_ckpts()
-    check_out_features_cls_layer()
+    # check_out_features_cls_layer()
+    check_usl_final_layer_changes_to_mamls_outfeatures()
     # - done and compute time it toook
     print(f'\n\nDone, Total time: {time.time() - start_time:.2f} seconds\n\a')
