@@ -10,6 +10,7 @@ import torch
 from diversity_src.data_analysis.common import basic_guards_that_maml_usl_and_rand_models_loaded_are_different, \
     print_performance_4_maml, print_accs_losses_mutates_results, print_usl_accs_losses_mutates_results
 from uutils import save_to_json_pretty, save_args
+from uutils.logger import print_acc_loss_from_training_curve
 from uutils.plot import save_to
 from uutils.plot.histograms_uu import get_histogram
 
@@ -73,7 +74,12 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     # -- Sanity check: meta-train acc & loss for each method (usl & maml) are close to final loss after training
     print('---- Sanity check: meta-train acc & loss for each method (usl & maml) values at the end of training ----')
     print_accs_losses_mutates_results(results_maml5, results_maml10, results_usl, results, 'train')
+    print_acc_loss_from_training_curve(path=args.path_2_init_maml)  # print maml episodic/meta acc & loss from training
+
+    print('-- Sanity check: usl on usl loss/acc, does it match the currently computed vs the one from training? --')
     print_usl_accs_losses_mutates_results(results_usl_usl, results)
+    print_acc_loss_from_training_curve(path=args.path_2_init_sl)  # print usl usl acc & loss from training
+
     print('---- Print meta-test acc & loss for each method (usl & maml) ----')
     print_accs_losses_mutates_results(results_maml5, results_maml10, results_usl, results, 'test')
 
