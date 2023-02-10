@@ -2449,17 +2449,30 @@ def mds_dtdbirds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespa
 def usl_hdb5_vggair_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
     # - model
     args.model_option = 'resnet12_rfs'
-    args.n_cls = 105  # 34+71
+    #args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+    args.n_cls = 34+71  # 34+71
     # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
     args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
 
+    #args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+     #                     levels=None, spp=False, in_channels=3)
+
     # - data
+    
     args.data_option = 'hdb5_vggair'
     args.n_classes = args.n_cls
     args.data_augmentation = 'hdb5_vggair'
 
     # - training mode
-    args.training_mode = 'iterations_train_convergence'
+    #args.training_mode = 'iterations_train_convergence'
+    args.training_mode = 'iterations'  # 'iterations_train_convergence'
+    args.num_its = 1_000_000_000
+    #args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+                                   metric_to_use='train_acc',
+                                   threshold=0.7, log_speed_up=10)
 
     # - debug flag
     # args.debug = True

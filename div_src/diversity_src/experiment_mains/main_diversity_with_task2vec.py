@@ -571,6 +571,36 @@ def diversity_ala_task2vec_mds_omniglot(args: Namespace) -> Namespace:
     return args
 
 
+def div_hdb5(args: Namespace) -> Namespace:
+    args.data_path = '/home/pzy2/data/l2l_data'#'/shared/rsaas/pzy2/records'
+    #args.sources = ['aircraft']  # ['aircraft','vgg_flower','cu_birds']
+
+    args.batch_size = 50#1000  # 500  # 5 for testing
+    args.batch_size_eval = args.batch_size  # this determines batch size for test/eval
+
+    # args.batch_size = 500
+    args.data_option = 'hdb5_vggair'
+    args.data_augmentation = 'hdb5_vggair'
+    # set datapath if not already
+
+    # - probe_network
+    args.model_option = 'resnet18_pretrained_imagenet'
+    args.classifier_opts = None
+    args.PID = 'None'
+
+    # -- wandb args
+    args.wandb_entity = 'brando-uiuc'
+    args.wandb_project = 'meta-dataset task2vec'  # 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = True
+
+    from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
 # - main
 
 def load_args() -> Namespace:
