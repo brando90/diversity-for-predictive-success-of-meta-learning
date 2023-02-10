@@ -2143,7 +2143,8 @@ def usl_hdb4_micod_convg_reached_log_ckpt_more(args: Namespace) -> Namespace:
     # args.num_its = 100_000  # mds 50_000: https://gitA,aahub.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
     # args.num_its = 1_000_000  # mds 50_000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
     # args.num_its = 300_000  # mds 50_000: https://github.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
-    args.num_its = 800_000  # hdb4 resnetrfs usl's its to convg visually
+    # args.num_its = 800_000  # hdb4 resnetrfs usl's its to convg visually
+    args.num_its = 2_000_000  # hdb4 resnetrfs about 2.5 more than above
 
     # - debug flag
     # args.debug = True
@@ -2171,7 +2172,7 @@ def usl_hdb4_micod_convg_reached_log_ckpt_more(args: Namespace) -> Namespace:
     # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached', metric_to_use='train_acc',
     #                           threshold=0.9, log_speed_up=10)
     args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
-                                   log_speed_up=5)
+                                   log_speed_up=1)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'

@@ -91,7 +91,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
                                                                      results)
 
     # -- do statistical analysis based on effect size
-    print('\n---- Statistical analysis based on effect size ----')
+    print('\n\n---- Statistical analysis based on effect size ----')
     from uutils.stats_uu.effect_size import stat_test_with_effect_size_as_emphasis
     args.acceptable_difference1 = args.acceptable_difference1 if hasattr(args, 'acceptable_difference1') else 0.01
     args.acceptable_difference2 = args.acceptable_difference2 if hasattr(args, 'acceptable_difference2') else 0.02
@@ -105,7 +105,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
         args.alpha, print_groups_data=True)
     results['usl_vs_maml5'] = (cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2)
     # - usl vs maml10
-    print(f'\n--- usl vs maml5 ---')
+    print(f'\n--- usl vs maml10 ---')
     group1: list = results_usl['test']['accs']
     group2: list = results_maml10['test']['accs']
     cohen_d, standardized_acceptable_difference1, standardized_acceptable_difference2 = stat_test_with_effect_size_as_emphasis(
@@ -162,10 +162,10 @@ def compute_overfitting_analysis_stats_for_all_models_mutate_results(args: Names
     print(f'{gen_maml5_acc=}')
     print(f'{gen_maml10_acc=}')
     print(f'{gen_usl_acc=}')
-    if abs(gen_maml5_acc) > abs(gen_usl_acc):
-        print(f'Maml5 might be overfitting more than usl model: {abs(gen_maml5_acc)=} > {abs(gen_usl_acc)=}')
-    if gen_maml10_acc > gen_usl_acc:
-        print(f'Maml10 might be overfitting more than usl model: {abs(gen_maml10_acc)=} > {abs(gen_usl_acc)=}')
+    if gen_maml5_acc < gen_usl_acc:
+        print(f'Maml5 might be overfitting more than usl model: {gen_maml5_acc=} < {gen_usl_acc=}')
+    if gen_maml10_acc < gen_usl_acc:
+        print(f'Maml10 might be overfitting more than usl model: {gen_maml10_acc=} < {gen_usl_acc=}')
     # - compute generalization gap for all methods using loss using loss
     gen_maml5_loss = compute_generalization_gap(results_maml5['train']['losses'], results_maml5['test']['losses'],
                                                 metric_name='loss')
@@ -187,10 +187,13 @@ def compute_overfitting_analysis_stats_for_all_models_mutate_results(args: Names
     print("\n---- Compute generalization gap using cohen's d (effect size) ----")
     # - use accs
     from uutils.stats_uu.effect_size import stat_test_with_effect_size_as_emphasis
+    print(f'---- test - train (maml5) ----')
     group1, group2 = results_maml5['test']['accs'], results_maml5['train']['accs']
     standardized_gen_gap_acc_maml5, _, _ = stat_test_with_effect_size_as_emphasis(group1, group2)
+    print(f'---- test - train (maml10) ----')
     group1, group2 = results_maml10['test']['accs'], results_maml10['train']['accs']
     standardized_gen_gap_acc_maml10, _, _ = stat_test_with_effect_size_as_emphasis(group1, group2)
+    print(f'---- test - train (usl) ----')
     group1, group2 = results_usl['test']['accs'], results_usl['train']['accs']
     standardized_gen_gap_acc_usl, _, _ = stat_test_with_effect_size_as_emphasis(group1, group2)
     results['standardized_gen_gap_acc_maml5'] = standardized_gen_gap_acc_maml5

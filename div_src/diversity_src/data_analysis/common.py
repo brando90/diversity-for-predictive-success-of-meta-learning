@@ -10,7 +10,7 @@ from torch import nn
 from uutils.torch_uu import norm, process_meta_batch
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.agents.supervised_learning import ClassificationSLAgent
-from uutils.torch_uu.eval.eval import eval_sl, meta_eval
+from uutils.torch_uu.eval.eval import do_eval
 from uutils.torch_uu.mains.common import _get_maml_agent, load_model_optimizer_scheduler_from_ckpt, \
     _get_and_create_model_opt_scheduler, load_model_ckpt
 from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import meta_eval_no_context_manager
@@ -419,13 +419,13 @@ def print_performance_results_simple(args: Namespace,
                                      training: bool = True,
                                      # True for ML -- even for USL: https://stats.stackexchange.com/a/551153/28986
                                      ):
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, agent, loaders, split='train', training=training)
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = do_eval(args, agent, loaders, split='train', training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'train: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, agent, loaders, split='val', training=training)
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = do_eval(args, agent, loaders, split='val', training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'val: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
-    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = meta_eval(args, agent, loaders, split='test', training=training)
+    meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = do_eval(args, agent, loaders, split='test', training=training)
     meta_loss, meta_loss_ci, meta_acc, meta_acc_ci = items(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)
     print(f'test: {(meta_loss, meta_loss_ci, meta_acc, meta_acc_ci)=}')
 
@@ -531,7 +531,7 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
         - note the old code had all these asserts because it used usl+ffl at the end, so it was for extra safety nothing
         went wrong.
         - note that we use the torchmeta MAML for consistency of data loader but I don't think it's needed since the
-        code bellow get_meta_eval_lists_accs_losses detects the type of loader and uses the correct one.
+        code bellow get_eval_lists_accs_losses detects the type of loader and uses the correct one.
     Warning:
         - alwaus manually specify nb_inner_steps and inner_lr. This function might mutate the meta-learner/agent. Sorry! Wont fix.
     """
@@ -550,8 +550,8 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
     assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     agent = args.meta_learner
     for split in ['train', 'val', 'test']:
-        from uutils.torch_uu.eval.eval import get_meta_eval_lists_accs_losses
-        losses, accs = get_meta_eval_lists_accs_losses(args, agent, loader, split, training=training)
+        from uutils.torch_uu.eval.eval import get_eval_lists_accs_losses
+        losses, accs = get_eval_lists_accs_losses(args, agent, loader, split, training=training)
         assert isinstance(losses, list), f'losses should be a list of floats, but got {type(losses)=}'
         assert isinstance(losses[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
         results[split]['losses'] = losses
@@ -576,7 +576,7 @@ def get_episodic_accs_losses_all_splits_usl(args: Namespace,
         - note the old code had all these asserts because it used usl+ffl at the end, so it was for extra safety nothing
         went wrong.
         - note that we use the torchmeta MAML for consistency of data loader but I don't think it's needed since the
-        code bellow get_meta_eval_lists_accs_losses detects the type of loader and uses the correct one.
+        code bellow get_eval_lists_accs_losses detects the type of loader and uses the correct one.
     """
     results: dict = dict(train=dict(losses=[], accs=[]),
                          val=dict(losses=[], accs=[]),
@@ -588,8 +588,8 @@ def get_episodic_accs_losses_all_splits_usl(args: Namespace,
     agent = FitFinalLayer(args, base_model=model)
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
     for split in ['train', 'val', 'test']:
-        from uutils.torch_uu.eval.eval import get_meta_eval_lists_accs_losses
-        losses, accs = get_meta_eval_lists_accs_losses(args, agent, loader, split, training=training)
+        from uutils.torch_uu.eval.eval import get_eval_lists_accs_losses
+        losses, accs = get_eval_lists_accs_losses(args, agent, loader, split, training=training)
         results[split]['losses'] = losses
         results[split]['accs'] = accs
     # - return results
@@ -614,9 +614,9 @@ def get_usl_accs_losses_all_splits_usl(args: Namespace,
     agent: Agent = ClassificationSLAgent(args, model)
     assert isinstance(agent, ClassificationSLAgent)  # leaving this to leave a consistent interface to get loader
     for split in ['train', 'val', 'test']:
-        from uutils.torch_uu.eval.eval import get_sl_eval_lists_accs_losses
+        from uutils.torch_uu.eval.eval import get_eval_lists_accs_losses
         assert args.mdl_sl.cls.out_features != 5, f'Before assigning a new cls, it should not be 5-way yet, but got {args.mdl_sl.cls=}'
-        losses, accs = get_sl_eval_lists_accs_losses(args, agent, loader, split, training=training)
+        losses, accs = get_eval_lists_accs_losses(args, agent, loader, split, training=training)
         results[split]['losses'] = losses
         results[split]['accs'] = accs
     # - return results

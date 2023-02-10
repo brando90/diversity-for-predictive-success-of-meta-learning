@@ -20,7 +20,7 @@ from uutils import get_truly_random_seed_through_os
 
 from uutils.torch_uu import replace_bn
 
-# from meta_learning.training.meta_training import meta_train, meta_eval, meta_train_epochs
+# from meta_learning.training.meta_training import meta_train, do_eval, meta_train_epochs
 from meta_learning.training.supervised_training import supervised_train
 
 from meta_learning.datasets.mini_imagenet import ImageNet, MetaImageNet

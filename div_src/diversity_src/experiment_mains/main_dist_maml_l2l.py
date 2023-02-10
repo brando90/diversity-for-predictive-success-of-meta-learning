@@ -2229,8 +2229,8 @@ def maml_hdb4_micod_log_more_often_convg(args: Namespace) -> Namespace:
     # note: 60K iterations for original maml 5CNN with adam
     # args.num_its = 100_000
     # args.num_its = 300_000
-    args.num_its = 500_000  # but it seems resnet12rfs conv with 300K
-    # args.num_its = 600_000
+    # args.num_its = 500_000  # but it seems resnet12rfs conv with 300K
+    args.num_its = 900_000  # resnet12rfs conv with 300K, lets to 3 times to be safe
 
     # - debug flag
     # args.debug = True
@@ -2256,8 +2256,8 @@ def maml_hdb4_micod_log_more_often_convg(args: Namespace) -> Namespace:
     args.meta_learner_name = 'maml_fixed_inner_lr'
     args.inner_lr = 1e-1  # same as fast_lr in l2l
     args.nb_inner_train_steps = 5
-    args.first_order = True
-    # args.first_order = False
+    # args.first_order = True
+    args.first_order = False
 
     # - outer trainer params
     args.batch_size = 4
@@ -2280,7 +2280,7 @@ def maml_hdb4_micod_log_more_often_convg(args: Namespace) -> Namespace:
     #                                metric_to_use='train_acc',
     #                                threshold=0.9, log_speed_up=10)
     args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
-                                   log_speed_up=2)
+                                   log_speed_up=1)
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
