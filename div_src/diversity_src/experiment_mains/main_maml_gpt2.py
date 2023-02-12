@@ -25,6 +25,7 @@ from uutils.logging_uu.wandb_logging.common import cleanup_wandb
 from uutils.torch_uu import count_number_of_parameters
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
+from uutils.torch_uu.dataloaders.helpers import get_sl_dataloader
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
@@ -33,8 +34,9 @@ from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner, MAMLMetaLearnerL2L
+from uutils.torch_uu.meta_learners.gpt2_meta_learner import GPTMetaLearnerL2L
 from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations, meta_train_agent_fit_single_batch, \
-    meta_train_iterations_ala_l2l
+    meta_train_iterations_ala_l2l, meta_train_gpt2
 
 from pdb import set_trace as st
 
@@ -63,6 +65,7 @@ def load_args() -> Namespace:
     args.data_option = 'webtext'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
     args.data_path = Path('~/data/webtext/').expanduser()
     args.data_augmentation = 'lee2019'
+    args.log_root = '/lfs/hyperion/0/saumg'
 
     # - training mode
     args.training_mode = 'iterations'
@@ -89,7 +92,7 @@ def load_args() -> Namespace:
     # -- Meta-Learner
     # - maml
     args.meta_learner_name = 'maml_fixed_inner_lr'
-    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.inner_lr = 1e-3  # same as fast_lr in l2l
     args.nb_inner_train_steps = 5
     # args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
     args.first_order = True
@@ -190,12 +193,15 @@ def train(args):
     args.number_of_trainable_parameters = count_number_of_parameters(args.model)
     args.opt = move_opt_to_cherry_opt_and_sync_params(args) if is_running_parallel(args.rank) else args.opt
 
-    # create the loaders, note: you might have to change the number of layers in the final layer
-    args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
-    args.dataloaders = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
+    # dont use a separate l2l taskset, modifications made in training algorithms
+
+    # # create the loaders, note: you might have to change the number of layers in the final layer
+    # args.tasksets: BenchmarkTasksets = get_l2l_tasksets(args)
+    # args.dataloaders = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
+    args.dataloaders: dict = get_sl_dataloader(args)
 
     # Agent does everything, proving, training, evaluate, meta-learnering, etc.
-    args.agent = MAMLMetaLearnerL2L(args, args.model)
+    args.agent = GPTMetaLearnerL2L(args, args.model)
     args.meta_learner = args.agent
 
     # -- Start Training Loop
@@ -206,7 +212,8 @@ def train(args):
         # meta_train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
         raise NotImplementedError
     elif 'iterations' in args.training_mode:
-        meta_train_iterations_ala_l2l(args, args.agent, args.opt, args.scheduler)
+        # meta_train_iterations_ala_l2l(args, args.agent, args.opt, args.scheduler)
+        meta_train_gpt2(args, args.agent, args.dataloaders, args.opt, args.scheduler)
     elif 'epochs' in args.training_mode:
         # meta_train_epochs(args, agent, args.dataloaders, args.opt, args.scheduler) not implemented
         raise NotImplementedError
