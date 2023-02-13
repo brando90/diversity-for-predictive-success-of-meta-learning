@@ -66,24 +66,25 @@ def load_args() -> Namespace:
         #                       levels=None,
         #                       spp=False, in_channels=3)
 
-        args.model_hps = dict(block_size = 64, vocab_size = 50257, n_layer = 12, n_head = 12, n_embd = 768, dropout = 0.1)
+        args.model_hps = dict(block_size = 64, vocab_size = 50257, n_layer = 12, n_head = 12, n_embd = 768, dropout = 0.0)
 
         # - data
         args.data_option = 'webtext'
         args.data_path = Path('~/data/webtext/').expanduser()
 
         # - opt
-        args.opt_option = 'Adam_default'
+        args.opt_option = 'adamw_gpt'
         args.num_its = 1000
         args.lr = 6e-4
         args.weight_decay = 1e-2
-        args.opt_hps: dict = dict(lr=args.lr, weight_decay = args.weight_decay)
+        args.opt_hps: dict = dict(learning_rate=args.lr, weight_decay = args.weight_decay, betas = (0.9, 0.95))
 
-        args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
-        args.log_scheduler_freq = 1
-        args.T_max = args.num_its // args.log_scheduler_freq
-        args.eta_min = 1e-5  # coincidentally, matches MAML++
-        args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+        args.scheduler_option = 'None'
+        # args.log_scheduler_freq = 1
+        # args.T_max = args.num_its // args.log_scheduler_freq
+        # args.eta_min = 1e-5  # coincidentally, matches MAML++
+        # args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+
 
         # - training mode
         args.training_mode = 'iterations'
@@ -136,11 +137,15 @@ def train(rank, args):
     args.rank = rank  # have each process save the rank
     set_devices(args)  # args.device = rank or .device
     setup_process(args, rank, master_port=args.master_port, world_size=args.world_size)
-    setup_wandb(args)
+    if rank == 0:
+        setup_wandb(args)
     print(f'setup process done for rank={rank}')
 
     # create the (ddp) model, opt & scheduler
     get_and_create_model_opt_scheduler_for_run(args)
+    args.scheduler_hps: dict = dict(warmup_iters = 2000,
+            lr_decay_iters = 600000, # should be ~= max_iters per Chinchilla
+            min_lr = 6e-5) # minimum learning rate, should be ~= learning_rate/10 per Chinchilla)
     args.number_of_trainable_parameters = count_number_of_parameters(args.model)
 
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
