@@ -855,7 +855,7 @@ def hdb4_micod(args):
     # 5ccn 64 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/1q25bgx0?workspace=user-brando
     args.path_2_init_sl = ''  # ampere1
     # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/fuxwz30l/overview?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Feb04_17-38-21_jobid_855372_pid_2723881_wandb_True'  # ampere1
+    args.path_2_init_sl = '~/data/logs/logs_Feb04_17-38-21_jobid_855372_pid_2723881_wandb_True'  # ampere1
 
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
@@ -872,7 +872,7 @@ def hdb4_micod(args):
     # 5cnn 64 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/nzvm7g44/overview?workspace=user-brando
     args.path_2_init_maml = ''  # ampere1
     # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/96wo1c43/overview?workspace=user-brando
-    # args.path_2_init_maml = '~/data/logs/logs_Feb04_17-39-17_jobid_568243_pid_2724751_wandb_True'  # ampere1
+    args.path_2_init_maml = '~/data/logs/logs_Feb04_17-39-17_jobid_568243_pid_2724751_wandb_True'  # ampere1
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
@@ -1348,5 +1348,10 @@ def main_data_analyis():
 
 
 if __name__ == '__main__':
+    import time
+    from uutils import report_times
+
+    start = time.time()
+    # - run experiment
     main_data_analyis()
-    print('\n--> Success Done!\a\n')
+    print(f"\nSuccess Done!: {report_times(start)}\a\n")

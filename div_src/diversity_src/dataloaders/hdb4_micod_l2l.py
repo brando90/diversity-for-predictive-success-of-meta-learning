@@ -237,7 +237,7 @@ def loop_through_l2l_indexable_benchmark_with_model_test():
     print('-- end of test --')
 
 
-# -
+# - run __main__
 
 if __name__ == "__main__":
     import time
