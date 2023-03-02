@@ -46,6 +46,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     """
     # -- Start code for real
     print('\n---------------------  Start Stats analysis  ---------------------')
+    print(f'{args.batch_size=}')
     # - get original inner learning rate
     original_inner_lr = args.meta_learner.inner_lr
     print(f'{original_inner_lr=}')
