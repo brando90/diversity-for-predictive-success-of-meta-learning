@@ -315,6 +315,9 @@ def save_loss_histogram(args: Namespace, results: dict):
 
 
 def stats_analysis_with_emphasis_on_effect_size_test_():
+    """
+python ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/data_analysis/stats_analysis_with_emphasis_on_effect_size.py
+    """
     # - effect size analysis -- usl vs maml
     import uutils
     from uutils.argparse_uu.meta_learning import get_args_mi_effect_size_analysis_default
@@ -334,6 +337,10 @@ def stats_analysis_with_emphasis_on_effect_size_test_():
     usl_loaders: dict = get_sl_dataloader(args)
     args.dataloaders = torchmeta_dataloaders
     args.usl_loaders = usl_loaders
+    from uutils.torch_uu.dataloaders.meta_learning.l2l_to_torchmeta_dataloader import TorchMetaDLforL2L
+    assert isinstance(torchmeta_dataloaders['train'], TorchMetaDLforL2L)
+    assert isinstance(usl_loaders['train'], torch.utils.data.dataloader.DataLoader)
+
     # - sanity checks for maml
     args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
     # decided to use the setting for FO that I have for torchmeta learners, but since there is no training it should not matter.

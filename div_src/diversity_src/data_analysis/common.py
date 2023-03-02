@@ -236,6 +236,11 @@ def get_sl_learner(args: Namespace):
         model = load_model_force_add_cls_layer_as_module(args, path_to_checkpoint=args.path_2_init_sl)
     elif 'rfs_checkpoints' in str(args.path_2_init_sl):  # original rfs ckpt
         model = load_original_rfs_ckpt(args, path_to_checkpoint=args.path_2_init_sl)
+    elif 'debug_5cnn_2filters' in str(args.path_2_init_sl):
+        from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import Learner, get_default_learner_and_hps_dict
+        # model, _ = get_default_learner_and_hps_dict(filter_size=2)
+        model, _ = get_default_learner_and_hps_dict(filter_size=2, n_classes=64 + 1100)
+        # args.model.cls.out_features == 64 + 1100
     else:
         # model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_sl)
         model = load_model_ckpt(args, path_to_checkpoint=args.path_2_init_sl)
@@ -255,6 +260,10 @@ def get_maml_meta_learner(args: Namespace):
         base_model = load_model_cifarfs_fix_model_hps(args, path_to_checkpoint=args.path_2_init_maml)
     # elif '23901' in str(args.path_2_init_maml):
     #     base_model = load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint=args.path_2_init_maml)
+    elif 'debug_5cnn_2filters' in str(args.path_2_init_sl):
+        from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import Learner, get_default_learner_and_hps_dict
+        model, _ = get_default_learner_and_hps_dict(filter_size=2)
+        base_model = model
     else:
         # base_model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
         base_model = load_model_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
@@ -508,6 +517,7 @@ def get_meta_learning_dataloaders_for_data_analysis(args: Namespace):
         logging.warning(f'{e}')
         pass
 
+
 # - helper function for new stats analysis based on effect size
 
 def basic_sanity_checks_maml0_does_nothing(args: Namespace,
@@ -564,7 +574,7 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
     assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     agent = args.meta_learner
     for split in ['train', 'val', 'test']:
-        data: Any = get_data(args.dataloaders, split)
+        data: Any = get_data(loader, split)
         losses, accs = agent.get_lists_accs_losses(data, training)
         assert isinstance(losses, list), f'losses should be a list of floats, but got {type(losses)=}'
         assert isinstance(losses[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
@@ -615,7 +625,7 @@ def get_usl_accs_losses_all_splits_usl(args: Namespace,
                                        model: nn.Module,
                                        loader,
                                        training: bool = True,
-                                       # False for SL, ML: https://stats.stackexchange.com/a/551153/28986
+                                       # False for standard SL without Meta-Learning: https://stats.stackexchange.com/a/551153/28986
                                        ) -> dict:
     results: dict = dict(train=dict(losses=[], accs=[]),
                          val=dict(losses=[], accs=[]),
@@ -629,7 +639,7 @@ def get_usl_accs_losses_all_splits_usl(args: Namespace,
     assert isinstance(agent, ClassificationSLAgent)  # leaving this to leave a consistent interface to get loader
     for split in ['train', 'val', 'test']:
         assert args.mdl_sl.cls.out_features != 5, f'Before assigning a new cls, it should not be 5-way yet, but got {args.mdl_sl.cls=}'
-        data: Any = get_data(args.dataloaders, split)
+        data: Any = get_data(loader, split)
         losses, accs = agent.get_lists_accs_losses(data, training)
         results[split]['losses'] = losses
         results[split]['accs'] = accs
