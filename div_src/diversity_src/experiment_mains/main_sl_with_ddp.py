@@ -2080,8 +2080,8 @@ def usl_hdb4_micod_resnet_rfs_log_more_often_0p9_acc_reached(args: Namespace) ->
     # args.log_freq = 20
     # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached', metric_to_use='train_acc',
     #                           threshold=0.9, log_speed_up=10)
-    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
-                                   log_speed_up=10)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
+    #                                log_speed_up=10)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
@@ -2171,8 +2171,8 @@ def usl_hdb4_micod_convg_reached_log_ckpt_more(args: Namespace) -> Namespace:
     # args.log_freq = 20
     # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached', metric_to_use='train_acc',
     #                           threshold=0.9, log_speed_up=10)
-    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
-                                   log_speed_up=1)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
+    #                                log_speed_up=1)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
@@ -2337,9 +2337,9 @@ def mds_usl(args: Namespace) -> Namespace:
     # - logging params
     args.log_freq = 500
     # args.log_freq = 20
-    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
-                                   metric_to_use='train_acc',
-                                   threshold=0.9, log_speed_up=10)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.9, log_speed_up=10)
     # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
     #                                log_speed_up=10)
 
@@ -2470,9 +2470,9 @@ def usl_hdb5_vggair_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> 
     args.num_its = 1_000_000_000
     #args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
 
-    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
-                                   metric_to_use='train_acc',
-                                   threshold=0.7, log_speed_up=10)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.7, log_speed_up=10)
 
     # - debug flag
     # args.debug = True

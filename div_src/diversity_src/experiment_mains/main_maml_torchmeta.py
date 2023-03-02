@@ -377,9 +377,9 @@ def mds_maml(args: Namespace) -> Namespace:
     # - logging params
     args.log_freq = 500
     # args.log_freq = 20
-    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
-                                   metric_to_use='train_acc',
-                                   threshold=0.9, log_speed_up=10)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.9, log_speed_up=10)
     # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
     #                                log_speed_up=10)
 

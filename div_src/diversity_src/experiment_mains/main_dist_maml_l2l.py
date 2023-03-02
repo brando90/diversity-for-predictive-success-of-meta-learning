@@ -2188,8 +2188,8 @@ def maml_hdb4_micod_resnet_rfs_scheduler_its_0p9_log_more_often(args: Namespace)
     # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
     #                                metric_to_use='train_acc',
     #                                threshold=0.9, log_speed_up=10)
-    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_acc',
-                                   log_speed_up=5)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_acc',
+    #                                log_speed_up=5)
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
@@ -2279,8 +2279,8 @@ def maml_hdb4_micod_log_more_often_convg(args: Namespace) -> Namespace:
     # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
     #                                metric_to_use='train_acc',
     #                                threshold=0.9, log_speed_up=10)
-    args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
-                                   log_speed_up=1)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
+    #                                log_speed_up=1)
 
     # -- wandb args
     # args.wandb_project = 'playground'  # needed to log to wandb properly
