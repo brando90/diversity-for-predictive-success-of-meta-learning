@@ -67,7 +67,7 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     args.training_mode = 'iterations'
 
     # note: 60K iterations for original maml 5CNN with adam
-    # args.num_its = 100_000
+    args.num_its = 100_000
 
     # - debug flag
     # args.debug = True
@@ -209,7 +209,7 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     args.training_mode = 'iterations'
 
     # note: 60K iterations for original maml 5CNN with adam
-    # args.num_its = 100_000
+    args.num_its = 100_000
 
     # - debug flag
     # args.debug = True
@@ -719,6 +719,7 @@ def resnet12rfs_hdb1_mio(args):
 
     # - training mode
     args.training_mode = 'iterations'  # needed so setup_args doesn't error out (sorry for confusioning line!)
+    args.num_its = 6
 
     # - debug flag
     # args.debug = True
@@ -799,6 +800,7 @@ def hdb4_micod(args):
 
     # - training mode
     args.training_mode = 'iterations'  # needed so setup_args doesn't error out (sorry for confusioning line!)
+    args.num_its = 6
 
     # - debug flag
     # args.debug = True
@@ -866,7 +868,7 @@ def hdb4_micod(args):
     # 5cnn 4 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/sgoiu5tx/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb02_14-00-49_jobid_991923_pid_2822438_wandb_True'  # ampere3
     # 5cnn 8 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/6qgk090q/overview?workspace=user-brando
-    # args.path_2_init_maml = '~/data/logs/logs_Feb04_17-31-05_jobid_28465_pid_102367_wandb_True' # ampere2
+    # args.path_2_init_maml = '~/data/logs/logs_Feb04_17- 31-05_jobid_28465_pid_102367_wandb_True' # ampere2
     # 5cnn 32 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/esu6l2gi/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb05_22-44-43_jobid_851192_pid_2766216_wandb_True'  # ampere3
     # 5cnn 64 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/nzvm7g44/overview?workspace=user-brando
@@ -911,7 +913,7 @@ def resnet18rfs_vggaircraft(args):
     args.training_mode = 'iterations'  # needed so setup_args doesn't error out
 
     # note: 60K iterations for original maml 5CNN with adam
-    # args.num_its = 100_000
+    args.num_its = 100_000
 
     # - debug flag
     # args.debug = True
@@ -1018,7 +1020,7 @@ def hdb5_vggair(args):
     args.training_mode = 'iterations'  # needed so setup_args doesn't error out
 
     # note: 60K iterations for original maml 5CNN with adam
-    # args.num_its = 100_000
+    args.num_its = 100_000
 
     # - debug flag
     # args.debug = True
@@ -1146,20 +1148,9 @@ def main_data_analyis():
     print(f'{try_printing_wandb_url(args.log_to_wandb)=}')
 
     # - set base_models to be used for experiments
-    print(f'{args.data_path=}')
-    args.mdl1 = args.meta_learner.base_model
-    args.mdl2 = get_sl_learner(args)
-    args.mdl_maml = args.mdl1
-    args.mdl_sl = args.mdl2
-    args.mdl_rand = deepcopy(args.mdl_maml)
-    reset_all_weights(args.mdl_rand)
-    assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl), f"Error, norms should be different: " \
-                                                                            f"{norm(args.mdl_rand)=} " \
-                                                                            f"{args.mdl_sl=}" \
-                                                                            f"{args.mdl_rand=}"
-    print(f'{args.data_path=}')
-    # assert equal_two_few_shot_cnn_models(args.mdl1,
-    #                                      args.mdl2), f'Error, models should have same arch but they do not:\n{args.mdl1=}\n{args.mdl2}'
+    from diversity_src.data_analysis.common import sanity_check_models_usl_maml_and_set_rand_model
+    sanity_check_models_usl_maml_and_set_rand_model(args)
+
     # - print path to checkpoints
     print(f'{args.path_2_init_sl=}')
     print(f'{args.path_2_init_maml=}')

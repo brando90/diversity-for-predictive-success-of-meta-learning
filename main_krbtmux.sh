@@ -106,7 +106,8 @@ tput rmcup
 krbtmux
 reauth
 
-# answer: https://www.reddit.com/r/HPC/comments/10x9w6x/comment/j7sg7w2/?utm_source=share&utm_medium=web2x&context=3 my copy paste to SO: https://stackoverflow.com/a/75403918/1601580
+# answer: https://www.reddit.com/r/HPC/comments/10x9w6x/comment/j7sg7w2/?utm_source=share&utm_medium=web2x&context=3 my copy paste to
+# SO: https://stackoverflow.com/a/75403918/1601580
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #conda activate metalearning_gpu

@@ -8,7 +8,8 @@ from argparse import Namespace
 import torch
 
 from diversity_src.data_analysis.common import basic_guards_that_maml_usl_and_rand_models_loaded_are_different, \
-    print_performance_4_maml, print_accs_losses_mutates_results, print_usl_accs_losses_mutates_results
+    print_performance_4_maml, print_accs_losses_mutates_results, print_usl_accs_losses_mutates_results, \
+    sanity_check_models_usl_maml_and_set_rand_model
 from uutils import save_to_json_pretty, save_args
 from uutils.logger import print_acc_loss_from_training_curve
 from uutils.plot import save_to
@@ -248,7 +249,7 @@ def aic_bic_gen_gap_analysis():
     pass
 
 
-# -- random debug code
+# -- tests, examples, debug_code etc.
 
 def _debug(args: Namespace):
     print('\n---- Start Debug ----')
@@ -313,6 +314,35 @@ def save_loss_histogram(args: Namespace, results: dict):
     save_to(args.log_root, plot_name='usl_accs_hist')
 
 
+def stats_analysis_with_emphasis_on_effect_size_test_():
+    # - effect size analysis -- usl vs maml
+    import uutils
+    from uutils.argparse_uu.meta_learning import get_args_mi_effect_size_analysis_default
+    args: Namespace = get_args_mi_effect_size_analysis_default()
+    # - get maml checkpoints
+    from diversity_src.data_analysis.common import get_maml_meta_learner
+    args.meta_learner = get_maml_meta_learner(args)
+    args = uutils.merge_args(starting_args=args.meta_learner.args, updater_args=args)  # second takes priority
+    args.meta_learner.args = args  # to avoid meta learner running with args only from past experiment and not with metric analysis experiment
+    # - rand model
+    from diversity_src.data_analysis.common import sanity_check_models_usl_maml_and_set_rand_model
+    sanity_check_models_usl_maml_and_set_rand_model(args)
+    # - setup data loaders: l2l -> torchmeta transform
+    from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
+    torchmeta_dataloaders: dict = get_meta_learning_dataloaders(args)
+    from uutils.torch_uu.dataloaders.helpers import get_sl_dataloader
+    usl_loaders: dict = get_sl_dataloader(args)
+    args.dataloaders = torchmeta_dataloaders
+    args.usl_loaders = usl_loaders
+    # - sanity checks for maml
+    args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
+    # decided to use the setting for FO that I have for torchmeta learners, but since there is no training it should not matter.
+    args.track_higher_grads = True
+    args.fo = True
+    # - do stats analysis
+    stats_analysis_with_emphasis_on_effect_size(args, hist=True)
+
+
 # - run it
 
 if __name__ == '__main__':
@@ -320,4 +350,5 @@ if __name__ == '__main__':
 
     start_time = time.time()
     # main()
+    stats_analysis_with_emphasis_on_effect_size_test_()
     print(f'Done in {time.time() - start_time} seconds')

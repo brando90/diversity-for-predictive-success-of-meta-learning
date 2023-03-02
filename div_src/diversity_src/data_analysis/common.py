@@ -22,6 +22,8 @@ from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_cifarfs_fc100
 
 from pdb import set_trace as st
 
+from uutils.torch_uu.training.common import get_data
+
 
 def setup_args_path_for_ckpt_data_analysis(args: Namespace,
                                            ckpt_filename: str = 'hardcoded_already_in_paths',
@@ -74,14 +76,14 @@ def santity_check_maml_accuracy(args: Namespace):
     # - good maml with proper adaptaiton
     print('\n- Sanity check: MAML vs MAML0 (1st should have better performance but there is an assert to check it too)')
     print(f'{args.meta_learner.inner_lr=}')
-    eval_loss, _, eval_acc, _ = eval_sl(args, args.agent, args.dataloaders, split='val', training=True)
+    eval_loss, _, eval_acc, _ = do_eval(args, args.agent, args.dataloaders, split='val', training=True)
     print(f'{eval_loss=}, {eval_acc=}')
 
     # - with no adaptation
     original_inner_lr = args.meta_learner.inner_lr
     args.meta_learner.inner_lr = 0
     print(f'{args.meta_learner.inner_lr=}')
-    eval_loss_maml0, _, eval_acc_maml0, _ = eval_sl(args, args.agent, args.dataloaders, split='val', training=True)
+    eval_loss_maml0, _, eval_acc_maml0, _ = do_eval(args, args.agent, args.dataloaders, split='val', training=True)
     print(f'{eval_loss_maml0=}, {eval_acc_maml0=}')
     assert eval_acc_maml0 < eval_acc, f'The accuracy of no adaptation should be smaller but got ' \
                                       f'{eval_acc_maml0=}, {eval_acc=}'
@@ -127,6 +129,21 @@ def get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin: int = 10):
         return 100
     else:
         raise ValueError(f'Not implemented for value: {safety_margin=}')
+
+
+def sanity_check_models_usl_maml_and_set_rand_model(args: Namespace) -> None:
+    print(f'{args.data_path=}')
+    args.mdl1 = args.meta_learner.base_model
+    args.mdl2 = get_sl_learner(args)
+    args.mdl_maml = args.mdl1
+    args.mdl_sl = args.mdl2
+    args.mdl_rand = deepcopy(args.mdl_maml)
+    reset_all_weights(args.mdl_rand)
+    assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl), f"Error, norms should be different: " \
+                                                                            f"{norm(args.mdl_rand)=} " \
+                                                                            f"{args.mdl_sl=}" \
+                                                                            f"{args.mdl_rand=}"
+    # args.model = args.mdl_sl  # to bypass the sanity check usl does for right number of cls layers
 
 
 # --
@@ -490,9 +507,6 @@ def get_meta_learning_dataloaders_for_data_analysis(args: Namespace):
         # this hack is here so that if it was meant not meant as l2l, to no-op and only use the torchmeta data set
         logging.warning(f'{e}')
         pass
-    # todo: not sure if this is the ver we need args.dataloaders = args.tasksets  # for the sake that eval_sl can detect how to get examples for eval
-    args.dataloaders['']
-
 
 # - helper function for new stats analysis based on effect size
 
@@ -531,7 +545,7 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
         - note the old code had all these asserts because it used usl+ffl at the end, so it was for extra safety nothing
         went wrong.
         - note that we use the torchmeta MAML for consistency of data loader but I don't think it's needed since the
-        code bellow get_eval_lists_accs_losses detects the type of loader and uses the correct one.
+        code bellow  detects the type of loader and uses the correct one.
     Warning:
         - alwaus manually specify nb_inner_steps and inner_lr. This function might mutate the meta-learner/agent. Sorry! Wont fix.
     """
@@ -550,8 +564,8 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
     assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     agent = args.meta_learner
     for split in ['train', 'val', 'test']:
-        from uutils.torch_uu.eval.eval import get_eval_lists_accs_losses
-        losses, accs = get_eval_lists_accs_losses(args, agent, loader, split, training=training)
+        data: Any = get_data(args.dataloaders, split)
+        losses, accs = agent.get_lists_accs_losses(data, training)
         assert isinstance(losses, list), f'losses should be a list of floats, but got {type(losses)=}'
         assert isinstance(losses[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
         results[split]['losses'] = losses
@@ -588,8 +602,8 @@ def get_episodic_accs_losses_all_splits_usl(args: Namespace,
     agent = FitFinalLayer(args, base_model=model)
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
     for split in ['train', 'val', 'test']:
-        from uutils.torch_uu.eval.eval import get_eval_lists_accs_losses
-        losses, accs = get_eval_lists_accs_losses(args, agent, loader, split, training=training)
+        data: Any = get_data(args.dataloaders, split)
+        losses, accs = agent.get_lists_accs_losses(data, training)
         results[split]['losses'] = losses
         results[split]['accs'] = accs
     # - return results
@@ -614,9 +628,9 @@ def get_usl_accs_losses_all_splits_usl(args: Namespace,
     agent: Agent = ClassificationSLAgent(args, model)
     assert isinstance(agent, ClassificationSLAgent)  # leaving this to leave a consistent interface to get loader
     for split in ['train', 'val', 'test']:
-        from uutils.torch_uu.eval.eval import get_eval_lists_accs_losses
         assert args.mdl_sl.cls.out_features != 5, f'Before assigning a new cls, it should not be 5-way yet, but got {args.mdl_sl.cls=}'
-        losses, accs = get_eval_lists_accs_losses(args, agent, loader, split, training=training)
+        data: Any = get_data(args.dataloaders, split)
+        losses, accs = agent.get_lists_accs_losses(data, training)
         results[split]['losses'] = losses
         results[split]['accs'] = accs
     # - return results
@@ -711,6 +725,7 @@ def check_usl_final_layer_changes_to_mamls_outfeatures():
     assert args.mdl_sl.cls.out_features == 5, f'expected 5-way cls, but got {args.mdl_sl.cls.out_features=}'
     print(f'{args.mdl_maml.cls=}')
     print(f'{args.mdl_sl.cls=}')
+
 
 # - run main
 
