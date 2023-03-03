@@ -875,7 +875,9 @@ def hdb4_micod(args):
     # 5ccn 2 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/bjxl55ul/overview?workspace=
     # args.path_2_init_maml = '~//data/logs/logs_Feb09_20-11-25_jobid_178745_pid_1187212_wandb_True'  # ampere1
     # 5cnn 4 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/sgoiu5tx/overview?workspace=user-brando
-    # args.path_2_init_maml = '~/data/logs/logs_Feb02_14-00-49_jobid_991923_pid_2822438_wandb_True'  # ampere3
+    args.path_2_init_maml = '~/data/logs/logs_Feb02_14-00-49_jobid_991923_pid_2822438_wandb_True'  # ampere3
+    # 5cnn 4 filers redo: https://wandb.ai/brando/entire-diversity-spectrum/runs/ulcwxwl0/overview?workspace=user-brando
+    # args.path_2_init_maml = ''  # ampere1
     # 5cnn 6 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/1npe2tv4?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb09_20-13-39_jobid_64221_pid_1202222_wandb_True'  # ampere1
     # 5cnn 8 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/6qgk090q/overview?workspace=user-brando

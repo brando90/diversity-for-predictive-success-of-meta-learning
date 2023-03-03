@@ -111,7 +111,7 @@ reauth
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #conda activate metalearning_gpu
-export CUDA_VISIBLE_DEVICES=3
+export CUDA_VISIBLE_DEVICES=0
 export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES; echo SLURM_JOBID = $SLURM_JOBID; echo hostname = $(hostname)
 ulimit -n 120000; ulimit -Sn; ulimit -Hn
@@ -130,6 +130,7 @@ tmux new -s gpu5
 tmux new -s gpu6
 tmux new -s gpu7
 
+tmux new -s gpu0_p2
 tmux new -s gpu3_p2
 tmux new -s gpu3_p3
 tmux new -s gpu3_p4
@@ -203,6 +204,8 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 64 --model_option 5CNN_opt_as_model_for_few_shot
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 256 --model_option 5CNN_opt_as_model_for_few_shot
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 512 --model_option 5CNN_opt_as_model_for_few_shot
+
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --path_to_checkpoint "~/data/logs/logs_Feb02_14-00-49_jobid_991923_pid_2822438_wandb_True/ckpt.pt"
 
 # - performance comp usl vs maml
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name resnet12rfs_hdb1_mio

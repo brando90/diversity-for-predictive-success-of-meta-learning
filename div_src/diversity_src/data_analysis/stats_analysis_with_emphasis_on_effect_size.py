@@ -93,7 +93,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
                                                                      results)
 
     # -- do statistical analysis based on effect size
-    print('\n\n---- Statistical analysis based on effect size ----')
+    print('\n\n\n\n---- Statistical analysis based on effect size (usl vs maml) ----')
     from uutils.stats_uu.effect_size import stat_test_with_effect_size_as_emphasis
     args.acceptable_difference1 = args.acceptable_difference1 if hasattr(args, 'acceptable_difference1') else 0.01
     args.acceptable_difference2 = args.acceptable_difference2 if hasattr(args, 'acceptable_difference2') else 0.02
