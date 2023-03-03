@@ -850,10 +850,11 @@ def hdb4_micod(args):
     # trained to 0.98828125 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/3kod7pdv?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Jan26_20-35-37_jobid_923629_pid_653526_wandb_True'  # train acc 0.98828125, ampere4
     # 5ccn 2 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/u1ndwad4/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Feb09_19-37-27_jobid_667717_pid_967757_wandb_True' # ampere1
+    # args.path_2_init_sl = '~/data/logs/logs_Feb09_19-37-27_jobid_667717_pid_967757_wandb_True' # ampere1
     # 5cnn 4 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/r8xgfx07?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb02_14-00-31_jobid_43228_pid_2821217_wandb_True'  # ampere3
-
+    # 5cnn 6 filers: https://wandb.ai/brando/entire-diversity-spectrum/runs/v8wih11u/overview?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Feb09_19-29-40_jobid_486495_pid_934615_wandb_True'  # ampere1
     # 5cnn 8 filers: https://wandb.ai/brando/entire-diversity-spectrum/runs/klzycucu/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb04_17-27-39_jobid_191466_pid_101120_wandb_True'  # ampere2
     # 5cnn 32 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/fnmjoy4e/overview?workspace=user-brando
@@ -862,7 +863,8 @@ def hdb4_micod(args):
     # args.path_2_init_sl = '~/data/logs/logs_Feb07_00-50-02_jobid_486495_pid_1613676_wandb_True'  # ampere1
     # # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/fuxwz30l/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb04_17-38-21_jobid_855372_pid_2723881_wandb_True'  # ampere1
-
+    # 5ccn 512 flters: https://wandb.ai/brando/entire-diversity-spectrum/runs/cstug9f3?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Feb09_19-33-20_jobid_899282_pid_948111_wandb_True'  # ampere1
 
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
@@ -871,10 +873,11 @@ def hdb4_micod(args):
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/11od07w0/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Jan26_20-28-37_jobid_406367_pid_649975_wandb_True'  # train acc 0.9911110997200012, ampere4
     # 5ccn 2 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/bjxl55ul/overview?workspace=
-    args.path_2_init_maml = '~//data/logs/logs_Feb09_20-11-25_jobid_178745_pid_1187212_wandb_True'  # ampere1
+    # args.path_2_init_maml = '~//data/logs/logs_Feb09_20-11-25_jobid_178745_pid_1187212_wandb_True'  # ampere1
     # 5cnn 4 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/sgoiu5tx/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb02_14-00-49_jobid_991923_pid_2822438_wandb_True'  # ampere3
-
+    # 5cnn 6 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/1npe2tv4?workspace=user-brando
+    # args.path_2_init_maml = '~/data/logs/logs_Feb09_20-13-39_jobid_64221_pid_1202222_wandb_True'  # ampere1
     # 5cnn 8 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/6qgk090q/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb04_17- 31-05_jobid_28465_pid_102367_wandb_True' # ampere2
     # 5cnn 32 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/esu6l2gi/overview?workspace=user-brando
@@ -883,13 +886,15 @@ def hdb4_micod(args):
     # args.path_2_init_maml = '~/data/logs/logs_Feb07_00-48-16_jobid_670102_pid_1612658_wandb_True'  # ampere1
     # # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/96wo1c43/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb04_17-39-17_jobid_568243_pid_2724751_wandb_True'  # ampere1
+    # 5cnn 512 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/6gte637k?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Feb09_20-11-20_jobid_77267_pid_1186966_wandb_True'  # ampere1
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     args.experiment_name = f'{args.manual_loads_name} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -1003,6 +1008,7 @@ def resnet18rfs_vggaircraft(args):
     args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
     return args
 
+
 # -- hdb5
 
 def hdb5_vggair(args):
@@ -1012,7 +1018,7 @@ def hdb5_vggair(args):
     #     get_feature_extractor_conv_layers
     # - model
     args.model_option = 'resnet12_rfs'
-    #args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
     args.data_path = '/home/pzy2/data/l2l_data'
     # - data
     # args.data_option = 'torchmeta_cifarfs'  # no name assumes l2l
@@ -1020,7 +1026,7 @@ def hdb5_vggair(args):
     # args.augment_train = True
     args.data_option = 'hdb5_vggair'
     args.data_augmentation = 'hdb5_vggair'
-    #args.sources = ['vgg_flower', 'aircraft']
+    # args.sources = ['vgg_flower', 'aircraft']
     # args.data_path = Path('~/data/l2l_data/').expanduser()
     # args.data_augmentation = 'mds'
 
@@ -1077,7 +1083,7 @@ def hdb5_vggair(args):
     # args.safety_margin = 10
     # args.safety_margin = 20
 
-    args.batch_size = 500#1000#500#500#500#500
+    args.batch_size = 500  # 1000#500#500#500#500
     # args.batch_size = 10_000
     args.batch_size_eval = args.batch_size
 
@@ -1086,7 +1092,7 @@ def hdb5_vggair(args):
     # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_head(safety_margin=args.safety_margin)
 
     # - expt option
-    #args.stats_analysis_option = 'performance_comparison'
+    # args.stats_analysis_option = 'performance_comparison'
     args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_hist'
     args.acceptable_difference1 = 0.01
     args.acceptable_difference2 = 0.02
@@ -1096,16 +1102,16 @@ def hdb5_vggair(args):
     args.agent_opt = 'MAMLMetaLearner'
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
-    args.path_2_init_sl = '~/data/logs/logs_Feb05_16-58-24_jobid_-1_pid_72478_wandb_True' #logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
-    args.path_2_init_maml = '~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'#'~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
+    args.path_2_init_sl = '~/data/logs/logs_Feb05_16-58-24_jobid_-1_pid_72478_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
+    args.path_2_init_maml = '~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
     # '~/data/logs/logs_Jan21_13-56-48_jobid_-1'  # train acc 0.9667 and rising
 
-    #'~/data/logs/logs_Feb04_13-24-44_jobid_-1_pid_13959_wandb_True'#
-    #'~/data/logs/logs_Feb04_13-23-16_jobid_-1_pid_52575_wandb_True'#
+    # '~/data/logs/logs_Feb04_13-24-44_jobid_-1_pid_13959_wandb_True'#
+    # '~/data/logs/logs_Feb04_13-23-16_jobid_-1_pid_52575_wandb_True'#
 
     # -- wandb args
     args.wandb_entity = 'brando-uiuc'
-    args.wandb_project = 'hdb5 perf comp'#'SL vs MAML MDS Subsets'  # 'entire-diversity-spectrum'
+    args.wandb_project = 'hdb5 perf comp'  # 'SL vs MAML MDS Subsets'  # 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'{args.stats_analysis_option}_resnet18rfs_mds_vggaircraft'
     args.run_name = f'{args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
@@ -1117,7 +1123,6 @@ def hdb5_vggair(args):
     # - setup paths to ckpts for data analysis
     args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
     return args
-
 
 
 # -- data analysis

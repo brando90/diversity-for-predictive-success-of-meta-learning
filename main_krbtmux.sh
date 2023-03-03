@@ -131,6 +131,8 @@ tmux new -s gpu6
 tmux new -s gpu7
 
 tmux new -s gpu3_p2
+tmux new -s gpu3_p3
+tmux new -s gpu3_p4
 
 tmux new -s mds0_maml_resnet50rfs
 tmux new -s mds1_maml_resnet50rfs
