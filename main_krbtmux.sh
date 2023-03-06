@@ -111,7 +111,8 @@ reauth
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #conda activate metalearning_gpu
-export CUDA_VISIBLE_DEVICES=0
+#export CUDA_VISIBLE_DEVICES=5
+export CUDA_VISIBLE_DEVICES=0,2
 export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES; echo SLURM_JOBID = $SLURM_JOBID; echo hostname = $(hostname)
 ulimit -n 120000; ulimit -Sn; ulimit -Hn
@@ -131,9 +132,12 @@ tmux new -s gpu6
 tmux new -s gpu7
 
 tmux new -s gpu0_p2
+tmux new -s gpu5_p2
 tmux new -s gpu3_p2
 tmux new -s gpu3_p3
 tmux new -s gpu3_p4
+
+tmux new -s rand2
 
 tmux new -s mds0_maml_resnet50rfs
 tmux new -s mds1_maml_resnet50rfs

@@ -1,3 +1,5 @@
+import os
+
 import logging
 from argparse import Namespace
 from copy import deepcopy, copy
@@ -7,7 +9,7 @@ from typing import Optional, Any
 import torch
 from torch import nn
 
-from uutils.torch_uu import norm, process_meta_batch
+from uutils.torch_uu import norm, process_meta_batch, get_device
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.agents.supervised_learning import ClassificationSLAgent
 from uutils.torch_uu.eval.eval import do_eval
@@ -248,7 +250,10 @@ def get_sl_learner(args: Namespace):
 
     # args.meta_learner = _get_agent(args)
     if torch.cuda.is_available():
-        args.meta_learner.base_model = args.model.cuda()
+        gpu_idx: int = 0
+        device: torch.device = get_device(gpu_idx)
+        print(f'{device=}')
+        args.meta_learner.base_model = args.model.to(device)
     return model
 
 
@@ -271,7 +276,10 @@ def get_maml_meta_learner(args: Namespace):
 
     args.meta_learner = _get_maml_agent(args)
     if torch.cuda.is_available():
-        args.meta_learner.base_model = base_model.cuda()
+        gpu_idx: int = 1
+        device: torch.device = get_device(gpu_idx)
+        print(f'{device=}')
+        args.meta_learner.base_model = args.model.to(device)
     return args.meta_learner
 
 

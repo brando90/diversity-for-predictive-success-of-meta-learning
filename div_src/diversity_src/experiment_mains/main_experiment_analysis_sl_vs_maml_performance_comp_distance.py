@@ -857,14 +857,16 @@ def hdb4_micod(args):
     # args.path_2_init_sl = '~/data/logs/logs_Feb09_19-29-40_jobid_486495_pid_934615_wandb_True'  # ampere1
     # 5cnn 8 filers: https://wandb.ai/brando/entire-diversity-spectrum/runs/klzycucu/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb04_17-27-39_jobid_191466_pid_101120_wandb_True'  # ampere2
+    # 5cnn 12 filter: https://wandb.ai/brando/entire-diversity-spectrum/runs/exjfe0ra/overview?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Feb10_14-41-07_jobid_341648_pid_3896402_wandb_True'  # ampere1, corresponding maml failed
     # 5cnn 32 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/fnmjoy4e/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb05_22-46-35_jobid_38937_pid_2768598_wandb_True'  # ampere3
     # 5ccn 64 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/1q25bgx0?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb07_00-50-02_jobid_486495_pid_1613676_wandb_True'  # ampere1
     # # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/fuxwz30l/overview?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Feb04_17-38-21_jobid_855372_pid_2723881_wandb_True'  # ampere1
+    args.path_2_init_sl = '~/data/logs/logs_Feb04_17-38-21_jobid_855372_pid_2723881_wandb_True'  # ampere1
     # 5ccn 512 flters: https://wandb.ai/brando/entire-diversity-spectrum/runs/cstug9f3?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Feb09_19-33-20_jobid_899282_pid_948111_wandb_True'  # ampere1
+    # args.path_2_init_sl = '~/data/logs/logs_Feb09_19-33-20_jobid_899282_pid_948111_wandb_True'  # ampere1
 
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
@@ -875,21 +877,23 @@ def hdb4_micod(args):
     # 5ccn 2 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/bjxl55ul/overview?workspace=
     # args.path_2_init_maml = '~//data/logs/logs_Feb09_20-11-25_jobid_178745_pid_1187212_wandb_True'  # ampere1
     # 5cnn 4 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/sgoiu5tx/overview?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_Feb02_14-00-49_jobid_991923_pid_2822438_wandb_True'  # ampere3
+    # args.path_2_init_maml = '~/data/logs/logs_Feb02_14-00-49_jobid_991923_pid_2822438_wandb_True'  # ampere1,2,3,4
     # 5cnn 4 filers redo: https://wandb.ai/brando/entire-diversity-spectrum/runs/ulcwxwl0/overview?workspace=user-brando
     # args.path_2_init_maml = ''  # ampere1
     # 5cnn 6 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/1npe2tv4?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb09_20-13-39_jobid_64221_pid_1202222_wandb_True'  # ampere1
     # 5cnn 8 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/6qgk090q/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb04_17- 31-05_jobid_28465_pid_102367_wandb_True' # ampere2
+    # 5cnn 12 filter: https://wandb.ai/brando/entire-diversity-spectrum/runs/fdnl1d1c/overview?workspace=user-brando
+    # args.path_2_init_maml = 'FAILED'
     # 5cnn 32 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/esu6l2gi/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb05_22-44-43_jobid_851192_pid_2766216_wandb_True'  # ampere3
     # 5cnn 64 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/nzvm7g44/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb07_00-48-16_jobid_670102_pid_1612658_wandb_True'  # ampere1
     # # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/96wo1c43/overview?workspace=user-brando
-    # args.path_2_init_maml = '~/data/logs/logs_Feb04_17-39-17_jobid_568243_pid_2724751_wandb_True'  # ampere1
+    args.path_2_init_maml = '~/data/logs/logs_Feb04_17-39-17_jobid_568243_pid_2724751_wandb_True'  # ampere1
     # 5cnn 512 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/6gte637k?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_Feb09_20-11-20_jobid_77267_pid_1186966_wandb_True'  # ampere1
+    # args.path_2_init_maml = '~/data/logs/logs_Feb09_20-11-20_jobid_77267_pid_1186966_wandb_True'  # ampere1
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
