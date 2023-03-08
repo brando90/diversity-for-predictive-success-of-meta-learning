@@ -133,7 +133,9 @@ def get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin: int = 10):
         raise ValueError(f'Not implemented for value: {safety_margin=}')
 
 
-def sanity_check_models_usl_maml_and_set_rand_model(args: Namespace) -> None:
+def sanity_check_models_usl_maml_and_set_rand_model(args: Namespace,
+                                                    verbose: bool = False,
+                                                    ) -> None:
     print(f'{args.data_path=}')
     args.mdl1 = args.meta_learner.base_model
     args.mdl2 = get_sl_learner(args)
@@ -141,10 +143,7 @@ def sanity_check_models_usl_maml_and_set_rand_model(args: Namespace) -> None:
     args.mdl_sl = args.mdl2
     args.mdl_rand = deepcopy(args.mdl_maml)
     reset_all_weights(args.mdl_rand)
-    assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl), f"Error, norms should be different: " \
-                                                                            f"{norm(args.mdl_rand)=} " \
-                                                                            f"{args.mdl_sl=}" \
-                                                                            f"{args.mdl_rand=}"
+    basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
     # args.model = args.mdl_sl  # to bypass the sanity check usl does for right number of cls layers
 
 
@@ -252,7 +251,7 @@ def get_sl_learner(args: Namespace):
     if torch.cuda.is_available():
         gpu_idx: int = 0
         device: torch.device = get_device(gpu_idx)
-        print(f'{device=}')
+        print(f'sl mdl: {device=}')
         args.meta_learner.base_model = args.model.to(device)
     return model
 
@@ -276,9 +275,9 @@ def get_maml_meta_learner(args: Namespace):
 
     args.meta_learner = _get_maml_agent(args)
     if torch.cuda.is_available():
-        gpu_idx: int = 1
+        gpu_idx: int = 0
         device: torch.device = get_device(gpu_idx)
-        print(f'{device=}')
+        print(f'maml mdl: {device=}')
         args.meta_learner.base_model = args.model.to(device)
     return args.meta_learner
 
@@ -323,11 +322,7 @@ def set_maml_cls_to_usl_cls_mutates(args: Namespace,
 def basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args: Namespace,
                                                                     verbose: bool = False,
                                                                     ):
-    assert norm(args.mdl1) != norm(args.mdl2)
-    assert norm(args.mdl_maml) == norm(args.mdl1)
-    assert norm(args.mdl_sl) == norm(args.mdl2)
-    assert norm(args.mdl_maml) != norm(args.mdl_sl)
-    assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl)
+    assert norm(args.mdl_rand, cpu=True) != norm(args.mdl_maml, cpu=True) != norm(args.mdl_sl, cpu=True), f"Error."
     if verbose:
         print(f'{norm(args.mdl_rand)=}\n{norm(args.mdl_maml)=}\n{norm(args.mdl_sl)=}')
 

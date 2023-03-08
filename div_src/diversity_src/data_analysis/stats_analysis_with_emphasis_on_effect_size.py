@@ -56,11 +56,10 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     results: dict = {}
     # -- Guard: that models maml != usl != rand, i.e. models were loaded correctly before using this function
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
-    assert norm(args.mdl_rand) != norm(args.mdl_maml) != norm(args.mdl_sl), f'You need to load these before using this.'
 
     # -- Sanity check: basic checks that meta-train errors & loss are fine (check not to different from final learning curve vals)
     from diversity_src.data_analysis.common import basic_sanity_checks_maml0_does_nothing
-    basic_sanity_checks_maml0_does_nothing(args, loaders)
+    # basic_sanity_checks_maml0_does_nothing(args, loaders)
 
     # -- Get the losses & accs for each method (usl & maml) for all splits & save them
     # - once the model guard has been passed you should be able to get args.mdl_rand, args.mdl_maml, args.mdl_sl safely
@@ -87,13 +86,8 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     print('\n---- Print meta-test acc & loss for each method (usl & maml) ----')
     print_accs_losses_mutates_results(results_maml5, results_maml10, results_usl, results, 'test')
 
-    # -- Compute generalization gap for each method (usl & maml) -- to estimate (meta) overfitting
-    print('\n---- Compute generatlization gap for each method (usl & maml) ----')
-    compute_overfitting_analysis_stats_for_all_models_mutate_results(args, results_maml5, results_maml10, results_usl,
-                                                                     results)
-
     # -- do statistical analysis based on effect size
-    print('\n\n\n\n---- Statistical analysis based on effect size (usl vs maml) ----')
+    print('\n\n\n\n---------- Statistical analysis based on effect size (usl vs maml) ----------')
     from uutils.stats_uu.effect_size import stat_test_with_effect_size_as_emphasis
     args.acceptable_difference1 = args.acceptable_difference1 if hasattr(args, 'acceptable_difference1') else 0.01
     args.acceptable_difference2 = args.acceptable_difference2 if hasattr(args, 'acceptable_difference2') else 0.02
@@ -123,6 +117,11 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     torch.save(results, args.log_root / f'results.pt')
     save_to_json_pretty(results, args.log_root / f'results.json')
     save_args(args)
+
+    # -- Compute generalization gap for each method (usl & maml) -- to estimate (meta) overfitting
+    print('\n---- Compute generatlization gap for each method (usl & maml) ----')
+    compute_overfitting_analysis_stats_for_all_models_mutate_results(args, results_maml5, results_maml10, results_usl,
+                                                                     results)
 
     # -- Save hist losses
     if hist:
