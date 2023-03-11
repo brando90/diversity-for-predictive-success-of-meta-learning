@@ -1,4 +1,6 @@
-# I want to send a compressed tar.gz file located locally at path /Users/patrickyu/Documents/ilsvrc.tar.gz and want to send it to the server brando9@ampere4.stanford.edu and in the server the path is /lfs/ampere4/0/brando9/data/mds, how do I do this in bash?
+# I want to send a compressed tar.gz file located locally at path /Users/patrickyu/Documents/ilsvrc.tar.gz and want to
+# send it to the server brando9@ampere4.stanford.edu and in the server the path is /lfs/ampere4/0/brando9/data/mds
+# how do I do this in bash?
 #scp /Users/patrickyu/Documents/ilsvrc.tar.gz brando9@ampere4.stanford.edu:/lfs/ampere4/0/brando9/data/mds
 scp /Users/patrickyu/Documents/ilsvrc.tar.gz brando9@ampere4.stanford.edu:/lfs/ampere4/0/brando9/data/mds/records/
 echo $RECORDS

@@ -818,7 +818,9 @@ def hdb4_micod(args: Namespace) -> Namespace:
     # args.batch_size = 5  # useful for debugging!
     # args.batch_size = 30
     # args.batch_size = 100
-    # args.batch_size = 500
+    # args.batch_size = 250
+    # args.batch_size = 300
+    args.batch_size = 500
     # args.batch_size = 1000
     # args.batch_size = 2000
     # args.batch_size = 5000
@@ -866,7 +868,7 @@ def hdb4_micod(args: Namespace) -> Namespace:
     # 5ccn 64 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/1q25bgx0?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb07_00-50-02_jobid_486495_pid_1613676_wandb_True'  # ampere1
     # # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/fuxwz30l/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Feb04_17-38-21_jobid_855372_pid_2723881_wandb_True'  # ampere1
+    # args.path_2_init_sl = '~/data/logs/logs_Feb04_17-38-21_jobid_855372_pid_2723881_wandb_True'  # ampere1
     # 5ccn 512 flters: https://wandb.ai/brando/entire-diversity-spectrum/runs/cstug9f3?workspace=user-brando
     args.path_2_init_sl = '~/data/logs/logs_Feb09_19-33-20_jobid_899282_pid_948111_wandb_True'  # ampere1
 
@@ -895,7 +897,7 @@ def hdb4_micod(args: Namespace) -> Namespace:
     # 5cnn 64 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/nzvm7g44/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb07_00-48-16_jobid_670102_pid_1612658_wandb_True'  # ampere1
     # # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/96wo1c43/overview?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_Feb04_17-39-17_jobid_568243_pid_2724751_wandb_True'  # ampere1
+    # args.path_2_init_maml = '~/data/logs/logs_Feb04_17-39-17_jobid_568243_pid_2724751_wandb_True'  # ampere1
     # 5cnn 512 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/6gte637k?workspace=user-brando
     args.path_2_init_maml = '~/data/logs/logs_Feb09_20-11-20_jobid_77267_pid_1186966_wandb_True'  # ampere1
 
@@ -1166,8 +1168,11 @@ def mds_full(args: Namespace) -> Namespace:
     args.batch_size = 2  # useful for debugging!
     # args.batch_size = 5  # useful for debugging!
     # args.batch_size = 30
-    args.batch_size = 100
-    # args.batch_size = 500
+    # args.batch_size = 100
+    # args.batch_size = 250
+    # args.batch_size = 400
+    args.batch_size = 500
+    # args.batch_size = 900
     # args.batch_size = 1000
     # args.batch_size = 2000
     # args.batch_size = 5000
@@ -1189,14 +1194,14 @@ def mds_full(args: Namespace) -> Namespace:
 
     # - ckpt name
     # resnet50: https://wandb.ai/brando/entire-diversity-spectrum/runs/1laypoiy?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Feb03_15-02-19_jobid_231971_pid_1421508_wandb_True'  # ampere 4 time of writing 0.820 train acc 0.832 train loss
+    args.path_2_init_sl = '~/data/logs/logs_Feb03_15-02-19_jobid_231971_pid_1421508_wandb_True'  # ampere 4 time of writing 0.820 train acc 0.832 train loss
     # resnet50: https://wandb.ai/brando/entire-diversity-spectrum/runs/1z3mm027?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Mar07_12-53-56_jobid_231971_pid_3226323_wandb_True/'  # ampere4
     # resnet50: https://wandb.ai/brando/entire-diversity-spectrum/runs/190osagh?workspace=user-brando
     args.path_2_init_sl = '~/data/logs/logs_Feb03_15-34-50_jobid_343974_pid_1433204_wandb_True'  # ampere 4 time of writing 0.805 train acc 0.934 train loss
 
     # resnet50: https://wandb.ai/brando/entire-diversity-spectrum/runs/3844zgd4/overview?workspace=user-brando
-    # args.path_2_init_maml = '~/data/logs/logs_Feb03_15-23-28_jobid_610011_pid_1428316_wandb_True'  # ampere 4 time of writing 0.964 train acc 0.110 train loss
+    args.path_2_init_maml = '~/data/logs/logs_Feb03_15-23-28_jobid_610011_pid_1428316_wandb_True'  # ampere 4 time of writing 0.964 train acc 0.110 train loss
     # resnet50: https://wandb.ai/brando/entire-diversity-spectrum/runs/30651kln/overview?workspace=user-brando
     args.path_2_init_maml = '~/data/logs/logs_Feb03_14-53-34_jobid_873902_pid_1417320_wandb_True'  # ampere 4 time of writing 0.915 train acc 0.242 train loss
 
@@ -1251,7 +1256,9 @@ def main_data_analyis():
 
     # - set base_models to be used for experiments
     from diversity_src.data_analysis.common import sanity_check_models_usl_maml_and_set_rand_model
-    sanity_check_models_usl_maml_and_set_rand_model(args)
+    # sanity_check_models_usl_maml_and_set_rand_model(args)
+    sanity_check_models_usl_maml_and_set_rand_model(args, use_rand_mdl=False)
+    # sanity_check_models_usl_maml_and_set_rand_model(args, use_rand_mdl=args.use_rand_mdl)
 
     # - print path to checkpoints
     print(f'{args.path_2_init_sl=}')
@@ -1286,7 +1293,9 @@ def main_data_analyis():
     # -- do data analysis
     print(f'{try_printing_wandb_url(args.log_to_wandb)=}')
     print('\n\n---------- Start analysis ----------')
+    print(f'{os.environ["CUDA_VISIBLE_DEVICES"]=}')
     print(f'{args.stats_analysis_option=}')
+    print(f'{args.batch_size=}') if hasattr(args, 'batch_size') else None
     if args.stats_analysis_option == 'performance_comparison':
         comparison_via_performance(args)
     elif args.stats_analysis_option == 'stats_analysis_with_emphasis_on_effect_size':

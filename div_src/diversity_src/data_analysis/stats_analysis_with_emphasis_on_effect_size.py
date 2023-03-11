@@ -8,8 +8,7 @@ from argparse import Namespace
 import torch
 
 from diversity_src.data_analysis.common import basic_guards_that_maml_usl_and_rand_models_loaded_are_different, \
-    print_performance_4_maml, print_accs_losses_mutates_results, print_usl_accs_losses_mutates_results, \
-    sanity_check_models_usl_maml_and_set_rand_model
+    print_performance_4_maml, print_accs_losses_mutates_results, print_usl_accs_losses_mutates_results
 from uutils import save_to_json_pretty, save_args
 from uutils.logger import print_acc_loss_from_training_curve
 from uutils.plot import save_to
@@ -55,22 +54,28 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     # - results dict
     results: dict = {}
     # -- Guard: that models maml != usl != rand, i.e. models were loaded correctly before using this function
-    basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
+    # basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
+    # basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args, use_rand_mdl=False)
+    # basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args, use_rand_mdl=args.use_rand_mdl)
 
     # -- Sanity check: basic checks that meta-train errors & loss are fine (check not to different from final learning curve vals)
-    from diversity_src.data_analysis.common import basic_sanity_checks_maml0_does_nothing
+    # from diversity_src.data_analysis.common import basic_sanity_checks_maml0_does_nothing
     # basic_sanity_checks_maml0_does_nothing(args, loaders)
 
     # -- Get the losses & accs for each method (usl & maml) for all splits & save them
     # - once the model guard has been passed you should be able to get args.mdl_rand, args.mdl_maml, args.mdl_sl safely
+    print('\n-> computing accs & losses for maml5...')
     from diversity_src.data_analysis.common import get_episodic_accs_losses_all_splits_maml
     results_maml5: dict = get_episodic_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 5, original_inner_lr)
+    print('\n-> computing accs & losses for maml10...')
     results_maml10: dict = get_episodic_accs_losses_all_splits_maml(args, args.mdl_maml, loaders, 10, original_inner_lr)
-    from diversity_src.data_analysis.common import get_episodic_accs_losses_all_splits_usl, \
-        get_usl_accs_losses_all_splits_usl
-    results_usl_usl: dict = get_usl_accs_losses_all_splits_usl(args, args.mdl_sl, args.usl_loaders)
+    from diversity_src.data_analysis.common import get_usl_accs_losses_all_splits_usl
+    print('\n-> computing accs & losses for usl...')
+    # results_usl_usl: dict = get_usl_accs_losses_all_splits_usl(args, args.mdl_sl, args.usl_loaders)
     # goes later since this modifies cls layer for args.mdl_sl (we do have asserts to guard us from bugs)
+    from diversity_src.data_analysis.common import get_episodic_accs_losses_all_splits_usl
     results_usl: dict = get_episodic_accs_losses_all_splits_usl(args, args.mdl_sl, loaders)
+    print('done computing accs & losses for all methods: maml5, maml10, usl')
 
     # -- Sanity check: meta-train acc & loss for each method (usl & maml) are close to final loss after training
     print('\n---- Sanity check: meta-train acc & loss for each method (usl & maml) values at the end of training ----')
@@ -79,7 +84,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     print_acc_loss_from_training_curve(path=args.path_2_init_maml)  # print maml episodic/meta acc & loss from training
 
     print('\n-- Sanity check: usl on usl loss/acc, does it match the currently computed vs the one from training? --')
-    print_usl_accs_losses_mutates_results(results_usl_usl, results)
+    # print_usl_accs_losses_mutates_results(results_usl_usl, results)
     print('-- Sanity check: usl on usl acc & loss from learning curves --')
     print_acc_loss_from_training_curve(path=args.path_2_init_sl)  # print usl usl acc & loss from training
 
@@ -113,7 +118,7 @@ def stats_analysis_with_emphasis_on_effect_size(args: Namespace,
     results['results_maml5'] = results_maml5
     results['results_maml10'] = results_maml10
     results['results_usl'] = results_usl
-    results['results_usl_usl'] = results_usl_usl
+    # results['results_usl_usl'] = results_usl_usl
     torch.save(results, args.log_root / f'results.pt')
     save_to_json_pretty(results, args.log_root / f'results.json')
     save_args(args)

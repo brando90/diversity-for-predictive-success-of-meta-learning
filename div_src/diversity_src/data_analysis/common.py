@@ -1,3 +1,4 @@
+import numpy as np
 import os
 
 import logging
@@ -9,6 +10,7 @@ from typing import Optional, Any
 import torch
 from torch import nn
 
+import uutils
 from uutils.torch_uu import norm, process_meta_batch, get_device
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.agents.supervised_learning import ClassificationSLAgent
@@ -21,6 +23,8 @@ from uutils.torch_uu.meta_learners.pretrain_convergence import FitFinalLayer
 from uutils.torch_uu.models import reset_all_weights
 from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import Learner
 from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_cifarfs_fc100
+
+import time
 
 from pdb import set_trace as st
 
@@ -134,17 +138,34 @@ def get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin: int = 10):
 
 
 def sanity_check_models_usl_maml_and_set_rand_model(args: Namespace,
-                                                    verbose: bool = False,
+                                                    use_rand_mdl: bool = False,
+                                                    verbose: bool = True,
+                                                    del_mdl_rand: bool = False,
+                                                    cpu: bool = False,
                                                     ) -> None:
+    """
+    Sets the rand model if use_rand_mdl is True and does some sanity checks that models are different by checking the
+    norms of the models are different.
+    """
     print(f'{args.data_path=}')
     args.mdl1 = args.meta_learner.base_model
     args.mdl2 = get_sl_learner(args)
     args.mdl_maml = args.mdl1
     args.mdl_sl = args.mdl2
-    args.mdl_rand = deepcopy(args.mdl_maml)
-    reset_all_weights(args.mdl_rand)
-    basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
-    # args.model = args.mdl_sl  # to bypass the sanity check usl does for right number of cls layers
+    if use_rand_mdl:
+        args.mdl_rand = deepcopy(args.mdl_maml)
+        reset_all_weights(args.mdl_rand)
+        # args.model = args.mdl_sl  # to bypass the sanity check usl does for right number of cls layers
+        mdl_norms: tuple = basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args, cpu)
+        norm_rand_mdl, norm_maml_mdl, norm_sl_mdl = mdl_norms
+        print(f'{norm_rand_mdl=}\n{norm_maml_mdl=}\n{norm_sl_mdl=}') if verbose else None
+        if del_mdl_rand:
+            # del args.mdl_rand
+            delattr(args, 'mdl_rand')
+    else:
+        mdl_norms: tuple = basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args, cpu)
+        norm_maml_mdl, norm_sl_mdl = mdl_norms
+        print(f'{norm_maml_mdl=}\n{norm_sl_mdl=}') if verbose else None
 
 
 # --
@@ -233,6 +254,7 @@ def get_sl_learner(args: Namespace):
         state_dict = ckpt['model']
     see: save_check_point_sl
     """
+    print(f'{args.path_2_init_sl=}')
     if '12915' in str(args.path_2_init_sl):
         model = load_model_force_add_cls_layer_as_module(args, path_to_checkpoint=args.path_2_init_sl)
     elif 'rfs_checkpoints' in str(args.path_2_init_sl):  # original rfs ckpt
@@ -257,6 +279,7 @@ def get_sl_learner(args: Namespace):
 
 
 def get_maml_meta_learner(args: Namespace):
+    print(f'{args.path_2_init_maml=}')
     if '668' in str(args.path_2_init_maml):  # hack to have old 668 checkpoint work
         # args.path_2_init_maml = Path('~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668/ckpt_file.pt').expanduser()
         base_model = load_old_mi_resnet12rfs_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
@@ -320,11 +343,24 @@ def set_maml_cls_to_usl_cls_mutates(args: Namespace,
 
 
 def basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args: Namespace,
-                                                                    verbose: bool = False,
-                                                                    ):
-    assert norm(args.mdl_rand, cpu=True) != norm(args.mdl_maml, cpu=True) != norm(args.mdl_sl, cpu=True), f"Error."
-    if verbose:
-        print(f'{norm(args.mdl_rand)=}\n{norm(args.mdl_maml)=}\n{norm(args.mdl_sl)=}')
+                                                                    use_rand_mdl: bool = False,
+                                                                    verbose: bool = True,
+                                                                    cpu: bool = False,
+                                                                    ) -> tuple:
+    """ Checks that the models are different by checking norms. But does NOT set the random model (args.mdl_rand)."""
+    if use_rand_mdl:
+        norm_rand_mdl: float = float(norm(args.mdl_rand, cpu=cpu))
+        norm_maml_mdl: float = float(norm(args.mdl_maml, cpu=cpu))
+        norm_sl_mdl: float = float(norm(args.mdl_sl, cpu=cpu))
+        assert norm_rand_mdl != norm_maml_mdl != norm_sl_mdl, f"Error: {norm_rand_mdl=} {norm_maml_mdl=} {norm_sl_mdl=}"
+        print(f'{norm_rand_mdl=}\n{norm_maml_mdl=}\n{norm_sl_mdl=}') if verbose else None
+        return norm_rand_mdl, norm_maml_mdl, norm_sl_mdl
+    else:
+        norm_maml_mdl: float = float(norm(args.mdl_maml, cpu=cpu))
+        norm_sl_mdl: float = float(norm(args.mdl_sl, cpu=cpu))
+        assert norm_maml_mdl != norm_sl_mdl, f"Error: {norm_maml_mdl=} {norm_sl_mdl=}"
+        print(f'{norm_maml_mdl=}\n{norm_sl_mdl=}') if verbose else None
+        return norm_maml_mdl, norm_sl_mdl
 
 
 def comparison_via_performance(args: Namespace):
@@ -536,7 +572,9 @@ def basic_sanity_checks_maml0_does_nothing(args: Namespace,
     print_performance_4_maml(args, args.mdl_maml, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=debug_print)
     if not save_time:
         print('\n---- maml0 for rand model')
-        print_performance_4_maml(args, args.mdl_rand, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=debug_print)
+        if hasattr(args, 'mdl_rand'):
+            mdl_rand: nn.Module = args.mdl_rand
+            print_performance_4_maml(args, mdl_rand, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=debug_print)
         print('---- maml0 for sl model')
         print_performance_4_maml(args, args.mdl_sl, loaders, nb_inner_steps=0, inner_lr=0.0, debug_print=debug_print)
 
@@ -577,12 +615,17 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
     assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     agent = args.meta_learner
     for split in ['train', 'val', 'test']:
+        start = time.time()
+        print(f'{split=} (computing accs & losses)')
         data: Any = get_data(loader, split)
         losses, accs = agent.get_lists_accs_losses(data, training)
         assert isinstance(losses, list), f'losses should be a list of floats, but got {type(losses)=}'
         assert isinstance(losses[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
+        assert isinstance(accs, list), f'losses should be a list of floats, but got {type(losses)=}'
+        assert isinstance(accs[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
         results[split]['losses'] = losses
         results[split]['accs'] = accs
+        print(uutils.report_times(start))
     # - return results
     assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     return results
@@ -615,10 +658,18 @@ def get_episodic_accs_losses_all_splits_usl(args: Namespace,
     agent = FitFinalLayer(args, base_model=model)
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
     for split in ['train', 'val', 'test']:
+        start = time.time()
+        print(f'{split=} (computing accs & losses)')
         data: Any = get_data(args.dataloaders, split)
         losses, accs = agent.get_lists_accs_losses(data, training)
+        # torch.cuda.empty_cache()
+        assert isinstance(losses, list), f'losses should be a list of floats, but got {type(losses)=}'
+        assert isinstance(losses[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
+        assert isinstance(accs, list), f'losses should be a list of floats, but got {type(losses)=}'
+        assert isinstance(accs[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
         results[split]['losses'] = losses
         results[split]['accs'] = accs
+        print(uutils.report_times(start))
     # - return results
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
     return results
@@ -641,11 +692,20 @@ def get_usl_accs_losses_all_splits_usl(args: Namespace,
     agent: Agent = ClassificationSLAgent(args, model)
     assert isinstance(agent, ClassificationSLAgent)  # leaving this to leave a consistent interface to get loader
     for split in ['train', 'val', 'test']:
+        start = time.time()
+        print(f'{split=} (computing accs & losses)')
         assert args.mdl_sl.cls.out_features != 5, f'Before assigning a new cls, it should not be 5-way yet, but got {args.mdl_sl.cls=}'
         data: Any = get_data(loader, split)
-        losses, accs = agent.get_lists_accs_losses(data, training)
+        losses, accs = agent.get_lists_accs_losses(data, training, as_list_floats=True)
+        assert isinstance(losses, list), f'losses should be a list of floats, but got {type(losses)=}'
+        assert isinstance(losses[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
+        assert isinstance(accs, list), f'losses should be a list of floats, but got {type(losses)=}'
+        assert isinstance(accs[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
+        # assert isinstance(losses, np.ndarray), f'losses should be a list of np.ndarray, but got {type(losses)=}'
+        # assert isinstance(accs, np.ndarray), f'losses should be a list of np.ndarray, but got {type(losses)=}'
         results[split]['losses'] = losses
         results[split]['accs'] = accs
+        print(uutils.report_times(start))
     # - return results
     assert isinstance(agent, ClassificationSLAgent)  # leaving this to leave a consistent interface
     return results

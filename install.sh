@@ -73,7 +73,7 @@ pip install -e $HOME/ultimate-utils/
 
 # temporary, should be in setup.py for uutils and reqs mds .txt file
 pip install fairseq
-pip install setuptools==59.5.0
+#pip install setuptools==59.5.0
 # not sure why it's needed hardcoded and in setup.py uutils is not enough
 pip install statsmodels==0.13.5
 
