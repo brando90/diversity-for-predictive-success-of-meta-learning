@@ -14,6 +14,7 @@ import uutils
 from uutils.torch_uu import norm, process_meta_batch, get_device
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.agents.supervised_learning import ClassificationSLAgent
+from uutils.torch_uu.distributed import set_devices
 from uutils.torch_uu.eval.eval import do_eval
 from uutils.torch_uu.mains.common import _get_maml_agent, load_model_optimizer_scheduler_from_ckpt, \
     _get_and_create_model_opt_scheduler, load_model_ckpt
@@ -207,6 +208,7 @@ def load_old_mi_resnet12rfs_ckpt(args: Namespace, path_to_checkpoint: Path) -> n
 
     # ckpt: dict = torch.load(args.path_to_checkpoint, map_location=torch.device('cpu'))
     path_to_checkpoint = args.path_to_checkpoint if path_to_checkpoint is None else path_to_checkpoint
+    set_devices(args)
     ckpt: dict = torch.load(path_to_checkpoint, map_location=args.device)
     model_state_dict = ckpt['model_state_dict']
     # model_state_dict = ckpt['f_model_state_dict']
@@ -217,6 +219,7 @@ def load_old_mi_resnet12rfs_ckpt(args: Namespace, path_to_checkpoint: Path) -> n
 
 def load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint):
     path_to_checkpoint = args.path_to_checkpoint if path_to_checkpoint is None else path_to_checkpoint
+    set_devices(args)
     ckpt: dict = torch.load(path_to_checkpoint, map_location=args.device)
     from uutils.torch_uu.models.l2l_models import cnn4_cifarsfs
     model, model_hps = cnn4_cifarsfs(ways=5)

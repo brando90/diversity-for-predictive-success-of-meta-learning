@@ -47,7 +47,7 @@ start = time.time()
 
 # - MI
 
-def resnet12rfs_mi(args: Namespace) -> Namespace:
+def mi(args: Namespace) -> Namespace:
     """
     """
     from uutils.torch_uu.models.resnet_rfs import get_feature_extractor_conv_layers
@@ -66,9 +66,7 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
 
     # - training mode
     args.training_mode = 'iterations'
-
-    # note: 60K iterations for original maml 5CNN with adam
-    args.num_its = 100_000
+    args.num_its = 6
 
     # - debug flag
     # args.debug = True
@@ -79,81 +77,33 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     args.meta_learner_name = 'maml_fixed_inner_lr'
     args.inner_lr = 1e-1  # same as fast_lr in l2l
     args.nb_inner_train_steps = 5
-    # args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
-    # args.first_order = True
-    # args.first_order = False
+    args.first_order = True
 
-    # - outer trainer params
-    # args.batch_size = 32
-    # args.batch_size = 8
-
-    # - dist args
-    # args.world_size = torch.cuda.device_count()
-    # args.world_size = 8
-    # args.parallel = True
-    # args.seed = 42  # I think this might be important due to how tasksets works.
-    # args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
-    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    # args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-
-    # # -
-    # args.log_freq = 500
-
-    # -- options I am considering to have as flags in the args_parser...later
-    # - metric for comparison
-    args.metric_comparison_type = 'None'
-    # args.metric_comparison_type = 'svcca'
-    # args.metric_comparison_type = 'pwcca'
-    # args.metric_comparison_type = 'lincka'
-    # args.metric_comparison_type = 'opd'
-    args.metric_as_sim_or_dist = 'dist'  # since we are trying to show meta-learning is happening, the more distance btw task & change in model the more meta-leanring is the hypothesis
-
-    # - effective neuron type
-    args.effective_neuron_type = 'filter'
-
-    # - layers, this gets the feature layers it seems... unsure why I'm doing this. I thought I was doing a comparison
-    # with all the layers up to the final layer...
-    # args.layer_names: list[str] = get_last_two_layers(layer_type='conv', include_cls=True)
-    # args.layer_names = get_head_cls()
-    args.layer_names = get_feature_extractor_conv_layers()
-
-    # args.n_aug_support_samples = 1
-    # args.n_aug_support_samples = 5
-    # args.n_aug_support_samples = 10
-    # args.n_aug_support_samples = 15
-    # args.k_shots = 1
-    # args.k_shots = 5
-    # args.k_shots = 10
-    # args.k_shots = 15
-    # args.k_shots = 30
-
-    args.safety_margin = 10
-    # args.safety_margin = 20
-
-    # args.batch_size = 2
-    # args.batch_size = 5
-    args.batch_size = 10
-    # args.batch_size = 25
+    args.batch_size = 2  # useful for debugging!
+    # args.batch_size = 5  # useful for debugging!
     # args.batch_size = 30
     # args.batch_size = 100
-    # args.batch_size = 200
-    # args.batch_size = 600
+    # args.batch_size = 250
+    # args.batch_size = 300
+    args.batch_size = 500
+    # args.batch_size = 1000
+    # args.batch_size = 2000
+    # args.batch_size = 5000
+    # args.batch_size = 10_000
     args.batch_size_eval = args.batch_size
 
-    # - set k_eval (qry set batch_size) to make experiments safe/reliable
-    args.k_eval = get_recommended_batch_size_mi_resnet12rfs_body(safety_margin=args.safety_margin)
-    # args.k_eval = get_recommended_batch_size_mi_resnet12rfs_head(safety_margin=args.safety_margin)
-
     # - expt option
-    args.stats_analysis_option = 'performance_comparison'
-
-    # args.stats_analysis_option = 'diveristiy_f_rand'
-    # args.stats_analysis_option = 'diveristiy_f_maml'
-    # args.stats_analysis_option = 'diveristiy_f_sl'
+    # args.stats_analysis_option = 'performance_comparison'
+    # args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size'
+    # args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_and_full_performance_comp_hist'
+    args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_hist'
+    args.acceptable_difference1 = 0.01
+    args.acceptable_difference2 = 0.02
+    args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
 
     # - agent/meta_learner type
     args.agent_opt = 'MAMLMetaLearner'
+    # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
     # - ckpt name
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/qlubpsfi?workspace=user-brando
@@ -168,6 +118,7 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     args.path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/'  # Adam (no CL, old higher ckpt)
 
     # new ckpt using l2l https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/jakzsyhv?workspace=user-brando
+    # I think this checkpt doesn't work cuz it uses dill to load ckpt :(, lesson learned!
     # args.path_2_init_maml = '~/data/logs/logs_Feb17_15-28-58_jobid_8957_pid_206937/'  # Adam CL
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2w2iezpb?workspace=user-brando
@@ -177,15 +128,10 @@ def resnet12rfs_mi(args: Namespace) -> Namespace:
     # /home/miranda9/data/logs/logs_Feb27_09-11-46_jobid_14483_pid_16068, https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2w2iezpb/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb27_09-11-46_jobid_14483_pid_16068'
 
-    # - device
-    # args.device = torch.device('cpu')
-    # args.device = get_device()
-
     # -- wandb args
-    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
-    # - wandb expt args
-    args.experiment_name = f'{args.stats_analysis_option}_resnet12rfs_mi_k_shots_1_5_10_15_30'
-    args.run_name = f'{args.stats_analysis_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=} {args.path_2_init_sl=} {args.path_2_init_maml=}'
+    args.wandb_project = 'entire-diversity-spectrum'
+    args.experiment_name = f'{args.manual_loads_name} {args.batch_size} {os.path.basename(__file__)}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
 
@@ -868,9 +814,9 @@ def hdb4_micod(args: Namespace) -> Namespace:
     # 5ccn 64 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/1q25bgx0?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb07_00-50-02_jobid_486495_pid_1613676_wandb_True'  # ampere1
     # # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/fuxwz30l/overview?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Feb04_17-38-21_jobid_855372_pid_2723881_wandb_True'  # ampere1
+    args.path_2_init_sl = '~/data/logs/logs_Feb04_17-38-21_jobid_855372_pid_2723881_wandb_True'  # ampere1
     # 5ccn 512 flters: https://wandb.ai/brando/entire-diversity-spectrum/runs/cstug9f3?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Feb09_19-33-20_jobid_899282_pid_948111_wandb_True'  # ampere1
+    # args.path_2_init_sl = '~/data/logs/logs_Feb09_19-33-20_jobid_899282_pid_948111_wandb_True'  # ampere1
 
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
@@ -897,9 +843,9 @@ def hdb4_micod(args: Namespace) -> Namespace:
     # 5cnn 64 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/nzvm7g44/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb07_00-48-16_jobid_670102_pid_1612658_wandb_True'  # ampere1
     # # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/96wo1c43/overview?workspace=user-brando
-    # args.path_2_init_maml = '~/data/logs/logs_Feb04_17-39-17_jobid_568243_pid_2724751_wandb_True'  # ampere1
+    args.path_2_init_maml = '~/data/logs/logs_Feb04_17-39-17_jobid_568243_pid_2724751_wandb_True'  # ampere1
     # 5cnn 512 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/6gte637k?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_Feb09_20-11-20_jobid_77267_pid_1186966_wandb_True'  # ampere1
+    # args.path_2_init_maml = '~/data/logs/logs_Feb09_20-11-20_jobid_77267_pid_1186966_wandb_True'  # ampere1
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
@@ -1198,12 +1144,12 @@ def mds_full(args: Namespace) -> Namespace:
     # resnet50: https://wandb.ai/brando/entire-diversity-spectrum/runs/1z3mm027?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Mar07_12-53-56_jobid_231971_pid_3226323_wandb_True/'  # ampere4
     # resnet50: https://wandb.ai/brando/entire-diversity-spectrum/runs/190osagh?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Feb03_15-34-50_jobid_343974_pid_1433204_wandb_True'  # ampere 4 time of writing 0.805 train acc 0.934 train loss
+    # args.path_2_init_sl = '~/data/logs/logs_Feb03_15-34-50_jobid_343974_pid_1433204_wandb_True'  # ampere 4 time of writing 0.805 train acc 0.934 train loss
 
     # resnet50: https://wandb.ai/brando/entire-diversity-spectrum/runs/3844zgd4/overview?workspace=user-brando
     args.path_2_init_maml = '~/data/logs/logs_Feb03_15-23-28_jobid_610011_pid_1428316_wandb_True'  # ampere 4 time of writing 0.964 train acc 0.110 train loss
     # resnet50: https://wandb.ai/brando/entire-diversity-spectrum/runs/30651kln/overview?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_Feb03_14-53-34_jobid_873902_pid_1417320_wandb_True'  # ampere 4 time of writing 0.915 train acc 0.242 train loss
+    # args.path_2_init_maml = '~/data/logs/logs_Feb03_14-53-34_jobid_873902_pid_1417320_wandb_True'  # ampere 4 time of writing 0.915 train acc 0.242 train loss
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
