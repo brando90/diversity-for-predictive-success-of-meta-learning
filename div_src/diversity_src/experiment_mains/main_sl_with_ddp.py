@@ -42,59 +42,76 @@ from pdb import set_trace as st
 
 # -- MI
 
-def sl_mi_rfs_5cnn_adam_cl(args: Namespace) -> Namespace:
-    """
-    goal:
-        - model: resnet12-rfs
-        - Opt: ?
-
-    Note:
-        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
-        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
-        advantage.
-    """
+def mi_usl_l2l_data(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
-    args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=64, filter_size=32, levels=None,
-                          spp=False, in_channels=3)
+    args.n_cls = 64
+    args.model_option = 'resnet12_rfs'
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    # args.filter_size = 32
+    # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
+    #                       filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
 
     # - data
-    args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
-
-    # - opt
-    args.opt_option = 'Adam_rfs_cifarfs'
-    args.num_epochs = 2_000
-    args.batch_size = 1024
-    args.lr = 1e-3
-    args.opt_hps: dict = dict(lr=args.lr)
-
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
-    args.log_scheduler_freq = 1
-    args.T_max = args.num_epochs // args.log_scheduler_freq
-    args.eta_min = 1e-5  # coincidentally, matches MAML++
-    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    # old code
+    # args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
+    # new usl l2l code
+    args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'lee2019'
 
     # - training mode
-    # args.training_mode = 'epochs'
-    args.training_mode = 'epochs_train_convergence'
+    args.training_mode = 'iterations'
+    args.num_its = 25_000  # mds 50_000: https://gitA,aahub.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    # args.num_its = 100_000  # mds 50_000: https://gitA,aahub.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    # args.num_its = 800_000  # hdb4 resnetrfs usl's its to convg visually
 
-    # -
+    # - debug flag
     # args.debug = True
     args.debug = False
 
-    # -
-    args.log_freq = 1  # SL, epochs training
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 256
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
 
-    # - wandb args
-    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 256
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    # args.scheduler_option = 'None'
+    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    args.log_scheduler_freq = 2_000
+    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    args.eta_min = 1e-5  # match MAML++
+    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    print(f'{args.T_max=}')
+    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached', metric_to_use='train_acc',
+    #                           threshold=0.9, log_speed_up=10)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
+    #                                log_speed_up=1)
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'sl_mi_rfs_5cnn_adam_cl'
-    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr} {args.training_mode}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
     return args
 
+
+# - MI (previous)
 
 def sl_mi_rfs_5cnn_adam_cl_200(args: Namespace) -> Namespace:
     """
@@ -137,61 +154,6 @@ def sl_mi_rfs_5cnn_adam_cl_200(args: Namespace) -> Namespace:
     args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
     # - wandb expt args
     args.experiment_name = f'sl_mi_rfs_5cnn_adam_cl_200'
-    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
-    return args
-
-
-def sl_mi_rfs_5cnn_adam_cl_600(args: Namespace) -> Namespace:
-    """
-    goal:
-        - model: resnet12-rfs
-        - Opt: ?
-
-    Note:
-        - you need to use the rfs data loaders because you need to do the union of the labels in the meta-train set.
-        If you use the cifar100 directly from pytorch it will see images in the meta-test set and SL will have an unfair
-        advantage.
-    """
-    from pathlib import Path
-    # - model
-    args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
-    args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=64, filter_size=32, levels=None,
-                          spp=False, in_channels=3)
-
-    # - data
-    args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
-
-    # - opt
-    args.opt_option = 'Adam_rfs_cifarfs'
-    args.num_epochs = 600
-    args.batch_size = 1024
-    args.lr = 1e-3
-    args.opt_hps: dict = dict(lr=args.lr)
-
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
-    args.log_scheduler_freq = 1
-    args.T_max = args.num_epochs // args.log_scheduler_freq
-    args.eta_min = 1e-5  # coincidentally, matches MAML++
-    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
-
-    # - training mode
-    args.training_mode = 'epochs'
-    # args.training_mode = 'fit_single_batch'
-
-    # -
-    # args.debug = True
-    args.debug = False
-
-    # -
-    args.log_freq = 1  # SL, epochs training
-
-    # - wandb args
-    # args.wandb_project = 'playground'  # needed to log to wandb properly
-    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
-    # - wandb expt args
-    args.experiment_name = f'sl_mi_rfs_5cnn_adam_cl_600'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
@@ -2449,26 +2411,26 @@ def mds_dtdbirds_resnet_usl_adam_no_scheduler_train_to_convergence(args: Namespa
 def usl_hdb5_vggair_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
     # - model
     args.model_option = 'resnet12_rfs'
-    #args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
 
-    args.n_cls = 34+71  # 34+71
+    args.n_cls = 34 + 71  # 34+71
     # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
     args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
 
-    #args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
-     #                     levels=None, spp=False, in_channels=3)
+    # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+    #                     levels=None, spp=False, in_channels=3)
 
     # - data
-    
+
     args.data_option = 'hdb5_vggair'
     args.n_classes = args.n_cls
     args.data_augmentation = 'hdb5_vggair'
 
     # - training mode
-    #args.training_mode = 'iterations_train_convergence'
+    # args.training_mode = 'iterations_train_convergence'
     args.training_mode = 'iterations'  # 'iterations_train_convergence'
     args.num_its = 1_000_000_000
-    #args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+    # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
 
     # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
     #                                metric_to_use='train_acc',
