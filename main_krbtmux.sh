@@ -114,7 +114,7 @@ reauth
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #conda activate metalearning_gpu
-export CUDA_VISIBLE_DEVICES=3
+export CUDA_VISIBLE_DEVICES=5
 #export CUDA_VISIBLE_DEVICES=0,2
 export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES; echo SLURM_JOBID = $SLURM_JOBID; echo hostname = $(hostname)
@@ -212,24 +212,29 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_resnet_rfs_scheduler_its --model_option resnet12_rfs
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_resnet_rfs_scheduler_train_to_convergence --model_option resnet12_rfs
 
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 2 --model_option 5CNN_opt_as_model_for_few_shot
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 4 --model_option 5CNN_opt_as_model_for_few_shot
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 6 --model_option 5CNN_opt_as_model_for_few_shot
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 8 --model_option 5CNN_opt_as_model_for_few_shot
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 12 --model_option 5CNN_opt_as_model_for_few_shot
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 14 --model_option 5CNN_opt_as_model_for_few_shot
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 16 --model_option 5CNN_opt_as_model_for_few_shot
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 32 --model_option 5CNN_opt_as_model_for_few_shot
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 64 --model_option 5CNN_opt_as_model_for_few_shot
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 256 --model_option 5CNN_opt_as_model_for_few_shot
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --filter_size 512 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod --filter_size 2 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod --filter_size 4 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod --filter_size 6 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod --filter_size 8 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod --filter_size 12 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod --filter_size 14 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod --filter_size 16 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod --filter_size 32 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod --filter_size 64 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod --filter_size 256 --model_option 5CNN_opt_as_model_for_few_shot
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod --filter_size 512 --model_option 5CNN_opt_as_model_for_few_shot
 
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod_log_more_often_convg --path_to_checkpoint "~/data/logs/logs_Feb02_14-00-49_jobid_991923_pid_2822438_wandb_True/ckpt.pt"
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod --path_to_checkpoint "~/data/logs/logs_Feb02_14-00-49_jobid_991923_pid_2822438_wandb_True/ckpt.pt"
 
-# -- MI
+# -- mi resnet12
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mi_usl_l2l_data --model_option resnet12_rfs
 
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name mi_maml_l2l --model_option resnet12_rfs
+
+# -- mi vit
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name vit_usl_mi_l2l_data --model_option vit_mi
+
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name vit_maml --model_option vit_mi
 
 
 # - performance comp usl vs maml

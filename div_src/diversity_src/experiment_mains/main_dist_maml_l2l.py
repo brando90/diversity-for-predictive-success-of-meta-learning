@@ -63,18 +63,21 @@ def mi_maml_l2l(args: Namespace) -> Namespace:
     args.training_mode = 'iterations'
     # note: 60K iterations for original maml 5CNN with adam
     args.num_its = 300_000  # resnet12rfs conv with 300K
+    # args.num_its = 400_000  # resnet12rfs conv with 300K
 
     # - debug flag
     # args.debug = True
     args.debug = False
 
     # - opt
+    # args.opt_option = 'AdafactorDefaultFair'
     args.opt_option = 'Adam_rfs_cifarfs'
     args.lr = 1e-3  # match MAML++
     args.opt_hps: dict = dict(lr=args.lr)
 
     # - scheduler
     # args.scheduler_option = 'None'
+    # args.scheduler_option = 'AdafactorSchedule'
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
     args.log_scheduler_freq = 2_000
     args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
@@ -114,7 +117,6 @@ def mi_maml_l2l(args: Namespace) -> Namespace:
     #                                log_speed_up=1)
 
     # -- wandb args
-    # args.wandb_project = 'playground'  # needed to log to wandb properly
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
@@ -1592,13 +1594,14 @@ def l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order_from_ckpt(args: 
 
 # vit
 
-def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
+def vit_maml(args: Namespace):
     """
     """
     from pathlib import Path
     # - model
-    args.model_option = 'vit_mi'
-    args.model_hps = dict(num_classes=5, image_size=84)
+    # args.model_option = 'vit_mi'
+    args.n_cls = 5
+    args.model_hps = dict(num_classes=args.n_cls, image_size=84)
     args.allow_unused = True  # transformers have lots of tokens & params, so I assume some param is not always being used in the forward pass
 
     # - data
@@ -1608,19 +1611,23 @@ def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
 
     # - training mode
     args.training_mode = 'iterations'
-
     # note: 60K iterations for original maml 5CNN with adam
-    args.num_its = 100_000
+    # args.num_its = 300_000  # resnet12rfs conv with 300K
+    args.num_its = 400_000  # resnet12rfs conv with 300K
 
     # - debug flag
     # args.debug = True
     args.debug = False
 
     # - opt
+    # args.opt_option = 'AdafactorDefaultFair'
     args.opt_option = 'Adam_rfs_cifarfs'
     args.lr = 1e-3  # match MAML++
     args.opt_hps: dict = dict(lr=args.lr)
 
+    # - scheduler
+    # args.scheduler_option = 'None'
+    # args.scheduler_option = 'AdafactorSchedule'
     args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
     args.log_scheduler_freq = 2_000
     args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
@@ -1637,7 +1644,8 @@ def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
     args.first_order = True
 
     # - outer trainer params
-    args.batch_size = 8
+    args.batch_size = 4
+    args.batch_size_eval = 2
 
     # - dist args
     args.world_size = torch.cuda.device_count()
@@ -1651,15 +1659,19 @@ def vit_mi_fo_maml_rfs_adam_cl_100k(args: Namespace):
 
     # -
     args.log_freq = 500
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.9, log_speed_up=10)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
+    #                                log_speed_up=1)
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    args.experiment_name = f'vit_mi_fo_maml_rfs_adam_cl_100k'
-    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
-    # args.dir_wandb = Path('/shared/rsaas/miranda9/data/logs/')
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -1747,150 +1759,7 @@ def l2l_5CNN_hdb1_adam_cs_filter_size(args: Namespace) -> Namespace:
 
 # - hdb4 = micod = mi + omniglot + omniglot + delauny
 
-def maml_hdb4_micod_resnet_rfs_scheduler_its(args: Namespace) -> Namespace:
-    from pathlib import Path
-    # - model
-    args.n_cls = 5
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
-
-    # - data
-    args.data_option = 'hdb4_micod'
-    args.data_path = Path('~/data/l2l_data/').expanduser()
-    args.data_augmentation = 'hdb4_micod'
-
-    # - training mode
-    args.training_mode = 'iterations'
-
-    # note: 60K iterations for original maml 5CNN with adam
-    # args.num_its = 100_000
-    args.num_its = 300_000
-    # args.num_its = 600_000
-
-    # - debug flag
-    # args.debug = True
-    args.debug = False
-
-    # - opt
-    args.opt_option = 'Adam_rfs_cifarfs'
-    args.lr = 1e-3  # match MAML++
-    args.opt_hps: dict = dict(lr=args.lr)
-
-    # - scheduler
-    # args.scheduler_option = 'None'
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
-    args.log_scheduler_freq = 2_000
-    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
-    args.eta_min = 1e-5  # match MAML++
-    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
-    print(f'{args.T_max=}')
-    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
-
-    # -- Meta-Learner
-    # - maml
-    args.meta_learner_name = 'maml_fixed_inner_lr'
-    args.inner_lr = 1e-1  # same as fast_lr in l2l
-    args.nb_inner_train_steps = 5
-    args.first_order = True
-    # args.first_order = False
-
-    # - outer trainer params
-    args.batch_size = 3
-    args.batch_size_eval = 2
-
-    # - dist args
-    args.world_size = torch.cuda.device_count()
-    # args.world_size = 8
-    args.parallel = args.world_size > 1
-    # args.seed = 42  # I think this might be important due to how tasksets works.
-    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
-    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-
-    # - logging params
-    args.log_freq = 500
-    # args.log_freq = 20
-
-    # -- wandb args
-    # args.wandb_project = 'playground'  # needed to log to wandb properly
-    args.wandb_project = 'entire-diversity-spectrum'
-    # - wandb expt args
-    args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
-
-    # - fix for backwards compatibility
-    args = fix_for_backwards_compatibility(args)
-    return args
-
-
-def maml_hdb4_micod_resnet_rfs_scheduler_train_to_convergence(args: Namespace) -> Namespace:
-    from pathlib import Path
-    # - model
-    args.n_cls = 5
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
-
-    # - data
-    args.data_option = 'hdb4_micod'
-    args.data_path = Path('~/data/l2l_data/').expanduser()
-    args.data_augmentation = 'hdb4_micod'
-
-    # - training mode
-    args.training_mode = 'iterations_train_convergence'
-
-    # - debug flag
-    # args.debug = True
-    args.debug = False
-
-    # - opt
-    args.opt_option = 'Adam_rfs_cifarfs'
-    args.lr = 1e-3  # match MAML++
-    args.opt_hps: dict = dict(lr=args.lr)
-
-    # - scheduler
-    args.scheduler_option = 'None'
-
-    # -- Meta-Learner
-    # - maml
-    args.meta_learner_name = 'maml_fixed_inner_lr'
-    args.inner_lr = 1e-1  # same as fast_lr in l2l
-    args.nb_inner_train_steps = 5
-    args.first_order = True
-    # args.first_order = False
-
-    # - outer trainer params
-    args.batch_size = 4
-    args.batch_size_eval = 2
-
-    # - dist args
-    args.world_size = torch.cuda.device_count()
-    # args.world_size = 8
-    args.parallel = args.world_size > 1
-    # args.seed = 42  # I think this might be important due to how tasksets works.
-    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
-    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-
-    # - logging params
-    args.log_freq = 500
-    # args.log_freq = 20
-
-    # -- wandb args
-    args.wandb_project = 'entire-diversity-spectrum'
-    # - wandb expt args
-    args.experiment_name = args.manual_loads_name
-    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
-
-    # - fix for backwards compatibility
-    args = fix_for_backwards_compatibility(args)
-    return args
-
-
-def maml_hdb4_micod_resnet_rfs_scheduler_its_0p9_log_more_often(args: Namespace) -> Namespace:
+def maml_hdb4_micod_resnet_rfs(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     args.n_cls = 5
@@ -1973,18 +1842,20 @@ def maml_hdb4_micod_resnet_rfs_scheduler_its_0p9_log_more_often(args: Namespace)
     return args
 
 
-# -- hdb4 micod 5cnn
+# -- hdb4 micod
 
-def maml_hdb4_micod_log_more_often_convg(args: Namespace) -> Namespace:
+def maml_hdb4_micod(args: Namespace) -> Namespace:
     from pathlib import Path
     # - model
     assert args.filter_size != -1, f'Err: {args.filter_size=}'
     print(f'--->{args.filter_size=}')
     args.n_cls = 5
-    # args.model_option = '5CNN_opt_as_model_for_few_shot'
-    # args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
-    args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
-                          filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
+    if model_option == 'resnet12rfs':
+        args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+    elif model_option == '5CNN_opt_as_model_for_few_shot':
+        args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
+                              filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
+    # else vit
 
     # - data
     args.data_option = 'hdb4_micod'
@@ -2145,6 +2016,7 @@ def train(args):
     print(f'got model {type(args.model)=}')
     args.number_of_trainable_parameters = count_number_of_parameters(args.model)
     print(f'{args.number_of_trainable_parameters=}')
+    print(f'---> {args.number_of_trainable_parameters=}')
     args.opt = move_opt_to_cherry_opt_and_sync_params(args) if is_running_parallel(args.rank) else args.opt
 
     # create the loaders, note: you might have to change the number of layers in the final layer
