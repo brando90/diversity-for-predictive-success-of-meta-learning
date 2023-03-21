@@ -615,12 +615,12 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
     args.meta_learner.nb_inner_train_steps = nb_inner_steps
     args.meta_learner.inner_lr = inner_lr
     # - get accs and losses for all splits
-    assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
+    # Done in get data since it might be mds and need to convert to l2l: assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     agent = args.meta_learner
     for split in ['train', 'val', 'test']:
         start = time.time()
         print(f'{split=} (computing accs & losses)')
-        data: Any = get_data(loader, split)
+        data: Any = get_data(loader, split, agent)
         losses, accs = agent.get_lists_accs_losses(data, training)
         assert isinstance(losses, list), f'losses should be a list of floats, but got {type(losses)=}'
         assert isinstance(losses[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
@@ -628,6 +628,7 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
         assert isinstance(accs[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
         results[split]['losses'] = losses
         results[split]['accs'] = accs
+        print(f'{len(losses)=} {len(accs)=}')
         print(uutils.report_times(start))
     # - return results
     assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
@@ -672,6 +673,7 @@ def get_episodic_accs_losses_all_splits_usl(args: Namespace,
         assert isinstance(accs[0], float), f'losses should be a list of floats, but got {type(losses[0])=}'
         results[split]['losses'] = losses
         results[split]['accs'] = accs
+        print(f'{len(losses)=} {len(accs)=}')
         print(uutils.report_times(start))
     # - return results
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety

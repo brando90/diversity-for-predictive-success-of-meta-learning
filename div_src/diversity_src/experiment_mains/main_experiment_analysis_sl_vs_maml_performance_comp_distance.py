@@ -101,9 +101,8 @@ def mi(args: Namespace) -> Namespace:
     args.acceptable_difference2 = 0.02
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
 
-    # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner'
-    # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    # - agent/meta_learner type. For none l2l we have data conversion: l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    args.agent_opt = 'MAMLMetaLearnerL2L' if args.data_option == 'mds' else 'MAMLMetaLearner'
 
     # - ckpt name
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/qlubpsfi?workspace=user-brando
@@ -148,9 +147,6 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
 
     # - data
-    args.data_option = 'torchmeta_miniimagenet'  # no name assumes l2l
-    args.data_path = Path('~/data/torchmeta_data/').expanduser()
-    args.augment_train = True
 
     # - training mode
     args.training_mode = 'iterations'
@@ -167,47 +163,7 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     args.meta_learner_name = 'maml_fixed_inner_lr'
     args.inner_lr = 1e-1  # same as fast_lr in l2l
     args.nb_inner_train_steps = 5
-    # args.track_higher_grads = True  # set to false only during meta-testing and unofficial fo, but then args.fo has to be True too. Note code sets it automatically only for meta-test
-    # args.first_order = True
-    # args.first_order = False
-
-    # - outer trainer params
-    # args.batch_size = 32
-    # args.batch_size = 8
-
-    # - dist args
-    # args.world_size = torch.cuda.device_count()
-    # args.world_size = 8
-    # args.parallel = True
-    # args.seed = 42  # I think this might be important due to how tasksets works.
-    # args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
-    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    # args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-
-    # # -
-    # args.log_freq = 500
-
-    # -- options I am considering to have as flags in the args_parser...later
-    # - metric for comparison
-    args.metric_comparison_type = 'None'
-    # args.metric_comparison_type = 'svcca'
-    # args.metric_comparison_type = 'pwcca'
-    # args.metric_comparison_type = 'lincka'
-    # args.metric_comparison_type = 'opd'
-    args.metric_as_sim_or_dist = 'dist'  # since we are trying to show meta-learning is happening, the more distance btw task & change in model the more meta-leanring is the hypothesis
-
-    # - effective neuron type
-    args.effective_neuron_type = 'filter'
-
-    # - layers, this gets the feature layers it seems... unsure why I'm doing this. I thought I was doing a comparison
-    # with all the layers up to the final layer...
-    # args.layer_names: list[str] = get_last_two_layers(layer_type='conv', include_cls=True)
-    # args.layer_names = get_head_cls()
-    args.layer_names = get_feature_extractor_conv_layers()
-
-    args.safety_margin = 10
-    # args.safety_margin = 20
+    args.first_order = True
 
     # args.batch_size = 2
     # args.batch_size = 5
@@ -216,24 +172,14 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # args.batch_size = 500
     args.batch_size_eval = args.batch_size
 
-    # - set k_eval (qry set batch_size) to make experiments safe/reliable
-    args.k_eval = get_recommended_batch_size_miniimagenet_5CNN(safety_margin=args.safety_margin)
-    # args.k_eval = get_recommended_batch_size_miniimagenet_head_5CNN(safety_margin=args.safety_margin)
-
     # - expt option
     args.stats_analysis_option = 'performance_comparison'
 
-    # args.stats_analysis_option = 'diveristiy_f_rand'
-    # args.stats_analysis_option = 'diveristiy_f_maml'
-    # args.stats_analysis_option = 'diveristiy_f_sl'
-
-    # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner'
+    # - agent/meta_learner type. For none l2l we have data conversion: l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    args.agent_opt = 'MAMLMetaLearnerL2L' if args.data_option == 'mds' else 'MAMLMetaLearner'
 
     # - ckpt name
-
     # -- 2
-
     # -- 4
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/7sfgxss7/logs?workspace=user-brando
     # args.path_2_init_sl = ''  # Adam
@@ -244,10 +190,10 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/hdgn6xfd
     # args.path_2_init_sl = ''  # Adam
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/l9rdcfcr?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_May03_18-05-01_jobid_26093'  # Adam
+    args.path_2_init_sl = '~/data/logs/logs_May03_18-05-01_jobid_26093'  # Adam
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/ip20v98t/logs?workspace=user-brando
-    # args.path_2_init_maml = '~/data/logs/logs_May05_11-31-02_jobid_27495'  # Adam
+    args.path_2_init_maml = '~/data/logs/logs_May05_11-31-02_jobid_27495'  # Adam
 
     # -- 8
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/35qt9vlj?workspace=user-brando
@@ -274,7 +220,7 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/29hc25u2/overview?workspace=user-brando (NOT GOOD)
     # args.path_2_init_maml = '~/data/logs/logs_Feb16_11-59-55_jobid_29315_pid_102939'  # uses scheduler :'(
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/kpujevkp?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_May02_17-11-03_jobid_25764'  # Adam
+    # args.path_2_init_maml = '~/data/logs/logs_May02_17-11-03_jobid_25764'  # Adam
 
     # -- 128 version todo, both need to be with adam.
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/9r7q98vz?workspace=user-brando
@@ -306,23 +252,23 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3n1ryuzu/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_May24_11-45-30_jobid_35317'  # 55
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/3v7fpsie/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-47-48_jobid_35318'  # 56
+    # args.path_2_init_sl = '~/data/logs/logs_May24_11-47-48_jobid_35318'  # 56
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/yjcun827/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-50-06_jobid_35319'  # 54
+    # args.path_2_init_sl = '~/data/logs/logs_May24_11-50-06_jobid_35319'  # 54
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/vh1ecgr3/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-52-24_jobid_35320'  # 57
+    # args.path_2_init_sl = '~/data/logs/logs_May24_11-52-24_jobid_35320'  # 57
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/lhsmwapf/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-39_jobid_35321'  # 54
+    # args.path_2_init_sl = '~/data/logs/logs_May24_11-55-39_jobid_35321'  # 54
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/9s93yjt6/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-43_jobid_35322'  # 55
+    # args.path_2_init_sl = '~/data/logs/logs_May24_11-55-43_jobid_35322'  # 55
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/1yhb8bqd/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-44_jobid_35323'  # 54
+    # args.path_2_init_sl = '~/data/logs/logs_May24_11-55-44_jobid_35323'  # 54
 
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2q6jn6h6/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-43_jobid_35324'  # 55
+    # args.path_2_init_sl = '~/data/logs/logs_May24_11-55-43_jobid_35324'  # 55
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/hqfxsf5r/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_May24_11-55-44_jobid_35325'  # 56
+    # args.path_2_init_sl = '~/data/logs/logs_May24_11-55-44_jobid_35325'  # 56
 
     # actually you need to run _main_dista... old code I think
     # path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'  # THIS I think
@@ -334,10 +280,9 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     # args.device = get_device()
 
     # -- wandb args
-    args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
-    # - wandb expt args
-    args.experiment_name = f'{args.stats_analysis_option}_args_5cnn_mi'
-    args.run_name = f'{args.stats_analysis_option} {args.model_option} {args.batch_size} {args.metric_comparison_type}: {args.jobid=}'
+    args.wandb_project = 'entire-diversity-spectrum'
+    args.experiment_name = f'{args.manual_loads_name} {args.batch_size} {os.path.basename(__file__)}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
     # args.log_to_wandb = True
     args.log_to_wandb = False
 
@@ -462,7 +407,9 @@ def args_5cnn_cifarfs(args: Namespace) -> Namespace:
     args.stats_analysis_option = 'performance_comparison'
 
     # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner'
+    # - agent/meta_learner type
+    # for none l2l we have data conversion: l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    args.agent_opt = 'MAMLMetaLearnerL2L_default' if args.data_option == 'mds' else 'MAMLMetaLearner'
 
     # - ckpt name
     # adam models
@@ -699,9 +646,8 @@ def resnet12rfs_hdb1_mio(args):
     args.acceptable_difference2 = 0.02
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
 
-    # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner'
-    # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    # - agent/meta_learner type. For none l2l we have data conversion: l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    args.agent_opt = 'MAMLMetaLearnerL2L' if args.data_option == 'mds' else 'MAMLMetaLearner'
 
     # - ckpt name
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/3psfe5hn/overview?workspace=user-brando
@@ -782,9 +728,8 @@ def hdb4_micod(args: Namespace) -> Namespace:
     args.acceptable_difference2 = 0.02
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
 
-    # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner'
-    # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    # - agent/meta_learner type. For none l2l we have data conversion: l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    args.agent_opt = 'MAMLMetaLearnerL2L' if args.data_option == 'mds' else 'MAMLMetaLearner'
 
     # - ckpt name
     # super trained: https://wandb.ai/brando/entire-diversity-spectrum/runs/3kod7pdv
@@ -793,10 +738,11 @@ def hdb4_micod(args: Namespace) -> Namespace:
     args.path_2_init_sl = ''  #
     # train to ~0.90 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/wxrh4t0s
     args.path_2_init_sl = ''  #
-    # trained to ~0.92 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/26c6m7ed
-    # args.path_2_init_sl = '~/data/logs/logs_Jan20_14-47-00_jobid_-1'  # train acc 0.921875, train loss 0.25830933451652527
+    ## doesn't look convgerged: trained to ~0.92 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/26c6m7ed
+    ## doesn't look converged: args.path_2_init_sl = '~/data/logs/logs_Jan20_14-47-00_jobid_-1'  # train acc 0.921875, train loss 0.25830933451652527
     # trained to 0.98828125 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/3kod7pdv?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Jan26_20-35-37_jobid_923629_pid_653526_wandb_True'  # train acc 0.98828125, ampere4
+    args.path_2_init_sl = '~/data/logs/logs_Jan26_20-35-37_jobid_923629_pid_653526_wandb_True'  # train acc 0.98828125, ampere4
+
     # 5ccn 2 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/u1ndwad4/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb09_19-37-27_jobid_667717_pid_967757_wandb_True' # ampere1
     # 5cnn 4 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/r8xgfx07?workspace=user-brando
@@ -814,16 +760,17 @@ def hdb4_micod(args: Namespace) -> Namespace:
     # 5ccn 64 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/1q25bgx0?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb07_00-50-02_jobid_486495_pid_1613676_wandb_True'  # ampere1
     # # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/fuxwz30l/overview?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Feb04_17-38-21_jobid_855372_pid_2723881_wandb_True'  # ampere1
+    # args.path_2_init_sl = '~/data/logs/logs_Feb04_17-38-21_jobid_855372_pid_2723881_wandb_True'  # ampere1
     # 5ccn 512 flters: https://wandb.ai/brando/entire-diversity-spectrum/runs/cstug9f3?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb09_19-33-20_jobid_899282_pid_948111_wandb_True'  # ampere1
 
-    # https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
-    # args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
-    # https://wandb.ai/brando/entire-diversity-spectrum/runs/2rkhpnbx/overview?workspace=user-brando
-    # args.path_2_init_maml = ''  # train acc 0.9266666769981384, train loss 0.2417697161436081
+    ## looks fine cong but the one with lower loss looks better for analysis: https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
+    ## args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
+    ## looks fine cong but the one with lower loss looks better for analysis: https://wandb.ai/brando/entire-diversity-spectrum/runs/2rkhpnbx/overview?workspace=user-brando
+    ## args.path_2_init_maml = ''  # train acc 0.9266666769981384, train loss 0.2417697161436081
     # https://wandb.ai/brando/entire-diversity-spectrum/runs/11od07w0/overview?workspace=user-brando
-    # args.path_2_init_maml = '~/data/logs/logs_Jan26_20-28-37_jobid_406367_pid_649975_wandb_True'  # train acc 0.9911110997200012, ampere4
+    args.path_2_init_maml = '~/data/logs/logs_Jan26_20-28-37_jobid_406367_pid_649975_wandb_True'  # train acc 0.9911110997200012, ampere4
+
     # 5ccn 2 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/bjxl55ul/overview?workspace=
     # args.path_2_init_maml = '~//data/logs/logs_Feb09_20-11-25_jobid_178745_pid_1187212_wandb_True'  # ampere1
     # 5cnn 4 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/sgoiu5tx/overview?workspace=user-brando
@@ -843,7 +790,7 @@ def hdb4_micod(args: Namespace) -> Namespace:
     # 5cnn 64 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/nzvm7g44/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb07_00-48-16_jobid_670102_pid_1612658_wandb_True'  # ampere1
     # # 5cnn 256 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/96wo1c43/overview?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_Feb04_17-39-17_jobid_568243_pid_2724751_wandb_True'  # ampere1
+    # args.path_2_init_maml = '~/data/logs/logs_Feb04_17-39-17_jobid_568243_pid_2724751_wandb_True'  # ampere1
     # 5cnn 512 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/6gte637k?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb09_20-11-20_jobid_77267_pid_1186966_wandb_True'  # ampere1
 
@@ -944,9 +891,8 @@ def resnet18rfs_vggaircraft(args) -> Namespace:
     # - expt option
     args.stats_analysis_option = 'performance_comparison'
 
-    # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner'
-    # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    # - agent/meta_learner type. For none l2l we have data conversion: l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    args.agent_opt = 'MAMLMetaLearnerL2L' if args.data_option == 'mds' else 'MAMLMetaLearner'
 
     args.path_2_init_sl = '~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
     args.path_2_init_maml = '~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
@@ -1056,9 +1002,8 @@ def hdb5_vggair(args):
     args.acceptable_difference2 = 0.02
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
 
-    # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner'
-    # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    # - agent/meta_learner type. For none l2l we have data conversion: l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    args.agent_opt = 'MAMLMetaLearnerL2L' if args.data_option == 'mds' else 'MAMLMetaLearner'
 
     args.path_2_init_sl = '~/data/logs/logs_Feb05_16-58-24_jobid_-1_pid_72478_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
     args.path_2_init_maml = '~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
@@ -1134,9 +1079,8 @@ def mds_full(args: Namespace) -> Namespace:
     args.acceptable_difference2 = 0.02
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
 
-    # - agent/meta_learner type
-    args.agent_opt = 'MAMLMetaLearner'
-    # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    # - agent/meta_learner type. For none l2l we have data conversion: l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    args.agent_opt = 'MAMLMetaLearnerL2L' if args.data_option == 'mds' else 'MAMLMetaLearner'
 
     # - ckpt name
     # resnet50: https://wandb.ai/brando/entire-diversity-spectrum/runs/1laypoiy?workspace=user-brando
@@ -1219,22 +1163,15 @@ def main_data_analyis():
     # - above getter loaders funcs mutate args so we need to fix their wrong mutations
     args.dataloaders = torchmeta_dataloaders
     args.usl_loaders = usl_loaders
-    from uutils.torch_uu.dataloaders.meta_learning.l2l_to_torchmeta_dataloader import TorchMetaDLforL2L
+    # from uutils.torch_uu.dataloaders.meta_learning.l2l_to_torchmeta_dataloader import TorchMetaDLforL2L
     # assert isinstance(torchmeta_dataloaders['train'], TorchMetaDLforL2L)
     assert isinstance(usl_loaders['train'], torch.utils.data.dataloader.DataLoader)
-
-    # - layers to do analysis on
-    if hasattr(args, 'layer_names'):
-        print(f'{args.layer_names=}')
 
     # - maml param
     args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
     # decided to use the setting for FO that I have for torchmeta learners, but since there is no training it should not matter.
     args.track_higher_grads = True
     args.fo = True
-
-    # - Checks that maml0 acc is lower
-    # santity_check_maml_accuracy(args)
 
     # -- do data analysis
     print(f'{try_printing_wandb_url(args.log_to_wandb)=}')

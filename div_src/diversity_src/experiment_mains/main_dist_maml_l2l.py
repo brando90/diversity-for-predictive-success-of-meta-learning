@@ -41,94 +41,6 @@ from pdb import set_trace as st
 from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch
 
 
-# -- MI
-
-def mi_maml_l2l(args: Namespace) -> Namespace:
-    from pathlib import Path
-    # - model
-    args.n_cls = 5
-    # args.model_option = '5CNN_opt_as_model_for_few_shot'
-    # args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
-    # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
-    #                       filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
-    # args.model_option = 'resnet12_rfs'
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
-
-    # - data
-    args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
-    args.data_path = Path('~/data/l2l_data/').expanduser()
-    args.data_augmentation = 'lee2019'
-
-    # - training mode
-    args.training_mode = 'iterations'
-    # note: 60K iterations for original maml 5CNN with adam
-    args.num_its = 300_000  # resnet12rfs conv with 300K
-    # args.num_its = 400_000  # resnet12rfs conv with 300K
-
-    # - debug flag
-    # args.debug = True
-    args.debug = False
-
-    # - opt
-    # args.opt_option = 'AdafactorDefaultFair'
-    args.opt_option = 'Adam_rfs_cifarfs'
-    args.lr = 1e-3  # match MAML++
-    args.opt_hps: dict = dict(lr=args.lr)
-
-    # - scheduler
-    # args.scheduler_option = 'None'
-    # args.scheduler_option = 'AdafactorSchedule'
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
-    args.log_scheduler_freq = 2_000
-    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
-    args.eta_min = 1e-5  # match MAML++
-    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
-    print(f'{args.T_max=}')
-    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
-
-    # -- Meta-Learner
-    # - maml
-    args.meta_learner_name = 'maml_fixed_inner_lr'
-    args.inner_lr = 1e-1  # same as fast_lr in l2l
-    args.nb_inner_train_steps = 5
-    args.first_order = True  # need to create new args that uses first order maml, leaving as is for reproducibility
-
-    # - outer trainer params
-    args.batch_size = 4
-    args.batch_size_eval = 2
-
-    # - dist args
-    args.world_size = torch.cuda.device_count()
-    # args.world_size = 8
-    args.parallel = args.world_size > 1
-    # args.seed = 42  # I think this might be important due to how tasksets works.
-    args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
-    # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-    args.init_method = None  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
-
-    # - logging params
-    args.log_freq = 500
-    # args.log_freq = 20
-    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
-    #                                metric_to_use='train_acc',
-    #                                threshold=0.9, log_speed_up=10)
-    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
-    #                                log_speed_up=1)
-
-    # -- wandb args
-    args.wandb_project = 'entire-diversity-spectrum'
-    # - wandb expt args
-    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
-    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
-
-    # - fix for backwards compatibility
-    args = fix_for_backwards_compatibility(args)
-    return args
-
-
 # - cifarfs
 
 def l2l_4CNNl2l_cifarfs_rfs_adam_cl_70k(args: Namespace) -> Namespace:
@@ -1592,48 +1504,64 @@ def l2l_resnet12rfs_hdb1_100k_adam_cosine_scheduler_first_order_from_ckpt(args: 
     return args
 
 
-# vit
-
-def vit_maml(args: Namespace):
-    """
-    """
+def maml_l2l(args: Namespace):
+    # def vit_maml(args: Namespace):
     from pathlib import Path
     # - model
-    # args.model_option = 'vit_mi'
     args.n_cls = 5
-    args.model_hps = dict(num_classes=args.n_cls, image_size=84)
+    # args.model_option = 'resnet12_rfs'
+    # args.model_option = 'resnet12_rfs_cifarfs_fc100'
+    # args.model_option = 'vit_mi'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot'
+    # args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
     args.allow_unused = True  # transformers have lots of tokens & params, so I assume some param is not always being used in the forward pass
+    if '5CNN_opt_as_model_for_few_shot' in args.model_option:
+        args.model_hps = dict(n_classes=args.n_cls, filter_size=args.filter_size)
+        args.model_hps['image_size'] = 32 if 'cifarfs' in args.data_option else 84
+    else:
+        args.model_hps = dict(num_classes=args.n_cls)
+    print(f'--> {args.model_option=} {args.model_hps=}')
 
     # - data
-    args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
-    args.data_path = Path('~/data/l2l_data/').expanduser()
-    args.data_augmentation = 'lee2019'
+    if args.data_option == 'mini-imagenet':
+        args.data_path = Path('~/data/l2l_data/').expanduser()
+        args.data_augmentation = 'lee2019'
+    elif args.data_option == 'hdb4_micod':
+        args.data_path = Path('~/data/l2l_data/').expanduser()
+        args.data_augmentation = 'hdb4_micod'
+    elif args.data_option == 'cifarfs':  # don't think this is needed!
+        args.data_path = Path('~/data/l2l_data/').expanduser()
+        args.data_augmentation = 'rfs2020'
 
     # - training mode
     args.training_mode = 'iterations'
     # note: 60K iterations for original maml 5CNN with adam
     # args.num_its = 300_000  # resnet12rfs conv with 300K
-    args.num_its = 400_000  # resnet12rfs conv with 300K
+    # args.num_its = 400_000  # resnet12rfs conv with 300K
+    # args.num_its = 500_000  # resnet12rfs conv with 300K
+    args.num_its = 600_000  # resnet12rfs conv with 300K
 
     # - debug flag
     # args.debug = True
     args.debug = False
 
     # - opt
-    # args.opt_option = 'AdafactorDefaultFair'
-    args.opt_option = 'Adam_rfs_cifarfs'
-    args.lr = 1e-3  # match MAML++
-    args.opt_hps: dict = dict(lr=args.lr)
+    args.opt_option = 'AdafactorDefaultFair'
+    args.opt_hps: dict = dict()
+    # args.opt_option = 'Adam_rfs_cifarfs'
+    # args.lr = 1e-3  # match MAML++
+    # # args.lr = 1e-4  # match MAML++
+    # args.opt_hps: dict = dict(lr=args.lr)
 
     # - scheduler
     # args.scheduler_option = 'None'
-    # args.scheduler_option = 'AdafactorSchedule'
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
-    args.log_scheduler_freq = 2_000
-    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
-    args.eta_min = 1e-5  # match MAML++
-    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
-    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+    args.scheduler_option = 'AdafactorSchedule'
+    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    # args.log_scheduler_freq = 2_000
+    # args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    # args.eta_min = 1e-5  # match MAML++
+    # args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    # print(f'{args.T_max=}')
 
     # -- Meta-Learner
     # - maml
@@ -1669,9 +1597,9 @@ def vit_maml(args: Namespace):
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
-    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
-    args.log_to_wandb = True
-    # args.log_to_wandb = False
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -1926,7 +1854,8 @@ def maml_hdb4_micod(args: Namespace) -> Namespace:
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
-    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
+
     args.log_to_wandb = True
     # args.log_to_wandb = False
 
@@ -2029,9 +1958,10 @@ def train(args):
     print('creating agent')
     args.agent = MAMLMetaLearnerL2L(args, args.model)
     args.meta_learner = args.agent
+    print(f'{type(args.agent)=}, {type(args.meta_learner)=}')
 
     # -- Start Training Loop
-    print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)  # here to make sure mdl has the right cls
+    print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}\n{type(args.agent)=}", args.rank)  # here to make sure mdl has the right cls
     print_dist('\n\n====> about to start train loop', args.rank)
     print(f'{args.filter_size=}') if hasattr(args, 'filter_size') else None
     print(f'{args.number_of_trainable_parameters=}')

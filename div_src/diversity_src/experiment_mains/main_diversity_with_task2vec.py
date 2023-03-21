@@ -267,8 +267,8 @@ def diversity_ala_task2vec_hdb1_mio(args: Namespace) -> Namespace:
     # - probe_network
     # args.model_option = 'resnet18_random'
     # args.model_option = 'resnet18_pretrained_imagenet'
-    # args.model_option = 'resnet34_random'
-    args.model_option = 'resnet34_pretrained_imagenet'
+    args.model_option = 'resnet34_random'
+    # args.model_option = 'resnet34_pretrained_imagenet'
     #
     # args.model_option = 'resnet18_random'
     # args.classifier_opts = dict(epochs=0)

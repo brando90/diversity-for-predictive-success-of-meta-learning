@@ -82,7 +82,7 @@ echo ERR_FILE = $ERR_FILE
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_delauny > $OUT_FILE 2> $ERR_FILE &
 
 # - hdb1 div
-#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb1_mio > $OUT_FILE 2> $ERR_FILE &
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb1_mio
 
 # - hdb2 div
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_diversity_with_task2vec.py --manual_loads_name diversity_ala_task2vec_hdb2_cifo > $OUT_FILE 2> $ERR_FILE &
@@ -104,6 +104,9 @@ ssh brando9@ampere4.stanford.edu
 ssh brando9@hyperturing1.stanford.edu
 ssh brando9@hyperturing2.stanford.edu
 
+ssh brando9@mercury1.stanford.edu
+ssh brando9@mercury2.stanford.edu
+
 tput rmcup
 
 krbtmux
@@ -114,12 +117,14 @@ reauth
 source $AFS/.bashrc.lfs
 conda activate mds_env_gpu
 #conda activate metalearning_gpu
-export CUDA_VISIBLE_DEVICES=5
+export CUDA_VISIBLE_DEVICES=9
 #export CUDA_VISIBLE_DEVICES=0,2
 export SLURM_JOBID=$(python -c "import random;print(random.randint(0, 1_000_000))")
 echo CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES; echo SLURM_JOBID = $SLURM_JOBID; echo hostname = $(hostname)
 ulimit -n 120000; ulimit -Sn; ulimit -Hn
-nvidia-smi; (echo "GPU_ID PID MEM% UTIL% UID APP" ; for GPU in 0 1 2 3 ; do for PID in $( nvidia-smi -q --id=${GPU} --display=PIDS | awk '/Process ID/{print $NF}') ; do echo -n "${GPU} ${PID} " ; nvidia-smi -q --id=${GPU} --display=UTILIZATION | grep -A4 -E '^[[:space:]]*Utilization' | awk 'NR=0{gut=0 ;mut=0} $1=="Gpu"{gut=$3} $1=="Memory"{mut=$3} END{printf "%s %s ",mut,gut}' ; ps -up ${PID} | gawk 'NR-1 {print $1,$NF}' ; done ; done) | column -t; hostname;
+
+nvidia-smi
+(echo "GPU_ID PID MEM% UTIL% UID APP" ; for GPU in 0 1 2 3 ; do for PID in $( nvidia-smi -q --id=${GPU} --display=PIDS | awk '/Process ID/{print $NF}') ; do echo -n "${GPU} ${PID} " ; nvidia-smi -q --id=${GPU} --display=UTILIZATION | grep -A4 -E '^[[:space:]]*Utilization' | awk 'NR=0{gut=0 ;mut=0} $1=="Gpu"{gut=$3} $1=="Memory"{mut=$3} END{printf "%s %s ",mut,gut}' ; ps -up ${PID} | gawk 'NR-1 {print $1,$NF}' ; done ; done) | column -t; hostname;
 #nvidia-smi; (echo "GPU_ID PID UID APP" ; for GPU in 0 1 2 3 ; do for PID in $( nvidia-smi -q --id=${GPU} --display=PIDS | awk '/Process ID/{print $NF}') ; do echo -n "${GPU} ${PID} " ; ps -up ${PID} | awk 'NR-1 {print $1,$NF}' ; done ; done) | column -t; hostname; tmux ls;
 
 
@@ -136,13 +141,9 @@ tmux new -s gpu7
 tmux new -s gpu8
 tmux new -s gpu9
 
-tmux new -s gpu0_p2
-tmux new -s gpu5_p2
-tmux new -s gpu3_p2
-tmux new -s gpu3_p3
-tmux new -s gpu3_p4
-
 tmux new -s rand
+tmux new -s rand0
+tmux new -s rand1
 tmux new -s rand2
 tmux new -s rand3
 tmux new -s rand4
@@ -152,6 +153,14 @@ tmux new -s rand7
 tmux new -s rand8
 tmux new -s rand9
 tmux new -s rand10
+tmux new -s rand11
+tmux new -s rand12
+tmux new -s rand13
+tmux new -s rand14
+tmux new -s rand15
+tmux new -s rand16
+tmux new -s rand17
+tmux new -s rand18
 
 tmux new -s mds0_maml_resnet50rfs
 tmux new -s mds1_maml_resnet50rfs
@@ -226,15 +235,51 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_hdb4_micod --path_to_checkpoint "~/data/logs/logs_Feb02_14-00-49_jobid_991923_pid_2822438_wandb_True/ckpt.pt"
 
-# -- mi resnet12
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mi_usl_l2l_data --model_option resnet12_rfs
 
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name mi_maml_l2l --model_option resnet12_rfs
 
-# -- mi vit
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name vit_usl_mi_l2l_data --model_option vit_mi
+# -- mi 5cnns
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --filter_size 2 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --filter_size 6 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --filter_size 8 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --filter_size 16 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --filter_size 32 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --filter_size 64 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --filter_size 256 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --filter_size 512 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
 
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name vit_maml --model_option vit_mi
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_l2l --filter_size 2 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_l2l --filter_size 6 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_l2l --filter_size 8 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_l2l --filter_size 16 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_l2l --filter_size 32 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_l2l --filter_size 64 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_l2l --filter_size 256 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_l2l --filter_size 512 --model_option 5CNN_opt_as_model_for_few_shot --data_option mini-imagenet
+
+
+
+
+
+# -- mi, cifarfs; resnet12
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --model_option resnet12_rfs
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --model_option resnet12_rfs_cifarfs_fc100 --data_option cifarfs
+
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_l2l --model_option resnet12_rfs
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_l2l --model_option resnet12_rfs_cifarfs_fc100 --data_option cifarfs
+
+# -- mi, hdb4; vit
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --model_option vit_mi --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --model_option vit_mi --data_option hdb4_micod
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --model_option vit_cifarfs --data_option cifarfs
+
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_l2l --model_option vit_mi --data_option mini-imagenet
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_l2l --model_option vit_mi --data_option hdb4_micod
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_dist_maml_l2l.py --manual_loads_name maml_l2l --model_option vit_cifarfs --data_option cifarfs
+
+# - mds vit (seperate, since it uses torchmeta & torchmeta doesn't seem to work with hf)
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_l2l_data --model_option vit_mi --data_option mds
+
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_maml --model_option vit_mi --data_option mds
 
 
 # - performance comp usl vs maml

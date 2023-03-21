@@ -42,56 +42,79 @@ from pdb import set_trace as st
 
 # -- MI
 
-def mi_usl_l2l_data(args: Namespace) -> Namespace:
+def usl_l2l_data(args: Namespace) -> Namespace:
     from pathlib import Path
-    # - model
-    args.n_cls = 64
-    args.model_option = 'resnet12_rfs'
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
-    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
-    # args.filter_size = 32
-    # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls,
-    #                       filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
-
     # - data
     # old code
     # args.data_path = Path('~/data/miniImageNet_rfs/miniImageNet').expanduser()
     # new usl l2l code
-    args.data_option = 'mini-imagenet'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
-    args.data_path = Path('~/data/l2l_data/').expanduser()
-    args.data_augmentation = 'lee2019'
+    if args.data_option == 'mini-imagenet':
+        args.n_cls = 64
+        args.data_path = Path('~/data/l2l_data/').expanduser()
+        args.data_augmentation = 'lee2019'
+    elif args.data_option == 'hdb4_micod':
+        args.n_cls = 1262  # 64 + 64 + 1100 + 34
+        args.data_path = Path('~/data/l2l_data/').expanduser()
+        args.data_augmentation = 'hdb4_micod'
+    elif args.data_option == 'cifarfs':  # don't think this is needed!
+        args.n_cls = 64  # https://learn2learn.net/docs/learn2learn.vision/#learn2learn.vision.datasets.cifarfs.CIFARFS
+        args.data_path = Path('~/data/l2l_data/').expanduser()
+        args.data_augmentation = 'rfs2020'
+    elif args.data_option == 'mds':
+        args.n_cls = get_hardcoded_full_mds_num_classes()  # ref: https://github.com/google-research/meta-dataset#dataset-summary
+        args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
+                        'mscoco', 'traffic_sign']
+        # args.data_augmentation = '...84 x 84...'  # todo, ask patrick and put comment here
+
+    # - model
+    # args.model_option = 'resnet12_rfs'
+    # args.model_option = 'resnet12_rfs_cifarfs_fc100'
+    # args.model_option = 'vit_mi'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot'
+    # args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+    args.allow_unused = True  # transformers have lots of tokens & params, so I assume some param is not always being used in the forward pass
+    if '5CNN_opt_as_model_for_few_shot' in args.model_option:
+        args.model_hps = dict(n_classes=args.n_cls, filter_size=args.filter_size)
+        args.model_hps['image_size'] = 32 if 'cifarfs' in args.data_option else 84
+    else:
+        args.model_hps = dict(num_classes=args.n_cls)
+    print(f'--> {args.model_option=} {args.model_hps=}')
 
     # - training mode
     args.training_mode = 'iterations'
     # args.num_its = 25_000  # mds 50_000: https://gitA,aahub.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
-    args.num_its = 100_000  # mds 50_000: https://gitA,aahub.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    # args.num_its = 100_000  # mds 50_000: https://gitA,aahub.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    # args.num_its = 200_000  # mds 50_000: https://gitA,aahub.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    # args.num_its = 300_000  # mds 50_000: https://gitA,aahub.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
+    args.num_its = 400_000  # mds 50_000: https://gitA,aahub.com/google-research/meta-dataset/blob/d6574b42c0f501225f682d651c631aef24ad0916/meta_dataset/learn/gin/best/pretrain_imagenet_resnet.gin#L20
     # args.num_its = 800_000  # hdb4 resnetrfs usl's its to convg visually
+    args.num_its = int(7.5 * 100_000)  # estimate 15 days = 2 days * 7.5
 
     # - debug flag
     # args.debug = True
     args.debug = False
 
     # - opt
-    args.opt_option = 'Adam_rfs_cifarfs'
-    args.batch_size = 256
-    args.lr = 1e-3
-    args.opt_hps: dict = dict(lr=args.lr)
-
-    # - opt
-    args.opt_option = 'Adam_rfs_cifarfs'
-    args.batch_size = 256
-    args.lr = 1e-3
-    args.opt_hps: dict = dict(lr=args.lr)
+    args.opt_option = 'AdafactorDefaultFair'
+    args.opt_hps: dict = dict()
+    # args.opt_option = 'Adam_rfs_cifarfs'
+    # args.lr = 1e-3
+    # ## args.lr = 1e-4
+    # args.opt_hps: dict = dict(lr=args.lr)
 
     # - scheduler
     # args.scheduler_option = 'None'
-    args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
-    args.log_scheduler_freq = 2_000
-    args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
-    args.eta_min = 1e-5  # match MAML++
-    args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
-    print(f'{args.T_max=}')
-    # assert args.T_max == 400, f'T_max is not expected value, instead it is: {args.T_max=}'
+    args.scheduler_option = 'AdafactorSchedule'
+    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    # args.log_scheduler_freq = 2_000
+    # args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    # args.eta_min = 1e-5  # match MAML++
+    # args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    # print(f'{args.T_max=}')
+
+    # - batch size
+    args.batch_size = 256
+    args.batch_size_eval = 256
 
     # - logging params
     args.log_freq = 500
@@ -105,7 +128,7 @@ def mi_usl_l2l_data(args: Namespace) -> Namespace:
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
-    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -1836,7 +1859,7 @@ def sl_hdb1_rfs_resnet12rfs_adam_cl(args: Namespace) -> Namespace:
 
 # - vit
 
-def vit_usl_mi_l2l_data(args: Namespace) -> Namespace:
+def vit_usl(args: Namespace) -> Namespace:
     # - model
     # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
     # args.n_cls = get_hardcoded_full_mds_num_classes()  # ref: https://github.com/google-research/meta-dataset#dataset-summary
@@ -1901,7 +1924,7 @@ def vit_usl_mi_l2l_data(args: Namespace) -> Namespace:
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
-    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -2212,7 +2235,7 @@ def usl_hdb4_micod_convg_reached_log_ckpt_more(args: Namespace) -> Namespace:
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
-    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
@@ -2354,7 +2377,6 @@ def mds_usl(args: Namespace) -> Namespace:
     args.opt_option = 'AdafactorDefaultFair'
     args.opt_hps: dict = dict()
     # args.opt_option = 'Adam_rfs_cifarfs'
-    # args.batch_size = 256
     # args.lr = 1e-3
     # args.opt_hps: dict = dict(lr=args.lr)
 
@@ -2367,6 +2389,10 @@ def mds_usl(args: Namespace) -> Namespace:
     # args.eta_min = 1e-5  # match MAML++
     # args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
     # print(f'{args.T_max=}')
+
+    # - batch size
+    args.batch_size = 256
+    args.batch_size_eval = 256
 
     # - logging params
     args.log_freq = 500
@@ -2609,9 +2635,10 @@ def train(args):
 
     # Agent does everything, proving, training, evaluate etc.
     args.agent: Agent = ClassificationSLAgent(args, args.model)
+    print(f'{type(args.agent)=}')
 
     # -- Start Training Loop
-    print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)  # here to make sure mdl has the right cls
+    print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}\n{type(args.agent)=}", args.rank)  # here to make sure mdl has the right cls
     print_dist('\n\n====> about to start train loop', args.rank)
     print(f'{args.filter_size=}') if hasattr(args, 'filter_size') else None
     print(f'{args.number_of_trainable_parameters=}')

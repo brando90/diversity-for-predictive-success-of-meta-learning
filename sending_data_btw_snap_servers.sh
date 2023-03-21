@@ -20,6 +20,8 @@ ssh brando9@ampere4.stanford.edu
 rsync -avW ~/data/mds brando9@ampere1:/lfs/local/0/brando9/data/mds
 rsync -avW ~/data/mds brando9@ampere2:/lfs/local/0/brando9/data/mds
 rsync -avW ~/data/mds brando9@ampere3:/lfs/local/0/brando9/data/mds
+rsync -avW ~/data/mds brando9@hyperturing1:/lfs/local/0/brando9/data/mds
+rsync -avW ~/data/mds brando9@hyperturing2:/lfs/local/0/brando9/data/mds
 # fails, both can't be remote
 # rsync -avW brando9@ampere4.stanford.edu:/lfs/ampere4/0/brando9/data/mds/ brando9@ampere1.stanford.edu:/lfs/ampere1/0/brando9/data/mds/
 
