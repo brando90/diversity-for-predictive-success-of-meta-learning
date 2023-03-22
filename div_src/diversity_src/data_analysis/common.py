@@ -149,7 +149,7 @@ def sanity_check_models_usl_maml_and_set_rand_model(args: Namespace,
     norms of the models are different.
     """
     print(f'{args.data_path=}')
-    args.mdl1 = args.meta_learner.base_model
+    args.mdl1 = args.meta_learner.model
     args.mdl2 = get_sl_learner(args)
     args.mdl_maml = args.mdl1
     args.mdl_sl = args.mdl2
@@ -201,7 +201,7 @@ def load_model_cifarfs_fix_model_hps(args, path_to_checkpoint):
 
 
 def load_old_mi_resnet12rfs_ckpt(args: Namespace, path_to_checkpoint: Path) -> nn.Module:
-    # from meta_learning.base_models.resnet_rfs import _get_resnet_rfs_model_mi
+    # from meta_learning.models.resnet_rfs import _get_resnet_rfs_model_mi
     from diversity_src.models.resnet_rfs import _get_resnet_rfs_model_mi
 
     model, _ = _get_resnet_rfs_model_mi(args.model_option)
@@ -231,7 +231,7 @@ def load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint):
 
 def load_original_rfs_ckpt(args: Namespace, path_to_checkpoint: str):
     # from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_mi
-    # from meta_learning.base_models.resnet_rfs import _get_resnet_rfs_model_mi
+    # from meta_learning.models.resnet_rfs import _get_resnet_rfs_model_mi
     from diversity_src.models.resnet_rfs import _get_resnet_rfs_model_mi
 
     ckpt = torch.load(path_to_checkpoint, map_location=args.device)
@@ -277,7 +277,7 @@ def get_sl_learner(args: Namespace):
         gpu_idx: int = 0
         device: torch.device = get_device(gpu_idx)
         print(f'sl mdl: {device=}')
-        args.meta_learner.base_model = args.model.to(device)
+        args.meta_learner.model = args.model.to(device)
     return model
 
 
@@ -285,26 +285,25 @@ def get_maml_meta_learner(args: Namespace):
     print(f'{args.path_2_init_maml=}')
     if '668' in str(args.path_2_init_maml):  # hack to have old 668 checkpoint work
         # args.path_2_init_maml = Path('~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668/ckpt_file.pt').expanduser()
-        base_model = load_old_mi_resnet12rfs_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
+        model = load_old_mi_resnet12rfs_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
     elif '101601' in str(args.path_2_init_maml):
-        base_model = load_model_cifarfs_fix_model_hps(args, path_to_checkpoint=args.path_2_init_maml)
+        model = load_model_cifarfs_fix_model_hps(args, path_to_checkpoint=args.path_2_init_maml)
     # elif '23901' in str(args.path_2_init_maml):
-    #     base_model = load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint=args.path_2_init_maml)
+    #     model = load_4cnn_cifarfs_fix_model_hps_maml(args, path_to_checkpoint=args.path_2_init_maml)
     elif 'debug_5cnn_2filters' in str(args.path_2_init_sl):
         from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import Learner, get_default_learner_and_hps_dict
         model, _ = get_default_learner_and_hps_dict(filter_size=2)
-        base_model = model
     else:
-        # base_model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
-        base_model = load_model_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
-    args.model = base_model
+        # model, _, _ = load_model_optimizer_scheduler_from_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
+        model = load_model_ckpt(args, path_to_checkpoint=args.path_2_init_maml)
+    args.model = model
 
     args.meta_learner = _get_maml_agent(args)
     if torch.cuda.is_available():
         gpu_idx: int = 0
         device: torch.device = get_device(gpu_idx)
         print(f'maml mdl: {device=}')
-        args.meta_learner.base_model = args.model.to(device)
+        args.meta_learner.model = args.model.to(device)
     return args.meta_learner
 
 
@@ -313,7 +312,9 @@ def set_maml_cls_to_usl_cls_mutates(args: Namespace,
                                     ):
     """ Set maml cls to usl so usl can be used for meta-learning. """
     from uutils.torch_uu.models.resnet_rfs import ResNet
-    if isinstance(args.mdl_maml, Learner):
+    if hasattr(args.mdl_sl, 'cls'):
+        args.mdl_sl = nn.Linear(args.mdl_sl.cls.in_features, args.mdl_maml.cls.out_features)
+    elif isinstance(args.mdl_maml, Learner):
         # - print final cls layer before changing it
         if verbose:
             print(f'{args.mdl_maml.model.cls=}')
@@ -474,7 +475,7 @@ def print_performance_4_usl_ffl(args: Namespace,
                                 target_type='classification',
                                 classifier='LR',
                                 ):
-    meta_learner = FitFinalLayer(args, base_model=model, target_type=target_type, classifier=classifier)
+    meta_learner = FitFinalLayer(args, model, target_type, classifier)
     assert isinstance(meta_learner, FitFinalLayer)
     print_performance_results_simple(args, meta_learner, loaders, training=True)
     assert isinstance(meta_learner, FitFinalLayer)
@@ -611,7 +612,7 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
     # - load maml params you wanted for eval (note: args.agent_opt == 'MAMLMetaLearner_default' flag exists).
     # assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     # original_meta_learner = args.meta_learner
-    args.meta_learner.base_model = model
+    args.meta_learner.model = model
     args.meta_learner.nb_inner_train_steps = nb_inner_steps
     args.meta_learner.inner_lr = inner_lr
     # - get accs and losses for all splits
@@ -659,7 +660,7 @@ def get_episodic_accs_losses_all_splits_usl(args: Namespace,
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
     # - get accs and losses for all splits
     set_maml_cls_to_usl_cls_mutates(args)
-    agent = FitFinalLayer(args, base_model=model)
+    agent = FitFinalLayer(args, model)
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
     for split in ['train', 'val', 'test']:
         start = time.time()

@@ -27,18 +27,15 @@ from diversity_src.data_analysis.stats_analysis_with_emphasis_on_effect_size imp
 
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
 from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
-
 from uutils.torch_uu import process_meta_batch, norm
 from uutils.torch_uu.distributed import is_lead_worker
 from uutils.torch_uu.meta_learners.maml_differentiable_optimizer import get_maml_inner_optimizer, \
     dist_batch_tasks_for_all_layer_mdl_vs_adapted_mdl, dist_batch_tasks_for_all_layer_different_mdl_vs_adapted_mdl
 from uutils.torch_uu.models import reset_all_weights
-
 from uutils.torch_uu.models.resnet_rfs import get_recommended_batch_size_mi_resnet12rfs_body
-
 from uutils.argparse_uu.common import setup_args_for_experiment
-
 from uutils.logging_uu.wandb_logging.common import try_printing_wandb_url
+from uutils.torch_uu import count_number_of_parameters
 
 import os
 
@@ -1201,7 +1198,14 @@ def load_args() -> Namespace:
 
 
 def main_data_analyis():
+    # - load args
     args: Namespace = load_args()
+
+    # - num params
+    args.number_of_trainable_parameters = count_number_of_parameters(args.model)
+    print(f'{args.number_of_trainable_parameters=}')
+    print(f'---> {args.number_of_trainable_parameters=}')
+
     # - print args
     print(f'{try_printing_wandb_url(args.log_to_wandb)=}')
     uutils.print_args(args)
