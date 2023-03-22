@@ -90,10 +90,6 @@ def usl_l2l_data(args: Namespace) -> Namespace:
     # args.num_its = 800_000  # hdb4 resnetrfs usl's its to convg visually
     args.num_its = int(7.5 * 100_000)  # estimate 15 days = 2 days * 7.5
 
-    # - debug flag
-    # args.debug = True
-    args.debug = False
-
     # - opt
     args.opt_option = 'AdafactorDefaultFair'
     args.opt_hps: dict = dict()
@@ -130,7 +126,9 @@ def usl_l2l_data(args: Namespace) -> Namespace:
     args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
     args.log_to_wandb = True
+    # args.debug = False
     # args.log_to_wandb = False
+    args.debug = True
     return args
 
 
