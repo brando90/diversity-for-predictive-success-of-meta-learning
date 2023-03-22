@@ -380,7 +380,7 @@ def comparison_via_performance(args: Namespace):
 
     # - full table
     print('---- full table ----')
-    assert isinstance(args.meta_learner, MAMLMetaLearner)
+    # assert isinstance(args.meta_learner, MAMLMetaLearner)
 
     # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     print('\n---- maml0 for rand model')
@@ -416,7 +416,7 @@ def comparison_via_performance(args: Namespace):
 
     # - quick
     print('---- quick ----')
-    assert isinstance(args.meta_learner, MAMLMetaLearner)
+    # assert isinstance(args.meta_learner, MAMLMetaLearner)
 
     # -- Adaptation=MAML 0 (for all models, rand, maml, sl)
     print('---- maml0 for rand model')
@@ -609,7 +609,7 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
     # - if this guard fails your likely not using the model you expect/wanted
     basic_guards_that_maml_usl_and_rand_models_loaded_are_different(args)
     # - load maml params you wanted for eval (note: args.agent_opt == 'MAMLMetaLearner_default' flag exists).
-    assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
+    # assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     # original_meta_learner = args.meta_learner
     args.meta_learner.base_model = model
     args.meta_learner.nb_inner_train_steps = nb_inner_steps
@@ -631,7 +631,7 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
         print(f'{len(losses)=} {len(accs)=}')
         print(uutils.report_times(start))
     # - return results
-    assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
+    # assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     return results
 
 

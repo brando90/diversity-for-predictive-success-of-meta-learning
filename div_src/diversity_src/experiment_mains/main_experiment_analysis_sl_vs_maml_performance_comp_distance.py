@@ -600,6 +600,69 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     return args
 
 
+def cifarfs(args: Namespace) -> Namespace:
+    # - model
+    # args.model_option = 'resnet12_rfs_cifarfs_fc100'
+    args.model_option = 'vit_cifarfs'
+    args.allow_unused = True  # transformers have lots of tokens & params, so I assume some param is not always being used in the forward pass
+
+    # - data
+    args.data_option = 'cifarfs'
+    args.data_path = Path('~/data/l2l_data/').expanduser()
+    args.data_augmentation = 'rfs2020'
+
+    # - training mode
+    args.training_mode = 'iterations'  # needed so setup_args doesn't error out (sorry for confusioning line!)
+    args.num_its = 6
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.nb_inner_train_steps = 5
+    args.first_order = True
+
+    args.batch_size = 2  # useful for debugging!
+    # args.batch_size = 5  # useful for debugging!
+    # args.batch_size = 500
+    # args.batch_size = 1000
+    args.batch_size_eval = args.batch_size
+
+    # - expt option
+    # args.stats_analysis_option = 'performance_comparison'
+    # args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size'
+    # args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_and_full_performance_comp_hist'
+    args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_hist'
+    args.acceptable_difference1 = 0.01
+    args.acceptable_difference2 = 0.02
+    args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
+
+    # - agent/meta_learner type. For none l2l we have data conversion: l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
+    args.agent_opt = 'MAMLMetaLearnerL2L' if 'vit' in args.model_option else 'MAMLMetaLearner'
+
+    # - ckpt name
+    # vit_cifarfs: https://wandb.ai/brando/entire-diversity-spectrum/runs/kcjnggef?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Mar17_12-00-22_jobid_673325_pid_207992_wandb_True'  # hyperturing1
+
+    # vit_cifarfs: https://wandb.ai/brando/entire-diversity-spectrum/runs/m381zssb/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Mar17_12-03-29_jobid_751298_pid_224452_wandb_True'  # hyperturing1
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    args.experiment_name = f'{args.manual_loads_name} {args.batch_size} {os.path.basename(__file__)}'
+    args.run_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False
+    # args.debug = True
+    args.debug = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    # - setup paths to ckpts for data analysis
+    args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
+    return args
+
+
 # -- hdb1 mio
 
 def resnet12rfs_hdb1_mio(args):
@@ -1155,16 +1218,18 @@ def main_data_analyis():
     print(f'{args.path_2_init_maml=}')
 
     # - get dataloaders and overwrites so data analysis runs as we want
-    torchmeta_dataloaders: dict = get_meta_learning_dataloaders(args)
+    if args.data_option == 'mds':
+        metalearning_dataloaders: dict = get_meta_learning_dataloaders(args)
+    else:
+        from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
+        metalearning_dataloaders: BenchmarkTasksets = get_l2l_tasksets(args)
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
     from uutils.torch_uu.dataloaders.helpers import get_sl_dataloader
     usl_loaders: dict = get_sl_dataloader(args)
     assert args.mdl_sl.cls.out_features != 5, f'{args.mdl_sl.cls.out_features=}'
     # - above getter loaders funcs mutate args so we need to fix their wrong mutations
-    args.dataloaders = torchmeta_dataloaders
+    args.dataloaders = metalearning_dataloaders
     args.usl_loaders = usl_loaders
-    # from uutils.torch_uu.dataloaders.meta_learning.l2l_to_torchmeta_dataloader import TorchMetaDLforL2L
-    # assert isinstance(torchmeta_dataloaders['train'], TorchMetaDLforL2L)
     assert isinstance(usl_loaders['train'], torch.utils.data.dataloader.DataLoader)
 
     # - maml param
