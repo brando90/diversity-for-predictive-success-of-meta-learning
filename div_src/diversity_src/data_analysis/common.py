@@ -310,7 +310,9 @@ def get_maml_meta_learner(args: Namespace):
 def set_maml_cls_to_usl_cls_mutates(args: Namespace,
                                     verbose: bool = False,
                                     ):
-    """ Set maml cls to usl so usl can be used for meta-learning. """
+    """ Set maml cls to usl so usl can be used for meta-learning.
+    Put the maml cls layer into the cls usl model.
+    """
     from uutils.torch_uu.models.resnet_rfs import ResNet
     if hasattr(args.mdl_sl, 'cls'):
         args.mdl_sl = nn.Linear(args.mdl_sl.cls.in_features, args.mdl_maml.cls.out_features)
@@ -604,6 +606,7 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
     Warning:
         - alwaus manually specify nb_inner_steps and inner_lr. This function might mutate the meta-learner/agent. Sorry! Wont fix.
     """
+    print(f'{get_episodic_accs_losses_all_splits_maml=}')
     results: dict = dict(train=dict(losses=[], accs=[]),
                          val=dict(losses=[], accs=[]),
                          test=dict(losses=[], accs=[]))
@@ -618,6 +621,7 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
     # - get accs and losses for all splits
     # Done in get data since it might be mds and need to convert to l2l: assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     agent = args.meta_learner
+    print(f'{agent=}')
     for split in ['train', 'val', 'test']:
         start = time.time()
         print(f'{split=} (computing accs & losses)')
@@ -653,6 +657,7 @@ def get_episodic_accs_losses_all_splits_usl(args: Namespace,
         - note that we use the torchmeta MAML for consistency of data loader but I don't think it's needed since the
         code bellow get_eval_lists_accs_losses detects the type of loader and uses the correct one.
     """
+    print(f'{get_episodic_accs_losses_all_splits_usl=}')
     results: dict = dict(train=dict(losses=[], accs=[]),
                          val=dict(losses=[], accs=[]),
                          test=dict(losses=[], accs=[]))
@@ -661,11 +666,12 @@ def get_episodic_accs_losses_all_splits_usl(args: Namespace,
     # - get accs and losses for all splits
     set_maml_cls_to_usl_cls_mutates(args)
     agent = FitFinalLayer(args, model)
+    print(f'{agent=}')
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
     for split in ['train', 'val', 'test']:
         start = time.time()
         print(f'{split=} (computing accs & losses)')
-        data: Any = get_data(args.dataloaders, split)
+        data: Any = get_data(args.dataloaders, split, agent)
         losses, accs = agent.get_lists_accs_losses(data, training)
         # torch.cuda.empty_cache()
         assert isinstance(losses, list), f'losses should be a list of floats, but got {type(losses)=}'
@@ -771,7 +777,7 @@ def get_mean_and_ci_from_results(results: dict,
 
 # - exmaples, test, etc
 
-def rfs_ckpts():
+def rfs_ckpts_test_():
     path = '~/data/rfs_checkpoints/mini_simple.pt'
     path = Path(path).expanduser()
     ckpt = torch.load(path, map_location=torch.device('cpu'))
@@ -779,31 +785,13 @@ def rfs_ckpts():
     print(ckpt['model'])
 
 
-def check_out_features_cls_layer():
+def check_out_features_cls_layer_test_():
     import torch.nn as nn
 
     linear = nn.Linear(in_features=64, out_features=32)
     print(f'{linear=}')
     print("Input features:", linear.in_features)
     print("Output features:", linear.out_features)
-
-
-def check_usl_final_layer_changes_to_mamls_outfeatures():
-    from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_first_time
-    args: Namespace = Namespace(model_option='resnet12_rfs')
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=64)
-    mdl_sl, _, _ = get_and_create_model_opt_scheduler_first_time(args)
-    args: Namespace = Namespace(model_option='resnet12_rfs')
-    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=5)
-    mdl_maml, _, _ = get_and_create_model_opt_scheduler_first_time(args)
-    args.mdl_sl = mdl_sl
-    args.mdl_maml = mdl_maml
-    assert hasattr(args, 'mdl_maml'), f'expected to have mdl_maml, but got {args=}'
-    assert hasattr(args, 'mdl_sl'), f'expected to have mdl_sl, but got {args=}'
-    set_maml_cls_to_usl_cls_mutates(args)
-    assert args.mdl_sl.cls.out_features == 5, f'expected 5-way cls, but got {args.mdl_sl.cls.out_features=}'
-    print(f'{args.mdl_maml.cls=}')
-    print(f'{args.mdl_sl.cls=}')
 
 
 # - run main
@@ -815,6 +803,5 @@ if __name__ == '__main__':
     # - run main, expt, test, examples
     # rfs_ckpts()
     # check_out_features_cls_layer()
-    check_usl_final_layer_changes_to_mamls_outfeatures()
     # - done and compute time it toook
     print(f'\n\nDone, Total time: {time.time() - start_time:.2f} seconds\n\a')
