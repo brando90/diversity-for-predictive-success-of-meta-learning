@@ -5,7 +5,7 @@ import logging
 from argparse import Namespace
 from copy import deepcopy, copy
 from pathlib import Path
-from typing import Optional, Any
+from typing import Optional, Any, Union
 
 import torch
 from torch import nn
@@ -14,6 +14,7 @@ import uutils
 from uutils.torch_uu import norm, process_meta_batch, get_device
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.agents.supervised_learning import ClassificationSLAgent
+from uutils.torch_uu.dataloaders.meta_learning.gaussian_1d_tasksets import BenchmarkTasksets
 from uutils.torch_uu.distributed import set_devices
 from uutils.torch_uu.eval.eval import do_eval
 from uutils.torch_uu.mains.common import _get_maml_agent, load_model_optimizer_scheduler_from_ckpt, \
@@ -305,6 +306,35 @@ def get_maml_meta_learner(args: Namespace):
         print(f'maml mdl: {device=}')
         args.meta_learner.model = args.model.to(device)
     return args.meta_learner
+
+
+def get_data_loader(args: Namespace,
+                    ) -> Union[dict, Any]:
+    """
+
+    Note:
+        - given my (eval, get_data) code you can't infer anymore what data loader you need from the (meta-learner) agent
+        since any can process any data. So you need to specify this directly.
+        - The main thing I want to reproduce is using the L2L -> torchmeta dataloaders -> higher MAML to see if
+    """
+    # - for backwrad compatbility, just return if no data loader
+    if not hasattr(args, 'dataloader_option'):
+        return None
+    # - get meta-learning dataloaders as directly specified
+    from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
+    if args.dataloader_option == 'torchmeta':
+        metalearning_dataloaders: dict = get_meta_learning_dataloaders(args)
+    elif args.dataloader_option == 'l2l':
+        from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
+        metalearning_dataloaders: BenchmarkTasksets = get_l2l_tasksets(args)
+    else:
+        # - odl default behaviour
+        if args.data_option == 'mds':  # for mds only torchmeta data exists, for vit data will be converted to l2l @ runtime
+            metalearning_dataloaders: dict = get_meta_learning_dataloaders(args)
+        else:  # all models are compatible with l2l data format, including vit
+            from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
+            metalearning_dataloaders: BenchmarkTasksets = get_l2l_tasksets(args)
+    return metalearning_dataloaders
 
 
 def set_maml_cls_to_usl_cls_mutates(args: Namespace,

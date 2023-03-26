@@ -167,6 +167,7 @@ tmux new -s rand20
 tmux new -s rand21
 tmux new -s rand22
 tmux new -s rand23
+tmux new -s rand24
 
 tmux new -s mds0_maml_resnet50rfs
 tmux new -s mds1_maml_resnet50rfs
@@ -293,6 +294,7 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name cifarfs_vit
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name mi_vit
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name resnet12rfs_cifarfs
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name hdb4_micod
 
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name mi
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_experiment_analysis_sl_vs_maml_performance_comp_distance.py --manual_loads_name hdb4_micod

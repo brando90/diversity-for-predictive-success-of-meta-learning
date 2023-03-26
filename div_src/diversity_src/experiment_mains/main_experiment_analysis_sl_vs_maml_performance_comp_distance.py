@@ -780,8 +780,6 @@ def resnet12rfs_hdb1_mio(args):
 # -- hdb4 micod
 
 def hdb4_micod(args: Namespace) -> Namespace:
-    # - model
-    args.model_option = 'resnet12_rfs'
 
     # - data
     args.data_option = 'hdb4_micod'
@@ -822,9 +820,11 @@ def hdb4_micod(args: Namespace) -> Namespace:
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
 
     # - agent/meta_learner type. For none l2l we have data conversion: l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
-    args.agent_opt = 'MAMLMetaLearnerL2L' if args.data_option == 'mds' else 'MAMLMetaLearner'
+    # args.agent_opt = 'MAMLMetaLearnerL2L' if args.data_option == 'mds' else 'MAMLMetaLearner'
+    args.agent_opt = 'MAMLMetaLearnerL2L'
 
     # - ckpt name
+    args.model_option = 'resnet12_rfs'
     # super trained: https://wandb.ai/brando/entire-diversity-spectrum/runs/3kod7pdv
     # args.path_2_init_sl = ''  #
     # super trained: https://wandb.ai/brando/entire-diversity-spectrum/runs/2lmyr2lk
@@ -834,9 +834,17 @@ def hdb4_micod(args: Namespace) -> Namespace:
     ## doesn't look convgerged: trained to ~0.92 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/26c6m7ed
     ## doesn't look converged: args.path_2_init_sl = '~/data/logs/logs_Jan20_14-47-00_jobid_-1'  # train acc 0.921875, train loss 0.25830933451652527
     # resnet12 hdb4: trained to 0.98828125 accs: https://wandb.ai/brando/entire-diversity-spectrum/runs/3kod7pdv?workspace=user-brando
-    # args.path_2_init_sl = '~/data/logs/logs_Jan26_20-35-37_jobid_923629_pid_653526_wandb_True'  # train acc 0.98828125, ampere4
+    args.path_2_init_sl = '~/data/logs/logs_Jan26_20-35-37_jobid_923629_pid_653526_wandb_True'  # train acc 0.98828125, ampere4
+
+    ## looks fine cong but the one with lower loss looks better for analysis: https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
+    ## args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
+    ## looks fine cong but the one with lower loss looks better for analysis: https://wandb.ai/brando/entire-diversity-spectrum/runs/2rkhpnbx/overview?workspace=user-brando
+    ## args.path_2_init_maml = ''  # train acc 0.9266666769981384, train loss 0.2417697161436081
+    # resnet12 hdb4: https://wandb.ai/brando/entire-diversity-spectrum/runs/11od07w0/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Jan26_20-28-37_jobid_406367_pid_649975_wandb_True'  # train acc 0.9911110997200012, ampere4
 
     # - ckpt name 5cnns
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
     # 5ccn 2 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/u1ndwad4/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb09_19-37-27_jobid_667717_pid_967757_wandb_True' # ampere1
     # 5cnn 4 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/r8xgfx07?workspace=user-brando
@@ -848,7 +856,7 @@ def hdb4_micod(args: Namespace) -> Namespace:
     # 5cnn 12 filter: https://wandb.ai/brando/entire-diversity-spectrum/runs/exjfe0ra/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb10_14-41-07_jobid_341648_pid_3896402_wandb_True'  # ampere1, corresponding maml failed
     # 5cnn 16 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/1hmce6w2?workspace=user-brando
-    args.path_2_init_sl = '~/data/logs/logs_Mar03_14-38-22_jobid_892425_pid_2905700_wandb_True'  # ampere4
+    # args.path_2_init_sl = '~/data/logs/logs_Mar03_14-38-22_jobid_892425_pid_2905700_wandb_True'  # ampere4
     # 5cnn 32 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/fnmjoy4e/overview?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb05_22-46-35_jobid_38937_pid_2768598_wandb_True'  # ampere3
     # 5ccn 64 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/1q25bgx0?workspace=user-brando
@@ -857,13 +865,6 @@ def hdb4_micod(args: Namespace) -> Namespace:
     # args.path_2_init_sl = '~/data/logs/logs_Feb04_17-38-21_jobid_855372_pid_2723881_wandb_True'  # ampere1
     # 5ccn 512 flters: https://wandb.ai/brando/entire-diversity-spectrum/runs/cstug9f3?workspace=user-brando
     # args.path_2_init_sl = '~/data/logs/logs_Feb09_19-33-20_jobid_899282_pid_948111_wandb_True'  # ampere1
-
-    ## looks fine cong but the one with lower loss looks better for analysis: https://wandb.ai/brando/entire-diversity-spectrum/runs/16fnx8of/overview?workspace=user-brando
-    ## args.path_2_init_maml = '~/data/logs/logs_Jan20_12-40-05_jobid_-1'  # train acc 0.9266666769981384, train loss 0.2417697161436081
-    ## looks fine cong but the one with lower loss looks better for analysis: https://wandb.ai/brando/entire-diversity-spectrum/runs/2rkhpnbx/overview?workspace=user-brando
-    ## args.path_2_init_maml = ''  # train acc 0.9266666769981384, train loss 0.2417697161436081
-    # resnet12 hdb4: https://wandb.ai/brando/entire-diversity-spectrum/runs/11od07w0/overview?workspace=user-brando
-    # args.path_2_init_maml = '~/data/logs/logs_Jan26_20-28-37_jobid_406367_pid_649975_wandb_True'  # train acc 0.9911110997200012, ampere4
 
     # 5ccn 2 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/bjxl55ul/overview?workspace=
     # args.path_2_init_maml = '~/data/logs/logs_Feb09_20-11-25_jobid_178745_pid_1187212_wandb_True'  # ampere1
@@ -878,7 +879,7 @@ def hdb4_micod(args: Namespace) -> Namespace:
     # 5cnn 12 filter: https://wandb.ai/brando/entire-diversity-spectrum/runs/fdnl1d1c/overview?workspace=user-brando
     # args.path_2_init_maml = 'FAILED'
     # 5cnn 16 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/1d4mp962?workspace=user-brando
-    args.path_2_init_maml = '~/data/logs/logs_Mar03_14-32-30_jobid_998225_pid_2899341_wandb_True'  # ampere4
+    # args.path_2_init_maml = '~/data/logs/logs_Mar03_14-32-30_jobid_998225_pid_2899341_wandb_True'  # ampere4
     # 5cnn 32 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/esu6l2gi/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb05_22-44-43_jobid_851192_pid_2766216_wandb_True'  # ampere3
     # 5cnn 64 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/nzvm7g44/overview?workspace=user-brando
