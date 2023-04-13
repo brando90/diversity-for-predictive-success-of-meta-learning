@@ -24,7 +24,7 @@ from uutils.logging_uu.wandb_logging.common import cleanup_wandb, setup_wandb
 from uutils.numpy_uu.common import get_diagonal, compute_moments
 from uutils.plot import save_to
 from uutils.plot.histograms_uu import get_histogram, get_x_axis_y_axis_from_seaborn_histogram
-from uutils.torch_uu import get_device_from_model, get_device
+from uutils.torch_uu import get_device_from_model, get_device, count_number_of_parameters
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
 from uutils.torch_uu.dataloaders.common import get_dataset_size
 from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
@@ -693,6 +693,8 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
     print(f'{get_device_from_model(args.probe_network)=}')
     print(f'{get_device()=}')
     print(f'{args.device=}')
+    args.number_of_trainable_parameters = count_number_of_parameters(args.model)
+    print(f'{args.number_of_trainable_parameters=}')
 
     # - create loader
     print(f'{args.data_augmentation=}')
@@ -780,6 +782,10 @@ def compute_div_and_plot_distance_matrix_for_fsl_benchmark(args: Namespace,
         distances_as_flat_array)
     print(
         f'{(effective_num_tasks, size_aware_div_coef, total_frequency, task2vec_dists_binned, frequencies_binned, num_bars_in_histogram, num_bins)=}')
+
+    # - debug check, make sure num of params is right
+    args.number_of_trainable_parameters = count_number_of_parameters(args.model)
+    print(f'{args.number_of_trainable_parameters=}')
 
     # - save results
     torch.save(embeddings, args.log_root / 'embeddings.pt')  # saving obj version just in case

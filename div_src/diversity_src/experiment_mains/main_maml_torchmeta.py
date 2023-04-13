@@ -380,6 +380,7 @@ def train(rank, args):
     # create the (ddp) model, opt & scheduler
     get_and_create_model_opt_scheduler_for_run(args)
     args.number_of_trainable_parameters = count_number_of_parameters(args.model)
+    print(f'{args.number_of_trainable_parameters=}')
     print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
 
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
