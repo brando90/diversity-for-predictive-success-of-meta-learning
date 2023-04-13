@@ -424,8 +424,6 @@ def diversity_ala_task2vec_hdb4_micod(args: Namespace) -> Namespace:
 # - mds
 
 def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
-    # args.data_path = '/shared/rsaas/pzy2/records/' #or whereever
-
     # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
     args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
                     'mscoco', 'traffic_sign']
@@ -436,12 +434,14 @@ def diversity_ala_task2vec_mds(args: Namespace) -> Namespace:
     # args.batch_size = 500
     args.data_option = 'mds'
     # set datapath if not already
+    # args.data_path = '/shared/rsaas/pzy2/records/'
 
     # - probe_network
     args.model_option = 'resnet18_pretrained_imagenet'
     args.classifier_opts = None
 
     # -- wandb args
+    args.wandb_entity = 'brando-uiuc'
     args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
     # args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
@@ -601,6 +601,68 @@ def div_hdb5(args: Namespace) -> Namespace:
     args = fix_for_backwards_compatibility(args)
     return args
 
+
+def div_hdb6(args: Namespace) -> Namespace:
+    args.data_path = '/home/pzy2/data/l2l_data'#'/shared/rsaas/pzy2/records'
+    #args.sources = ['aircraft']  # ['aircraft','vgg_flower','cu_birds']
+
+    args.batch_size = 500#1000  # 500  # 5 for testing
+    args.batch_size_eval = args.batch_size  # this determines batch size for test/eval
+
+    # args.batch_size = 500
+    args.data_option = 'hdb6'
+    args.data_augmentation = 'hdb4_micod'
+    # set datapath if not already
+
+    # - probe_network
+    args.model_option = 'resnet18_pretrained_imagenet'
+    args.classifier_opts = None
+    args.PID = 'None'
+
+    # -- wandb args
+    args.wandb_entity = 'brando-uiuc'
+    args.wandb_project = 'meta-dataset task2vec'  # 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = True
+
+    from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+
+def div_hdb7(args: Namespace) -> Namespace:
+    args.data_path = '/home/pzy2/data/l2l_data'#'/shared/rsaas/pzy2/records'
+    #args.sources = ['aircraft']  # ['aircraft','vgg_flower','cu_birds']
+
+    args.batch_size = 50#0#1000  # 500  # 5 for testing
+    args.batch_size_eval = args.batch_size  # this determines batch size for test/eval
+
+    # args.batch_size = 500
+    args.data_option = 'hdb7'
+    args.data_augmentation = 'hdb4_micod'
+    # set datapath if not already
+
+    # - probe_network
+    args.model_option = 'resnet18_pretrained_imagenet'
+    args.classifier_opts = None
+    args.PID = 'None'
+
+    # -- wandb args
+    args.wandb_entity = 'brando-uiuc'
+    args.wandb_project = 'meta-dataset task2vec'  # 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'diversity_ala_task2vec_{args.data_option}_{args.model_option}'
+    args.run_name = f'{args.experiment_name} {args.batch_size=} {args.data_augmentation=} {args.jobid} {args.classifier_opts=}'
+    # args.log_to_wandb = True
+    args.log_to_wandb = False#True
+
+    from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
 # - main
 
 def load_args() -> Namespace:
@@ -638,7 +700,6 @@ def main():
     args: Namespace = load_args()
 
     # - real experiment
-    # compute_div_and_plot_distance_matrix_for_fsl_benchmark(args)
     compute_div_and_plot_distance_matrix_for_fsl_benchmark_for_all_splits(args)
 
     # - wandb
@@ -647,11 +708,11 @@ def main():
 
 
 def compute_div_and_plot_distance_matrix_for_fsl_benchmark_for_all_splits(args: Namespace, show_plots: bool = True):
-    for probe_net in ['resnet18_pretrained_imagenet', 'resnet34_pretrained_imagenet']:
+    for probe_net in ['resnet18_pretrained_imagenet','resnet34_pretrained_imagenet']:
         print(f'\n----> {probe_net=}')
         args.model_option = probe_net
         if args.data_option == 'mds':
-            splits: list[str] = ['train', 'val', 'test']
+            splits: list[str] = ['train','val', 'test']
         else:
             splits: list[str] = ['train', 'validation', 'test']
         print_args(args)
