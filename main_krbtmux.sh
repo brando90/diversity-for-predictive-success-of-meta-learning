@@ -115,7 +115,9 @@ reauth
 # answer: https://www.reddit.com/r/HPC/comments/10x9w6x/comment/j7sg7w2/?utm_source=share&utm_medium=web2x&context=3 my copy paste to
 # SO: https://stackoverflow.com/a/75403918/1601580
 tput rmcup
+
 source $AFS/.bashrc.lfs
+
 conda activate mds_env_gpu
 #conda activate metalearning_gpu
 export CUDA_VISIBLE_DEVICES=7
@@ -199,13 +201,19 @@ python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_
 # - mds maml
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet_maml_adam_scheduler --model_option resnet18_rfs --data_path $HOME/data/mds/records/
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_resnet_maml_adam_scheduler --model_option resnet50_rfs --data_path $HOME/data/mds/records/
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_maml --model_option resnet9_rfs --data_path $HOME/data/mds/records/
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_maml --model_option resnet18_rfs --data_path $HOME/data/mds/records/
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_maml --model_option resnet34_rfs --data_path $HOME/data/mds/records/
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_maml_torchmeta.py --manual_loads_name mds_maml --model_option resnet50_rfs --data_path $HOME/data/mds/records/
 
 # - mds usl
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_resnet_usl_adam_scheduler --model_option resnet18_rfs --data_path $HOME/data/mds/records/
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_resnet_usl_adam_scheduler --model_option resnet50_rfs --data_path $HOME/data/mds/records/
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_usl --model_option resnet9_rfs --data_path $HOME/data/mds/records/
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_usl --model_option resnet18_rfs --data_path $HOME/data/mds/records/
+python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_usl --model_option resnet34_rfs --data_path $HOME/data/mds/records/
 python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_usl --model_option resnet50_rfs --data_path $HOME/data/mds/records/
-python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_usl --model_option resnet50_rfs --data_path $HOME/data/mds/records/ --path_to_checkpoint "~/data/logs/logs_Feb03_15-02-19_jobid_231971_pid_1421508_wandb_True/ckpt.pt"
+#python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name mds_usl --model_option resnet50_rfs --data_path $HOME/data/mds/records/ --path_to_checkpoint "~/data/logs/logs_Feb03_15-02-19_jobid_231971_pid_1421508_wandb_True/ckpt.pt"
 
 # - hdb4 micod usl
 #python -u ~/diversity-for-predictive-success-of-meta-learning/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py --manual_loads_name usl_hdb4_micod_resnet_rfs_adam_cl_its --model_option resnet12_rfs

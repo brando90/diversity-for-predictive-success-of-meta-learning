@@ -1,6 +1,10 @@
 # %%
 """
 main script for computing performances of mdls and dist(f, A(f)) vs the model trained.
+
+How did the old code work wrt data loaders, tasksets & agent?
+- code would load the (higher) MAML agent
+- then it would get the l2l data set (taskset) & convert it into a loader/iter that could be sampled s.t. higher worked
 """
 from argparse import Namespace
 from collections import OrderedDict
@@ -104,7 +108,8 @@ def mi(args: Namespace) -> Namespace:
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
 
     # - agent/meta_learner type. For none l2l we have data conversion: l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
-    args.agent_opt = 'MAMLMetaLearnerL2L' if args.data_option == 'mds' else 'MAMLMetaLearner'
+    # args.agent_opt = 'MAMLMetaLearnerL2L' if args.data_option == 'mds' else 'MAMLMetaLearner'
+    args.agent_opt = 'MAMLMetaLearnerL2L'
 
     # - ckpt name
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/qlubpsfi?workspace=user-brando
@@ -118,23 +123,29 @@ def mi(args: Namespace) -> Namespace:
     # usable old checkpoint 688 in new format location
     args.path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/'  # Adam (no CL, old higher ckpt)
 
-    # new ckpt using l2l https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/jakzsyhv?workspace=user-brando
-    # I think this checkpt doesn't work cuz it uses dill to load ckpt :(, lesson learned!
-    # args.path_2_init_maml = '~/data/logs/logs_Feb17_15-28-58_jobid_8957_pid_206937/'  # Adam CL
-
-    # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2w2iezpb?workspace=user-brando
-    # args.path_2_init_maml = '/home/miranda9/data/logs/logs_Feb27_09-11-46_jobid_14483_pid_16068'
-
-    # reproduction in l2l
+    ## - new (old) ckpt using l2l https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/jakzsyhv?workspace=user-brando
+    ## I think this checkpt doesn't work cuz it uses dill to load ckpt :(, lesson learned!
+    ## args.path_2_init_maml = '~/data/logs/logs_Feb17_15-28-58_jobid_8957_pid_206937/'  # Adam CL
+    ##
+    ## https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2w2iezpb?workspace=user-brando
+    ## args.path_2_init_maml = '/home/miranda9/data/logs/logs_Feb27_09-11-46_jobid_14483_pid_16068'
     # /home/miranda9/data/logs/logs_Feb27_09-11-46_jobid_14483_pid_16068, https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/2w2iezpb/overview?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb27_09-11-46_jobid_14483_pid_16068'
+
+    # - ckpt reproduction in l2l
+    args.model_option = 'resnet12_rfs'
+    # resnet12_rfs mi usl: https://wandb.ai/brando/entire-diversity-spectrum/runs/qrvcjj0b?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Mar16_11-06-53_jobid_638454_pid_160882_wandb_True'   # hyperturing1
+
+    # resnet12_rfs mi maml: https://wandb.ai/brando/entire-diversity-spectrum/runs/m87u49eh/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Mar15_15-13-50_jobid_449810_pid_70435_wandb_True'  # hyperturing1
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
     args.experiment_name = f'{args.manual_loads_name} {args.batch_size} {os.path.basename(__file__)}'
     args.run_name = f'{args.manual_loads_name} {args.model_option} {args.batch_size} {args.stats_analysis_option}: {args.jobid=} {args.path_2_init_sl} {args.path_2_init_maml}'
-    # args.log_to_wandb = True
-    args.log_to_wandb = False
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
@@ -551,7 +562,7 @@ def resnet12rfs_cifarfs(args: Namespace) -> Namespace:
     args.path_2_init_sl = '~/data/logs/logs_Mar16_18-07-36_jobid_992177_pid_142212_wandb_True'  # hyperturining2
 
     # resnet12_cifarfs: https://wandb.ai/brando/entire-diversity-spectrum/runs/lc6414tq?workspace=user-brando
-    args.path_2_init_maml =  '~/data/logs/logs_Mar16_17-42-46_jobid_397934_pid_129863_wandb_True'  # hyperturining2
+    args.path_2_init_maml = '~/data/logs/logs_Mar16_17-42-46_jobid_397934_pid_129863_wandb_True'  # hyperturining2
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
@@ -780,7 +791,6 @@ def resnet12rfs_hdb1_mio(args):
 # -- hdb4 micod
 
 def hdb4_micod(args: Namespace) -> Namespace:
-
     # - data
     args.data_option = 'hdb4_micod'
     args.data_path = Path('~/data/l2l_data/').expanduser()
@@ -888,6 +898,22 @@ def hdb4_micod(args: Namespace) -> Namespace:
     # args.path_2_init_maml = '~/data/logs/logs_Feb04_17-39-17_jobid_568243_pid_2724751_wandb_True'  # ampere1
     # 5cnn 512 filters: https://wandb.ai/brando/entire-diversity-spectrum/runs/6gte637k?workspace=user-brando
     # args.path_2_init_maml = '~/data/logs/logs_Feb09_20-11-20_jobid_77267_pid_1186966_wandb_True'  # ampere1
+
+    # - ckpt name vit
+    args.model_option = 'vit_mi'
+    # vit usl hdb4: https://wandb.ai/brando/entire-diversity-spectrum/runs/0wu4fny9/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Mar16_18-01-56_jobid_478656_pid_136493_wandb_True'  # train acc 0.98828125, hyperturing2
+
+    # vit maml hdb4: https://wandb.ai/brando/entire-diversity-spectrum/runs/4ompelgm?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Mar19_09-35-49_jobid_970855_pid_180919_wandb_True'  # train acc 0.996666669845581, hyperturing2
+    # # vit maml hdb4: https://wandb.ai/brando/entire-diversity-spectrum/runs/zjkwbn7v?workspace=user-brando
+    # args.path_2_init_maml = ''  # train acc, hyperturing2
+    # # vit maml hdb4: https://wandb.ai/brando/entire-diversity-spectrum/runs/kpkkivrn?workspace=user-brando
+    # args.path_2_init_maml = ''  # train acc, hyperturing2
+    ### # vit maml hdb4: https://wandb.ai/brando/entire-diversity-spectrum/runs/3ngbxrag?workspace=user-brando
+    ### args.path_2_init_maml = ''  # train acc, hyperturing1
+    ### vit maml hdb4: https://wandb.ai/brando/entire-diversity-spectrum/runs/czc34fhb?workspace=user-brando
+    ### args.path_2_init_maml = '~/data/logs/logs_Mar16_16-37-57_jobid_866419_pid_139725_wandb_True'  # train acc 0.9833333492279052, hyperturing1
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
@@ -1010,7 +1036,6 @@ def resnet18rfs_vggaircraft(args) -> Namespace:
     return args
 
 
-
 def resnet12rfs_dtdvgg(args):
     """
         """
@@ -1090,19 +1115,18 @@ def resnet12rfs_dtdvgg(args):
     # args.k_eval = get_recommended_batch_size_cifarfs_resnet12rfs_head(safety_margin=args.safety_margin)
 
     # - expt option
-    #args.stats_analysis_option = 'performance_comparison'
+    # args.stats_analysis_option = 'performance_comparison'
     args.stats_analysis_option = 'stats_analysis_with_emphasis_on_effect_size_hist'
     args.acceptable_difference1 = 0.01
     args.acceptable_difference2 = 0.02
     args.alpha = 0.01  # not important, p-values is not being emphasized due to large sample size/batch size
 
-
     # - agent/meta_learner type
     args.agent_opt = 'MAMLMetaLearner'
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
-    args.path_2_init_sl = '~/data/logs/logs_Mar09_16-31-16_jobid_-1_pid_21439_wandb_True'#'~/data/logs/logs_Dec06_22-10-32_jobid_-1'  # train_acc 0.9922 loss 0.027
-    args.path_2_init_maml = '~/data/logs/logs_Mar10_20-43-22_jobid_-1_pid_5838_wandb_True' #'~/data/logs/logs_Mar10_16-06-24_jobid_-1_pid_16767_wandb_True' #logs_Mar06_14-35-37_jobid_-1_pid_92521_wandb_True/'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
+    args.path_2_init_sl = '~/data/logs/logs_Mar09_16-31-16_jobid_-1_pid_21439_wandb_True'  # '~/data/logs/logs_Dec06_22-10-32_jobid_-1'  # train_acc 0.9922 loss 0.027
+    args.path_2_init_maml = '~/data/logs/logs_Mar10_20-43-22_jobid_-1_pid_5838_wandb_True'  # '~/data/logs/logs_Mar10_16-06-24_jobid_-1_pid_16767_wandb_True' #logs_Mar06_14-35-37_jobid_-1_pid_92521_wandb_True/'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
     # '~/data/logs/logs_Jan21_13-56-48_jobid_-1'  # train acc 0.9667 and rising
 
     # -- wandb args
@@ -1119,6 +1143,7 @@ def resnet12rfs_dtdvgg(args):
     # - setup paths to ckpts for data analysis
     args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
     return args
+
 
 # -- hdb5
 
@@ -1194,7 +1219,7 @@ def dtd(args):
     # args.safety_margin = 10
     # args.safety_margin = 20
 
-    args.batch_size = 100#200  # 1000#500#500#500#500
+    args.batch_size = 100  # 200  # 1000#500#500#500#500
     # args.batch_size = 10_000
     args.batch_size_eval = args.batch_size
 
@@ -1214,7 +1239,7 @@ def dtd(args):
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
     args.path_2_init_sl = '~/data/logs/logs_Mar21_22-34-55_jobid_-1_pid_5956_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
-    args.path_2_init_maml = '~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14345_wandb_True'#'~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
+    args.path_2_init_maml = '~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14345_wandb_True'  # '~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
     # '~/data/logs/logs_Jan21_13-56-48_jobid_-1'  # train acc 0.9667 and rising
 
     # '~/data/logs/logs_Feb04_13-24-44_jobid_-1_pid_13959_wandb_True'#
@@ -1308,7 +1333,7 @@ def cu_birds(args):
     # args.safety_margin = 10
     # args.safety_margin = 20
 
-    args.batch_size = 300#200  # 1000#500#500#500#500
+    args.batch_size = 300  # 200  # 1000#500#500#500#500
     # args.batch_size = 10_000
     args.batch_size_eval = args.batch_size
 
@@ -1327,8 +1352,8 @@ def cu_birds(args):
     args.agent_opt = 'MAMLMetaLearner'
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
-    args.path_2_init_sl = '~/data/logs/logs_Mar21_22-34-57_jobid_-1_pid_2890_wandb_True' #'~/data/logs/logs_Mar21_22-34-55_jobid_-1_pid_5956_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
-    args.path_2_init_maml = '~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14346_wandb_True' #'~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14345_wandb_True'#'~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
+    args.path_2_init_sl = '~/data/logs/logs_Mar21_22-34-57_jobid_-1_pid_2890_wandb_True'  # '~/data/logs/logs_Mar21_22-34-55_jobid_-1_pid_5956_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
+    args.path_2_init_maml = '~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14346_wandb_True'  # '~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14345_wandb_True'#'~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
     # '~/data/logs/logs_Jan21_13-56-48_jobid_-1'  # train acc 0.9667 and rising
 
     # '~/data/logs/logs_Feb04_13-24-44_jobid_-1_pid_13959_wandb_True'#
@@ -1348,9 +1373,6 @@ def cu_birds(args):
     # - setup paths to ckpts for data analysis
     args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
     return args
-
-
-
 
 
 def fc100(args):
@@ -1425,7 +1447,7 @@ def fc100(args):
     # args.safety_margin = 10
     # args.safety_margin = 20
 
-    args.batch_size = 300#200  # 1000#500#500#500#500
+    args.batch_size = 300  # 200  # 1000#500#500#500#500
     # args.batch_size = 10_000
     args.batch_size_eval = args.batch_size
 
@@ -1444,8 +1466,8 @@ def fc100(args):
     args.agent_opt = 'MAMLMetaLearner'
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
-    args.path_2_init_sl = '~/data/logs/'#'~/data/logs/logs_Mar21_22-34-55_jobid_-1_pid_5956_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
-    args.path_2_init_maml = '~/data/logs/'#'~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14345_wandb_True'#'~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
+    args.path_2_init_sl = '~/data/logs/'  # '~/data/logs/logs_Mar21_22-34-55_jobid_-1_pid_5956_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
+    args.path_2_init_maml = '~/data/logs/'  # '~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14345_wandb_True'#'~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
     # '~/data/logs/logs_Jan21_13-56-48_jobid_-1'  # train acc 0.9667 and rising
 
     # '~/data/logs/logs_Feb04_13-24-44_jobid_-1_pid_13959_wandb_True'#
@@ -1539,7 +1561,7 @@ def aircraft(args):
     # args.safety_margin = 10
     # args.safety_margin = 20
 
-    args.batch_size = 300#200  # 1000#500#500#500#500
+    args.batch_size = 300  # 200  # 1000#500#500#500#500
     # args.batch_size = 10_000
     args.batch_size_eval = args.batch_size
 
@@ -1558,8 +1580,8 @@ def aircraft(args):
     args.agent_opt = 'MAMLMetaLearner'
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
-    args.path_2_init_sl = '~/data/logs/logs_Mar25_00-48-55_jobid_-1_pid_107842_wandb_True'#'~/data/logs/logs_Mar21_22-34-55_jobid_-1_pid_5956_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
-    args.path_2_init_maml = '~/data/logs/logs_Mar25_00-48-56_jobid_-1_pid_107840_wandb_True'#'~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14345_wandb_True'#'~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
+    args.path_2_init_sl = '~/data/logs/logs_Mar25_00-48-55_jobid_-1_pid_107842_wandb_True'  # '~/data/logs/logs_Mar21_22-34-55_jobid_-1_pid_5956_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
+    args.path_2_init_maml = '~/data/logs/logs_Mar25_00-48-56_jobid_-1_pid_107840_wandb_True'  # '~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14345_wandb_True'#'~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
     # '~/data/logs/logs_Jan21_13-56-48_jobid_-1'  # train acc 0.9667 and rising
 
     # '~/data/logs/logs_Feb04_13-24-44_jobid_-1_pid_13959_wandb_True'#
@@ -1653,7 +1675,7 @@ def flower(args):
     # args.safety_margin = 10
     # args.safety_margin = 20
 
-    args.batch_size = 300#200  # 1000#500#500#500#500
+    args.batch_size = 300  # 200  # 1000#500#500#500#500
     # args.batch_size = 10_000
     args.batch_size_eval = args.batch_size
 
@@ -1672,8 +1694,8 @@ def flower(args):
     args.agent_opt = 'MAMLMetaLearner'
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
-    args.path_2_init_sl = '~/data/logs/logs_Mar25_00-48-55_jobid_-1_pid_107843_wandb_True'#'~/data/logs/logs_Mar21_22-34-55_jobid_-1_pid_5956_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
-    args.path_2_init_maml = '~/data/logs/logs_Mar25_00-48-56_jobid_-1_pid_107841_wandb_True'#'~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14345_wandb_True'#'~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
+    args.path_2_init_sl = '~/data/logs/logs_Mar25_00-48-55_jobid_-1_pid_107843_wandb_True'  # '~/data/logs/logs_Mar21_22-34-55_jobid_-1_pid_5956_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
+    args.path_2_init_maml = '~/data/logs/logs_Mar25_00-48-56_jobid_-1_pid_107841_wandb_True'  # '~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14345_wandb_True'#'~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
     # '~/data/logs/logs_Jan21_13-56-48_jobid_-1'  # train acc 0.9667 and rising
 
     # '~/data/logs/logs_Feb04_13-24-44_jobid_-1_pid_13959_wandb_True'#
@@ -1767,7 +1789,7 @@ def delauny(args):
     # args.safety_margin = 10
     # args.safety_margin = 20
 
-    args.batch_size = 300#200  # 1000#500#500#500#500
+    args.batch_size = 300  # 200  # 1000#500#500#500#500
     # args.batch_size = 10_000
     args.batch_size_eval = args.batch_size
 
@@ -1786,8 +1808,8 @@ def delauny(args):
     args.agent_opt = 'MAMLMetaLearner'
     # args.agent_opt = 'MAMLMetaLearnerL2L_default'  # current code doesn't support this, it's fine I created a l2l -> torchmeta dataloader so we can use the MAML meta-learner that works for pytorch dataloaders
 
-    args.path_2_init_sl = '~/data/logs/logs_Mar22_17-56-28_jobid_-1_pid_53420_wandb_True'#'~/data/logs/logs_Mar21_22-34-55_jobid_-1_pid_5956_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
-    args.path_2_init_maml = '~/data/logs/logs_Mar25_18-12-11_jobid_-1_pid_27331_wandb_True'#'~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14345_wandb_True'#'~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
+    args.path_2_init_sl = '~/data/logs/logs_Mar22_17-56-28_jobid_-1_pid_53420_wandb_True'  # '~/data/logs/logs_Mar21_22-34-55_jobid_-1_pid_5956_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
+    args.path_2_init_maml = '~/data/logs/logs_Mar25_18-12-11_jobid_-1_pid_27331_wandb_True'  # '~/data/logs/logs_Mar21_22-34-32_jobid_-1_pid_14345_wandb_True'#'~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
     # '~/data/logs/logs_Jan21_13-56-48_jobid_-1'  # train acc 0.9667 and rising
 
     # '~/data/logs/logs_Feb04_13-24-44_jobid_-1_pid_13959_wandb_True'#
@@ -1807,6 +1829,7 @@ def delauny(args):
     # - setup paths to ckpts for data analysis
     args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
     return args
+
 
 def hdb5_vggair(args):
     """
@@ -1899,7 +1922,7 @@ def hdb5_vggair(args):
     args.agent_opt = 'MAMLMetaLearnerL2L' if args.data_option == 'mds' else 'MAMLMetaLearner'
 
     args.path_2_init_sl = '~/data/logs/logs_Feb05_16-58-24_jobid_-1_pid_72478_wandb_True'  # logs_Feb03_23-08-10_jobid_-1_pid_91763_wandb_True'  #'~/data/logs/logs_Jan21_14-02-12_jobid_-1'  # train_acc 0.9922 loss 0.027
-    args.path_2_init_maml = '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True'#'~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
+    args.path_2_init_maml = '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True'  # '~/data/logs/logs_Feb03_23-04-38_jobid_-1_pid_7540_wandb_True'  # '~/data/logs/logs_Feb04_22-15-52_jobid_-1_pid_100986_wandb_True' #'~/data/logs/logs_Jan23_22-40-05_jobid_-1'  # train acc 0.98 loss 0.05 (this is a "continued" ckpt)
     # '~/data/logs/logs_Jan21_13-56-48_jobid_-1'  # train acc 0.9667 and rising
 
     # '~/data/logs/logs_Feb04_13-24-44_jobid_-1_pid_13959_wandb_True'#
@@ -2001,6 +2024,7 @@ def mds_full(args: Namespace) -> Namespace:
     args = setup_args_path_for_ckpt_data_analysis(args, 'ckpt.pt')
     return args
 
+
 # -- data analysis
 
 def load_args() -> Namespace:
@@ -2038,7 +2062,6 @@ def main_data_analyis():
     # - num params
     args.number_of_trainable_parameters = count_number_of_parameters(args.model)
     print(f'{args.number_of_trainable_parameters=}')
-    print(f'---> {args.number_of_trainable_parameters=}')
 
     # - print args
     print(f'{try_printing_wandb_url(args.log_to_wandb)=}')
@@ -2056,12 +2079,16 @@ def main_data_analyis():
     print(f'{args.path_2_init_maml=}')
 
     # - get dataloaders and overwrites so data analysis runs as we want
-    if args.data_option == 'mds':  # for mds only torchmeta data exists, for vit data will be converted to l2l @ runtime
+    if args.data_option == 'mds':
+        # - for mds *only torchmeta data exists*, for vit we sample data ala torchmeta but data will be converted to l2l @ runtime (since vit hf doesn't work with higher)
         metalearning_dataloaders: dict = get_meta_learning_dataloaders(args)
-    else:  # all models are compatible with l2l data format, including vit
+    else:
+        # - all models are compatible with l2l data format, including vit -- but we don't have mds for l2l (yet), so we use torchmeta for mds the rest here
         from uutils.torch_uu.dataloaders.meta_learning.l2l_ml_tasksets import get_l2l_tasksets
         metalearning_dataloaders: BenchmarkTasksets = get_l2l_tasksets(args)
-    # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
+    #  check the agent since that determines stuff
+    print(f'{args.agent_opt=}')
+    # - create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
     from uutils.torch_uu.dataloaders.helpers import get_sl_dataloader
     usl_loaders: dict = get_sl_dataloader(args)
     assert args.mdl_sl.cls.out_features != 5, f'{args.mdl_sl.cls.out_features=}'
@@ -2072,7 +2099,7 @@ def main_data_analyis():
 
     # - maml param
     args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
-    # decided to use the setting for FO that I have for torchmeta learners, but since there is no training it should not matter.
+    # decided to use the setting for FO that I have for torchmeta learners, **but since there is no training it should not matter**.
     args.track_higher_grads = True
     args.fo = True
 
@@ -2082,6 +2109,7 @@ def main_data_analyis():
     print(f'{os.environ["CUDA_VISIBLE_DEVICES"]=}') if 'CUDA_VISIBLE_DEVICES' in os.environ else None
     print(f'{args.stats_analysis_option=}')
     print(f'{args.batch_size=}') if hasattr(args, 'batch_size') else None
+    print(f'{args.number_of_trainable_parameters=}') if hasattr(args, 'number_of_trainable_parameters') else None
     if args.stats_analysis_option == 'performance_comparison':
         comparison_via_performance(args)
     elif args.stats_analysis_option == 'stats_analysis_with_emphasis_on_effect_size':

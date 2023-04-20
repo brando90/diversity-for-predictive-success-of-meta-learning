@@ -257,6 +257,9 @@ def get_sl_learner(args: Namespace):
         args_ckpt = ckpt['state_dict']
         state_dict = ckpt['model']
     see: save_check_point_sl
+
+    Q: how did the old code work?
+    - see: main_experiment_analysis_sl_vs_maml_performance_comp_distance.py
     """
     print(f'{args.path_2_init_sl=}')
     if '12915' in str(args.path_2_init_sl):
@@ -283,6 +286,10 @@ def get_sl_learner(args: Namespace):
 
 
 def get_maml_meta_learner(args: Namespace):
+    """
+    Q: how did the old code work?
+    - see: main_experiment_analysis_sl_vs_maml_performance_comp_distance.py
+    """
     print(f'{args.path_2_init_maml=}')
     if '668' in str(args.path_2_init_maml):  # hack to have old 668 checkpoint work
         # args.path_2_init_maml = Path('~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668/ckpt_file.pt').expanduser()
@@ -651,7 +658,7 @@ def get_episodic_accs_losses_all_splits_maml(args: Namespace,
     # - get accs and losses for all splits
     # Done in get data since it might be mds and need to convert to l2l: assert isinstance(args.meta_learner, MAMLMetaLearner)  # for consistent interface to get loader & extra safety ML
     agent = args.meta_learner
-    print(f'{agent=}')
+    print(f'{type(agent)=}')
     for split in ['train', 'val', 'test']:
         start = time.time()
         print(f'{split=} (computing accs & losses)')
@@ -696,7 +703,7 @@ def get_episodic_accs_losses_all_splits_usl(args: Namespace,
     # - get accs and losses for all splits
     set_maml_cls_to_usl_cls_mutates(args)
     agent = FitFinalLayer(args, model)
-    print(f'{agent=}')
+    print(f'{type(agent)=}')
     assert isinstance(agent, FitFinalLayer)  # leaving this to leave a consistent interface to get loader & extra safety
     for split in ['train', 'val', 'test']:
         start = time.time()
