@@ -55,7 +55,6 @@ def mi(args: Namespace) -> Namespace:
     """
     from uutils.torch_uu.models.resnet_rfs import get_feature_extractor_conv_layers
     # - model
-    args.model_option = 'resnet12_rfs_mi'
 
     # - data
     # # args.data_option = 'cifarfs_rfs'  # no name assumes l2l, make sure you're calling get_l2l_tasksets
@@ -139,6 +138,63 @@ def mi(args: Namespace) -> Namespace:
 
     # resnet12_rfs mi maml: https://wandb.ai/brando/entire-diversity-spectrum/runs/m87u49eh/overview?workspace=user-brando
     args.path_2_init_maml = '~/data/logs/logs_Mar15_15-13-50_jobid_449810_pid_70435_wandb_True'  # hyperturing1
+
+    # -- ckpt 5CNN
+    # - 5CNN 2
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/fh2wnjx8/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Mar17_14-58-46_jobid_568732_pid_51164_wandb_True' # hyperturing2
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/k1m3wfr6/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Mar17_15-02-28_jobid_858766_pid_77471_wandb_True'  # hyperturing2
+
+    # - 5CNN 6
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/zm077tm1/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Mar18_13-24-08_jobid_137630_pid_207036_wandb_True' # hyperturing2
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/ijfjy3vx/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Mar18_13-26-14_jobid_968290_pid_223214_wandb_True'  # hyperturing2
+
+    # - 5CNN 8
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/ys2y8yl6/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Mar18_13-28-21_jobid_556189_pid_236449_wandb_True' # hyperturing2
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/vod09rzi/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Mar18_13-29-13_jobid_935313_pid_246123_wandb_True'  # hyperturing2
+
+    # - 5CNN 16
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/iizj9b3o/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Mar18_13-30-30_jobid_691277_pid_257831_wandb_True' # hyperturing2
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/s4vvmaau/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Mar18_13-31-19_jobid_792332_pid_9002_wandb_True'  # hyperturing2
+
+    # - 5CNN 32
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/2212p4uu?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Mar18_13-34-04_jobid_729753_pid_41168_wandb_True' # hyperturing2
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/1zay2jp9/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Mar18_13-34-53_jobid_718335_pid_51833_wandb_True'  # hyperturing2
+
+    # - 5CNN 64
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/4shaqv9h/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Mar18_13-37-44_jobid_551541_pid_84760_wandb_True' # hyperturing2
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/fihig3oh/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Mar18_13-39-09_jobid_789265_pid_103342_wandb_True'  # hyperturing2
+
+    # - 5CNN 256
+    args.model_option = '5CNN_opt_as_model_for_few_shot'
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/cl8cc57z/overview?workspace=user-brando
+    args.path_2_init_sl = '~/data/logs/logs_Mar18_13-44-26_jobid_986286_pid_160330_wandb_True' # hyperturing2
+    # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/7uh3m6uv/overview?workspace=user-brando
+    args.path_2_init_maml = '~/data/logs/logs_Mar18_13-48-14_jobid_935951_pid_205823_wandb_True'  # hyperturing2
+
+    # # - 5CNN 512
+    # args.model_option = '5CNN_opt_as_model_for_few_shot'
+    # # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/agzhqqdn?workspace=user-brando
+    # args.path_2_init_sl = '~/data/logs/logs_Mar18_13-56-58_jobid_488250_pid_56388_wandb_True' # hyperturing2
+    # # 5CNN https://wandb.ai/brando/entire-diversity-spectrum/runs/cty5iq30?workspace=user-brando
+    # args.path_2_init_maml = '~/data/logs/logs_Mar18_13-59-54_jobid_414086_pid_97897_wandb_True'  # hyperturing2
 
     # -- wandb args
     args.wandb_project = 'entire-diversity-spectrum'
