@@ -2915,6 +2915,60 @@ def usl_mi_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace
     # args.log_to_wandb = False
     return args
 
+def usl_quickdraw_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+    # - model
+    args.model_option = 'resnet12_rfs'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+    args.n_cls = 241
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+    # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+    #                     levels=None, spp=False, in_channels=3)
+    # - data
+    args.data_path = '/home/pzy2/data/l2l_data'
+    args.data_option = 'quickdraw'
+    args.n_classes = args.n_cls
+    args.data_augmentation = 'hdb4_micod'
+
+    # - training mode
+    # args.training_mode = 'iterations_train_convergence'
+    args.training_mode = 'iterations'  # 'iterations_train_convergence'
+    args.num_its = 1_000_000_000
+    # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.7, log_speed_up=10)
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 256 # as big as your GPU fits (2^x) :P
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    args.scheduler_option = 'None'
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+
+    # -- wandb args
+    # -- wandb args
+    args.wandb_entity = 'brando-uiuc'
+    args.wandb_project = 'meta-learning-playground'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
 
 def usl_ti_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
     # - model
