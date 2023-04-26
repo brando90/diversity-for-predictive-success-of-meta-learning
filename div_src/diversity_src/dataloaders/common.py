@@ -152,6 +152,7 @@ class DifferentTaskTransformIndexableForEachDataset(Callable):
         remaining_task_transforms: list[TaskTransform] = self.dict_cons_remaining_task_transforms[dataset_name](dataset)
         description = None
         for transform in remaining_task_transforms:
+            #print(transform, description)
             description = transform(description)
         return description
 
