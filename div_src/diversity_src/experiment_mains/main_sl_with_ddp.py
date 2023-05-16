@@ -2711,7 +2711,7 @@ def usl_fc100_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
     # args.training_mode = 'iterations_train_convergence'
     args.training_mode = 'iterations'  # 'iterations_train_convergence'
     args.num_its = 1_000_000_000
-    # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+    args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Apr21_15-45-25_jobid_-1_pid_84306_wandb_True/ckpt.pt'
 
     # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
     #                                metric_to_use='train_acc',
@@ -2723,7 +2723,7 @@ def usl_fc100_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
 
     # - opt
     args.opt_option = 'Adam_rfs_cifarfs'
-    args.batch_size = 256
+    args.batch_size = 128#256
     args.lr = 1e-3
     args.opt_hps: dict = dict(lr=args.lr)
 
@@ -2746,6 +2746,284 @@ def usl_fc100_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
     return args
 
 
+
+
+def usl_cifarfs_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+    # - model
+    args.model_option = 'resnet12_rfs'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+    args.n_cls = 64  # 34+71
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+    # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+    #                     levels=None, spp=False, in_channels=3)
+    # - data
+    args.data_path = '/home/pzy2/data/l2l_data'
+    args.data_option = 'cifarfs'
+    args.n_classes = args.n_cls
+    args.data_augmentation = 'hdb4_micod'
+
+    # - training mode
+    # args.training_mode = 'iterations_train_convergence'
+    args.training_mode = 'iterations'  # 'iterations_train_convergence'
+    args.num_its = 1_000_000_000
+    # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.7, log_speed_up=10)
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 128#256
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    args.scheduler_option = 'None'
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+
+    # -- wandb args
+    # -- wandb args
+    args.wandb_entity = 'brando-uiuc'
+    args.wandb_project = 'meta-learning-playground'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
+def usl_omni_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+    # - model
+    args.model_option = 'resnet12_rfs'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+    args.n_cls = 1100  # 34+71
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+    # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+    #                     levels=None, spp=False, in_channels=3)
+    # - data
+
+    args.data_option = 'omni'
+    args.n_classes = args.n_cls
+    args.data_augmentation = 'hdb4_micod'
+
+    # - training mode
+    # args.training_mode = 'iterations_train_convergence'
+    args.training_mode = 'iterations'  # 'iterations_train_convergence'
+    args.num_its = 1_000_000_000
+    # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.7, log_speed_up=10)
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 64
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    args.scheduler_option = 'None'
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+
+    # -- wandb args
+    # -- wandb args
+    args.wandb_entity = 'brando-uiuc'
+    args.wandb_project = 'meta-learning-playground'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+
+def usl_mi_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+    # - model
+    args.model_option = 'resnet12_rfs'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+    args.n_cls = 64#1100  # 34+71
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+    # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+    #                     levels=None, spp=False, in_channels=3)
+    # - data
+    args.data_path = '/home/pzy2/data/l2l_data'
+    args.data_option = 'mi'
+    args.n_classes = args.n_cls
+    args.data_augmentation = 'hdb4_micod'
+
+    # - training mode
+    # args.training_mode = 'iterations_train_convergence'
+    args.training_mode = 'iterations'  # 'iterations_train_convergence'
+    args.num_its = 1_000_000_000
+    # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.7, log_speed_up=10)
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 64
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    args.scheduler_option = 'None'
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+
+    # -- wandb args
+    # -- wandb args
+    args.wandb_entity = 'brando-uiuc'
+    args.wandb_project = 'meta-learning-playground'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+def usl_quickdraw_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+    # - model
+    args.model_option = 'resnet12_rfs'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+    args.n_cls = 241
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+    # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+    #                     levels=None, spp=False, in_channels=3)
+    # - data
+    args.data_path = '/home/pzy2/data/l2l_data'
+    args.data_option = 'quickdraw'
+    args.n_classes = args.n_cls
+    args.data_augmentation = 'hdb4_micod'
+
+    # - training mode
+    # args.training_mode = 'iterations_train_convergence'
+    args.training_mode = 'iterations'  # 'iterations_train_convergence'
+    args.num_its = 1_000_000_000
+    # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.7, log_speed_up=10)
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 256 # as big as your GPU fits (2^x) :P
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    args.scheduler_option = 'None'
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+
+    # -- wandb args
+    # -- wandb args
+    args.wandb_entity = 'brando-uiuc'
+    args.wandb_project = 'meta-learning-playground'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+def usl_ti_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+    # - model
+    args.model_option = 'resnet12_rfs'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+    args.n_cls = 1100  # 34+71 #351
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+    # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+    #                     levels=None, spp=False, in_channels=3)
+    # - data
+
+    args.data_option = 'ti'
+    args.n_classes = args.n_cls
+    args.data_augmentation = 'hdb4_micod'
+
+    # - training mode
+    # args.training_mode = 'iterations_train_convergence'
+    args.training_mode = 'iterations'  # 'iterations_train_convergence'
+    args.num_its = 1_000_000_000
+    args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Apr22_21-54-51_jobid_-1_pid_28768_wandb_True/ckpt.pt' #'/home/pzy2/data/logs/logs_Apr21_15-45-25_jobid_-1_pid_84310_wandb_True/ckpt.pt'
+
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.7, log_speed_up=10)
+
+    # - debug flag
+    # args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 256#128
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    args.scheduler_option = 'None'
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+
+    # -- wandb args
+    # -- wandb args
+    args.wandb_entity = 'brando-uiuc'
+    args.wandb_project = 'meta-learning-playground'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
 
 def usl_delaunay_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
     # - model
@@ -3143,12 +3421,12 @@ def usl_hdb8_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespa
     return args
 
 
-def usl_hdb9_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+def usl_hdb10_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
     # - model
     args.model_option = 'resnet12_rfs'
     # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
 
-    args.n_cls = 34 + 140 + 33 + 71 + 1100 #994#60  # 34+71
+    args.n_cls = 34 + 64 + 71 + 64 + 1100 #994#60  # 34+71
     # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
     args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
 
@@ -3156,7 +3434,7 @@ def usl_hdb9_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespa
     #                     levels=None, spp=False, in_channels=3)
     # - data
 
-    args.data_option = 'hdb9'
+    args.data_option = 'hdb10'
     args.n_classes = args.n_cls
     args.data_augmentation = 'hdb4_micod'
 
@@ -3164,7 +3442,7 @@ def usl_hdb9_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespa
     # args.training_mode = 'iterations_train_convergence'
     args.training_mode = 'iterations'  # 'iterations_train_convergence'
     args.num_its = 1_000_000_000
-    # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+    args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Apr02_00-36-15_jobid_-1_pid_98058_wandb_True/ckpt.pt'
 
     # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
     #                                metric_to_use='train_acc',
@@ -3197,6 +3475,625 @@ def usl_hdb9_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespa
     args.log_to_wandb = True
     # args.log_to_wandb = False
     return args
+
+
+
+
+def usl_hdb11_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+    # - model
+    args.model_option = 'resnet18_rfs'
+    # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+    args.n_cls = 2945#994#60  # 34+71
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+    # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+    #                     levels=None, spp=False, in_channels=3)
+    # - data
+
+    args.data_option = 'hdb11'
+    args.n_classes = args.n_cls
+    args.data_augmentation = 'hdb4_micod'
+
+    # - training mode
+    # args.training_mode = 'iterations_train_convergence'
+    args.training_mode = 'iterations'  # 'iterations_train_convergence'
+    args.num_its = 1_000_000_000
+    #args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Apr02_00-36-15_jobid_-1_pid_98058_wandb_True/ckpt.pt'
+    args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Apr18_17-32-52_jobid_-1_pid_22899_wandb_True/ckpt.pt'
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.7, log_speed_up=10)
+
+    # - debug flag
+    #args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.batch_size = 128#256
+    args.lr = 1e-3
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    args.scheduler_option = 'None'
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+
+    # -- wandb args
+    # -- wandb args
+    args.wandb_entity = 'brando-uiuc'
+    args.wandb_project = 'meta-learning-playground'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+    return args
+
+#=====dataset hdb12======#
+def usl_hdb12_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+        # - model
+        args.model_option = 'resnet12_rfs'
+        # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+        args.n_cls = 1265
+        # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+        args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+        # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+        #                     levels=None, spp=False, in_channels=3)
+        # - data
+        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_option = 'hdb12'
+        args.n_classes = args.n_cls
+        args.data_augmentation = 'hdb4_micod'
+
+        # - training mode
+        # args.training_mode = 'iterations_train_convergence'
+        args.training_mode = 'iterations'  # 'iterations_train_convergence'
+        args.num_its = 1_000_000_000
+        # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+        # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+        #                                metric_to_use='train_acc',
+        #                                threshold=0.7, log_speed_up=10)
+
+        # - debug flag
+        # args.debug = True
+        args.debug = False
+
+        # - opt
+        args.opt_option = 'Adam_rfs_cifarfs'
+        args.batch_size = 256 # as big as your GPU fits (2^x) :P
+        args.lr = 1e-3
+        args.opt_hps: dict = dict(lr=args.lr)
+
+        # - scheduler
+        args.scheduler_option = 'None'
+
+        # - logging params
+        args.log_freq = 500
+        # args.log_freq = 20
+
+        # -- wandb args
+        # -- wandb args
+        args.wandb_entity = 'brando-uiuc'
+        args.wandb_project = 'meta-learning-playground'
+        # - wandb expt args
+        args.experiment_name = args.manual_loads_name
+        args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+        args.log_to_wandb = True
+        # args.log_to_wandb = False
+        return args
+#=====end dataset hdb12======#
+#=====dataset hdb13======#
+def usl_hdb13_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+        # - model
+        args.model_option = 'resnet12_rfs'
+        # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+        args.n_cls = 1288
+        # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+        args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+        # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+        #                     levels=None, spp=False, in_channels=3)
+        # - data
+        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_option = 'hdb13'
+        args.n_classes = args.n_cls
+        args.data_augmentation = 'hdb4_micod'
+
+        # - training mode
+        # args.training_mode = 'iterations_train_convergence'
+        args.training_mode = 'iterations'  # 'iterations_train_convergence'
+        args.num_its = 1_000_000_000
+        # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+        # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+        #                                metric_to_use='train_acc',
+        #                                threshold=0.7, log_speed_up=10)
+
+        # - debug flag
+        # args.debug = True
+        args.debug = False
+
+        # - opt
+        args.opt_option = 'Adam_rfs_cifarfs'
+        args.batch_size = 256 # as big as your GPU fits (2^x) :P
+        args.lr = 1e-3
+        args.opt_hps: dict = dict(lr=args.lr)
+
+        # - scheduler
+        args.scheduler_option = 'None'
+
+        # - logging params
+        args.log_freq = 500
+        # args.log_freq = 20
+
+        # -- wandb args
+        # -- wandb args
+        args.wandb_entity = 'brando-uiuc'
+        args.wandb_project = 'meta-learning-playground'
+        # - wandb expt args
+        args.experiment_name = args.manual_loads_name
+        args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+        args.log_to_wandb = True
+        # args.log_to_wandb = False
+        return args
+#=====end dataset hdb13======#
+#=====dataset hdb14======#
+def usl_hdb14_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+        # - model
+        args.model_option = 'resnet12_rfs'
+        # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+        args.n_cls = 1337
+        # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+        args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+        # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+        #                     levels=None, spp=False, in_channels=3)
+        # - data
+        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_option = 'hdb14'
+        args.n_classes = args.n_cls
+        args.data_augmentation = 'hdb4_micod'
+
+        # - training mode
+        # args.training_mode = 'iterations_train_convergence'
+        args.training_mode = 'iterations'  # 'iterations_train_convergence'
+        args.num_its = 1_000_000_000
+        # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+        # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+        #                                metric_to_use='train_acc',
+        #                                threshold=0.7, log_speed_up=10)
+
+        # - debug flag
+        # args.debug = True
+        args.debug = False
+
+        # - opt
+        args.opt_option = 'Adam_rfs_cifarfs'
+        args.batch_size = 256 # as big as your GPU fits (2^x) :P
+        args.lr = 1e-3
+        args.opt_hps: dict = dict(lr=args.lr)
+
+        # - scheduler
+        args.scheduler_option = 'None'
+
+        # - logging params
+        args.log_freq = 500
+        # args.log_freq = 20
+
+        # -- wandb args
+        # -- wandb args
+        args.wandb_entity = 'brando-uiuc'
+        args.wandb_project = 'meta-learning-playground'
+        # - wandb expt args
+        args.experiment_name = args.manual_loads_name
+        args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+        args.log_to_wandb = True
+        # args.log_to_wandb = False
+        return args
+#=====end dataset hdb14======#
+#=====dataset hdb15======#
+def usl_hdb15_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+        # - model
+        args.model_option = 'resnet12_rfs'
+        # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+        args.n_cls = 1269
+        # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+        args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+        # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+        #                     levels=None, spp=False, in_channels=3)
+        # - data
+        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_option = 'hdb15'
+        args.n_classes = args.n_cls
+        args.data_augmentation = 'hdb4_micod'
+
+        # - training mode
+        # args.training_mode = 'iterations_train_convergence'
+        args.training_mode = 'iterations'  # 'iterations_train_convergence'
+        args.num_its = 1_000_000_000
+        # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+        # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+        #                                metric_to_use='train_acc',
+        #                                threshold=0.7, log_speed_up=10)
+
+        # - debug flag
+        # args.debug = True
+        args.debug = False
+
+        # - opt
+        args.opt_option = 'Adam_rfs_cifarfs'
+        args.batch_size = 256 # as big as your GPU fits (2^x) :P
+        args.lr = 1e-3
+        args.opt_hps: dict = dict(lr=args.lr)
+
+        # - scheduler
+        args.scheduler_option = 'None'
+
+        # - logging params
+        args.log_freq = 500
+        # args.log_freq = 20
+
+        # -- wandb args
+        # -- wandb args
+        args.wandb_entity = 'brando-uiuc'
+        args.wandb_project = 'meta-learning-playground'
+        # - wandb expt args
+        args.experiment_name = args.manual_loads_name
+        args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+        args.log_to_wandb = True
+        # args.log_to_wandb = False
+        return args
+#=====end dataset hdb15======#
+#=====dataset hdb16======#
+def usl_hdb16_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+        # - model
+        args.model_option = 'resnet12_rfs'
+        # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+        args.n_cls = 1257
+        # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+        args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+        # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+        #                     levels=None, spp=False, in_channels=3)
+        # - data
+        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_option = 'hdb16'
+        args.n_classes = args.n_cls
+        args.data_augmentation = 'hdb4_micod'
+
+        # - training mode
+        # args.training_mode = 'iterations_train_convergence'
+        args.training_mode = 'iterations'  # 'iterations_train_convergence'
+        args.num_its = 1_000_000_000
+        # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+        # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+        #                                metric_to_use='train_acc',
+        #                                threshold=0.7, log_speed_up=10)
+
+        # - debug flag
+        # args.debug = True
+        args.debug = False
+
+        # - opt
+        args.opt_option = 'Adam_rfs_cifarfs'
+        args.batch_size = 256 # as big as your GPU fits (2^x) :P
+        args.lr = 1e-3
+        args.opt_hps: dict = dict(lr=args.lr)
+
+        # - scheduler
+        args.scheduler_option = 'None'
+
+        # - logging params
+        args.log_freq = 500
+        # args.log_freq = 20
+
+        # -- wandb args
+        # -- wandb args
+        args.wandb_entity = 'brando-uiuc'
+        args.wandb_project = 'meta-learning-playground'
+        # - wandb expt args
+        args.experiment_name = args.manual_loads_name
+        args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+        args.log_to_wandb = True
+        # args.log_to_wandb = False
+        return args
+#=====end dataset hdb16======#
+#=====dataset hdb17======#
+def usl_hdb17_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+        # - model
+        args.model_option = 'resnet12_rfs'
+        # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+        args.n_cls = 1308
+        # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+        args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+        # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+        #                     levels=None, spp=False, in_channels=3)
+        # - data
+        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_option = 'hdb17'
+        args.n_classes = args.n_cls
+        args.data_augmentation = 'hdb4_micod'
+
+        # - training mode
+        # args.training_mode = 'iterations_train_convergence'
+        args.training_mode = 'iterations'  # 'iterations_train_convergence'
+        args.num_its = 1_000_000_000
+        # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+        # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+        #                                metric_to_use='train_acc',
+        #                                threshold=0.7, log_speed_up=10)
+
+        # - debug flag
+        # args.debug = True
+        args.debug = False
+
+        # - opt
+        args.opt_option = 'Adam_rfs_cifarfs'
+        args.batch_size = 256 # as big as your GPU fits (2^x) :P
+        args.lr = 1e-3
+        args.opt_hps: dict = dict(lr=args.lr)
+
+        # - scheduler
+        args.scheduler_option = 'None'
+
+        # - logging params
+        args.log_freq = 500
+        # args.log_freq = 20
+
+        # -- wandb args
+        # -- wandb args
+        args.wandb_entity = 'brando-uiuc'
+        args.wandb_project = 'meta-learning-playground'
+        # - wandb expt args
+        args.experiment_name = args.manual_loads_name
+        args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+        args.log_to_wandb = True
+        # args.log_to_wandb = False
+        return args
+#=====end dataset hdb17======#
+#=====dataset hdb18======#
+def usl_hdb18_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+        # - model
+        args.model_option = 'resnet12_rfs'
+        # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+        args.n_cls = 1227
+        # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+        args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+        # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+        #                     levels=None, spp=False, in_channels=3)
+        # - data
+        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_option = 'hdb18'
+        args.n_classes = args.n_cls
+        args.data_augmentation = 'hdb4_micod'
+
+        # - training mode
+        # args.training_mode = 'iterations_train_convergence'
+        args.training_mode = 'iterations'  # 'iterations_train_convergence'
+        args.num_its = 1_000_000_000
+        # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+        # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+        #                                metric_to_use='train_acc',
+        #                                threshold=0.7, log_speed_up=10)
+
+        # - debug flag
+        # args.debug = True
+        args.debug = False
+
+        # - opt
+        args.opt_option = 'Adam_rfs_cifarfs'
+        args.batch_size = 256 # as big as your GPU fits (2^x) :P
+        args.lr = 1e-3
+        args.opt_hps: dict = dict(lr=args.lr)
+
+        # - scheduler
+        args.scheduler_option = 'None'
+
+        # - logging params
+        args.log_freq = 500
+        # args.log_freq = 20
+
+        # -- wandb args
+        # -- wandb args
+        args.wandb_entity = 'brando-uiuc'
+        args.wandb_project = 'meta-learning-playground'
+        # - wandb expt args
+        args.experiment_name = args.manual_loads_name
+        args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+        args.log_to_wandb = True
+        # args.log_to_wandb = False
+        return args
+#=====end dataset hdb18======#
+#=====dataset hdb19======#
+def usl_hdb19_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+        # - model
+        args.model_option = 'resnet12_rfs'
+        # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+        args.n_cls = 1262
+        # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+        args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+        # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+        #                     levels=None, spp=False, in_channels=3)
+        # - data
+        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_option = 'hdb19'
+        args.n_classes = args.n_cls
+        args.data_augmentation = 'hdb4_micod'
+
+        # - training mode
+        # args.training_mode = 'iterations_train_convergence'
+        args.training_mode = 'iterations'  # 'iterations_train_convergence'
+        args.num_its = 1_000_000_000
+        # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+        # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+        #                                metric_to_use='train_acc',
+        #                                threshold=0.7, log_speed_up=10)
+
+        # - debug flag
+        # args.debug = True
+        args.debug = False
+
+        # - opt
+        args.opt_option = 'Adam_rfs_cifarfs'
+        args.batch_size = 256 # as big as your GPU fits (2^x) :P
+        args.lr = 1e-3
+        args.opt_hps: dict = dict(lr=args.lr)
+
+        # - scheduler
+        args.scheduler_option = 'None'
+
+        # - logging params
+        args.log_freq = 500
+        # args.log_freq = 20
+
+        # -- wandb args
+        # -- wandb args
+        args.wandb_entity = 'brando-uiuc'
+        args.wandb_project = 'meta-learning-playground'
+        # - wandb expt args
+        args.experiment_name = args.manual_loads_name
+        args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+        args.log_to_wandb = True
+        # args.log_to_wandb = False
+        return args
+#=====end dataset hdb19======#
+#=====dataset hdb20======#
+def usl_hdb20_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+        # - model
+        args.model_option = 'resnet12_rfs'
+        # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+        args.n_cls = 1231
+        # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+        args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+        # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+        #                     levels=None, spp=False, in_channels=3)
+        # - data
+        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_option = 'hdb20'
+        args.n_classes = args.n_cls
+        args.data_augmentation = 'hdb4_micod'
+
+        # - training mode
+        # args.training_mode = 'iterations_train_convergence'
+        args.training_mode = 'iterations'  # 'iterations_train_convergence'
+        args.num_its = 1_000_000_000
+        # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+        # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+        #                                metric_to_use='train_acc',
+        #                                threshold=0.7, log_speed_up=10)
+
+        # - debug flag
+        # args.debug = True
+        args.debug = False
+
+        # - opt
+        args.opt_option = 'Adam_rfs_cifarfs'
+        args.batch_size = 256 # as big as your GPU fits (2^x) :P
+        args.lr = 1e-3
+        args.opt_hps: dict = dict(lr=args.lr)
+
+        # - scheduler
+        args.scheduler_option = 'None'
+
+        # - logging params
+        args.log_freq = 500
+        # args.log_freq = 20
+
+        # -- wandb args
+        # -- wandb args
+        args.wandb_entity = 'brando-uiuc'
+        args.wandb_project = 'meta-learning-playground'
+        # - wandb expt args
+        args.experiment_name = args.manual_loads_name
+        args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+        args.log_to_wandb = True
+        # args.log_to_wandb = False
+        return args
+#=====end dataset hdb20======#
+#=====dataset hdb21======#
+def usl_hdb21_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namespace:
+        # - model
+        args.model_option = 'resnet12_rfs'
+        # args.model_option = '5CNN_opt_as_model_for_few_shot_sl'
+
+        args.n_cls = 1345
+        # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer, # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+        args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_cls)
+
+        # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
+        #                     levels=None, spp=False, in_channels=3)
+        # - data
+        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_option = 'hdb21'
+        args.n_classes = args.n_cls
+        args.data_augmentation = 'hdb4_micod'
+
+        # - training mode
+        # args.training_mode = 'iterations_train_convergence'
+        args.training_mode = 'iterations'  # 'iterations_train_convergence'
+        args.num_its = 1_000_000_000
+        # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Feb03_23-30-08_jobid_-1_pid_125081_wandb_True/ckpt.pt'
+
+        # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+        #                                metric_to_use='train_acc',
+        #                                threshold=0.7, log_speed_up=10)
+
+        # - debug flag
+        # args.debug = True
+        args.debug = False
+
+        # - opt
+        args.opt_option = 'Adam_rfs_cifarfs'
+        args.batch_size = 256 # as big as your GPU fits (2^x) :P
+        args.lr = 1e-3
+        args.opt_hps: dict = dict(lr=args.lr)
+
+        # - scheduler
+        args.scheduler_option = 'None'
+
+        # - logging params
+        args.log_freq = 500
+        # args.log_freq = 20
+
+        # -- wandb args
+        # -- wandb args
+        args.wandb_entity = 'brando-uiuc'
+        args.wandb_project = 'meta-learning-playground'
+        # - wandb expt args
+        args.experiment_name = args.manual_loads_name
+        args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+        args.log_to_wandb = True
+        # args.log_to_wandb = False
+        return args
+#=====end dataset hdb21======#
 
 def load_args() -> Namespace:
     """
