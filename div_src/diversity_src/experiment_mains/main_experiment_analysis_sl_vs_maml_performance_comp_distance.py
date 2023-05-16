@@ -119,6 +119,7 @@ def mi(args: Namespace) -> Namespace:
 
     # original old ckpt (likely not compatible with this code) in old format
     # #### (OLD) args.path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668'
+    args.path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668'
     # usable old checkpoint 688 in new format location
     args.path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/'  # Adam (no CL, old higher ckpt)
 
