@@ -2927,7 +2927,7 @@ def usl_quickdraw_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Na
     # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
     #                     levels=None, spp=False, in_channels=3)
     # - data
-    args.data_path = '/home/pzy2/data/l2l_data'
+    args.data_path = '/lfs/mercury1/0/saumg/data'
     args.data_option = 'quickdraw'
     args.n_classes = args.n_cls
     args.data_augmentation = 'hdb4_micod'
@@ -2961,8 +2961,8 @@ def usl_quickdraw_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Na
 
     # -- wandb args
     # -- wandb args
-    args.wandb_entity = 'brando-uiuc'
-    args.wandb_project = 'meta-learning-playground'
+    args.wandb_entity = 'saumyagoyal01'
+    args.wandb_project = 'maml_vis_expts'
     # - wandb expt args
     args.experiment_name = args.manual_loads_name
     args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
@@ -3547,7 +3547,7 @@ def usl_hdb12_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
         # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
         #                     levels=None, spp=False, in_channels=3)
         # - data
-        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data'
         args.data_option = 'hdb12'
         args.n_classes = args.n_cls
         args.data_augmentation = 'hdb4_micod'
@@ -3581,8 +3581,8 @@ def usl_hdb12_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
 
         # -- wandb args
         # -- wandb args
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'meta-learning-playground'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = args.manual_loads_name
         args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
@@ -3603,7 +3603,7 @@ def usl_hdb13_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
         # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
         #                     levels=None, spp=False, in_channels=3)
         # - data
-        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data'
         args.data_option = 'hdb13'
         args.n_classes = args.n_cls
         args.data_augmentation = 'hdb4_micod'
@@ -3637,8 +3637,8 @@ def usl_hdb13_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
 
         # -- wandb args
         # -- wandb args
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'meta-learning-playground'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = args.manual_loads_name
         args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
@@ -3659,7 +3659,7 @@ def usl_hdb14_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
         # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
         #                     levels=None, spp=False, in_channels=3)
         # - data
-        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data'
         args.data_option = 'hdb14'
         args.n_classes = args.n_cls
         args.data_augmentation = 'hdb4_micod'
@@ -3693,8 +3693,8 @@ def usl_hdb14_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
 
         # -- wandb args
         # -- wandb args
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'meta-learning-playground'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = args.manual_loads_name
         args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
@@ -3715,7 +3715,7 @@ def usl_hdb15_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
         # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
         #                     levels=None, spp=False, in_channels=3)
         # - data
-        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data'
         args.data_option = 'hdb15'
         args.n_classes = args.n_cls
         args.data_augmentation = 'hdb4_micod'
@@ -3749,8 +3749,8 @@ def usl_hdb15_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
 
         # -- wandb args
         # -- wandb args
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'meta-learning-playground'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = args.manual_loads_name
         args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
@@ -3771,7 +3771,7 @@ def usl_hdb16_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
         # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
         #                     levels=None, spp=False, in_channels=3)
         # - data
-        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data'
         args.data_option = 'hdb16'
         args.n_classes = args.n_cls
         args.data_augmentation = 'hdb4_micod'
@@ -3805,8 +3805,8 @@ def usl_hdb16_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
 
         # -- wandb args
         # -- wandb args
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'meta-learning-playground'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = args.manual_loads_name
         args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
@@ -3827,7 +3827,7 @@ def usl_hdb17_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
         # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
         #                     levels=None, spp=False, in_channels=3)
         # - data
-        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data'
         args.data_option = 'hdb17'
         args.n_classes = args.n_cls
         args.data_augmentation = 'hdb4_micod'
@@ -3861,8 +3861,8 @@ def usl_hdb17_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
 
         # -- wandb args
         # -- wandb args
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'meta-learning-playground'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = args.manual_loads_name
         args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
@@ -3883,7 +3883,7 @@ def usl_hdb18_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
         # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
         #                     levels=None, spp=False, in_channels=3)
         # - data
-        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data'
         args.data_option = 'hdb18'
         args.n_classes = args.n_cls
         args.data_augmentation = 'hdb4_micod'
@@ -3917,8 +3917,8 @@ def usl_hdb18_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
 
         # -- wandb args
         # -- wandb args
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'meta-learning-playground'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = args.manual_loads_name
         args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
@@ -3939,7 +3939,7 @@ def usl_hdb19_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
         # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
         #                     levels=None, spp=False, in_channels=3)
         # - data
-        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data'
         args.data_option = 'hdb19'
         args.n_classes = args.n_cls
         args.data_augmentation = 'hdb4_micod'
@@ -3973,8 +3973,8 @@ def usl_hdb19_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
 
         # -- wandb args
         # -- wandb args
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'meta-learning-playground'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = args.manual_loads_name
         args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
@@ -3995,7 +3995,7 @@ def usl_hdb20_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
         # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
         #                     levels=None, spp=False, in_channels=3)
         # - data
-        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data'
         args.data_option = 'hdb20'
         args.n_classes = args.n_cls
         args.data_augmentation = 'hdb4_micod'
@@ -4029,8 +4029,8 @@ def usl_hdb20_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
 
         # -- wandb args
         # -- wandb args
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'meta-learning-playground'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = args.manual_loads_name
         args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
@@ -4051,7 +4051,7 @@ def usl_hdb21_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
         # args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
         #                     levels=None, spp=False, in_channels=3)
         # - data
-        args.data_path = '/home/pzy2/data/l2l_data'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data'
         args.data_option = 'hdb21'
         args.n_classes = args.n_cls
         args.data_augmentation = 'hdb4_micod'
@@ -4085,8 +4085,8 @@ def usl_hdb21_resnet_rfs_adam_cl_train_to_convergence(args: Namespace) -> Namesp
 
         # -- wandb args
         # -- wandb args
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'meta-learning-playground'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = args.manual_loads_name
         args.run_name = f'{args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'

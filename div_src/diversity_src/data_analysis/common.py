@@ -14,7 +14,7 @@ import uutils
 from uutils.torch_uu import norm, process_meta_batch, get_device
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.agents.supervised_learning import ClassificationSLAgent
-from uutils.torch_uu.dataloaders.meta_learning.gaussian_1d_tasksets import BenchmarkTasksets
+from learn2learn.vision.benchmarks import BenchmarkTasksets
 from uutils.torch_uu.distributed import set_devices
 from uutils.torch_uu.eval.eval import do_eval
 from uutils.torch_uu.mains.common import _get_maml_agent, load_model_optimizer_scheduler_from_ckpt, \

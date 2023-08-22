@@ -3670,9 +3670,9 @@ def hdb12_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         #                     filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
 
         # - data
-        args.wandb_entity = 'brando-uiuc'
+        args.wandb_entity = 'saumyagoyal01'
         args.data_option = 'hdb12'
-        args.data_path = '/home/pzy2/data/l2l_data/'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data/'
         args.data_augmentation = 'hdb4_micod'
         # - training mode
         # args.training_mode = 'iterations_train_convergence'
@@ -3735,8 +3735,8 @@ def hdb12_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
 
         # -- wandb args
         # args.wandb_project = 'playground'  # needed to log to wandb properly
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'Meta-Dataset'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
         args.run_name = f'innerlr_{args.inner_lr} {args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
@@ -3760,9 +3760,9 @@ def hdb13_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         #                     filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
 
         # - data
-        args.wandb_entity = 'brando-uiuc'
+        args.wandb_entity = 'saumyagoyal01'
         args.data_option = 'hdb13'
-        args.data_path = '/home/pzy2/data/l2l_data/'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data/'
         args.data_augmentation = 'hdb4_micod'
         # - training mode
         # args.training_mode = 'iterations_train_convergence'
@@ -3825,8 +3825,8 @@ def hdb13_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
 
         # -- wandb args
         # args.wandb_project = 'playground'  # needed to log to wandb properly
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'Meta-Dataset'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
         args.run_name = f'innerlr_{args.inner_lr} {args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
@@ -3850,9 +3850,9 @@ def hdb14_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         #                     filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
 
         # - data
-        args.wandb_entity = 'brando-uiuc'
+        args.wandb_entity = 'saumyagoyal01'
         args.data_option = 'hdb14'
-        args.data_path = '/home/pzy2/data/l2l_data/'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data/'
         args.data_augmentation = 'hdb4_micod'
         # - training mode
         # args.training_mode = 'iterations_train_convergence'
@@ -3915,8 +3915,8 @@ def hdb14_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
 
         # -- wandb args
         # args.wandb_project = 'playground'  # needed to log to wandb properly
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'Meta-Dataset'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
         args.run_name = f'innerlr_{args.inner_lr} {args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
@@ -3940,9 +3940,9 @@ def hdb15_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         #                     filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
 
         # - data
-        args.wandb_entity = 'brando-uiuc'
+        args.wandb_entity = 'saumyagoyal01'
         args.data_option = 'hdb15'
-        args.data_path = '/home/pzy2/data/l2l_data/'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data/'
         args.data_augmentation = 'hdb4_micod'
         # - training mode
         # args.training_mode = 'iterations_train_convergence'
@@ -4005,8 +4005,8 @@ def hdb15_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
 
         # -- wandb args
         # args.wandb_project = 'playground'  # needed to log to wandb properly
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'Meta-Dataset'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
         args.run_name = f'innerlr_{args.inner_lr} {args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
@@ -4030,9 +4030,9 @@ def hdb16_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         #                     filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
 
         # - data
-        args.wandb_entity = 'brando-uiuc'
+        args.wandb_entity = 'saumyagoyal01'
         args.data_option = 'hdb16'
-        args.data_path = '/home/pzy2/data/l2l_data/'
+        args.data_path = '/lfs/mercury2/0/saumg/mercury_setup/data/l2l_data/'
         args.data_augmentation = 'hdb4_micod'
         # - training mode
         # args.training_mode = 'iterations_train_convergence'
@@ -4095,8 +4095,8 @@ def hdb16_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
 
         # -- wandb args
         # args.wandb_project = 'playground'  # needed to log to wandb properly
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'Meta-Dataset'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
         args.run_name = f'innerlr_{args.inner_lr} {args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
@@ -4120,9 +4120,9 @@ def hdb17_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         #                     filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
 
         # - data
-        args.wandb_entity = 'brando-uiuc'
+        args.wandb_entity = 'saumyagoyal01'
         args.data_option = 'hdb17'
-        args.data_path = '/home/pzy2/data/l2l_data/'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data/'
         args.data_augmentation = 'hdb4_micod'
         # - training mode
         # args.training_mode = 'iterations_train_convergence'
@@ -4185,8 +4185,8 @@ def hdb17_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
 
         # -- wandb args
         # args.wandb_project = 'playground'  # needed to log to wandb properly
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'Meta-Dataset'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
         args.run_name = f'innerlr_{args.inner_lr} {args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
@@ -4210,9 +4210,9 @@ def hdb18_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         #                     filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
 
         # - data
-        args.wandb_entity = 'brando-uiuc'
+        args.wandb_entity = 'saumyagoyal01'
         args.data_option = 'hdb18'
-        args.data_path = '/home/pzy2/data/l2l_data/'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data/'
         args.data_augmentation = 'hdb4_micod'
         # - training mode
         # args.training_mode = 'iterations_train_convergence'
@@ -4275,8 +4275,8 @@ def hdb18_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
 
         # -- wandb args
         # args.wandb_project = 'playground'  # needed to log to wandb properly
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'Meta-Dataset'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
         args.run_name = f'innerlr_{args.inner_lr} {args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
@@ -4300,9 +4300,9 @@ def hdb19_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         #                     filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
 
         # - data
-        args.wandb_entity = 'brando-uiuc'
+        args.wandb_entity = 'saumyagoyal01'
         args.data_option = 'hdb19'
-        args.data_path = '/home/pzy2/data/l2l_data/'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data/'
         args.data_augmentation = 'hdb4_micod'
         # - training mode
         # args.training_mode = 'iterations_train_convergence'
@@ -4365,8 +4365,8 @@ def hdb19_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
 
         # -- wandb args
         # args.wandb_project = 'playground'  # needed to log to wandb properly
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'Meta-Dataset'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
         args.run_name = f'innerlr_{args.inner_lr} {args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
@@ -4390,9 +4390,9 @@ def hdb20_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         #                     filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
 
         # - data
-        args.wandb_entity = 'brando-uiuc'
+        args.wandb_entity = 'saumyagoyal01'
         args.data_option = 'hdb20'
-        args.data_path = '/home/pzy2/data/l2l_data/'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data/'
         args.data_augmentation = 'hdb4_micod'
         # - training mode
         # args.training_mode = 'iterations_train_convergence'
@@ -4455,8 +4455,8 @@ def hdb20_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
 
         # -- wandb args
         # args.wandb_project = 'playground'  # needed to log to wandb properly
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'Meta-Dataset'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
         args.run_name = f'innerlr_{args.inner_lr} {args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
@@ -4480,9 +4480,9 @@ def hdb21_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         #                     filter_size=args.filter_size, levels=None, spp=False, in_channels=3)
 
         # - data
-        args.wandb_entity = 'brando-uiuc'
+        args.wandb_entity = 'saumyagoyal01'
         args.data_option = 'hdb21'
-        args.data_path = '/home/pzy2/data/l2l_data/'
+        args.data_path = '/lfs/mercury1/0/saumg/mercury_setup/data/l2l_data/'
         args.data_augmentation = 'hdb4_micod'
         # - training mode
         # args.training_mode = 'iterations_train_convergence'
@@ -4545,8 +4545,8 @@ def hdb21_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
 
         # -- wandb args
         # args.wandb_project = 'playground'  # needed to log to wandb properly
-        args.wandb_entity = 'brando-uiuc'
-        args.wandb_project = 'Meta-Dataset'
+        args.wandb_entity = 'saumyagoyal01'
+        args.wandb_project = 'maml_vis_expts'
         # - wandb expt args
         args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {args.filter_size} {os.path.basename(__file__)}'
         args.run_name = f'innerlr_{args.inner_lr} {args.manual_loads_name} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option} {args.filter_size}: {args.jobid=}'
