@@ -32,9 +32,9 @@ import time
 from diversity_src.data_analysis.common import get_sl_learner, get_maml_meta_learner, santity_check_maml_accuracy, \
     comparison_via_performance, setup_args_path_for_ckpt_data_analysis, do_diversity_data_analysis, \
     performance_comparison_with_l2l_end_to_end, get_recommended_batch_size_miniimagenet_5CNN
-from diversity_src.diversity.diversity import diversity
+from uutils.torch_uu.metrics.diversity.diversity import diversity
 from uutils.argparse_uu.meta_learning import fix_for_backwards_compatibility, parse_args_meta_learning
-from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
+from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
 
 from uutils.torch_uu import equal_two_few_shot_cnn_models, process_meta_batch, approx_equal, get_device, norm
 from uutils.torch_uu.distributed import is_lead_worker
@@ -388,12 +388,6 @@ def args_5cnn_mi(args: Namespace) -> Namespace:
     args.path_2_init_sl = '/logs/logs_May24_11-55-43_jobid_35324'  # 55
     # https://wandb.ai/brando/sl_vs_ml_iclr_workshop_paper/runs/hqfxsf5r/overview?workspace=user-brando
     args.path_2_init_sl = '/logs/logs_May24_11-55-44_jobid_35325'  # 56
-
-
-
-
-
-
 
     # actually you need to run _main_dista... old code I think
     # path_2_init_sl = '~/data_folder_fall2020_spring2021/logs/mar_all_mini_imagenet_expts/logs_Mar05_17-57-23_jobid_4246'  # THIS I think
@@ -779,7 +773,7 @@ def main_data_analyis():
     print(f'{args.path_2_init_maml=}')
 
     # - get dataloaders and overwrites so data analysis runs as we want
-    args.dataloaders: dict = get_meta_learning_dataloader(args)
+    args.dataloaders: dict = get_meta_learning_dataloaders(args)
     # meta_dataloader = dataloaders['train']
     meta_dataloader = args.dataloaders['val']
     # meta_dataloader = dataloaders['test']
@@ -957,20 +951,6 @@ def main_data_analyis():
         wandb.finish()
 
 
-def main_data_analyis_check_sl_error():
-    args: Namespace = load_args()
-
-    performance_comparison_with_l2l_end_to_end(args)
-
-    # - done!
-    print(f'time_passed_msg = {uutils.report_times(start)}')
-    # - wandb
-    if is_lead_worker(args.rank) and args.log_to_wandb:
-        import wandb
-        wandb.finish()
-
-
 if __name__ == '__main__':
     main_data_analyis()
-    # main_data_analyis_check_sl_error()
     print('--> Success Done!\a\n')

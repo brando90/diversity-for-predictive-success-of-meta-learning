@@ -1,3 +1,5 @@
+import sys
+
 import torch
 import torch.nn as nn
 import torch.multiprocessing as mp
@@ -9,84 +11,379 @@ from uutils import args_hardcoded_in_script, report_times
 from uutils.argparse_uu.common import setup_args_for_experiment
 from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_backwards_compatibility
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
+from uutils.torch_uu import count_number_of_parameters
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
-from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
+from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
     print_dist
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
 from uutils.torch_uu.mains.main_sl_with_ddp import train
 from uutils.torch_uu.meta_learners.maml_meta_learner import MAMLMetaLearner
 from uutils.torch_uu.training.meta_training import meta_train_fixed_iterations, meta_train_agent_fit_single_batch
-from uutils import load_cluster_jobids_to, merge_args
-from uutils.logging_uu.wandb_logging.common import setup_wandb
 
-from pdb import set_trace as st
+import os
+
+from uutils import load_cluster_jobids_to, merge_args
+from uutils.logging_uu.wandb_logging.common import setup_wandb, cleanup_wandb
 
 from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_batch
 from pathlib import Path
 
-def manual_load_mds_5cnn_maml_adam_no_scheduler(args: Namespace) -> Namespace:
-    """
-    """
-    from pathlib import Path
+from pdb import set_trace as st
+
+
+def mds_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) -> Namespace:
     # - model
-    #args.model_option = 'resnet12_rfs_mi' #or use the one in the MDS fo-protoMAML paper
-    #args.model_option = '5CNN_opt_as_model_for_few_shot_sl' #only sanity checks
-    args.model_option = 'resnet12_rfs_mi'
+    # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
     args.n_cls = 5
-    #args.model_hps = dict(image_size=84, bn_eps=1e-3, bn_momentum=0.95, n_classes=args.n_cls, filter_size=32,
-    #                      levels=None, spp=False, in_channels=3)
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
 
     # - data
-    #args.data_option = 'torchmeta_cifarfs'
-    #args.data_path = Path('//').expanduser()
-
-    # - opt
-    args.opt_option = 'Adam_default'
-    args.scheduler_option = 'None'
+    args.data_option = 'mds'
+    # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
+                    'mscoco', 'traffic_sign']
 
     # - training mode
-    args.training_mode = 'iterations'
-
-    # note: 60K iterations for original maml 5CNN with adam
-    args.num_its = 800_000
+    args.training_mode = 'iterations_train_convergence'
 
     # - debug flag
     # args.debug = True
-    args.debug = True
+    args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    # no scheduler since we don't know how many steps to do we can't know how to decay with prev code, maybe something else exists e.g. decay once error is low enough
+    args.scheduler_option = 'None'
 
     # -- Meta-Learner
     # - maml
     args.meta_learner_name = 'maml_fixed_inner_lr'
     args.inner_lr = 1e-1
     args.nb_inner_train_steps = 5
-    #args.track_higher_grads = False  # set to false during meta-testing and for (official) fo maml
     args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
-    args.track_higher_grads = True
-    args.fo = True  # this flag shouldn't matter for if track_higher_grads is set to False
+    args.track_higher_grads = True  # I know this is confusing but look at this ref: https://stackoverflow.com/questions/70961541/what-is-the-official-implementation-of-first-order-maml-using-the-higher-pytorch
+    args.fo = True  # This is needed.
 
     # - outer trainer params
-    # args.lr = 1e-5
+    args.batch_size = 4  # decreased it to 4 even though it gives more noise but updates quicker + nano gpt seems to do that for speed up https://github.com/karpathy/nanoGPT/issues/58
+    args.batch_size_eval = 2
 
-    args.batch_size = 1
-    args.batch_size_eval = 1
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
 
     # -- wandb args
-    # args.wandb_project = 'playground'  # needed to log to wandb properly
-    #args.wandb_project = 'sl_vs_ml_iclr_workshop_paper'
+    args.wandb_project = 'entire-diversity-spectrum'
     # - wandb expt args
-    # args.experiment_name = f'debug'
-    args.experiment_name = f'MDS Resnet12 official fo maml adam, no scheduler'
-    # args.run_name = f'debug: {args.jobid=}'
-    args.run_name = f'{args.model_option} {args.opt_option} {args.scheduler_option} {args.lr}: {args.jobid=}'
-    # args.log_to_wandb = True
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
     args.log_to_wandb = True
+    # args.log_to_wandb = False
 
     # - fix for backwards compatibility
     args = fix_for_backwards_compatibility(args)
     return args
 
+
+def mds_vggaircraft_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) -> Namespace:
+    # - model
+    args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
+    args.n_cls = 5
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+
+    # - data
+    args.data_option = 'mds'
+    args.sources = ['vgg_flower', 'aircraft']
+    # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
+
+    # - training mode
+    args.training_mode = 'iterations_train_convergence'
+
+    # - debug flag
+    args.debug = False  # True
+    # args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    # no scheduler since we don't know how many steps to do we can't know how to decay with prev code, maybe something else exists e.g. decay once error is low enough
+    args.scheduler_option = 'None'
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1
+    args.nb_inner_train_steps = 5
+    args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
+    args.track_higher_grads = True  # I know this is confusing but look at this ref: https://stackoverflow.com/questions/70961541/what-is-the-official-implementation-of-first-order-maml-using-the-higher-pytorch
+    args.fo = True  # This is needed.
+
+    # - outer trainer params
+    args.batch_size = 4  # 1  # decreased it to 4 even though it gives more noise but updates quicker + nano gpt seems to do that for speed up https://github.com/karpathy/nanoGPT/issues/58
+    args.batch_size_eval = 2  # 1
+
+    # - logging params
+    args.log_freq = 500
+
+    # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Jan21_13-56-48_jobid_-1/ckpt.pt'
+    # args.min_examples_in_class=0
+    # args.num_support =None
+    # args.num_query=None
+    # args.log_freq = 20
+
+    # -- wandb args
+    args.wandb_project = 'Meta-Dataset'  # 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+def mds_vggdtd_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) -> Namespace:
+    # - model
+    args.model_option = 'resnet12_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
+    args.n_cls = 5
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
+    #args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+    #                      num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+
+    # - data
+    args.data_option = 'mds'
+    args.sources = ['vgg_flower', 'dtd']
+    # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
+
+    # - training mode
+    args.training_mode = 'iterations'
+    args.num_its = 1_000_000
+
+    # - debug flag
+    args.debug = False  # True
+    # args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-5#1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    # no scheduler since we don't know how many steps to do we can't know how to decay with prev code, maybe something else exists e.g. decay once error is low enough
+    args.scheduler_option = 'None'
+
+    #args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Mar05_13-26-47_jobid_-1_pid_127168_wandb_True/ckpt.pt'#here
+    args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Mar06_14-35-37_jobid_-1_pid_92521_wandb_True/ckpt.pt'
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1
+    args.nb_inner_train_steps = 5
+    args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
+    args.track_higher_grads = True  # I know this is confusing but look at this ref: https://stackoverflow.com/questions/70961541/what-is-the-official-implementation-of-first-order-maml-using-the-higher-pytorch
+    args.fo = True  # This is needed.
+
+    # - outer trainer params
+    args.batch_size = 4  # 1  # decreased it to 4 even though it gives more noise but updates quicker + nano gpt seems to do that for speed up https://github.com/karpathy/nanoGPT/issues/58
+    args.batch_size_eval = 2  # 1
+
+    # - logging params
+    args.log_freq = 500
+
+    # args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Jan21_13-56-48_jobid_-1/ckpt.pt'
+    # args.min_examples_in_class=0
+    # args.num_support =None
+    # args.num_query=None
+    # args.log_freq = 20
+
+    # -- wandb args
+    args.wandb_entity = 'brando-uiuc'
+    args.wandb_project = 'Meta-Dataset'  # 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.sources} {args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+def mds_birdsdtd_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) -> Namespace:
+    # - model
+    args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
+    args.n_cls = 5
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
+    args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+                          num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+
+    # - data
+    args.data_option = 'mds'
+    args.sources = ['cu_birds', 'dtd']  # ['vgg_flower', 'aircraft']
+    # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
+
+    # - training mode
+    args.training_mode = 'iterations'  # 'iterations_train_convergence'
+    args.num_its = 1_000_000_000  # essentially this makes your thing run forever to 'prevent' early termination
+    args.path_to_checkpoint = '/home/pzy2/data/logs/logs_Jan23_23-56-40_jobid_-1/ckpt.pt'  # '/home/pzy2/data/logs/logs_Jan23_23-56-40_jobid-1'
+
+    # - debug flag
+    args.debug = True  # False#True
+    # args.debug = False
+
+    # - opt
+    args.opt_option = 'Adam_rfs_cifarfs'
+    args.lr = 1e-3  # match MAML++
+    args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    # no scheduler since we don't know how many steps to do we can't know how to decay with prev code, maybe something else exists e.g. decay once error is low enough
+    args.scheduler_option = 'None'
+
+    # -- Meta-Learner
+    # - maml
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1
+    args.nb_inner_train_steps = 5
+    args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
+    args.track_higher_grads = True  # I know this is confusing but look at this ref: https://stackoverflow.com/questions/70961541/what-is-the-official-implementation-of-first-order-maml-using-the-higher-pytorch
+    args.fo = True  # This is needed.
+
+    # - outer trainer params
+    args.batch_size = 4  # 1  # decreased it to 4 even though it gives more noise but updates quicker + nano gpt seems to do that for speed up https://github.com/karpathy/nanoGPT/issues/58
+    args.batch_size_eval = 2  # 1
+
+    # - logging params
+    args.log_freq = 1  # 500
+
+    # -- wandb args
+    args.wandb_project = 'Meta-Dataset'  # 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = args.manual_loads_name
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=}'
+    args.log_to_wandb = False
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+def mds_maml(args: Namespace) -> Namespace:
+    """
+    Looking at original mds hps:
+        - https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/setups/trainer_config.gin
+        - https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/best/maml_all_from_scratch.gin
+    Main summary:
+        Trainer.num_updates = 75000
+        Trainer.batch_size = 256  # Only applicable to non-episodic models.
+        Trainer.num_eval_episodes = 600
+    """
+    # - model
+    # args.model_option = 'resnet18_rfs'  # note this corresponds to block=(1 + 1 + 2 + 2) * 3 + 1 = 18 + 1 layers (sometimes they count the final layer and sometimes they don't)
+    args.n_cls = 5
+    # bellow seems true for all models, they do use avg pool at the global pool/last pooling layer
+    args.allow_unused = True
+    args.model_hps = dict(num_classes=args.n_cls)
+    # args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5,
+    #                       num_classes=args.n_cls)  # dropbock_size=5 is rfs default for MI, 2 for CIFAR, will assume 5 for mds since it works on imagenet
+
+    # - data
+    args.data_option = 'mds'
+    # args.sources = ['vgg_flower', 'aircraft']
+    # Mscoco, traffic_sign are VAL only (actually we could put them here, fixed script to be able to do so w/o crashing)
+    args.sources = ['ilsvrc_2012', 'aircraft', 'cu_birds', 'dtd', 'fungi', 'omniglot', 'quickdraw', 'vgg_flower',
+                    'mscoco', 'traffic_sign']
+
+    # - training mode
+    args.training_mode = 'iterations'
+
+    # note: 75_000 used by MAML mds https://github.com/google-research/meta-dataset/blob/main/meta_dataset/learn/gin/setups/trainer_config.gin#L1
+    # args.num_its = 75_000  # 7_500 in 2 days
+    # args.num_its = 2_400
+    # args.num_its = 100_000
+    args.num_its = 200_000
+    # args.num_its = 300_000
+    # args.num_its = 800_000
+
+    # - debug flag
+    args.debug = False
+    # args.debug = True
+
+    # - opt
+    args.opt_option = 'AdafactorDefaultFair'
+    args.opt_hps: dict = dict()
+    # args.opt_option = 'Adam_rfs_cifarfs'
+    # args.lr = 1e-3  # match MAML++
+    # args.opt_hps: dict = dict(lr=args.lr)
+
+    # - scheduler
+    args.scheduler_option = 'AdafactorSchedule'
+    # args.scheduler_option = 'None'
+    # args.scheduler_option = 'Adam_cosine_scheduler_rfs_cifarfs'
+    # args.log_scheduler_freq = 2_000
+    # args.T_max = args.num_its // args.log_scheduler_freq  # intended 800K/2k
+    # args.eta_min = 1e-5  # match MAML++
+    # args.scheduler_hps: dict = dict(T_max=args.T_max, eta_min=args.eta_min)
+    # print(f'{args.T_max=}')
+
+    # -- Meta-Learner
+    # - maml, higher
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1
+    args.nb_inner_train_steps = 5
+    args.copy_initial_weights = False  # DONT PUT TRUE. details: set to True only if you do NOT want to train base model's initialization https://stackoverflow.com/questions/60311183/what-does-the-copy-initial-weights-documentation-mean-in-the-higher-library-for
+    args.track_higher_grads = True  # I know this is confusing but look at this ref: https://stackoverflow.com/questions/70961541/what-is-the-official-implementation-of-first-order-maml-using-the-higher-pytorch
+    args.fo = True  # This is needed.
+    # - maml l2l (needed for l2l ViT)
+    args.meta_learner_name = 'maml_fixed_inner_lr'
+    args.inner_lr = 1e-1  # same as fast_lr in l2l
+    args.nb_inner_train_steps = 5
+    args.first_order = True
+
+    # - outer trainer params
+    args.batch_size = 3  # decreased it to 4 even though it gives more noise but updates quicker + nano gpt seems to do that for speed up https://github.com/karpathy/nanoGPT/issues/58
+    args.batch_size_eval = 2
+
+    # - logging params
+    args.log_freq = 500
+    # args.log_freq = 20
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_threshold_is_reached',
+    #                                metric_to_use='train_acc',
+    #                                threshold=0.9, log_speed_up=10)
+    # args.smart_logging_ckpt = dict(smart_logging_type='log_more_often_after_convg_reached', metric_to_use='train_loss',
+    #                                log_speed_up=10)
+
+    # -- wandb args
+    args.wandb_project = 'entire-diversity-spectrum'
+    # - wandb expt args
+    args.experiment_name = f'{args.manual_loads_name} {args.model_option} {args.data_option} {os.path.basename(__file__)}'
+    args.run_name = f'{args.manual_loads_name} {args.data_option} {args.model_option} {args.opt_option} {args.lr} {args.scheduler_option}: {args.jobid=} {args.manual_loads_name}'
+    args.log_to_wandb = True
+    # args.log_to_wandb = False
+
+    # - fix for backwards compatibility
+    args = fix_for_backwards_compatibility(args)
+    return args
+
+
+# -- main
 
 def load_args() -> Namespace:
     """
@@ -95,13 +392,20 @@ def load_args() -> Namespace:
     3. setup remaining args small details from previous values (e.g. 1 and 2).
     """
     # -- parse args from terminal
-    # args: Namespace = parse_args_standard_sl()
-    args: Namespace = get_mds_args()
-    args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
-    #args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing'  # <- REMOVE to remove manual loads
+    args: Namespace = parse_args_meta_learning()
 
-    args: Namespace = manual_load_mds_5cnn_maml_adam_no_scheduler(args)
+    args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
+    # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_maml_ho_adam_simple_cosine_annealing'  # <- REMOVE to remove manual loads
+
     # -- set remaining args values (e.g. hardcoded, checkpoint etc.)
+    print(f'{args.manual_loads_name=}')
+    if resume_from_checkpoint(args):
+        args: Namespace = make_args_from_supervised_learning_checkpoint(args=args, precedence_to_args_checkpoint=True)
+    elif args_hardcoded_in_script(args):
+        args: Namespace = eval(f'{args.manual_loads_name}(args)')
+    else:
+        # NOP: since we are using args from terminal
+        pass
 
     # -- Setup up remaining stuff for experiment
     args: Namespace = setup_args_for_experiment(args)
@@ -129,39 +433,65 @@ def main():
         # set_sharing_strategy()
         mp.spawn(fn=train, args=(args,), nprocs=args.world_size)
 
+
 def train(rank, args):
+    # this dist script sets up rank dist etc, which is not at all given torchmeta doesn't use distributed training
     print_process_info(rank, flush=True)
     args.rank = rank  # have each process save the rank
     set_devices(args)  # args.device = rank or .device
     setup_process(args, rank, master_port=args.master_port, world_size=args.world_size)
     print(f'setup process done for rank={rank}')
 
+    # - set up wandb only for the lead process, commented out, torchmeta doesn't support distributed
+    # setup_wandb(args) if is_lead_worker(args.rank) else None
+
     # create the (ddp) model, opt & scheduler
     get_and_create_model_opt_scheduler_for_run(args)
+    args.number_of_trainable_parameters = count_number_of_parameters(args.model)
+    print(f'{args.number_of_trainable_parameters=}')
     print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
 
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
-    args.dataloaders: dict = get_mds_loader(args)
+    args.dataloaders: dict = get_meta_learning_dataloaders(args)
+    assert args.model.cls.out_features == 5
 
     # Agent does everything, proving, training, evaluate, meta-learnering, etc.
-    args.agent = MAMLMetaLearner(args, args.model)
+    # args.agent = MAMLMetaLearner(args, args.model)
+    from uutils.torch_uu.mains.common import _get_maml_agent
+    args.agent = _get_maml_agent(args)  # use maml-l2l when using ViT & mds, else it's fine to higher based maml
     args.meta_learner = args.agent
+    print(f'{type(args.agent)=}, {type(args.meta_learner)=}')
 
     # -- Start Training Loop
-    print_dist('====> about to start train loop', args.rank)
-
-    meta_train_fixed_iterations(args, args.agent, args.dataloaders, args.opt, args.scheduler)
+    print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}\n{type(args.agent)=}", args.rank)  # here to make sure mdl has the right cls
+    print_dist('\n\n====> about to start train loop', args.rank)
+    print(f'{args.filter_size=}') if hasattr(args, 'filter_size') else None
+    print(f'{args.number_of_trainable_parameters=}')
+    if args.training_mode == 'meta_train_agent_fit_single_batch':
+        # meta_train_agent_fit_single_batch(args, args.agent, args.dataloaders, args.opt, args.scheduler)
+        raise NotImplementedError
+    elif 'iterations' in args.training_mode:
+        meta_train_fixed_iterations(args, args.agent, args.dataloaders, args.opt, args.scheduler)
+    elif 'epochs' in args.training_mode:
+        # meta_train_epochs(args, agent, args.dataloaders, args.opt, args.scheduler) not implemented
+        raise NotImplementedError
+    else:
+        raise ValueError(f'Invalid training_mode value, got: {args.training_mode}')
 
     # -- Clean Up Distributed Processes
     print(f'\n----> about to cleanup worker with rank {rank}')
     cleanup(rank)
     print(f'clean up done successfully! {rank}')
+    from uutils.logging_uu.wandb_logging.common import cleanup_wandb
+    # cleanup_wandb(args, delete_wandb_dir=True)
+    cleanup_wandb(args, delete_wandb_dir=False)
 
 
 # -- Run experiment
 
 if __name__ == "__main__":
     import time
+    from uutils import report_times
 
     start = time.time()
     # - run experiment

@@ -1,7 +1,14 @@
 """
 Script to re-save ckpts not saving objects. This creates issues because you need the code for the unpickling of dill to
 work.
+
+Githashes for div & uutils:
+- get old githash bfb367a & repo used brando90 committed on Feb 16, 2022
+- div: bfb367a,
+- uutils: 3e49322 , 3e4932203fc1e3cb2ea87b49b2069e1d9b0a760b
 """
+import pickle
+
 from distutils.dir_util import copy_tree
 import os
 from argparse import Namespace
@@ -12,6 +19,7 @@ from torch import nn
 
 from uutils import merge_args, make_args_pickable
 from uutils.torch_uu.checkpointing_uu.meta_learning import save_for_meta_learning
+from uutils.torch_uu.distributed import set_devices
 from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_mi
 from uutils.torch_uu.optim_uu.adam_uu import get_opt_hps_adam_resnet_rfs_old_mi
 
@@ -89,18 +97,46 @@ def save_old_ckpt_to_new_objectless_format(args: Namespace,
     save_for_meta_learning(args, ckpt_filename='ckpt.pt', ignore_logger=True)
 
 
+# -- tests, main, examples, etc
+
 def main():
     args = Namespace()
-    args.path_2_init_maml = Path(
-        '~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668/').expanduser()
+    args.path_2_init_maml = '~/data_folder_fall2020_spring2021/logs/nov_all_mini_imagenet_expts/logs_Nov05_15-44-03_jobid_668/'
+    # args.path_2_init_maml = '~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/'
+    args.path_2_init_maml = Path(args.path_2_init_maml).expanduser()
     args.ckpt_filename_maml = 'ckpt_file.pt'
     args.path2old_ckpt = (Path(args.path_2_init_maml) / args.ckpt_filename_maml).expanduser()
 
     # - save to new format
-    args.log_root = Path('~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/').expanduser()
+    # args.log_root = Path('~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/').expanduser()
+    args.log_root = Path('~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT_2/').expanduser()
     args.new_ckpt_filename = 'ckpt_file.pt'
     args.path2new_ckpt = (Path(args.log_root) / args.new_ckpt_filename).expanduser()
-    save_old_ckpt_to_new_objectless_format(args)
+    # save_old_ckpt_to_new_objectless_format(args)
+
+    # - test saved new format words when loading (but need to test in new code with new commit!)
+    # load_new_ckpt_test_()
+
+
+def load_new_ckpt_test_():
+    # - get model ckpt path
+    args = Namespace()
+    args.rank = -1
+    args.log_root = Path('~/data/logs/logs_Nov05_15-44-03_jobid_668_NEW_CKPT/').expanduser()
+    args.path_to_checkpoint = (Path(args.log_root) / 'ckpt.pt').expanduser()
+
+    # - set device in args
+    set_devices(args)
+    # ckpt: dict = torch.load(args.path_to_checkpoint, map_location=args.device)
+    ckpt: dict = torch.load(args.path_to_checkpoint, pickle_module=pickle, map_location=args.device)
+    print(f'{ckpt.keys()=}')
+
+    # - load model
+    model_state_dict = ckpt['model_state_dict']
+    # model_state_dict = ckpt['f_model_state_dict']
+    from diversity_src.models.resnet_rfs import _get_resnet_rfs_model_mi
+    model, _ = _get_resnet_rfs_model_mi(args.model_option)
+    model.load_state_dict(model_state_dict)
 
 
 if __name__ == '__main__':

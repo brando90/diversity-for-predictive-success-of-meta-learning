@@ -11,7 +11,12 @@
 
 # - if your doing this in snap you might need to do
 ssh brando9@ampere4.stanford.edu
-conda activate metalearning_gpu
+
+conda create -n mds_env_gpu python=3.9
+conda activate mds_env_gpu
+## conda remove --name mds_env_gpu --all
+pip install -r $HOME/diversity-for-predictive-success-of-meta-learning/req_mds_essentials.txt
+pip install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
 
 krbtmux
 reauth
@@ -49,7 +54,7 @@ git submodule init
 # - The --remote option tells Git to update the submodule to the commit specified in the upstream repository, rather than the commit specified in the main repository. ref: https://stackoverflow.com/questions/74988223/why-do-i-need-to-add-the-remote-to-gits-submodule-when-i-specify-the-branch?noredirect=1&lq=1
 git submodule update --init --recursive --remote
 # - for each submodule pull from the right branch according to .gitmodule file. ref: https://stackoverflow.com/questions/74988223/why-do-i-need-to-add-the-remote-to-gits-submodule-when-i-specify-the-branch?noredirect=1&lq=1
-#git submodule foreach -q --recursive 'git switch $(git config -f $toplevel/.gitmodules submodule.$name.branch || echo master || echo main )'
+git submodule foreach -q --recursive 'git switch $(git config -f $toplevel/.gitmodules submodule.$name.branch || echo master || echo main )'
 # - check it's in specified branch. ref: https://stackoverflow.com/questions/74998463/why-does-git-submodule-status-not-match-the-output-of-git-branch-of-my-submodule
 git submodule status
 cd meta-dataset
@@ -174,53 +179,69 @@ tmux attach -t ilsvrc_2012
 #  --records_root=$RECORDS
 #
 ## -6. Expect the conversion to take 4 to 12 hours, depending on the filesystem's latency and bandwidth.
+#
+## --ilsvrc, shortcut since original install didnt succceed
+#ssh brando9@ampere4.stanford.edu
+#tmux new -s ilsvrc_2012_gdown
+#reauth
+#source $AFS/.bashrc.lfs
+#conda activate mds_env_gpu
+#
+#tmux attach -t ilsvrc_2012
+##option 1. assuming you still have uiuc netid and can access the /shared/rsaas folder
+##scp <your net id>@vision.cs.illinois.edu:/shared/rsaas/pzy2/ilsvrc.tar.gz <wherever your $RECORDS destination at your stanford cluster>
+#
+##option 2. not sure if it works since I got this issue when i tried: https://stackoverflow.com/questions/65312867/how-to-download-large-file-from-google-drive-from-terminal-gdown-doesnt-work
+## tool to "wget" gdrive links
+#pip install gdown
+## actual file here https://drive.google.com/file/d/1FkuIIW49_x8Zzr6Vmpq-mHLO69-VvCtX/view?usp=share_link
+#gdown https://drive.google.com/uc?id=1FkuIIW49_x8Zzr6Vmpq-mHLO69-VvCtX
+#
+#
+##check that the md5hash matches my (working) tar.gz file
+#md5sum $RECORDS/ilsvrc.tar.gz #should be 56c576d10896bfa8d35200aebfea1704
+#
+##should have ilsvrc.tar.gz in $RECORDS/
+##now extract it
+#tar -xf $RECORDS/ilsvrc.tar.gz -C $RECORDS/
+#
+## Need to un-nest folders since I extracted my mscoco at the top-most directory instead of in $RECORDS/
+#mv $RECORDS/shared/rsaas/pzy2/records/ilsvrc_2012  $RECORDS/ilsvrc_2012
+#
+#
+## ilsvrc doesn't have a dedicated splits file, so should be done
+## -7.Find the following outputs in $RECORDS/ilsvrc_2012/:
+##1000 tfrecords files named [0-999].tfrecords
+#ls $RECORDS/ilsvrc_2012/ | grep -c .tfrecords
+##dataset_spec.json (see note 1)
+#ls $RECORDS/ilsvrc_2012/dataset_spec.json
+##num_leaf_images.json
+#ls $RECORDS/ilsvrc_2012/num_leaf_images.json
+#
+#
+## option 3: send it from patrick's local to ampere4
+## I want to send a compressed tar.gz file located locally at path /Users/patrickyu/Documents/ilsvrc.tar.gz and want to send it to the server brando9@ampere4.stanford.edu and in the server the path is /lfs/ampere4/0/brando9/data/mds, how do I do this in bash?
+##scp /Users/patrickyu/Documents/ilsvrc.tar.gz brando9@ampere4.stanford.edu:/lfs/ampere4/0/brando9/data/mds
+#scp /Users/patrickyu/Documents/ilsvrc.tar.gz brando9@ampere4.stanford.edu:/lfs/ampere4/0/brando9/data/mds/records/
+#echo $RECORDS
+#
+##check that the md5hash matches my (working) tar.gz file
+#md5sum $RECORDS/ilsvrc.tar.gz #should be 56c576d10896bfa8d35200aebfea1704
+#
+##should have ilsvrc.tar.gz in $RECORDS/
+##now extract it
+#tar -xf $RECORDS/ilsvrc.tar.gz -C $RECORDS/
+#
+## Need to un-nest folders since I extracted my mscoco at the top-most directory instead of in $RECORDS/
+#mv $RECORDS/shared/rsaas/pzy2/records/ilsvrc_2012  $RECORDS/ilsvrc_2012
 
-# --ilsvrc, shortcut since original install didnt succceed
-ssh brando9@ampere4.stanford.edu
-tmux new -s ilsvrc_2012_gdown
-reauth
-source $AFS/.bashrc.lfs
-conda activate mds_env_gpu
-
-tmux attach -t ilsvrc_2012
-#option 1. assuming you still have uiuc netid and can access the /shared/rsaas folder
-#scp <your net id>@vision.cs.illinois.edu:/shared/rsaas/pzy2/ilsvrc.tar.gz <wherever your $RECORDS destination at your stanford cluster>
-
-#option 2. not sure if it works since I got this issue when i tried: https://stackoverflow.com/questions/65312867/how-to-download-large-file-from-google-drive-from-terminal-gdown-doesnt-work
-# tool to "wget" gdrive links
-pip install gdown
-# actual file here https://drive.google.com/file/d/1FkuIIW49_x8Zzr6Vmpq-mHLO69-VvCtX/view?usp=share_link
-gdown https://drive.google.com/uc?id=1FkuIIW49_x8Zzr6Vmpq-mHLO69-VvCtX
-
-
-#check that the md5hash matches my (working) tar.gz file
-md5sum $RECORDS/ilsvrc.tar.gz #should be 56c576d10896bfa8d35200aebfea1704
-
-#should have ilsvrc.tar.gz in $RECORDS/
-#now extract it
-tar -xf $RECORDS/ilsvrc.tar.gz -C $RECORDS/
-
-# Need to un-nest folders since I extracted my mscoco at the top-most directory instead of in $RECORDS/
-mv $RECORDS/shared/rsaas/pzy2/records/ilsvrc_2012  $RECORDS/ilsvrc_2012
-
-
-# ilsvrc doesn't have a dedicated splits file, so should be done
-# -7.Find the following outputs in $RECORDS/ilsvrc_2012/:
-#1000 tfrecords files named [0-999].tfrecords
+## -7.Find the following outputs in $RECORDS/ilsvrc_2012/:
+##1000 tfrecords files named [0-999].tfrecords
 ls $RECORDS/ilsvrc_2012/ | grep -c .tfrecords
-#dataset_spec.json (see note 1)
+##dataset_spec.json (see note 1)
 ls $RECORDS/ilsvrc_2012/dataset_spec.json
-#num_leaf_images.json
+##num_leaf_images.json
 ls $RECORDS/ilsvrc_2012/num_leaf_images.json
-
-# -7.Find the following outputs in $RECORDS/ilsvrc_2012/:
-#1000 tfrecords files named [0-999].tfrecords
-ls $RECORDS/ilsvrc_2012/ | grep -c .tfrecords
-#dataset_spec.json (see note 1)
-ls $RECORDS/ilsvrc_2012/dataset_spec.json
-#num_leaf_images.json
-ls $RECORDS/ilsvrc_2012/num_leaf_images.json
-
 
 
 # -- omniglot: https://github.com/google-research/meta-dataset/blob/main/doc/dataset_conversion.md#omniglot
@@ -599,7 +620,18 @@ ls $RECORDS/mscoco/ | grep -c .tfrecords
 ls $RECORDS/mscoco/dataset_spec.json
 
 # -- final step - run make_index_files.sh
-cd $HOME/pytorch-meta-dataset/
+ssh brando9@ampere4.stanford.edu
+
+krbtmux
+reauth
+source $AFS/.bashrc.lfs
+conda activate mds_env_gpu
+
+tmux new -s make_index_files
+tmux attach -t make_index_files
+# - make_index_files.sh (takes...a while according to patrick)
+#cd $HOME/pytorch-meta-dataset/
+cd $HOME/diversity-for-predictive-success-of-meta-learning/pytorch-meta-dataset/
 chmod +x make_index_files.sh
 ./make_index_files.sh
 

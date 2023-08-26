@@ -20,7 +20,7 @@ from uutils import get_truly_random_seed_through_os
 
 from uutils.torch_uu import replace_bn
 
-# from meta_learning.training.meta_training import meta_train, meta_eval, meta_train_epochs
+# from meta_learning.training.meta_training import meta_train, do_eval, meta_train_epochs
 from meta_learning.training.supervised_training import supervised_train
 
 from meta_learning.datasets.mini_imagenet import ImageNet, MetaImageNet
@@ -293,10 +293,10 @@ def main(args):
     # -- Meta-learner
     if args.meta_learner == 'maml_fixed_inner_lr':
         args.grad_clip_rate = None
-        meta_learner = MAMLMetaLearner(args, args.base_model, fo=args.fo, lr_inner=args.inner_lr)
+        meta_learner = MAMLMetaLearner(args, args.base_model, fo=args.fo, inner_lr=args.inner_lr)
     elif args.meta_learner == 'meta_lstm':
         # args.grad_clip_rate = 0.25
-        # meta_learner = MetaTrainableLstmOptimizer(args.base_model, args.lr_inner)
+        # meta_learner = MetaTrainableLstmOptimizer(args.base_model, args.inner_lr)
         # Gradient clipping params
         # args.grad_clip_rate = 0.25
         # args.grad_clip_mode = 'clip_all_together'

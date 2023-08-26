@@ -2,7 +2,6 @@
 Main script to set up supervised learning experiments
 """
 
-
 import torch
 import torch.multiprocessing as mp
 
@@ -10,14 +9,13 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Optional
 
-
 from uutils import args_hardcoded_in_script, report_times
 from uutils.argparse_uu.common import setup_args_for_experiment
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.agents.supervised_learning import ClassificationSLAgent, UnionClsSLAgent
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
-#from uutils.torch_uu.dataloaders.helpers import get_sl_dataloader
+# from uutils.torch_uu.dataloaders.helpers import get_sl_dataloader
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
     print_dist
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
@@ -30,7 +28,6 @@ from torch import nn
 from diversity_src.dataloaders.metadataset_batch_loader import get_mds_batch_args, get_mds_loader
 
 
-
 def manual_load(args: Namespace) -> Namespace:
     """
     Warning: hardcoding the args can make it harder to reproduce later in a main.sh script with the
@@ -38,7 +35,8 @@ def manual_load(args: Namespace) -> Namespace:
     """
     raise ValueError(f'Not implemented')
 
-#follow hdb1 https://github.com/brando90/diversity-for-predictive-success-of-meta-learning/blob/c76f1df5c3afaa278079c27703a38b25ac5d4c1d/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py
+
+# follow hdb1 https://github.com/brando90/diversity-for-predictive-success-of-meta-learning/blob/c76f1df5c3afaa278079c27703a38b25ac5d4c1d/div_src/diversity_src/experiment_mains/main_sl_with_ddp.py
 def load_args() -> Namespace:
     """
     1. parse args from user's terminal
@@ -47,15 +45,15 @@ def load_args() -> Namespace:
     """
     # -- parse args from terminal
     args: Namespace = get_mds_batch_args()
-    args.sources = ['vgg_flower','aircraft']
-    args.n_classes = 141 #see https://github.com/google-research/meta-dataset 70 aircraft 71 vgg_flower
+    args.sources = ['vgg_flower', 'aircraft']
+    args.n_classes = 141  # see https://github.com/google-research/meta-dataset 70 aircraft 71 vgg_flower
     args.model_hps = dict(num_classes=args.n_classes)
     args.data_option = 'MDS'
     args.args_hardcoded_in_script = True  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'resnet12_rfs_cifarfs'  # <- REMOVE to remove manual loads
     # args.manual_loads_name = 'manual_load_cifarfs_resnet12rfs_train_until_convergence'  # <- REMOVE to remove manual loads
-    args.model_option = 'resnet12_rfs'#'resnet12_rfs'
-    #args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_classes)
+    args.model_option = 'resnet12_rfs'  # 'resnet12_rfs'
+    # args.model_hps = dict(avg_pool=True, drop_rate=0.1, dropblock_size=5, num_classes=args.n_classes)
 
     args.opt_option = 'Adam_rfs_cifarfs'
     args.num_epochs = 1000
@@ -65,10 +63,10 @@ def load_args() -> Namespace:
 
     args.lr = 1e-3
     args.opt_hps: dict = dict(lr=args.lr)
-    #args.model_hps = {'num_classes': 3144}
+    # args.model_hps = {'num_classes': 3144}
 
-    #no need scheduler
-    args.scheduler_option = 'None'#'Adam_cosine_scheduler_rfs_cifarfs'
+    # no need scheduler
+    args.scheduler_option = 'None'  # 'Adam_cosine_scheduler_rfs_cifarfs'
     args.log_scheduler_freq = 1
     args.T_max = args.num_epochs // args.log_scheduler_freq
     args.eta_min = 1e-5  # coincidentally, matches MAML++
@@ -78,7 +76,7 @@ def load_args() -> Namespace:
     args.training_mode = 'iterations'
     # args.training_mode = 'fit_single_batc
 
-    args.debug=True
+    args.debug = True
 
     args.log_freq = 1
 
@@ -138,9 +136,9 @@ def train(rank, args):
     print(f'setup process done for rank={rank}')
 
     # create the (ddp) model, opt & scheduler
-    #args.model_hps = {'n_classes' : 4934}
+    # args.model_hps = {'n_classes' : 4934}
     get_and_create_model_opt_scheduler_for_run(args)
-    #args.model.cls.out_features = 4934
+    # args.model.cls.out_features = 4934
     print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
 
     args.dataloaders = get_mds_loader(args)

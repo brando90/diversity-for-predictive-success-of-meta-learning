@@ -15,9 +15,11 @@ from torch import nn
 from torch.utils.data import Dataset
 
 from diversity_src.dataloaders.hdb1_mi_omniglot_l2l import get_mi_and_omniglot_list_data_set_splits
+from uutils.torch_uu.dataloaders.usl.usl_dataloaders import get_len_labels_list_datasets
 from uutils.torch_uu.dataset.concate_dataset import ConcatDatasetMutuallyExclusiveLabels
 
 
+# didn't move it to uutils since it will require me to change other code todo perhaps later
 def hdb1_mi_omniglot_usl_all_splits_dataloaders(
         args: Namespace,
         root: str = '~/data/l2l_data/',
@@ -42,13 +44,13 @@ def hdb1_mi_omniglot_usl_all_splits_dataloaders(
     assert get_len_labels_list_datasets(dataset_list_train) == 64 + 1100
     assert get_len_labels_list_datasets(dataset_list_validation) == 16 + 100
     assert get_len_labels_list_datasets(dataset_list_test) == 20 + 423
-    # -
-    train_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_train)
-    valid_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_validation)
-    test_dataset: Dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_test)
-    assert len(train_dataset.labels) == 64 + 1100, f'Err:\n{len(train_dataset.labels)=}'
-    assert len(valid_dataset.labels) == 16 + 100, f'Err:\n{len(valid_dataset.labels)=}'
-    assert len(test_dataset.labels) == 20 + 423, f'Err:\n{len(test_dataset.labels)=}'
+    # - concat l2l datasets to get usl single dataset
+    relabel_filename: str = 'hdb1_train_relabel_usl.pt'
+    train_dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_train, root, relabel_filename)
+    relabel_filename: str = 'hdb1_val_relabel_usl.pt'
+    valid_dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_validation, root, relabel_filename)
+    relabel_filename: str = 'hdb1_test_relabel_usl.pt'
+    test_dataset = ConcatDatasetMutuallyExclusiveLabels(dataset_list_test, root, relabel_filename)
     # - get data loaders, see the usual data loader you use
     from uutils.torch_uu.dataloaders.common import get_serial_or_distributed_dataloaders
     train_loader, val_loader = get_serial_or_distributed_dataloaders(
@@ -74,15 +76,6 @@ def hdb1_mi_omniglot_usl_all_splits_dataloaders(
     return dataloaders
 
 
-def get_len_labels_list_datasets(datasets: list[Dataset], verbose: bool = False) -> int:
-    if verbose:
-        print('--- get_len_labels_list_datasets')
-        print([len(dataset.labels) for dataset in datasets])
-        print([dataset.labels for dataset in datasets])
-        print('--- get_len_labels_list_datasets')
-    return sum([len(dataset.labels) for dataset in datasets])
-
-
 # - tests
 
 def loop_through_usl_hdb1_and_pass_data_through_mdl():
@@ -105,11 +98,16 @@ def loop_through_usl_hdb1_and_pass_data_through_mdl():
 
     # - loop through tasks
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
-    from models import get_model
     # model = get_model('resnet18', pretrained=False, num_classes=n_train_cls).to(device)
     # model = get_model('resnet18', pretrained=True, num_classes=n_train_cls).to(device)
-    from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_mi
-    model, _ = get_resnet_rfs_model_mi('resnet12_hdb1_mio', num_classes=n_train_cls)
+    # from uutils.torch_uu.models.resnet_rfs import get_resnet_rfs_model_mi
+    # model, _ = get_resnet_rfs_model_mi('resnet12_rfs', num_classes=n_train_cls)
+    from uutils.torch_uu.models.learner_from_opt_as_few_shot_paper import get_default_learner_and_hps_dict
+    args.model, args.model_hps = get_default_learner_and_hps_dict()
+    # - get model
+    model = args.model
+    model.to(device)
+    from torch import nn
     criterion = nn.CrossEntropyLoss()
     for split, dataloader in dataloaders.items():
         print(f'-- {split=}')
@@ -123,8 +121,9 @@ def loop_through_usl_hdb1_and_pass_data_through_mdl():
             print(f'{y=}')
 
             y_pred = model(X)
-            loss = criterion(y_pred, y)
-            print(f'{loss=}')
+            print(f'{y_pred.size()=}')
+            # loss = criterion(y_pred, y)
+            # print(f'{loss=}')
             print()
             break
     print('-- end of test --')

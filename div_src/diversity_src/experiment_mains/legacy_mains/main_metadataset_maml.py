@@ -12,7 +12,7 @@ from uutils.argparse_uu.meta_learning import parse_args_meta_learning, fix_for_b
 from uutils.argparse_uu.supervised_learning import make_args_from_supervised_learning_checkpoint, parse_args_standard_sl
 from uutils.torch_uu.agents.common import Agent
 from uutils.torch_uu.checkpointing_uu import resume_from_checkpoint
-from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloader
+from uutils.torch_uu.dataloaders.meta_learning.helpers import get_meta_learning_dataloaders
 from uutils.torch_uu.distributed import set_sharing_strategy, print_process_info, set_devices, setup_process, cleanup, \
     print_dist
 from uutils.torch_uu.mains.common import get_and_create_model_opt_scheduler_for_run
@@ -28,7 +28,7 @@ from uutils.torch_uu.training.supervised_learning import train_agent_fit_single_
 from pathlib import Path
 
 
-from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_args, get_mds_loader
+from diversity_src.dataloaders.metadataset_episodic_loader import get_mds_args, get_mds_loaders
 
 
 def manual_load_mds_resnet12_maml_adam_no_scheduler(args: Namespace) -> Namespace:
@@ -152,7 +152,7 @@ def train(rank, args):
     print_dist(f"{args.model=}\n{args.opt=}\n{args.scheduler=}", args.rank)
 
     # create the dataloaders, this goes first so you can select the mdl (e.g. final layer) based on task
-    args.dataloaders: dict = get_mds_loader(args)
+    args.dataloaders: dict = get_mds_loaders(args)
 
     # Agent does everything, proving, training, evaluate, meta-learnering, etc.
     args.agent = MAMLMetaLearner(args, args.model)
