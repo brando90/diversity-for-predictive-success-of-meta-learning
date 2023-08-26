@@ -3718,7 +3718,7 @@ def hdb12_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         args.world_size = torch.cuda.device_count()
         # args.world_size = 8
         args.parallel = args.world_size > 1
-        args.seed = 42  # I think this might be important due to how tasksets works.
+        # args.seed = 42  # I think this might be important due to how tasksets works.
         args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
         # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
         # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -3808,7 +3808,7 @@ def hdb13_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         args.world_size = torch.cuda.device_count()
         # args.world_size = 8
         args.parallel = args.world_size > 1
-        args.seed = 42  # I think this might be important due to how tasksets works.
+        # args.seed = 42  # I think this might be important due to how tasksets works.
         args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
         # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
         # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -3898,7 +3898,7 @@ def hdb14_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         args.world_size = torch.cuda.device_count()
         # args.world_size = 8
         args.parallel = args.world_size > 1
-        args.seed = 42  # I think this might be important due to how tasksets works.
+        # args.seed = 42  # I think this might be important due to how tasksets works.
         args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
         # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
         # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -3988,7 +3988,7 @@ def hdb15_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         args.world_size = torch.cuda.device_count()
         # args.world_size = 8
         args.parallel = args.world_size > 1
-        args.seed = 42  # I think this might be important due to how tasksets works.
+        # args.seed = 42  # I think this might be important due to how tasksets works.
         args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
         # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
         # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -4078,7 +4078,7 @@ def hdb16_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         args.world_size = torch.cuda.device_count()
         # args.world_size = 8
         args.parallel = args.world_size > 1
-        args.seed = 42  # I think this might be important due to how tasksets works.
+        # args.seed = 42  # I think this might be important due to how tasksets works.
         args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
         # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
         # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -4168,7 +4168,7 @@ def hdb17_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         args.world_size = torch.cuda.device_count()
         # args.world_size = 8
         args.parallel = args.world_size > 1
-        args.seed = 42  # I think this might be important due to how tasksets works.
+        # args.seed = 42  # I think this might be important due to how tasksets works.
         args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
         # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
         # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -4258,7 +4258,7 @@ def hdb18_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         args.world_size = torch.cuda.device_count()
         # args.world_size = 8
         args.parallel = args.world_size > 1
-        args.seed = 42  # I think this might be important due to how tasksets works.
+        # args.seed = 42  # I think this might be important due to how tasksets works.
         args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
         # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
         # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -4348,7 +4348,7 @@ def hdb19_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         args.world_size = torch.cuda.device_count()
         # args.world_size = 8
         args.parallel = args.world_size > 1
-        args.seed = 42  # I think this might be important due to how tasksets works.
+        # args.seed = 42  # I think this might be important due to how tasksets works.
         args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
         # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
         # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -4438,7 +4438,7 @@ def hdb20_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         args.world_size = torch.cuda.device_count()
         # args.world_size = 8
         args.parallel = args.world_size > 1
-        args.seed = 42  # I think this might be important due to how tasksets works.
+        # args.seed = 42  # I think this might be important due to how tasksets works.
         args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
         # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
         # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
@@ -4528,7 +4528,7 @@ def hdb21_resnet_maml_adam_no_scheduler_train_to_convergence(args: Namespace) ->
         args.world_size = torch.cuda.device_count()
         # args.world_size = 8
         args.parallel = args.world_size > 1
-        args.seed = 42  # I think this might be important due to how tasksets works.
+        # args.seed = 42  # I think this might be important due to how tasksets works.
         args.dist_option = 'l2l_dist'  # avoid moving to ddp when using l2l
         # args.init_method = 'tcp://localhost:10001'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
         # args.init_method = f'tcp://127.0.0.1:{find_free_port()}'  # <- this cannot be hardcoded here it HAS to be given as an arg due to how torch.run works
